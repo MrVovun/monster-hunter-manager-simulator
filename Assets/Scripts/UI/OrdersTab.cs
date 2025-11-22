@@ -1,4 +1,5 @@
-using System.Collections.Generic;
+using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,7 +10,7 @@ public class OrdersTab : MonoBehaviour
     [SerializeField] private GameObject orderItemPrefab;
     [SerializeField] private OrderDetailPanel orderDetailPanel;
     
-    private List<Order> activeOrders = new List<Order>();
+    private System.Collections.Generic.List<Order> activeOrders = new System.Collections.Generic.List<Order>();
     private Order selectedOrder;
     
     private void Awake()
@@ -84,7 +85,7 @@ public class OrderListItem : MonoBehaviour
 {
     private Order order;
     private OrdersTab parentTab;
-    private Text orderText;
+    private TMP_Text orderText;
     private Button button;
     
     public void Initialize(Order order, OrdersTab tab)
@@ -102,13 +103,12 @@ public class OrderListItem : MonoBehaviour
         button.onClick.AddListener(OnClicked);
         
         // Find or create text
-        orderText = GetComponentInChildren<Text>();
+        orderText = GetComponentInChildren<TMP_Text>();
         if (orderText == null)
         {
             GameObject textObj = new GameObject("OrderText");
             textObj.transform.SetParent(transform, false);
-            orderText = textObj.AddComponent<Text>();
-            orderText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            orderText = textObj.AddComponent<TextMeshProUGUI>();
             orderText.fontSize = 14;
             orderText.color = Color.white;
         }
@@ -129,4 +129,3 @@ public class OrderListItem : MonoBehaviour
         parentTab?.SelectOrder(order);
     }
 }
-

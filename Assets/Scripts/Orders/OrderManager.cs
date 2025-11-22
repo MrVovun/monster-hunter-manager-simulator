@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -7,6 +8,7 @@ public class OrderManager : MonoBehaviour
     [Header("Runtime Orders")]
     [SerializeField] private List<Order> offeredOrders = new List<Order>();
     [SerializeField] private List<Order> activeOrders = new List<Order>();
+    [SerializeField] private List<MissionReport> missionHistory = new List<MissionReport>();
 
     [Header("Referral Settings")]
     [SerializeField] private int referralPayout = 25;
@@ -14,6 +16,8 @@ public class OrderManager : MonoBehaviour
     private OrderGenerator orderGenerator;
     private MissionResolver missionResolver;
     private TimeManager timeManager;
+
+    public Action<MissionReport> OnMissionResolved;
 
     public void Initialize(OrderGenerator generator, MissionResolver resolver, TimeManager timeMgr)
     {
@@ -25,6 +29,7 @@ public class OrderManager : MonoBehaviour
     public Order GenerateAndOfferOrder()
     {
         Order newOrder = orderGenerator != null ? orderGenerator.GenerateRandomOrder() : new Order();
+        newOrder.state = OrderState.Offered;
         offeredOrders.Add(newOrder);
         return newOrder;
     }
@@ -125,8 +130,12 @@ public class OrderManager : MonoBehaviour
         {
             report = missionResolver.ResolveMission(order, order.assignedHunters);
         }
+        else
+        {
+            report = new MissionReport { order = order, success = true, goldEarned = order.goldReward };
+        }
 
-        bool success = report != null ? report.success : true;
+        bool success = report.success;
         order.state = success ? OrderState.Completed : OrderState.Failed;
 
         // Return surviving hunters to idle
@@ -139,6 +148,12 @@ public class OrderManager : MonoBehaviour
         }
 
         activeOrders.Remove(order);
+
+        if (report != null)
+        {
+            missionHistory.Add(report);
+            OnMissionResolved?.Invoke(report);
+        }
     }
 
     private void CleanupPrepTimer(Order order)
@@ -173,5 +188,10 @@ public class OrderManager : MonoBehaviour
     public List<Order> GetOfferedOrders()
     {
         return new List<Order>(offeredOrders);
+    }
+
+    public List<MissionReport> GetMissionHistory()
+    {
+        return new List<MissionReport>(missionHistory);
     }
 }

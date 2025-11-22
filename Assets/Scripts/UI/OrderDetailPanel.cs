@@ -1,14 +1,14 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class OrderDetailPanel : MonoBehaviour
 {
     [Header("UI")]
-    [SerializeField] private Text titleText;
-    [SerializeField] private Text descriptionText;
-    [SerializeField] private Text statsText;
-    [SerializeField] private Text partyInfoText;
+    [SerializeField] private TMP_Text titleText;
+    [SerializeField] private TMP_Text descriptionText;
+    [SerializeField] private TMP_Text statsText;
+    [SerializeField] private TMP_Text partyInfoText;
 
     [Header("Systems")]
     [SerializeField] private PartyFormation partyFormation;
@@ -56,10 +56,37 @@ public class OrderDetailPanel : MonoBehaviour
 
         if (manager == null || !manager.StartMission(currentOrder, party))
         {
-            Debug.LogWarning("Failed to start mission. Check party size/state.");
+            UnityEngine.Debug.LogWarning("Failed to start mission. Check party size/state.");
             return;
         }
 
+        UpdateUI();
+    }
+
+    // Helper: auto-fill with idle hunters up to max party size
+    public void AutoFillParty()
+    {
+        if (partyFormation == null || currentOrder == null) return;
+
+        HunterManager hunterManager = GameManager.Instance != null ? GameManager.Instance.GetHunterManager() : null;
+        if (hunterManager == null) return;
+
+        partyFormation.ClearParty();
+
+        var available = hunterManager.GetAvailableHunters();
+        int needed = Mathf.Min(currentOrder.maxPartySize, available.Count);
+        for (int i = 0; i < needed; i++)
+        {
+            partyFormation.AddHunter(available[i]);
+        }
+
+        UpdateUI();
+    }
+
+    public void ClearParty()
+    {
+        if (partyFormation == null) return;
+        partyFormation.ClearParty();
         UpdateUI();
     }
 }

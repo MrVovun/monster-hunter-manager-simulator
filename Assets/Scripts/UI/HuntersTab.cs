@@ -1,6 +1,6 @@
 using System.Text;
+using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class HuntersTab : MonoBehaviour
 {
@@ -14,7 +14,7 @@ public class HuntersTab : MonoBehaviour
 
         foreach (Transform child in listParent)
         {
-            Destroy(child.gameObject);
+            Object.Destroy(child.gameObject);
         }
 
         foreach (var hunter in manager.GetAllHunters())
@@ -24,19 +24,36 @@ public class HuntersTab : MonoBehaviour
         }
     }
 
+    public void PayAndLevelUpAffordable()
+    {
+        HunterManager manager = GameManager.Instance != null ? GameManager.Instance.GetHunterManager() : null;
+        GoldManager gold = GameManager.Instance != null ? GameManager.Instance.GetGoldManager() : null;
+        if (manager == null || gold == null) return;
+
+        foreach (var hunter in manager.GetAllHunters())
+        {
+            if (hunter != null && hunter.CanLevelUp())
+            {
+                manager.TryPayLevelUp(hunter, gold);
+            }
+        }
+
+        Refresh();
+    }
+
     private void CreateItem(Hunter hunter)
     {
         GameObject item = textItemPrefab != null
-            ? Instantiate(textItemPrefab, listParent)
+            ? Object.Instantiate(textItemPrefab, listParent)
             : new GameObject("HunterItem");
 
         item.transform.SetParent(listParent, false);
-        Text text = item.GetComponent<Text>();
+        TMP_Text text = item.GetComponent<TMP_Text>();
         if (text == null)
         {
-            text = item.AddComponent<Text>();
-            text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            text = item.AddComponent<TextMeshProUGUI>();
             text.color = Color.white;
+            text.fontSize = 14;
         }
 
         var stats = hunter.GetStats();

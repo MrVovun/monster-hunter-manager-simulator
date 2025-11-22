@@ -159,4 +159,33 @@ public class HunterManager : MonoBehaviour
     {
         UpdateAvailableHunters();
     }
+
+    public int CalculateDailyUpkeep()
+    {
+        int total = 0;
+        foreach (var hunter in activeHunters)
+        {
+            if (hunter != null && hunter.GetState() != HunterState.Dead && hunter.GetHunterData() != null)
+            {
+                total += hunter.GetHunterData().dailyUpkeepCost;
+            }
+        }
+        return total;
+    }
+
+    public bool PayUpkeep(GoldManager goldManager)
+    {
+        if (goldManager == null) return false;
+        int cost = CalculateDailyUpkeep();
+        return goldManager.SpendGold(cost);
+    }
+
+    public bool TryPayLevelUp(Hunter hunter, GoldManager goldManager)
+    {
+        if (hunter == null || goldManager == null) return false;
+        if (!hunter.CanLevelUp()) return false;
+        int cost = hunter.GetLevelUpCost();
+        if (!goldManager.SpendGold(cost)) return false;
+        return hunter.LevelUp();
+    }
 }

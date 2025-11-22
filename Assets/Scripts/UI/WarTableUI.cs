@@ -93,4 +93,3 @@ public class WarTableUI : MonoBehaviour
         gameObject.SetActive(false);
     }
 }
-
