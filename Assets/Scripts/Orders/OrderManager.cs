@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -17,7 +16,7 @@ public class OrderManager : MonoBehaviour
     private MissionResolver missionResolver;
     private TimeManager timeManager;
 
-    public Action<MissionReport> OnMissionResolved;
+    public System.Action<MissionReport> OnMissionResolved;
 
     public void Initialize(OrderGenerator generator, MissionResolver resolver, TimeManager timeMgr)
     {
@@ -118,6 +117,7 @@ public class OrderManager : MonoBehaviour
         order.state = OrderState.Expired;
         CleanupTimers(order);
         activeOrders.Remove(order);
+        order.assignedHunters.Clear();
     }
 
     public void ResolveOrder(Order order)
@@ -148,6 +148,7 @@ public class OrderManager : MonoBehaviour
         }
 
         activeOrders.Remove(order);
+        order.assignedHunters.Clear();
 
         if (report != null)
         {

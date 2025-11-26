@@ -9,6 +9,7 @@ public class OrderDetailPanel : MonoBehaviour
     [SerializeField] private TMP_Text descriptionText;
     [SerializeField] private TMP_Text statsText;
     [SerializeField] private TMP_Text partyInfoText;
+    [SerializeField] private TMP_Text timerText;
 
     [Header("Systems")]
     [SerializeField] private PartyFormation partyFormation;
@@ -45,6 +46,20 @@ public class OrderDetailPanel : MonoBehaviour
             var chance = partyFormation.CalculateSuccessChance();
             partyInfoText.text = $"Party: {partyFormation.GetPartySize()}/{partyFormation.GetMaxPartySize()}  Success: {chance:0}%";
         }
+
+        if (timerText != null)
+        {
+            string timerLine = string.Empty;
+            if (currentOrder.missionTimer != null)
+            {
+                timerLine = $"Mission: {currentOrder.missionTimer.GetFormattedRemainingTime()}";
+            }
+            else if (currentOrder.prepTimer != null)
+            {
+                timerLine = $"Prep: {currentOrder.prepTimer.GetFormattedRemainingTime()}";
+            }
+            timerText.text = timerLine;
+        }
     }
 
     public void OnSendParty()
@@ -60,6 +75,7 @@ public class OrderDetailPanel : MonoBehaviour
             return;
         }
 
+        partyFormation.ClearParty();
         UpdateUI();
     }
 

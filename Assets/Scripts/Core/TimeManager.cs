@@ -9,9 +9,17 @@ public class TimeManager : MonoBehaviour
     
     private float gameTimeInSeconds = 0f; // Total game time elapsed
     private List<MissionTimer> activeTimers = new List<MissionTimer>();
+    private int currentDayIndex = 0; // Day 0 at game start
     
     public delegate void TimeUpdateDelegate(float gameTimeDelta);
     public event TimeUpdateDelegate OnTimeUpdate;
+    public event System.Action<int> OnDayStarted; // Fires with day index (0-based)
+
+    private void Start()
+    {
+        // Fire day 0 start so systems can run once at beginning
+        OnDayStarted?.Invoke(currentDayIndex);
+    }
     
     private void Update()
     {
@@ -27,17 +35,27 @@ public class TimeManager : MonoBehaviour
         {
             if (activeTimers[i] != null)
             {
-                activeTimers[i].Update(gameDeltaTime);
+                var timer = activeTimers[i];
+                timer.Update(gameDeltaTime);
                 
-                if (activeTimers[i].IsExpired())
+                if (timer.IsExpired())
                 {
-                    activeTimers[i].OnExpired?.Invoke();
+                    // Remove first to avoid re-entrancy double-removal
                     activeTimers.RemoveAt(i);
+                    timer.OnExpired?.Invoke();
                 }
             }
         }
         
         OnTimeUpdate?.Invoke(gameDeltaTime);
+
+        // Check day rollover (1 day = 86400 game seconds)
+        int newDayIndex = Mathf.FloorToInt(gameTimeInSeconds / 86400f);
+        if (newDayIndex > currentDayIndex)
+        {
+            currentDayIndex = newDayIndex;
+            OnDayStarted?.Invoke(currentDayIndex);
+        }
     }
     
     public void RegisterTimer(MissionTimer timer)
@@ -101,6 +119,11 @@ public class TimeManager : MonoBehaviour
         
         return string.Format("{0:00}:{1:00}:{2:00}", hours, minutes, seconds);
     }
+
+    public int GetCurrentDayIndex()
+    {
+        return currentDayIndex;
+    }
 }
 
 // Timer class for mission countdowns
@@ -146,4 +169,3 @@ public class MissionTimer
         return string.Format("{0:00}:{1:00}", minutes, seconds);
     }
 }
-

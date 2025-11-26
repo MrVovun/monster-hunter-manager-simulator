@@ -41,13 +41,14 @@ public class FirstPersonController : MonoBehaviour
     {
         if (isMovementLocked) return;
         
-        // Try to read input if callbacks aren't set up (fallback)
-        ReadInput();
+        // Always read keyboard fallback to clear stale input when actions aren't wired
+        ReadInputFallback();
         
         HandleMovement();
         HandleLook();
         
-        // Reset look input after processing (for mouse delta)
+        // Reset inputs after processing to avoid sticky values when callbacks aren't firing
+        moveInput = Vector2.zero;
         lookInput = Vector2.zero;
     }
     
@@ -83,11 +84,9 @@ public class FirstPersonController : MonoBehaviour
         lookInput = context.ReadValue<Vector2>();
     }
     
-    // Alternative: Read directly from Input System (fallback if Input Actions aren't connected)
-    private void ReadInput()
+    // Always read keyboard fallback (works even if Input Actions aren't connected)
+    private void ReadInputFallback()
     {
-        // Only use fallback if Input Actions callbacks haven't set values
-        // This allows both systems to work
         if (Keyboard.current != null)
         {
             Vector2 move = Vector2.zero;
@@ -95,21 +94,13 @@ public class FirstPersonController : MonoBehaviour
             if (Keyboard.current.sKey.isPressed) move.y -= 1;
             if (Keyboard.current.aKey.isPressed) move.x -= 1;
             if (Keyboard.current.dKey.isPressed) move.x += 1;
-            
-            // Only override if no callback value was set
-            if (moveInput == Vector2.zero && move != Vector2.zero)
-            {
-                moveInput = move;
-            }
+            moveInput = move;
         }
-        
+
         if (Mouse.current != null)
         {
             Vector2 mouseDelta = Mouse.current.delta.ReadValue();
-            if (mouseDelta != Vector2.zero)
-            {
-                lookInput += mouseDelta * mouseSensitivity * 0.01f; // Accumulate mouse delta
-            }
+            lookInput += mouseDelta * mouseSensitivity * 0.01f; // Accumulate mouse delta
         }
     }
     
@@ -129,4 +120,3 @@ public class FirstPersonController : MonoBehaviour
         return isMovementLocked;
     }
 }
-

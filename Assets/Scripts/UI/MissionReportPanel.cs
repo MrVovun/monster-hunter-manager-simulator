@@ -11,15 +11,20 @@ public class MissionReportPanel : MonoBehaviour
     [SerializeField] private TMP_Text casualtiesText;
 
     private OrderManager trackedManager;
+    private CursorLockMode previousLockState;
+    private bool previousCursorVisible;
 
     private void OnEnable()
     {
+        RememberCursor();
+        UnlockCursor();
         Subscribe();
     }
 
     private void OnDisable()
     {
         Unsubscribe();
+        RestoreCursor();
     }
 
     private void Subscribe()
@@ -108,5 +113,24 @@ public class MissionReportPanel : MonoBehaviour
         {
             root.SetActive(false);
         }
+        RestoreCursor();
+    }
+
+    private void RememberCursor()
+    {
+        previousLockState = Cursor.lockState;
+        previousCursorVisible = Cursor.visible;
+    }
+
+    private void UnlockCursor()
+    {
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
+
+    private void RestoreCursor()
+    {
+        Cursor.lockState = previousLockState;
+        Cursor.visible = previousCursorVisible;
     }
 }

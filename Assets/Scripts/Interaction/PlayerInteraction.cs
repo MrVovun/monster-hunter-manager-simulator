@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerInteraction : MonoBehaviour
 {
@@ -19,10 +20,22 @@ public class PlayerInteraction : MonoBehaviour
     {
         UpdateFocus();
 
-        if (Input.GetKeyDown(interactKey) && currentInteractable != null)
+        if (WasInteractPressed() && currentInteractable != null)
         {
             currentInteractable.Interact(this);
         }
+    }
+
+    private bool WasInteractPressed()
+    {
+        // Prefer new Input System if available
+        if (Keyboard.current != null)
+        {
+            return Keyboard.current[Key.E].wasPressedThisFrame;
+        }
+
+        // Fallback to old Input Manager
+        return Input.GetKeyDown(interactKey);
     }
 
     private void UpdateFocus()

@@ -31,6 +31,7 @@ public class GameManager : MonoBehaviour
 
         EnsureManagerRefs();
         InitializeManagers();
+        HookTimeEvents();
     }
 
     private void EnsureManagerRefs()
@@ -56,6 +57,26 @@ public class GameManager : MonoBehaviour
         goldManager.Initialize(startingGold);
         reputationManager.Initialize(startingReputation);
         orderManager.Initialize(orderGenerator, missionResolver, timeManager);
+    }
+
+    private void HookTimeEvents()
+    {
+        if (timeManager != null)
+        {
+            timeManager.OnDayStarted += HandleDayStarted;
+            // Pay once at startup to cover day 0
+            HandleDayStarted(timeManager.GetCurrentDayIndex());
+        }
+    }
+
+    private void HandleDayStarted(int dayIndex)
+    {
+        if (hunterManager == null || goldManager == null) return;
+        bool paid = hunterManager.PayUpkeep(goldManager);
+        if (!paid)
+        {
+            Debug.LogWarning($"Day {dayIndex}: Unable to pay upkeep (gold too low)." );
+        }
     }
 
     public OrderManager GetOrderManager() => orderManager;

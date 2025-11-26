@@ -12,16 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 155ec2172406e054ca92e4ea9b6cbd3a, type: 3}
   m_Name: H_Rori
   m_EditorClassIdentifier: Assembly-CSharp::HunterData
-  hunterName: 
+  hunterName: Rori
   hunterClass: 2
   rarity: 1
   basePower: 10
   baseDefense: 10
   baseResolve: 10
-  traits: []
+  traits:
+  - {fileID: 11400000, guid: 2659e8d4d076c184991a442585b3eb68, type: 2}
   dailyUpkeepCost: 10
   startingLevel: 1
   startingXP: 0
   xpPerLevel: 100
-  minReputation: 0
-  portrait: {fileID: 0}
+  minReputation: 1
+  portrait: {fileID: 21300000, guid: 6adf6e044478dae47a180815a6942faf, type: 3}

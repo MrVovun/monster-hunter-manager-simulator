@@ -10,10 +10,14 @@ public class OrderOfferPanel : MonoBehaviour
     [SerializeField] private TMP_Text statsText;
 
     private Order currentOrder;
+    private CursorLockMode previousLockState;
+    private bool previousCursorVisible;
 
     public void Show(Order order)
     {
         currentOrder = order;
+        RememberCursor();
+        UnlockCursor();
         SetRootActive(true);
         UpdateUI();
     }
@@ -22,6 +26,7 @@ public class OrderOfferPanel : MonoBehaviour
     {
         SetRootActive(false);
         currentOrder = null;
+        RestoreCursor();
     }
 
     private void SetRootActive(bool active)
@@ -85,5 +90,23 @@ public class OrderOfferPanel : MonoBehaviour
             manager.ReferOrder(currentOrder);
         }
         Hide();
+    }
+
+    private void RememberCursor()
+    {
+        previousLockState = Cursor.lockState;
+        previousCursorVisible = Cursor.visible;
+    }
+
+    private void UnlockCursor()
+    {
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
+
+    private void RestoreCursor()
+    {
+        Cursor.lockState = previousLockState;
+        Cursor.visible = previousCursorVisible;
     }
 }

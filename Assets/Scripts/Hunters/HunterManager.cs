@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using UnityEngine.AI;
 
 public class HunterManager : MonoBehaviour
 {
@@ -16,6 +17,8 @@ public class HunterManager : MonoBehaviour
     
     private List<Hunter> activeHunters = new List<Hunter>();
     private int nextSeatIndex = 0;
+    private bool navMeshChecked = false;
+    private bool navMeshAvailable = false;
     
     private void Awake()
     {
@@ -34,6 +37,10 @@ public class HunterManager : MonoBehaviour
         {
             FindIdleSeats();
         }
+
+        // Cache whether we have a NavMesh to avoid repeated warnings
+        navMeshAvailable = CheckNavMeshAvailable();
+        navMeshChecked = true;
     }
     
     private void Start()
@@ -44,11 +51,18 @@ public class HunterManager : MonoBehaviour
     
     private void FindIdleSeats()
     {
-        // Find all objects tagged as "HunterSeat" or named "HunterSeat"
-        GameObject[] seats = GameObject.FindGameObjectsWithTag("HunterSeat");
-        foreach (GameObject seat in seats)
+        // Find all objects tagged as "HunterSeat" if the tag exists
+        try
         {
-            idleSeats.Add(seat.transform);
+            GameObject[] seats = GameObject.FindGameObjectsWithTag("HunterSeat");
+            foreach (GameObject seat in seats)
+            {
+                idleSeats.Add(seat.transform);
+            }
+        }
+        catch (UnityException)
+        {
+            // Tag not defined; skip tag-based lookup
         }
         
         // Also search by name
@@ -112,8 +126,24 @@ public class HunterManager : MonoBehaviour
         {
             hunter = hunterObj.AddComponent<Hunter>();
         }
-        
+
+        // Disable NavMeshAgent if no navmesh is present to avoid warnings
+        if (hunterObj.TryGetComponent<NavMeshAgent>(out var agent))
+        {
+            if (!navMeshChecked)
+            {
+                navMeshAvailable = CheckNavMeshAvailable();
+                navMeshChecked = true;
+            }
+
+            if (!navMeshAvailable)
+            {
+                agent.enabled = false;
+            }
+        }
+
         hunter.Initialize(data);
+        hunterObj.name = data.hunterName; // Ensure name matches data
         activeHunters.Add(hunter);
         
         // Assign to a seat
@@ -187,5 +217,11 @@ public class HunterManager : MonoBehaviour
         int cost = hunter.GetLevelUpCost();
         if (!goldManager.SpendGold(cost)) return false;
         return hunter.LevelUp();
+    }
+
+    private bool CheckNavMeshAvailable()
+    {
+        // Try to sample near origin to see if a navmesh exists
+        return NavMesh.SamplePosition(Vector3.zero, out NavMeshHit _, 1000f, NavMesh.AllAreas);
     }
 }

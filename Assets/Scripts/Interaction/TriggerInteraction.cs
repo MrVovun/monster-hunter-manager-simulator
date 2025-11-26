@@ -7,6 +7,10 @@ public class TriggerInteraction : Interactable
     [Header("Trigger Settings")]
     public UnityEvent onTriggered;
     public Action<PlayerInteraction> onTriggeredAction; // For script-based triggers
+
+    [Header("Order Offer (optional)")]
+    [SerializeField] private bool generateOrderOnTrigger = false;
+    [SerializeField] private OrderOfferPanel orderOfferPanel;
     
     private void Awake()
     {
@@ -18,6 +22,11 @@ public class TriggerInteraction : Interactable
     public override void Interact(PlayerInteraction player)
     {
         OnInteractionStart(player);
+        
+        if (generateOrderOnTrigger)
+        {
+            TryGenerateAndShowOrder();
+        }
         
         // Invoke Unity Event
         if (onTriggered != null)
@@ -41,5 +50,20 @@ public class TriggerInteraction : Interactable
     {
         // Override in derived classes for specific trigger behavior
     }
-}
 
+    private void TryGenerateAndShowOrder()
+    {
+        OrderManager manager = GameManager.Instance != null ? GameManager.Instance.GetOrderManager() : null;
+        if (manager == null)
+        {
+            Debug.LogWarning("TriggerInteraction: No OrderManager found to generate order.");
+            return;
+        }
+
+        Order order = manager.GenerateAndOfferOrder();
+        if (orderOfferPanel != null)
+        {
+            orderOfferPanel.Show(order);
+        }
+    }
+}

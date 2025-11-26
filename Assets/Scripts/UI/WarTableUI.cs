@@ -22,6 +22,8 @@ public class WarTableUI : MonoBehaviour
     [SerializeField] private StatisticsTab statisticsTab;
     
     private int currentTabIndex = 0;
+    private CursorLockMode previousLockState;
+    private bool previousCursorVisible;
     
     private void Awake()
     {
@@ -49,7 +51,14 @@ public class WarTableUI : MonoBehaviour
     
     private void OnEnable()
     {
+        RememberCursor();
+        UnlockCursor();
         RefreshAllTabs();
+    }
+
+    private void OnDisable()
+    {
+        RestoreCursor();
     }
     
     public void SwitchTab(int tabIndex)
@@ -90,6 +99,25 @@ public class WarTableUI : MonoBehaviour
     
     public void CloseUI()
     {
+        RestoreCursor();
         gameObject.SetActive(false);
+    }
+
+    private void RememberCursor()
+    {
+        previousLockState = Cursor.lockState;
+        previousCursorVisible = Cursor.visible;
+    }
+
+    private void UnlockCursor()
+    {
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
+
+    private void RestoreCursor()
+    {
+        Cursor.lockState = previousLockState;
+        Cursor.visible = previousCursorVisible;
     }
 }

@@ -2,17 +2,11 @@ using UnityEngine;
 
 public class ReputationManager : MonoBehaviour
 {
-    [SerializeField] private int startingReputation = 0;
     private int currentReputation;
 
     public void Initialize(int startingValue)
     {
         currentReputation = startingValue;
-    }
-
-    private void Awake()
-    {
-        currentReputation = startingReputation;
     }
 
     public int GetReputation()
