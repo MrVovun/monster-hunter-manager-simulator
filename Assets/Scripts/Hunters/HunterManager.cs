@@ -20,6 +20,8 @@ public class HunterManager : MonoBehaviour
     private bool navMeshChecked = false;
     private bool navMeshAvailable = false;
     
+    public event System.Action OnHuntersChanged;
+    
     private void Awake()
     {
         if (hunterSpawnPoint == null)
@@ -148,6 +150,7 @@ public class HunterManager : MonoBehaviour
         
         // Assign to a seat
         AssignHunterToSeat(hunter);
+        NotifyHuntersChanged();
         
         return hunter;
     }
@@ -182,6 +185,7 @@ public class HunterManager : MonoBehaviour
         {
             activeHunters.Remove(hunter);
             Destroy(hunter.gameObject);
+            NotifyHuntersChanged();
         }
     }
     
@@ -216,12 +220,27 @@ public class HunterManager : MonoBehaviour
         if (!hunter.CanLevelUp()) return false;
         int cost = hunter.GetLevelUpCost();
         if (!goldManager.SpendGold(cost)) return false;
-        return hunter.LevelUp();
+        bool leveled = hunter.LevelUp();
+        if (leveled)
+        {
+            NotifyHuntersChanged();
+        }
+        return leveled;
     }
 
     private bool CheckNavMeshAvailable()
     {
         // Try to sample near origin to see if a navmesh exists
         return NavMesh.SamplePosition(Vector3.zero, out NavMeshHit _, 1000f, NavMesh.AllAreas);
+    }
+
+    private void NotifyHuntersChanged()
+    {
+        OnHuntersChanged?.Invoke();
+    }
+
+    public void NotifyRosterChanged()
+    {
+        NotifyHuntersChanged();
     }
 }

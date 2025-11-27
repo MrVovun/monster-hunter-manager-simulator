@@ -12,11 +12,23 @@ public class PartyFormation : MonoBehaviour
     public void Initialize(Order order)
     {
         currentOrder = order;
+        currentParty.Clear();
+        
         if (order != null)
         {
             maxPartySize = order.maxPartySize;
+
+            if (order.assignedHunters != null)
+            {
+                foreach (var hunter in order.assignedHunters)
+                {
+                    if (hunter != null && currentParty.Count < maxPartySize)
+                    {
+                        currentParty.Add(hunter);
+                    }
+                }
+            }
         }
-        currentParty.Clear();
     }
     
     public bool AddHunter(Hunter hunter)

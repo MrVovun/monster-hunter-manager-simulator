@@ -20,10 +20,23 @@ public class WarTableUI : MonoBehaviour
     [SerializeField] private HuntersTab huntersTab;
     [SerializeField] private EconomyTab economyTab;
     [SerializeField] private StatisticsTab statisticsTab;
+
+    [Header("Auto Refresh")]
+    [SerializeField] private float refreshIntervalSeconds = 0.5f;
+    private float refreshTimer = 0f;
     
     private int currentTabIndex = 0;
     private CursorLockMode previousLockState;
     private bool previousCursorVisible;
+    private bool ordersDirty;
+    private bool huntersDirty;
+    private bool economyDirty;
+    private bool statisticsDirty;
+
+    private OrderManager orderManager;
+    private HunterManager hunterManager;
+    private GoldManager goldManager;
+    private ReputationManager reputationManager;
     
     private void Awake()
     {
@@ -53,12 +66,33 @@ public class WarTableUI : MonoBehaviour
     {
         RememberCursor();
         UnlockCursor();
-        RefreshAllTabs();
+        SubscribeToDataSources();
+        MarkAllTabsDirty();
+        RefreshDirtyTabs();
+        refreshTimer = refreshIntervalSeconds;
+    }
+
+    private void Update()
+    {
+        if (!isActiveAndEnabled) return;
+
+        refreshTimer -= Time.unscaledDeltaTime;
+        if (refreshTimer <= 0f)
+        {
+            RefreshDirtyTabs();
+            refreshTimer = Mathf.Max(0.05f, refreshIntervalSeconds);
+        }
     }
 
     private void OnDisable()
     {
+        UnsubscribeFromDataSources();
         RestoreCursor();
+    }
+
+    private void OnDestroy()
+    {
+        UnsubscribeFromDataSources();
     }
     
     public void SwitchTab(int tabIndex)
@@ -91,16 +125,146 @@ public class WarTableUI : MonoBehaviour
     
     public void RefreshAllTabs()
     {
-        ordersTab?.Refresh();
-        huntersTab?.Refresh();
-        economyTab?.Refresh();
-        statisticsTab?.Refresh();
+        MarkAllTabsDirty();
+        RefreshDirtyTabs();
     }
     
     public void CloseUI()
     {
         RestoreCursor();
+        Interactable.ReleaseActiveLock();
         gameObject.SetActive(false);
+    }
+
+    private void SubscribeToDataSources()
+    {
+        UnsubscribeFromDataSources();
+
+        if (GameManager.Instance == null) return;
+
+        orderManager = GameManager.Instance.GetOrderManager();
+        hunterManager = GameManager.Instance.GetHunterManager();
+        goldManager = GameManager.Instance.GetGoldManager();
+        reputationManager = GameManager.Instance.GetReputationManager();
+
+        if (orderManager != null)
+        {
+            orderManager.OnOrdersChanged += HandleOrdersChanged;
+        }
+
+        if (hunterManager != null)
+        {
+            hunterManager.OnHuntersChanged += HandleHuntersChanged;
+        }
+
+        if (goldManager != null)
+        {
+            goldManager.OnGoldChanged += HandleGoldChanged;
+        }
+
+        if (reputationManager != null)
+        {
+            reputationManager.OnReputationChanged += HandleReputationChanged;
+        }
+    }
+
+    private void UnsubscribeFromDataSources()
+    {
+        if (orderManager != null)
+        {
+            orderManager.OnOrdersChanged -= HandleOrdersChanged;
+            orderManager = null;
+        }
+
+        if (hunterManager != null)
+        {
+            hunterManager.OnHuntersChanged -= HandleHuntersChanged;
+            hunterManager = null;
+        }
+
+        if (goldManager != null)
+        {
+            goldManager.OnGoldChanged -= HandleGoldChanged;
+            goldManager = null;
+        }
+
+        if (reputationManager != null)
+        {
+            reputationManager.OnReputationChanged -= HandleReputationChanged;
+            reputationManager = null;
+        }
+    }
+
+    private void HandleOrdersChanged()
+    {
+        ordersDirty = true;
+        huntersDirty = true;
+        economyDirty = true;
+        statisticsDirty = true;
+        TryRefreshDirtyTabsImmediately();
+    }
+
+    private void HandleHuntersChanged()
+    {
+        huntersDirty = true;
+        economyDirty = true;
+        TryRefreshDirtyTabsImmediately();
+    }
+
+    private void HandleGoldChanged(int _)
+    {
+        economyDirty = true;
+        TryRefreshDirtyTabsImmediately();
+    }
+
+    private void HandleReputationChanged(int _)
+    {
+        economyDirty = true;
+        huntersDirty = true;
+        TryRefreshDirtyTabsImmediately();
+    }
+
+    private void MarkAllTabsDirty()
+    {
+        ordersDirty = true;
+        huntersDirty = true;
+        economyDirty = true;
+        statisticsDirty = true;
+    }
+
+    private void RefreshDirtyTabs()
+    {
+        if (ordersDirty)
+        {
+            ordersTab?.Refresh();
+            ordersDirty = false;
+        }
+
+        if (huntersDirty)
+        {
+            huntersTab?.Refresh();
+            huntersDirty = false;
+        }
+
+        if (economyDirty)
+        {
+            economyTab?.Refresh();
+            economyDirty = false;
+        }
+
+        if (statisticsDirty)
+        {
+            statisticsTab?.Refresh();
+            statisticsDirty = false;
+        }
+    }
+
+    private void TryRefreshDirtyTabsImmediately()
+    {
+        if (!isActiveAndEnabled) return;
+
+        RefreshDirtyTabs();
+        refreshTimer = Mathf.Max(0.05f, refreshIntervalSeconds);
     }
 
     private void RememberCursor()

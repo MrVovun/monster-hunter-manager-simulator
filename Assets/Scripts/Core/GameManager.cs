@@ -31,6 +31,7 @@ public class GameManager : MonoBehaviour
 
         EnsureManagerRefs();
         InitializeManagers();
+        HookManagerEvents();
         HookTimeEvents();
     }
 
@@ -57,6 +58,14 @@ public class GameManager : MonoBehaviour
         goldManager.Initialize(startingGold);
         reputationManager.Initialize(startingReputation);
         orderManager.Initialize(orderGenerator, missionResolver, timeManager);
+    }
+
+    private void HookManagerEvents()
+    {
+        if (reputationManager != null && hunterManager != null)
+        {
+            reputationManager.OnReputationChanged += hunterManager.OnReputationChanged;
+        }
     }
 
     private void HookTimeEvents()

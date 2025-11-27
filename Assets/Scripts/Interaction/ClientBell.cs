@@ -5,6 +5,8 @@ public class ClientBell : Interactable
     [SerializeField] private OrderOfferPanel orderOfferPanel;
     [SerializeField] private AudioSource bellAudio;
 
+    private PlayerInteraction pendingPlayerRelease;
+
     private void Reset()
     {
         interactionPrompt = "[E] Ring Bell";
@@ -28,6 +30,10 @@ public class ClientBell : Interactable
             if (orderOfferPanel != null)
             {
                 orderOfferPanel.Show(newOrder);
+                if (locksPlayer)
+                {
+                    BeginWaitingForOrderPanel(player);
+                }
             }
         }
         else
@@ -35,6 +41,54 @@ public class ClientBell : Interactable
             Debug.LogWarning("ClientBell: No OrderManager found.");
         }
 
-        OnInteractionEnd(player);
+        if (locksPlayer && pendingPlayerRelease == null)
+        {
+            pendingPlayerRelease = player;
+            RegisterLockRelease(ReleasePendingPlayerLock);
+        }
+
+        if (pendingPlayerRelease == null)
+        {
+            OnInteractionEnd(player);
+        }
+    }
+
+    private void BeginWaitingForOrderPanel(PlayerInteraction player)
+    {
+        pendingPlayerRelease = player;
+        orderOfferPanel.OnPanelHidden -= HandlePanelHidden;
+        orderOfferPanel.OnPanelHidden += HandlePanelHidden;
+        RegisterLockRelease(ReleasePendingPlayerLock);
+    }
+
+    private void HandlePanelHidden(OrderOfferPanel panel)
+    {
+        orderOfferPanel.OnPanelHidden -= HandlePanelHidden;
+        ReleasePendingPlayerLock();
+    }
+
+    public void ReleasePlayerLock()
+    {
+        ReleasePendingPlayerLock();
+    }
+
+    private void ReleasePendingPlayerLock()
+    {
+        if (pendingPlayerRelease != null)
+        {
+            OnInteractionEnd(pendingPlayerRelease);
+            pendingPlayerRelease = null;
+            ClearLockRelease(ReleasePendingPlayerLock);
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (orderOfferPanel != null)
+        {
+            orderOfferPanel.OnPanelHidden -= HandlePanelHidden;
+        }
+        ReleasePendingPlayerLock();
+        ClearLockRelease(ReleasePendingPlayerLock);
     }
 }

@@ -10,8 +10,16 @@ public class OrdersTab : MonoBehaviour
     [SerializeField] private GameObject orderItemPrefab;
     [SerializeField] private OrderDetailPanel orderDetailPanel;
     
+    [Header("Hunter Roster")]
+    [SerializeField] private Transform hunterRosterParent;
+    [SerializeField] private HunterRosterItem hunterRosterItemPrefab;
+    
     private System.Collections.Generic.List<Order> activeOrders = new System.Collections.Generic.List<Order>();
     private Order selectedOrder;
+    private readonly System.Collections.Generic.List<HunterRosterItem> rosterItems =
+        new System.Collections.Generic.List<HunterRosterItem>();
+    private HunterManager hunterManager;
+    private bool rosterDirty = true;
     
     private void Awake()
     {
@@ -19,11 +27,36 @@ public class OrdersTab : MonoBehaviour
         {
             orderDetailPanel = GetComponentInChildren<OrderDetailPanel>();
         }
+        
+        if (orderDetailPanel != null)
+        {
+            orderDetailPanel.OnPartyChanged += RefreshHunterRosterStates;
+        }
+
+        hunterManager = GameManager.Instance != null ? GameManager.Instance.GetHunterManager() : null;
+        if (hunterManager != null)
+        {
+            hunterManager.OnHuntersChanged += HandleHuntersChanged;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (orderDetailPanel != null)
+        {
+            orderDetailPanel.OnPartyChanged -= RefreshHunterRosterStates;
+        }
+
+        if (hunterManager != null)
+        {
+            hunterManager.OnHuntersChanged -= HandleHuntersChanged;
+        }
     }
     
     public void Refresh()
     {
         UpdateOrdersList();
+        RefreshHunterRoster();
     }
     
     private void UpdateOrdersList()
@@ -72,11 +105,110 @@ public class OrdersTab : MonoBehaviour
         {
             orderDetailPanel.ShowOrder(order);
         }
+        RefreshHunterRosterStates();
     }
     
     public Order GetSelectedOrder()
     {
         return selectedOrder;
+    }
+
+    private void RefreshHunterRoster()
+    {
+        if (hunterRosterParent == null || hunterRosterItemPrefab == null) return;
+
+        if (rosterDirty)
+        {
+            foreach (Transform child in hunterRosterParent)
+            {
+                Destroy(child.gameObject);
+            }
+            rosterItems.Clear();
+
+            if (hunterManager == null)
+            {
+                hunterManager = GameManager.Instance != null ? GameManager.Instance.GetHunterManager() : null;
+            }
+
+            if (hunterManager != null)
+            {
+                foreach (var hunter in hunterManager.GetAllHunters())
+                {
+                    if (hunter == null) continue;
+                    if (hunter.GetState() == HunterState.Dead) continue;
+
+                    HunterRosterItem entry = Instantiate(hunterRosterItemPrefab, hunterRosterParent);
+                    entry.Initialize(hunter, this);
+                    rosterItems.Add(entry);
+                }
+            }
+
+            rosterDirty = false;
+        }
+        
+        RefreshHunterRosterStates();
+    }
+
+    private void RefreshHunterRosterStates()
+    {
+        bool anyItem = false;
+        foreach (var item in rosterItems)
+        {
+            if (item == null) continue;
+            item.Refresh();
+            anyItem = true;
+        }
+
+        if (anyItem)
+        {
+            ReorderRosterItems();
+        }
+    }
+
+    internal bool IsHunterSelectable(Hunter hunter)
+    {
+        if (orderDetailPanel == null) return false;
+        return orderDetailPanel.IsHunterSelectable(hunter);
+    }
+
+    internal bool IsHunterAssignedToParty(Hunter hunter)
+    {
+        if (orderDetailPanel == null) return false;
+        return orderDetailPanel.IsHunterAssigned(hunter);
+    }
+
+    private void ReorderRosterItems()
+    {
+        if (hunterRosterParent == null) return;
+
+        int insertIndex = 0;
+        foreach (var item in rosterItems)
+        {
+            if (item == null) continue;
+            if (!item.ShouldSortLast())
+            {
+                item.transform.SetSiblingIndex(insertIndex++);
+            }
+        }
+
+        foreach (var item in rosterItems)
+        {
+            if (item == null) continue;
+            if (item.ShouldSortLast())
+            {
+                item.transform.SetSiblingIndex(insertIndex++);
+            }
+        }
+    }
+
+    internal void ForceRosterStateRefresh()
+    {
+        RefreshHunterRosterStates();
+    }
+
+    private void HandleHuntersChanged()
+    {
+        rosterDirty = true;
     }
 }
 

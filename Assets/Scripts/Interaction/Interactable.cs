@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public abstract class Interactable : MonoBehaviour
@@ -7,7 +8,8 @@ public abstract class Interactable : MonoBehaviour
     [SerializeField] protected bool locksPlayer = false;
     [SerializeField] protected bool useCustomCamera = false;
     [SerializeField] protected string interactionPrompt = "[E] Interact";
-    
+    private static Action pendingLockRelease;
+
     [Header("Camera Settings")]
     [SerializeField] protected Camera customCamera;
     
@@ -80,5 +82,24 @@ public abstract class Interactable : MonoBehaviour
             Camera.main.enabled = true;
         }
     }
-}
 
+    protected void RegisterLockRelease(Action releaseAction)
+    {
+        pendingLockRelease = releaseAction;
+    }
+
+    protected void ClearLockRelease(Action releaseAction)
+    {
+        if (pendingLockRelease == releaseAction)
+        {
+            pendingLockRelease = null;
+        }
+    }
+
+    public static void ReleaseActiveLock()
+    {
+        Action releaseAction = pendingLockRelease;
+        pendingLockRelease = null;
+        releaseAction?.Invoke();
+    }
+}

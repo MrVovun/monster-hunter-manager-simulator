@@ -11,11 +11,12 @@ public class TriggerInteraction : Interactable
     [Header("Order Offer (optional)")]
     [SerializeField] private bool generateOrderOnTrigger = false;
     [SerializeField] private OrderOfferPanel orderOfferPanel;
+
+    private PlayerInteraction pendingPlayerRelease;
     
     private void Awake()
     {
         interactionType = InteractionType.Trigger;
-        locksPlayer = false; // Triggers usually don't lock player
         useCustomCamera = false;
     }
     
@@ -25,7 +26,7 @@ public class TriggerInteraction : Interactable
         
         if (generateOrderOnTrigger)
         {
-            TryGenerateAndShowOrder();
+            TryGenerateAndShowOrder(player);
         }
         
         // Invoke Unity Event
@@ -42,8 +43,17 @@ public class TriggerInteraction : Interactable
         
         // Call virtual method for derived classes
         OnTriggered(player);
-        
-        OnInteractionEnd(player);
+
+        if (locksPlayer && pendingPlayerRelease == null)
+        {
+            pendingPlayerRelease = player;
+            RegisterLockRelease(ReleasePendingPlayerLock);
+        }
+
+        if (pendingPlayerRelease == null)
+        {
+            OnInteractionEnd(player);
+        }
     }
     
     protected virtual void OnTriggered(PlayerInteraction player)
@@ -51,7 +61,7 @@ public class TriggerInteraction : Interactable
         // Override in derived classes for specific trigger behavior
     }
 
-    private void TryGenerateAndShowOrder()
+    private void TryGenerateAndShowOrder(PlayerInteraction player)
     {
         OrderManager manager = GameManager.Instance != null ? GameManager.Instance.GetOrderManager() : null;
         if (manager == null)
@@ -64,6 +74,49 @@ public class TriggerInteraction : Interactable
         if (orderOfferPanel != null)
         {
             orderOfferPanel.Show(order);
+            if (locksPlayer)
+            {
+                BeginWaitingForOrderPanel(player);
+            }
         }
+    }
+
+    private void BeginWaitingForOrderPanel(PlayerInteraction player)
+    {
+        pendingPlayerRelease = player;
+        orderOfferPanel.OnPanelHidden -= HandleOrderPanelHidden;
+        orderOfferPanel.OnPanelHidden += HandleOrderPanelHidden;
+        RegisterLockRelease(ReleasePendingPlayerLock);
+    }
+
+    private void HandleOrderPanelHidden(OrderOfferPanel panel)
+    {
+        orderOfferPanel.OnPanelHidden -= HandleOrderPanelHidden;
+        ReleasePendingPlayerLock();
+    }
+
+    private void ReleasePendingPlayerLock()
+    {
+        if (pendingPlayerRelease != null)
+        {
+            OnInteractionEnd(pendingPlayerRelease);
+            pendingPlayerRelease = null;
+            ClearLockRelease(ReleasePendingPlayerLock);
+        }
+    }
+
+    public void ReleasePlayerLock()
+    {
+        ReleasePendingPlayerLock();
+    }
+
+    private void OnDisable()
+    {
+        if (orderOfferPanel != null)
+        {
+            orderOfferPanel.OnPanelHidden -= HandleOrderPanelHidden;
+        }
+        ReleasePendingPlayerLock();
+        ClearLockRelease(ReleasePendingPlayerLock);
     }
 }

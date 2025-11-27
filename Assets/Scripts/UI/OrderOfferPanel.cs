@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 using TMPro;
 using UnityEngine;
@@ -13,6 +14,8 @@ public class OrderOfferPanel : MonoBehaviour
     private CursorLockMode previousLockState;
     private bool previousCursorVisible;
 
+    public event Action<OrderOfferPanel> OnPanelHidden;
+
     public void Show(Order order)
     {
         currentOrder = order;
@@ -27,6 +30,7 @@ public class OrderOfferPanel : MonoBehaviour
         SetRootActive(false);
         currentOrder = null;
         RestoreCursor();
+        OnPanelHidden?.Invoke(this);
     }
 
     private void SetRootActive(bool active)

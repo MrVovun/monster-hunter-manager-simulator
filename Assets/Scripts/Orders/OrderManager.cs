@@ -17,6 +17,7 @@ public class OrderManager : MonoBehaviour
     private TimeManager timeManager;
 
     public System.Action<MissionReport> OnMissionResolved;
+    public event System.Action OnOrdersChanged;
 
     public void Initialize(OrderGenerator generator, MissionResolver resolver, TimeManager timeMgr)
     {
@@ -30,6 +31,7 @@ public class OrderManager : MonoBehaviour
         Order newOrder = orderGenerator != null ? orderGenerator.GenerateRandomOrder() : new Order();
         newOrder.state = OrderState.Offered;
         offeredOrders.Add(newOrder);
+        NotifyOrdersChanged();
         return newOrder;
     }
 
@@ -45,6 +47,7 @@ public class OrderManager : MonoBehaviour
 
         order.state = OrderState.Accepted;
         StartPrepTimer(order);
+        NotifyOrdersChanged();
     }
 
     public void DeclineOrder(Order order)
@@ -53,6 +56,7 @@ public class OrderManager : MonoBehaviour
         offeredOrders.Remove(order);
         CleanupTimers(order);
         order.state = OrderState.Failed;
+        NotifyOrdersChanged();
     }
 
     public void ReferOrder(Order order)
@@ -68,6 +72,8 @@ public class OrderManager : MonoBehaviour
         {
             GameManager.Instance.GetGoldManager()?.AddGold(referralPayout);
         }
+        
+        NotifyOrdersChanged();
     }
 
     public bool StartMission(Order order, List<Hunter> party)
@@ -90,6 +96,8 @@ public class OrderManager : MonoBehaviour
 
         order.state = OrderState.InProgress;
         StartMissionTimer(order);
+        NotifyOrdersChanged();
+        NotifyHunterRosterChanged();
         return true;
     }
 
@@ -118,6 +126,7 @@ public class OrderManager : MonoBehaviour
         CleanupTimers(order);
         activeOrders.Remove(order);
         order.assignedHunters.Clear();
+        NotifyOrdersChanged();
     }
 
     public void ResolveOrder(Order order)
@@ -155,6 +164,9 @@ public class OrderManager : MonoBehaviour
             missionHistory.Add(report);
             OnMissionResolved?.Invoke(report);
         }
+        
+        NotifyOrdersChanged();
+        NotifyHunterRosterChanged();
     }
 
     private void CleanupPrepTimer(Order order)
@@ -181,6 +193,17 @@ public class OrderManager : MonoBehaviour
         CleanupMissionTimer(order);
     }
 
+    private void NotifyOrdersChanged()
+    {
+        OnOrdersChanged?.Invoke();
+    }
+
+    private void NotifyHunterRosterChanged()
+    {
+        var hunterManager = GameManager.Instance != null ? GameManager.Instance.GetHunterManager() : null;
+        hunterManager?.NotifyRosterChanged();
+    }
+    
     public List<Order> GetActiveOrders()
     {
         return activeOrders.Where(o => o != null && o.IsActive()).ToList();
