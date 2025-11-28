@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 0b5077c55335e2a44ba78dd49fc47df3
+timeCreated: 1542217975
+licenseType: Store
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 132951
+  packageName: Spells icons
+  packageVersion: 1.0
+  assetPath: Assets/SpellsIcons/spells_icons.unity
+  uploadId: 278516
