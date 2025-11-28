@@ -30,7 +30,7 @@ public class OrdersTab : MonoBehaviour
         
         if (orderDetailPanel != null)
         {
-            orderDetailPanel.OnPartyChanged += RefreshHunterRosterStates;
+            orderDetailPanel.OnPartyChanged += HandlePartyChanged;
         }
 
         hunterManager = GameManager.Instance != null ? GameManager.Instance.GetHunterManager() : null;
@@ -44,7 +44,7 @@ public class OrdersTab : MonoBehaviour
     {
         if (orderDetailPanel != null)
         {
-            orderDetailPanel.OnPartyChanged -= RefreshHunterRosterStates;
+            orderDetailPanel.OnPartyChanged -= HandlePartyChanged;
         }
 
         if (hunterManager != null)
@@ -201,14 +201,24 @@ public class OrdersTab : MonoBehaviour
         }
     }
 
+    private void HandleHuntersChanged()
+    {
+        rosterDirty = true;
+    }
+
+    private void HandlePartyChanged()
+    {
+        RefreshHunterRosterStates();
+    }
+
     internal void ForceRosterStateRefresh()
     {
         RefreshHunterRosterStates();
     }
 
-    private void HandleHuntersChanged()
+    public void OnTabDeselected()
     {
-        rosterDirty = true;
+        orderDetailPanel?.ClearParty();
     }
 }
 

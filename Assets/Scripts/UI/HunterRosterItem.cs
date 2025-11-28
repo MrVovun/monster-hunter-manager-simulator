@@ -77,13 +77,13 @@ public class HunterRosterItem : MonoBehaviour, IBeginDragHandler, IDragHandler, 
             {
                 statusText.text = "Dead";
             }
-            else if (assigned)
-            {
-                statusText.text = "In Party";
-            }
             else if (state == HunterState.OnMission)
             {
                 statusText.text = "On Mission";
+            }
+            else if (assigned)
+            {
+                statusText.text = "In Party";
             }
             else if (!selectable)
             {
@@ -158,10 +158,6 @@ public class HunterRosterItem : MonoBehaviour, IBeginDragHandler, IDragHandler, 
         }
 
         bool assigned = dropSlot != null && dropSlot.TryAssignHunter(hunter);
-        if (assigned)
-        {
-            ownerTab?.ForceRosterStateRefresh();
-        }
 
         if (originalParent != null)
         {
@@ -178,9 +174,11 @@ public class HunterRosterItem : MonoBehaviour, IBeginDragHandler, IDragHandler, 
             canvasGroup.alpha = 1f;
         }
 
-        if (!assigned)
+        Refresh();
+
+        if (assigned)
         {
-            Refresh();
+            ownerTab?.ForceRosterStateRefresh();
         }
     }
 

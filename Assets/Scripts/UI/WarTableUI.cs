@@ -97,7 +97,13 @@ public class WarTableUI : MonoBehaviour
     
     public void SwitchTab(int tabIndex)
     {
+        int previousTab = currentTabIndex;
         currentTabIndex = tabIndex;
+
+        if (previousTab == 0 && tabIndex != 0)
+        {
+            ordersTab?.OnTabDeselected();
+        }
         
         // Hide all panels
         if (ordersTabPanel != null) ordersTabPanel.SetActive(tabIndex == 0);
