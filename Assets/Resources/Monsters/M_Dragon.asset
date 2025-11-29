@@ -15,5 +15,6 @@ MonoBehaviour:
   monsterId: aaead96b021643a686de747f54a85e33
   displayName: Dragon
   portrait: {fileID: 0}
-  traits: []
+  traits:
+  - {fileID: 11400000, guid: 6af8b3bbb8f5f8d4fbdb3a6057fd4b86, type: 2}
   weight: 1

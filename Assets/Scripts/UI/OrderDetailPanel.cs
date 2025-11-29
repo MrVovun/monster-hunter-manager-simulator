@@ -55,7 +55,7 @@ public class OrderDetailPanel : MonoBehaviour
         if (statsText != null)
         {
             statsText.text =
-                $"Monster: {currentOrder.monsterType}\n" +
+                $"Monster: {currentOrder.GetMonsterName()}\n" +
                 $"Difficulty: {currentOrder.difficulty}\n" +
                 $"Reward: {currentOrder.goldReward}g / {currentOrder.xpReward}xp\n" +
                 $"Prep: {currentOrder.prepTimeLimit:0}s  Mission: {currentOrder.missionDuration:0}s";

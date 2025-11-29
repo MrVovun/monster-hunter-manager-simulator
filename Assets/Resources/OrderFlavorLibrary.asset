@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf7b4ff2ca492f2489ec9d4f41706d89, type: 3}
+  m_Name: OrderFlavorLibrary
+  m_EditorClassIdentifier: Assembly-CSharp::OrderFlavorLibrary
+  entries:
+  - title: they are coming from the bottom!
+    description: Countless <monster_name>s filled my basement! I need them rid off!
+  - title: dangers in the forest
+    description: Travelers say that a lot of <monster_name>s wander around the forest.
+      Someone needs to hunt them down!
+  - title: the tower appeared again
+    description: A tower hangs over the city again, and this time it's raining <monster_name>s!
+      We need brave heroes to stop it!

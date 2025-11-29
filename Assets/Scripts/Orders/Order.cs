@@ -16,7 +16,7 @@ public class Order
 {
     public string orderTitle;
     public string description;
-    public MonsterType monsterType;
+    public MonsterData monsterData;
     public int difficulty;
     public int goldReward;
     public int xpReward;
@@ -51,6 +51,16 @@ public class Order
     public int GetAssignedPartySize()
     {
         return assignedHunters.Count;
+    }
+
+    public string GetMonsterName()
+    {
+        if (monsterData != null && !string.IsNullOrWhiteSpace(monsterData.displayName))
+        {
+            return monsterData.displayName;
+        }
+
+        return "Unknown Monster";
     }
 }
 

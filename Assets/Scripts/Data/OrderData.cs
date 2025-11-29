@@ -9,7 +9,7 @@ public class OrderData : ScriptableObject
     public string description;
     
     [Header("Monster")]
-    public MonsterType monsterType;
+    public MonsterData monsterData;
     
     [Header("Difficulty")]
     [Range(1, 100)]
@@ -41,7 +41,7 @@ public class OrderData : ScriptableObject
         Order order = new Order();
         order.orderTitle = orderTitle;
         order.description = description;
-        order.monsterType = monsterType;
+        order.monsterData = monsterData;
         order.difficulty = baseDifficulty + Random.Range(-difficultyVariance, difficultyVariance + 1);
         order.difficulty = Mathf.Clamp(order.difficulty, 1, 100);
         order.goldReward = baseGoldReward + Random.Range(-goldVariance, goldVariance + 1);
