@@ -10,6 +10,8 @@ public class MonsterTrait : ScriptableObject
 
     [Header("Description")]
     [TextArea(2, 4)] public string description;
+    [Header("Visuals")]
+    public Sprite icon;
 
     private void OnEnable()
     {

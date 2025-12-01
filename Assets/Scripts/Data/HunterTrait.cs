@@ -5,9 +5,15 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Hunter Trait", menuName = "Guild Manager/Hunter Trait")]
 public class HunterTrait : ScriptableObject
 {
-    [Header("Identifiers")]
-    [Tooltip("Optional trait ID used to counter specific monster traits.")]
-    public string traitId;
+[Header("Identifiers")]
+[Tooltip("Optional trait ID used to counter specific monster traits.")]
+public string traitId;
+[Tooltip("Display name shown in UI.")]
+public string displayName;
+[TextArea(2, 4)]
+public string description;
+[Header("Visuals")]
+public Sprite icon;
 
     [Header("Stat Modifiers")]
     [Tooltip("Percent bonus expressed as decimal, e.g. 0.1 = +10%.")]
@@ -42,6 +48,11 @@ public class HunterTrait : ScriptableObject
         if (string.IsNullOrWhiteSpace(traitId))
         {
             traitId = Guid.NewGuid().ToString("N");
+        }
+
+        if (string.IsNullOrWhiteSpace(displayName))
+        {
+            displayName = traitId;
         }
     }
 }

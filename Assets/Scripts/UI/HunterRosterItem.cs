@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class HunterRosterItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class HunterRosterItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler
 {
     [SerializeField] private Image portraitImage;
     [SerializeField] private TMP_Text nameText;
@@ -11,6 +11,7 @@ public class HunterRosterItem : MonoBehaviour, IBeginDragHandler, IDragHandler, 
     [SerializeField] private CanvasGroup canvasGroup;
 
     private OrdersTab ownerTab;
+    private HuntersTab huntersTab;
     private Hunter hunter;
     private RectTransform rectTransform;
     private Transform originalParent;
@@ -21,11 +22,36 @@ public class HunterRosterItem : MonoBehaviour, IBeginDragHandler, IDragHandler, 
     private Canvas rootCanvas;
     private bool draggable;
     private bool isDragging;
+    private bool displayOnly;
+    private System.Action<Hunter> onDisplaySelected;
 
     public void Initialize(Hunter hunter, OrdersTab owner)
     {
+        Setup(hunter, owner, null, false);
+    }
+
+    public void InitializeForHuntersTab(Hunter hunter, HuntersTab tab, System.Action<Hunter> onSelect)
+    {
+        Setup(hunter, null, tab, true);
+        onDisplaySelected = onSelect;
+    }
+
+    public void InitializeDisplayOnly(Hunter hunter)
+    {
+        Setup(hunter, null, null, true);
+    }
+
+    public void SetDisplaySelectionHandler(System.Action<Hunter> onSelect)
+    {
+        onDisplaySelected = onSelect;
+    }
+
+    private void Setup(Hunter hunter, OrdersTab owner, HuntersTab huntersTabOwner, bool displayOnlyMode)
+    {
         this.hunter = hunter;
         ownerTab = owner;
+        huntersTab = huntersTabOwner;
+        displayOnly = displayOnlyMode || owner == null;
 
         rectTransform = GetComponent<RectTransform>();
         if (canvasGroup == null)
@@ -58,22 +84,33 @@ public class HunterRosterItem : MonoBehaviour, IBeginDragHandler, IDragHandler, 
             portraitImage.enabled = portrait != null;
         }
 
-        bool assigned = IsAssigned();
-        bool selectable = IsSelectable();
+        bool assigned = ownerTab != null && IsAssigned();
+        bool selectable = ownerTab != null && IsSelectable();
         HunterState state = hunter.GetState();
         bool alive = state != HunterState.Dead;
 
-        draggable = selectable && !assigned;
+        draggable = !displayOnly && selectable && !assigned;
 
         if (canvasGroup != null)
         {
-            canvasGroup.alpha = assigned || !selectable ? 0.4f : 1f;
+            if (displayOnly)
+            {
+                canvasGroup.alpha = 1f;
+            }
+            else
+            {
+                canvasGroup.alpha = assigned || !selectable ? 0.4f : 1f;
+            }
             canvasGroup.blocksRaycasts = true;
         }
 
         if (statusText != null)
         {
-            if (!alive)
+            if (displayOnly)
+            {
+                statusText.text = string.Empty;
+            }
+            else if (!alive)
             {
                 statusText.text = "Dead";
             }
@@ -182,14 +219,25 @@ public class HunterRosterItem : MonoBehaviour, IBeginDragHandler, IDragHandler, 
         }
     }
 
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (!displayOnly) return;
+        if (eventData.button == PointerEventData.InputButton.Left)
+        {
+            onDisplaySelected?.Invoke(hunter);
+        }
+    }
+
     public bool IsAssigned()
     {
-        return ownerTab != null && ownerTab.IsHunterAssignedToParty(hunter);
+        if (displayOnly || ownerTab == null) return false;
+        return ownerTab.IsHunterAssignedToParty(hunter);
     }
 
     public bool IsSelectable()
     {
-        return ownerTab != null && ownerTab.IsHunterSelectable(hunter);
+        if (displayOnly || ownerTab == null) return false;
+        return ownerTab.IsHunterSelectable(hunter);
     }
 
     public bool ShouldSortLast()

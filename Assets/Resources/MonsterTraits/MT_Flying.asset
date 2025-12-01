@@ -15,3 +15,4 @@ MonoBehaviour:
   traitId: 21726543e8584ae49a22a18d78643c57
   displayName: Flying
   description: This monster can fly, meaning melee attacks won't work against it.
+  icon: {fileID: 21300000, guid: b5ea3b373f1c34847a938f7101025996, type: 3}

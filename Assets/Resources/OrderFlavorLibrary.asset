@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: OrderFlavorLibrary
   m_EditorClassIdentifier: Assembly-CSharp::OrderFlavorLibrary
   entries:
-  - title: they are coming from the bottom!
+  - title: They are coming from the bottom!
     description: Countless <monster_name>s filled my basement! I need them rid off!
-  - title: dangers in the forest
+  - title: Dangers in the forest
     description: Travelers say that a lot of <monster_name>s wander around the forest.
       Someone needs to hunt them down!
-  - title: the tower appeared again
+  - title: The tower appeared again
     description: A tower hangs over the city again, and this time it's raining <monster_name>s!
       We need brave heroes to stop it!

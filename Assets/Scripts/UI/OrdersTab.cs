@@ -107,6 +107,12 @@ public class OrdersTab : MonoBehaviour
         }
         RefreshHunterRosterStates();
     }
+
+    public void ClearSelection()
+    {
+        selectedOrder = null;
+        orderDetailPanel?.ClearSelection();
+    }
     
     public Order GetSelectedOrder()
     {

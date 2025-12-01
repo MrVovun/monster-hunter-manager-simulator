@@ -13,16 +13,33 @@ MonoBehaviour:
   m_Name: H_Rori
   m_EditorClassIdentifier: Assembly-CSharp::HunterData
   hunterName: Rori
-  hunterClass: 2
-  rarity: 1
-  basePower: 10
-  baseDefense: 10
-  baseResolve: 10
+  rarity: 2
+  bio: 'Bella: It''s like diamonds. You''re beautiful.
+
+    Edward: Beautiful? This
+    is the skin of a killer, Bella. I''m a killer.
+
+    Bella: I don''t believe
+    that.
+
+    Edward: It''s because you believe a lie. A camoflauge. I''m the world''s
+    most dangerous predator. Everything about me invites you in. My voice, my face,
+    even my smell. As if I would need any of that. As if you could out run me. As
+    if you could fight me off. (He shows off his powers.) I''m designed to kill.'
+  basePower: 24
+  baseDefense: 13
+  baseResolve: 9
   traits:
   - {fileID: 11400000, guid: 2659e8d4d076c184991a442585b3eb68, type: 2}
-  dailyUpkeepCost: 10
+  dailyUpkeepCost: 50
   startingLevel: 1
   startingXP: 0
-  xpPerLevel: 100
+  levelXPTable:
+  - level: 2
+    requiredXP: 200
+  - level: 3
+    requiredXP: 300
+  - level: 4
+    requiredXP: 400
   minReputation: 1
   portrait: {fileID: 21300000, guid: 6adf6e044478dae47a180815a6942faf, type: 3}

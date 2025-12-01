@@ -157,6 +157,12 @@ public class Hunter : MonoBehaviour
     {
         return currentXP;
     }
+
+    public int GetXPToNextLevel()
+    {
+        if (levelSystem == null) return int.MaxValue;
+        return levelSystem.GetXPForNextLevel();
+    }
     
     public HunterData GetHunterData()
     {

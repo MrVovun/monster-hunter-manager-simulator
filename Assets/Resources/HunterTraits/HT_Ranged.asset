@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: HT_Ranged
   m_EditorClassIdentifier: Assembly-CSharp::HunterTrait
   traitId: d0ea41aabc894c729009338134de78a3
+  displayName: Ranged
+  description: This hunter carries a ranged weapon.
+  icon: {fileID: 21300000, guid: 560fa2119e1b133418691b8decbba013, type: 3}
   powerModifier: 1
   defenseModifier: 1
   resolveModifier: 1

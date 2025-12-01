@@ -24,6 +24,11 @@ public class HunterLevelSystem : MonoBehaviour
         while (CanLevelUp())
         {
             int xpNeeded = GetXPForNextLevel();
+            if (xpNeeded == int.MaxValue)
+            {
+                currentXP = Mathf.Min(currentXP, xpNeeded);
+                break;
+            }
             if (currentXP >= xpNeeded)
             {
                 currentXP -= xpNeeded;
@@ -46,7 +51,8 @@ public class HunterLevelSystem : MonoBehaviour
     public int GetXPForNextLevel()
     {
         if (hunterData == null) return int.MaxValue;
-        return hunterData.xpPerLevel;
+        int xpRequirement = hunterData.GetXPRequirementForNextLevel(currentLevel);
+        return xpRequirement > 0 ? xpRequirement : int.MaxValue;
     }
     
     public bool LevelUp()
@@ -77,14 +83,14 @@ public class HunterLevelSystem : MonoBehaviour
     
     public int GetXPProgress()
     {
-        if (hunterData == null) return 0;
-        return currentXP % hunterData.xpPerLevel;
+        return currentXP;
     }
     
     public float GetXPProgressPercent()
     {
-        if (hunterData == null || hunterData.xpPerLevel == 0) return 0f;
-        return (float)GetXPProgress() / (float)hunterData.xpPerLevel;
+        int xpForNext = GetXPForNextLevel();
+        if (xpForNext == int.MaxValue || xpForNext <= 0) return 1f;
+        return Mathf.Clamp01((float)currentXP / xpForNext);
     }
     
     public int GetLevelUpCost()

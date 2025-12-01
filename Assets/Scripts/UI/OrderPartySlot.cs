@@ -41,7 +41,7 @@ public class OrderPartySlot : MonoBehaviour, IDropHandler, IPointerClickHandler
         {
             if (hunter == null)
             {
-                nameText.text = "Empty";
+                nameText.text = "";
                 nameText.color = emptyTextColor;
             }
             else

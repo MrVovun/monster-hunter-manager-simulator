@@ -5,11 +5,20 @@ using UnityEngine;
 public class OrderDetailPanel : MonoBehaviour
 {
     [Header("UI")]
+    [SerializeField] private GameObject panelRoot;
     [SerializeField] private TMP_Text titleText;
     [SerializeField] private TMP_Text descriptionText;
     [SerializeField] private TMP_Text statsText;
     [SerializeField] private TMP_Text partyInfoText;
     [SerializeField] private TMP_Text timerText;
+    [Header("Separated Stats")]
+    [SerializeField] private TMP_Text monsterText;
+    [SerializeField] private TMP_Text difficultyText;
+    [SerializeField] private TMP_Text rewardGoldText;
+    [SerializeField] private TMP_Text rewardXPText;
+    [SerializeField] private TMP_Text prepTimeText;
+    [SerializeField] private TMP_Text missionTimeText;
+    [SerializeField] private TraitTooltipPanel traitTooltipPanel;
 
     [Header("Systems")]
     [SerializeField] private PartyFormation partyFormation;
@@ -31,34 +40,89 @@ public class OrderDetailPanel : MonoBehaviour
     
     public System.Action OnPartyChanged;
 
+    private void Awake()
+    {
+        ClearSelection();
+    }
+
     public void ShowOrder(Order order)
     {
+        if (order == null)
+        {
+            ClearSelection();
+            return;
+        }
+
         currentOrder = order;
         if (partyFormation != null)
         {
             partyFormation.Initialize(order);
         }
         BuildPartySlots(order);
-        SyncSlotsWithParty();
         UpdateUI();
         NotifyPartyChanged();
     }
 
     public void UpdateUI()
     {
-        if (currentOrder == null) return;
+        Order order = currentOrder;
+        bool hasOrder = order != null;
+        if (panelRoot != null)
+        {
+            panelRoot.SetActive(hasOrder);
+        }
+
+        if (!hasOrder)
+        {
+            ClearDetails();
+            return;
+        }
         
+        if (partyFormation != null)
+        {
+            SyncSlotsWithParty();
+        }
         RefreshSlotVisuals();
 
-        if (titleText != null) titleText.text = currentOrder.orderTitle;
-        if (descriptionText != null) descriptionText.text = currentOrder.description;
+        if (titleText != null) titleText.text = order.orderTitle;
+        if (descriptionText != null) descriptionText.text = order.description;
+        string monsterName = order.GetMonsterName();
         if (statsText != null)
         {
             statsText.text =
-                $"Monster: {currentOrder.GetMonsterName()}\n" +
-                $"Difficulty: {currentOrder.difficulty}\n" +
-                $"Reward: {currentOrder.goldReward}g / {currentOrder.xpReward}xp\n" +
-                $"Prep: {currentOrder.prepTimeLimit:0}s  Mission: {currentOrder.missionDuration:0}s";
+                $"Monster: {monsterName}\n" +
+                $"Difficulty: {order.difficulty}\n" +
+                $"Reward: {order.goldReward}g / {order.xpReward}xp\n" +
+                $"Prep: {order.prepTimeLimit:0}s  Mission: {order.missionDuration:0}s";
+        }
+
+        if (monsterText != null)
+        {
+            monsterText.text = monsterName;
+        }
+
+        if (difficultyText != null)
+        {
+            difficultyText.text = order.difficulty.ToString();
+        }
+
+        if (rewardGoldText != null)
+        {
+            rewardGoldText.text = $"{order.goldReward} gold";
+        }
+        if (rewardXPText != null)
+        {
+            rewardXPText.text = $"{order.xpReward} XP";
+        }
+
+        if (prepTimeText != null)
+        {
+            prepTimeText.text = $"{order.prepTimeLimit:0}s";
+        }
+
+        if (missionTimeText != null)
+        {
+            missionTimeText.text = $"{order.missionDuration:0}s";
         }
 
         if (partyInfoText != null && partyFormation != null)
@@ -306,5 +370,31 @@ public class OrderDetailPanel : MonoBehaviour
     private bool CanEditParty()
     {
         return currentOrder != null && currentOrder.state == OrderState.Accepted;
+    }
+
+    private void ClearDetails()
+    {
+        if (titleText != null) titleText.text = "Select an Order";
+        if (descriptionText != null) descriptionText.text = string.Empty;
+        if (statsText != null) statsText.text = string.Empty;
+        if (monsterText != null) monsterText.text = "-";
+        if (difficultyText != null) difficultyText.text = "-";
+        if (rewardGoldText != null) rewardGoldText.text = "-";
+        if (rewardXPText != null) rewardXPText.text = "-";
+        if (prepTimeText != null) prepTimeText.text = "-";
+        if (missionTimeText != null) missionTimeText.text = "-";
+        if (partyInfoText != null) partyInfoText.text = string.Empty;
+        if (timerText != null) timerText.text = string.Empty;
+        ClearPartySlots();
+    }
+
+    public void ClearSelection()
+    {
+        currentOrder = null;
+        ClearDetails();
+        if (panelRoot != null)
+        {
+            panelRoot.SetActive(false);
+        }
     }
 }

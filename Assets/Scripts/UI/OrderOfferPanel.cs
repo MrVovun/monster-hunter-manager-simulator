@@ -16,6 +16,7 @@ public class OrderOfferPanel : MonoBehaviour
     [SerializeField] private TMP_Text rewardXPText;
     [SerializeField] private TMP_Text partySizeText;
     [SerializeField] private TMP_Text prepTimeText;
+    [SerializeField] private TraitTooltipPanel traitTooltipPanel;
 
     private Order currentOrder;
     private CursorLockMode previousLockState;

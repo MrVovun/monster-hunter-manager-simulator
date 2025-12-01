@@ -86,6 +86,8 @@ public class WarTableUI : MonoBehaviour
 
     private void OnDisable()
     {
+        ordersTab?.ClearSelection();
+        huntersTab?.ClearSelection();
         UnsubscribeFromDataSources();
         RestoreCursor();
     }
