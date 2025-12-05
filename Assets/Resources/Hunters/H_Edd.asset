@@ -42,3 +42,4 @@ MonoBehaviour:
     requiredXP: 400
   minReputation: 1
   portrait: {fileID: 21300000, guid: dbeb48837f3824543bdfcb124e23cc65, type: 3}
+  visualPrefab: {fileID: 1782384603142300, guid: feb0e5cecfc437e46820eeecb60c482a, type: 3}

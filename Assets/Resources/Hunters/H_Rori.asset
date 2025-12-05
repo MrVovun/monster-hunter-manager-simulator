@@ -19,13 +19,13 @@ MonoBehaviour:
     Edward: Beautiful? This
     is the skin of a killer, Bella. I''m a killer.
 
-    Bella: I don''t believe
-    that.
+    Bella: I don''t believe that.
 
-    Edward: It''s because you believe a lie. A camoflauge. I''m the world''s
-    most dangerous predator. Everything about me invites you in. My voice, my face,
-    even my smell. As if I would need any of that. As if you could out run me. As
-    if you could fight me off. (He shows off his powers.) I''m designed to kill.'
+    Edward:
+    It''s because you believe a lie. A camoflauge. I''m the world''s most dangerous
+    predator. Everything about me invites you in. My voice, my face, even my smell.
+    As if I would need any of that. As if you could out run me. As if you could fight
+    me off. (He shows off his powers.) I''m designed to kill.'
   basePower: 24
   baseDefense: 13
   baseResolve: 9
@@ -43,3 +43,4 @@ MonoBehaviour:
     requiredXP: 400
   minReputation: 1
   portrait: {fileID: 21300000, guid: 6adf6e044478dae47a180815a6942faf, type: 3}
+  visualPrefab: {fileID: 1290725874115128, guid: 2d1f3a5f7b4e6374296a6647c4018050, type: 3}

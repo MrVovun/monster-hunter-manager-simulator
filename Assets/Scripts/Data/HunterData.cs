@@ -34,6 +34,8 @@ public class HunterData : ScriptableObject
     
     [Header("Visual")]
     public Sprite portrait; // For UI display
+    public GameObject visualPrefab;
+
     
     // Calculated stats (base + level bonuses)
     public int GetPowerAtLevel(int level)

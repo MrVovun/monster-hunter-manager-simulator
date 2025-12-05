@@ -6,23 +6,39 @@ public class Hunter : MonoBehaviour
 {
     [Header("Hunter Data")]
     [SerializeField] private HunterData hunterData;
-    
+
     [Header("Runtime State")]
     private int currentLevel;
     private int currentXP;
     private HunterState state = HunterState.Idle;
-    
+
+    [Header("Visuals")]
+    [SerializeField] private Transform visualParent;
+    private GameObject visualInstance;
+
     [Header("Components")]
     private NavMeshAgent navAgent;
     private Animator animator;
-    
+
     [Header("Seating")]
-    private Transform assignedSeat;
+    private HunterSeat assignedSeat;
     private bool isSeated = false;
-    
+    private bool playSitEntry = false;
+
+    [Header("Navigation")]
+    [SerializeField] private float doorApproachOffset = 0.8f;
+    [SerializeField] private float doorArrivalThreshold = 0.3f;
+    [SerializeField] private float standUpDuration = 1.3f;
+    private Transform doorTransform;
+    private bool isDepartingForMission;
+    private bool isStandingUp;
+    private float standUpTimer;
+
+    private bool baseLayerInitialized = false;
     private HunterStats stats;
     private HunterLevelSystem levelSystem;
-    
+    private HunterManager hunterManager;
+
     private void Awake()
     {
         navAgent = GetComponent<NavMeshAgent>();
@@ -30,21 +46,24 @@ public class Hunter : MonoBehaviour
         {
             navAgent = gameObject.AddComponent<NavMeshAgent>();
         }
-        
-        animator = GetComponent<Animator>();
+
+        animator = GetComponentInChildren<Animator>();
         stats = GetComponent<HunterStats>();
         if (stats == null)
         {
             stats = gameObject.AddComponent<HunterStats>();
         }
-        
+
         levelSystem = GetComponent<HunterLevelSystem>();
         if (levelSystem == null)
         {
             levelSystem = gameObject.AddComponent<HunterLevelSystem>();
         }
+
+        CacheHunterManager();
+        CacheDoorTransform();
     }
-    
+
     private void Start()
     {
         if (hunterData != null)
@@ -52,91 +71,295 @@ public class Hunter : MonoBehaviour
             Initialize(hunterData);
         }
     }
-    
+
     public void Initialize(HunterData data)
     {
         hunterData = data;
         currentLevel = data.startingLevel;
         currentXP = data.startingXP;
         state = HunterState.Idle;
-        
+
         stats?.Initialize(data, currentLevel);
         levelSystem?.Initialize(data);
-        
+
         // Set name
         gameObject.name = data.hunterName;
+        SetupVisual(data.visualPrefab);
     }
-    
+
     public void SetState(HunterState newState)
     {
+        if (state == newState) return;
         state = newState;
-        
+
         if (newState == HunterState.OnMission)
         {
-            // Walk to door and despawn (optional visual)
-            WalkToDoor();
+            bool wasSeated = isSeated;
+            isSeated = false;
+            playSitEntry = false;
+            ReleaseSeat();
+            if (wasSeated)
+            {
+                BeginStandUpSequence();
+            }
+            else
+            {
+                WalkToDoor();
+            }
         }
         else if (newState == HunterState.Idle)
         {
-            // Return to guild
             ReturnToGuild();
-        }
-    }
-    
-    public HunterState GetState()
-    {
-        return state;
-    }
-    
-    public void WalkToSeat(Transform seat)
-    {
-        if (navAgent != null && seat != null)
-        {
-            assignedSeat = seat;
-            navAgent.SetDestination(seat.position);
             isSeated = false;
+            playSitEntry = false;
+            RequestSeatAssignment();
         }
-    }
-    
-    public void SitAtSeat()
-    {
-        if (assignedSeat != null)
+        else if (newState == HunterState.Dead)
         {
-            transform.position = assignedSeat.position;
-            transform.rotation = assignedSeat.rotation;
-            isSeated = true;
-            
+            ReleaseSeat();
             if (navAgent != null)
             {
                 navAgent.enabled = false;
             }
         }
     }
-    
-    private void WalkToDoor()
+
+    public HunterState GetState()
     {
-        // Find door spawn point
-        Transform door = GameObject.Find("ClientDoor")?.transform;
-        if (door != null && navAgent != null)
-        {
-            navAgent.SetDestination(door.position);
-        }
+        return state;
     }
-    
-    private void ReturnToGuild()
+
+    public void WalkToSeat(HunterSeat seat)
     {
-        // Spawn at door and walk to idle spot
-        Transform door = GameObject.Find("ClientDoor")?.transform;
-        if (door != null)
+        if (navAgent == null || seat == null) return;
+
+        ReleaseSeat();
+        assignedSeat = seat;
+        assignedSeat.TryAssign(this);
+        isSeated = false;
+
+        if (!navAgent.enabled)
         {
-            transform.position = door.position;
+            navAgent.enabled = true;
+        }
+
+        navAgent.isStopped = false;
+        navAgent.SetDestination(seat.ApproachPosition);
+    }
+
+    public void SitAtSeat()
+    {
+        if (assignedSeat != null)
+        {
+            assignedSeat.TryAssign(this);
+            Transform anchor = assignedSeat.Anchor;
+            transform.position = anchor.position;
+            transform.rotation = anchor.rotation;
+            isSeated = true;
+            playSitEntry = true;
+
             if (navAgent != null)
             {
-                navAgent.enabled = true;
+                navAgent.enabled = false;
             }
         }
     }
-    
+
+    private void ReleaseSeat()
+    {
+        if (assignedSeat != null)
+        {
+            assignedSeat.Release(this);
+            assignedSeat = null;
+        }
+    }
+
+    private void BeginStandUpSequence()
+    {
+        isStandingUp = true;
+        standUpTimer = Mathf.Max(0.1f, standUpDuration);
+
+        if (animator != null)
+        {
+            animator.SetInteger("TriggerNumber", 2);
+            animator.SetTrigger("Trigger");
+            animator.SetInteger("Action", 9);
+            animator.SetBool("Moving", false);
+        }
+
+        if (navAgent != null)
+        {
+            navAgent.enabled = false;
+        }
+    }
+
+    private void CompleteStandUpSequence()
+    {
+        isStandingUp = false;
+        standUpTimer = 0f;
+
+        if (navAgent != null && !navAgent.enabled)
+        {
+            navAgent.enabled = true;
+        }
+
+        WalkToDoor();
+    }
+
+    private void WalkToDoor()
+    {
+        if (navAgent == null)
+        {
+            CompleteDeparture();
+            return;
+        }
+
+        Vector3 target = GetDoorInsidePosition();
+
+        if (!navAgent.enabled)
+        {
+            navAgent.enabled = true;
+        }
+
+        if (!navAgent.isOnNavMesh)
+        {
+            navAgent.Warp(transform.position);
+        }
+
+        navAgent.isStopped = false;
+        bool pathSet = navAgent.SetDestination(target);
+        if (!pathSet)
+        {
+            Debug.LogWarning($"Hunter {name}: Unable to find path to door. Teleporting out.");
+            CompleteDeparture();
+            return;
+        }
+
+        isDepartingForMission = true;
+    }
+
+    private void ReturnToGuild()
+    {
+        isStandingUp = false;
+        standUpTimer = 0f;
+        CacheDoorTransform();
+        Vector3 spawnPos = GetReturnSpawnPosition();
+
+        if (navAgent != null)
+        {
+            navAgent.enabled = true;
+            navAgent.Warp(spawnPos);
+            navAgent.ResetPath();
+            navAgent.isStopped = false;
+        }
+        else
+        {
+            transform.position = spawnPos;
+        }
+
+        if (visualInstance != null)
+        {
+            visualInstance.SetActive(true);
+        }
+
+        isDepartingForMission = false;
+    }
+
+    private void CompleteDeparture()
+    {
+        isDepartingForMission = false;
+
+        Vector3 outside = GetDoorOutsidePosition();
+        transform.position = outside;
+
+        if (navAgent != null)
+        {
+            if (navAgent.enabled && navAgent.isOnNavMesh)
+            {
+                navAgent.ResetPath();
+            }
+            navAgent.enabled = false;
+        }
+
+        if (visualInstance != null)
+        {
+            visualInstance.SetActive(false);
+        }
+    }
+
+    private void RequestSeatAssignment()
+    {
+        CacheHunterManager();
+        hunterManager?.AssignHunterToSeat(this);
+    }
+
+    private void CacheHunterManager()
+    {
+        if (hunterManager == null && GameManager.Instance != null)
+        {
+            hunterManager = GameManager.Instance.GetHunterManager();
+        }
+    }
+
+    private void CacheDoorTransform()
+    {
+        if (doorTransform != null) return;
+
+        GameObject doorObj = GameObject.Find("ClientDoor");
+        if (doorObj != null)
+        {
+            doorTransform = doorObj.transform;
+        }
+    }
+
+    private Vector3 GetDoorInsidePosition()
+    {
+        CacheHunterManager();
+        var entry = hunterManager?.GetDoorEntryTransform();
+        if (entry != null)
+        {
+            return entry.position;
+        }
+
+        CacheDoorTransform();
+        if (doorTransform == null)
+        {
+            return transform.position;
+        }
+
+        return doorTransform.position + doorTransform.forward * Mathf.Max(0f, doorApproachOffset);
+    }
+
+    private Vector3 GetDoorOutsidePosition()
+    {
+        CacheHunterManager();
+        var exit = hunterManager?.GetDoorExitTransform();
+        if (exit != null)
+        {
+            return exit.position;
+        }
+
+        CacheDoorTransform();
+        if (doorTransform == null)
+        {
+            return transform.position;
+        }
+
+        return doorTransform.position - doorTransform.forward * Mathf.Max(0.1f, doorApproachOffset);
+    }
+
+    private Vector3 GetReturnSpawnPosition()
+    {
+        CacheHunterManager();
+        var spawn = hunterManager?.GetReturnSpawnTransform();
+        if (spawn != null)
+        {
+            return spawn.position;
+        }
+
+        return GetDoorInsidePosition();
+    }
+
     public void GainXP(int amount)
     {
         if (levelSystem != null)
@@ -147,12 +370,12 @@ public class Hunter : MonoBehaviour
             stats?.UpdateLevel(currentLevel);
         }
     }
-    
+
     public int GetLevel()
     {
         return currentLevel;
     }
-    
+
     public int GetXP()
     {
         return currentXP;
@@ -163,27 +386,27 @@ public class Hunter : MonoBehaviour
         if (levelSystem == null) return int.MaxValue;
         return levelSystem.GetXPForNextLevel();
     }
-    
+
     public HunterData GetHunterData()
     {
         return hunterData;
     }
-    
+
     public HunterStats GetStats()
     {
         return stats;
     }
-    
+
     public bool CanLevelUp()
     {
         return levelSystem != null && levelSystem.CanLevelUp();
     }
-    
+
     public int GetLevelUpCost()
     {
         return levelSystem != null ? levelSystem.GetLevelUpCost() : 0;
     }
-    
+
     public bool LevelUp()
     {
         if (levelSystem != null && levelSystem.LevelUp())
@@ -194,9 +417,18 @@ public class Hunter : MonoBehaviour
         }
         return false;
     }
-    
+
     private void Update()
     {
+        if (isStandingUp)
+        {
+            standUpTimer -= Time.deltaTime;
+            if (standUpTimer <= 0f)
+            {
+                CompleteStandUpSequence();
+            }
+        }
+
         // Check if reached seat
         if (!isSeated && assignedSeat != null && navAgent != null)
         {
@@ -205,6 +437,94 @@ public class Hunter : MonoBehaviour
                 SitAtSeat();
             }
         }
+
+        if (isDepartingForMission && navAgent != null && navAgent.enabled)
+        {
+            if (!navAgent.pathPending && navAgent.remainingDistance < doorArrivalThreshold)
+            {
+                CompleteDeparture();
+            }
+        }
+
+        UpdateAnimationParameters();
+    }
+
+    private void SetupVisual(GameObject prefab)
+    {
+        if (visualInstance != null)
+        {
+            if (Application.isPlaying)
+            {
+                Destroy(visualInstance);
+            }
+            else
+            {
+                DestroyImmediate(visualInstance);
+            }
+            visualInstance = null;
+        }
+
+        if (prefab != null)
+        {
+            Transform parent = visualParent != null ? visualParent : transform;
+            visualInstance = Instantiate(prefab, parent);
+            visualInstance.transform.localPosition = Vector3.zero;
+            visualInstance.transform.localRotation = Quaternion.identity;
+            visualInstance.transform.localScale = Vector3.one;
+            animator = visualInstance.GetComponentInChildren<Animator>();
+        }
+        else
+        {
+            animator = GetComponentInChildren<Animator>();
+        }
+    }
+
+    private void UpdateAnimationParameters()
+    {
+        if (animator == null) return;
+
+        float speed = 0f;
+        animator.SetFloat("AnimationSpeed", 1f);
+        if (!baseLayerInitialized)
+        {
+            animator.SetInteger("Weapon", -1);
+            animator.SetInteger("TriggerNumber", 25);
+            animator.SetTrigger("Trigger");
+            baseLayerInitialized = true;
+        }
+
+        if (navAgent != null && navAgent.enabled)
+        {
+            speed = navAgent.velocity.magnitude;
+            Vector3 localVel = transform.InverseTransformDirection(navAgent.velocity);
+            float normalizedX = navAgent.speed > 0.01f ? localVel.x / navAgent.speed : 0f;
+            float normalizedZ = navAgent.speed > 0.01f ? localVel.z / navAgent.speed : 0f;
+            animator.SetFloat("Velocity X", Mathf.Clamp(normalizedX, -1f, 1f));
+            animator.SetFloat("Velocity Z", Mathf.Clamp(normalizedZ, -1f, 1f));
+        }
+        else
+        {
+            animator.SetFloat("Velocity X", 0f);
+            animator.SetFloat("Velocity Z", 0f);
+        }
+
+        bool moving = speed > 0.05f && !isSeated;
+        animator.SetBool("Moving", moving);
+        if (!moving && !isSeated && !isStandingUp)
+        {
+            animator.SetInteger("Action", 0);
+            animator.SetInteger("Talking", 0);
+        }
+        animator.SetBool("Crouch", false);
+        animator.SetBool("Injured", false);
+
+        if (playSitEntry)
+        {
+            animator.SetInteger("TriggerNumber", 2);
+            animator.SetTrigger("Trigger");
+            animator.SetInteger("Action", 0);
+            animator.SetBool("Moving", false);
+            playSitEntry = false;
+        }
     }
 }
-

@@ -13,8 +13,13 @@ public class HunterManager : MonoBehaviour
     
     [Header("Spawn Points")]
     [SerializeField] private Transform hunterSpawnPoint;
-    [SerializeField] private List<Transform> idleSeats = new List<Transform>();
+    [SerializeField] private List<HunterSeat> hunterSeats = new List<HunterSeat>();
     
+    [Header("Door Points")]
+    [SerializeField] private Transform doorEntryPoint;
+    [SerializeField] private Transform doorExitPoint;
+    [SerializeField] private Transform returnSpawnPoint;
+
     private List<Hunter> activeHunters = new List<Hunter>();
     private int nextSeatIndex = 0;
     private bool navMeshChecked = false;
@@ -35,7 +40,7 @@ public class HunterManager : MonoBehaviour
         }
         
         // Find idle seats
-        if (idleSeats.Count == 0)
+        if (hunterSeats.Count == 0)
         {
             FindIdleSeats();
         }
@@ -53,29 +58,13 @@ public class HunterManager : MonoBehaviour
     
     private void FindIdleSeats()
     {
-        // Find all objects tagged as "HunterSeat" if the tag exists
-        try
-        {
-            GameObject[] seats = GameObject.FindGameObjectsWithTag("HunterSeat");
-            foreach (GameObject seat in seats)
-            {
-                idleSeats.Add(seat.transform);
-            }
-        }
-        catch (UnityException)
-        {
-            // Tag not defined; skip tag-based lookup
-        }
+        hunterSeats.Clear();
+        HunterSeat[] seats = FindObjectsOfType<HunterSeat>(true);
+        hunterSeats.AddRange(seats);
         
-        // Also search by name
-        Transform[] allTransforms = FindObjectsOfType<Transform>();
-        foreach (Transform t in allTransforms)
+        if (hunterSeats.Count == 0)
         {
-            bool looksLikeSeat = t.name.Contains("HunterSeat") || t.name.Contains("Sofa");
-            if (looksLikeSeat && !idleSeats.Contains(t))
-            {
-                idleSeats.Add(t);
-            }
+            Debug.LogWarning("HunterManager: No HunterSeat components found in the scene. Hunters will remain standing.");
         }
     }
     
@@ -155,13 +144,42 @@ public class HunterManager : MonoBehaviour
         return hunter;
     }
     
-    private void AssignHunterToSeat(Hunter hunter)
+    public void AssignHunterToSeat(Hunter hunter)
     {
-        if (idleSeats.Count == 0) return;
+        if (hunter == null) return;
+        if (hunterSeats.Count == 0) return;
         
-        Transform seat = idleSeats[nextSeatIndex % idleSeats.Count];
+        HunterSeat seat = FindAvailableSeat();
+        if (seat == null)
+        {
+            Debug.LogWarning("HunterManager: No available HunterSeat to assign.");
+            return;
+        }
+
+        if (!seat.TryAssign(hunter))
+        {
+            return;
+        }
+
         hunter.WalkToSeat(seat);
-        nextSeatIndex++;
+    }
+
+    private HunterSeat FindAvailableSeat()
+    {
+        if (hunterSeats.Count == 0) return null;
+
+        for (int i = 0; i < hunterSeats.Count; i++)
+        {
+            int index = (nextSeatIndex + i) % hunterSeats.Count;
+            HunterSeat seat = hunterSeats[index];
+            if (seat != null && !seat.IsOccupied)
+            {
+                nextSeatIndex = (index + 1) % hunterSeats.Count;
+                return seat;
+            }
+        }
+
+        return null;
     }
     
     public List<Hunter> GetAvailableHunters()
@@ -226,6 +244,28 @@ public class HunterManager : MonoBehaviour
             NotifyHuntersChanged();
         }
         return leveled;
+    }
+
+    public Transform GetDoorEntryTransform()
+    {
+        if (doorEntryPoint != null) return doorEntryPoint;
+        if (doorExitPoint != null) return doorExitPoint;
+        return null;
+    }
+
+    public Transform GetDoorExitTransform()
+    {
+        if (doorExitPoint != null) return doorExitPoint;
+        if (doorEntryPoint != null) return doorEntryPoint;
+        return null;
+    }
+
+    public Transform GetReturnSpawnTransform()
+    {
+        if (returnSpawnPoint != null) return returnSpawnPoint;
+        if (doorEntryPoint != null) return doorEntryPoint;
+        if (doorExitPoint != null) return doorExitPoint;
+        return null;
     }
 
     private bool CheckNavMeshAvailable()
