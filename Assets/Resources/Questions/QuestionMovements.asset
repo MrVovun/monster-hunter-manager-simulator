@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0135a2d038e370246ae1b9b60b271735, type: 3}
+  m_Name: QuestionMovements
+  m_EditorClassIdentifier: Assembly-CSharp::InvestigationQuestion
+  questionId: bac3a0a73adc4427b5740d3af5a601dc
+  promptText: How did it move - was it fast, slow, or normal for its size?
+  askDurationSeconds: 1
+  requiredEvidence:
+  - categoryIndex: 0
+    valueIndex: -1
+  revealedCategories:
+  - categoryIndex: 5
+  explicitReveals: []
+  followUps: []

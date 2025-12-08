@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec3fde21002c50240b920d911c2e3baf, type: 3}
+  m_Name: GameConfig
+  m_EditorClassIdentifier: Assembly-CSharp::GameConfig
+  hunterConfig: {fileID: 11400000, guid: 84ee17d7c1df973429e0e6c531a05629, type: 2}
+  monsterLibrary: {fileID: 11400000, guid: 43ebd4fcf2b7bb84e98b51196f72b679, type: 2}
+  evidenceTagLibrary: {fileID: 11400000, guid: bb0171e6242d96e4ab1bf8c274a1264b, type: 2}
+  defaultInvestigationQuestions:
+  - {fileID: 11400000, guid: 138b37c003abe654ab951864f1f191f4, type: 2}
+  defaultClientProfiles:
+  - {fileID: 11400000, guid: a386fdc52ecc16142beb2fc924c5c91e, type: 2}
+  - {fileID: 11400000, guid: 2cdf72bfa74ddd046afb17c83b82a246, type: 2}
+  dayLengthSeconds: 6000
+  allowInvestigationPauseToggle: 1
+  orderLimitByReputation:
+  - requiredReputation: 1
+    orderLimit: 3
+  - requiredReputation: 2
+    orderLimit: 4
+  - requiredReputation: 3
+    orderLimit: 5

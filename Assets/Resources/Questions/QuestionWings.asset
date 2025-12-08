@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0135a2d038e370246ae1b9b60b271735, type: 3}
+  m_Name: QuestionWings
+  m_EditorClassIdentifier: Assembly-CSharp::InvestigationQuestion
+  questionId: 3c29cc8cc19e410dbf7a75f20bb21be7
+  promptText: Did it have wings?
+  askDurationSeconds: 1
+  requiredEvidence:
+  - categoryIndex: 0
+    valueIndex: -1
+  revealedCategories:
+  - categoryIndex: 4
+  explicitReveals: []
+  followUps: []

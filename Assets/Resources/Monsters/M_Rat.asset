@@ -13,7 +13,40 @@ MonoBehaviour:
   m_Name: M_Rat
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: bb87fa37b0644b8084ba7349635d8954
-  displayName: Rat
+  displayName: Giant Rat
   portrait: {fileID: 0}
-  traits: []
+  possibleTraits: []
+  traitCountRange: {x: 0, y: 3}
+  evidenceTags:
+  - categoryName: family
+    valueName: ratkin
+  - categoryName: size
+    valueName: small
+  - categoryName: sound
+    valueName: animalistic
+  - categoryName: tail
+    valueName: hasTail
+  - categoryName: winged
+    valueName: noWings
+  - categoryName: movement
+    valueName: fast
+  questionResponses:
+  - question: {fileID: 11400000, guid: 138b37c003abe654ab951864f1f191f4, type: 2}
+    tagIndex: 0
+    responseText: T'was a rat!
+  - question: {fileID: 11400000, guid: ac95fca6036908f4e82a3a5014cb5c38, type: 2}
+    tagIndex: 5
+    responseText: Fast, agile. Like a rat.
+  - question: {fileID: 11400000, guid: 88be2b18d86528f459bb4d4d5a2e53bd, type: 2}
+    tagIndex: 1
+    responseText: Small compared to a human, but big for a rat!
+  - question: {fileID: 11400000, guid: 7052173e211d8fd4e8ab035dc4d434b2, type: 2}
+    tagIndex: 2
+    responseText: ...Like a rat?
+  - question: {fileID: 11400000, guid: 7b7c77071c297ff46a62a80d5d33bb78, type: 2}
+    tagIndex: 3
+    responseText: Ay, a rat tail!
+  - question: {fileID: 11400000, guid: e301b93ebccd4d544ac650ee3653046d, type: 2}
+    tagIndex: 4
+    responseText: No wings!
   weight: 1

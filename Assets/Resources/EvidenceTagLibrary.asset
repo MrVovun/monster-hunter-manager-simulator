@@ -1,0 +1,99 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 590b9089e0b4f0d45904789ad7ab6d10, type: 3}
+  m_Name: EvidenceTagLibrary
+  m_EditorClassIdentifier: Assembly-CSharp::EvidenceTagLibrary
+  categories:
+  - categoryName: family
+    displayName: Family
+    values:
+    - valueName: greenskin
+      displayName: Greenskin
+      description: 
+    - valueName: dragonkin
+      displayName: Dragonkin
+      description: 
+    - valueName: ratkin
+      displayName: Ratkin
+      description: 
+    - valueName: demon
+      displayName: Demon
+      description: 
+    - valueName: undead
+      displayName: Undead
+      description: 
+    - valueName: fae
+      displayName: Fae
+      description: 
+  - categoryName: size
+    displayName: Size
+    values:
+    - valueName: small
+      displayName: Small
+      description: 
+    - valueName: medium
+      displayName: Medium
+      description: 
+    - valueName: large
+      displayName: Large
+      description: 
+  - categoryName: sound
+    displayName: Sound
+    values:
+    - valueName: roar
+      displayName: Roar
+      description: 
+    - valueName: screech
+      displayName: Screech
+      description: 
+    - valueName: speech
+      displayName: Speech
+      description: 
+    - valueName: animalistic
+      displayName: Animalistic
+      description: 
+    - valueName: silent
+      displayName: Silent
+      description: 
+  - categoryName: tail
+    displayName: Tail
+    values:
+    - valueName: hasTail
+      displayName: Has a tail
+      description: 
+    - valueName: noTail
+      displayName: No tail
+      description: 
+  - categoryName: winged
+    displayName: Winged
+    values:
+    - valueName: noWings
+      displayName: No wings
+      description: 
+    - valueName: twoWings
+      displayName: Two wings
+      description: 
+    - valueName: fourWings
+      displayName: Four wings
+      description: 
+  - categoryName: movement
+    displayName: Movement
+    values:
+    - valueName: fast
+      displayName: Fast
+      description: 
+    - valueName: normal
+      displayName: Normal
+      description: 
+    - valueName: slow
+      displayName: Slow
+      description: 

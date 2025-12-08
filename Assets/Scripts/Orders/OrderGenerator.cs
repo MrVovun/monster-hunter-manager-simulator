@@ -110,6 +110,15 @@ public class OrderGenerator : MonoBehaviour
 
     private IList<MonsterData> GetMonsterPool()
     {
+        if (monsterLibrary == null)
+        {
+            var config = GameManager.Instance != null ? GameManager.Instance.GetGameConfig() : null;
+            if (config != null && config.monsterLibrary != null)
+            {
+                monsterLibrary = config.monsterLibrary;
+            }
+        }
+
         if (monsterLibrary != null)
         {
             var monsters = monsterLibrary.GetMonsters();

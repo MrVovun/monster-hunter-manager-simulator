@@ -17,6 +17,10 @@ public class Order
     public string orderTitle;
     public string description;
     public MonsterData monsterData;
+    [Tooltip("Monster selected by the player when committing the order.")]
+    public MonsterData declaredMonster;
+    [Tooltip("Investigation data collected before accepting the order.")]
+    public InvestigationCase investigationCase;
     public int difficulty;
     public int goldReward;
     public int xpReward;
@@ -55,6 +59,11 @@ public class Order
 
     public string GetMonsterName()
     {
+        if (declaredMonster != null && !string.IsNullOrWhiteSpace(declaredMonster.displayName))
+        {
+            return declaredMonster.displayName;
+        }
+
         if (monsterData != null && !string.IsNullOrWhiteSpace(monsterData.displayName))
         {
             return monsterData.displayName;

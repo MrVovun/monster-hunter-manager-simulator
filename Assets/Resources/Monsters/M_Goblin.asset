@@ -15,5 +15,38 @@ MonoBehaviour:
   monsterId: e0cc0d7bc53b4258944aa7c15346b34e
   displayName: Goblin
   portrait: {fileID: 0}
-  traits: []
+  possibleTraits: []
+  traitCountRange: {x: 0, y: 3}
+  evidenceTags:
+  - categoryName: family
+    valueName: greenskin
+  - categoryName: size
+    valueName: small
+  - categoryName: sound
+    valueName: speech
+  - categoryName: tail
+    valueName: noTail
+  - categoryName: winged
+    valueName: noWings
+  - categoryName: movement
+    valueName: fast
+  questionResponses:
+  - question: {fileID: 11400000, guid: 138b37c003abe654ab951864f1f191f4, type: 2}
+    tagIndex: 0
+    responseText: Was a green human-like monster.
+  - question: {fileID: 11400000, guid: ac95fca6036908f4e82a3a5014cb5c38, type: 2}
+    tagIndex: 5
+    responseText: Fast and sneaky.
+  - question: {fileID: 11400000, guid: 7052173e211d8fd4e8ab035dc4d434b2, type: 2}
+    tagIndex: 2
+    responseText: Spoke in a different language.
+  - question: {fileID: 11400000, guid: 7b7c77071c297ff46a62a80d5d33bb78, type: 2}
+    tagIndex: 3
+    responseText: No tail.
+  - question: {fileID: 11400000, guid: e301b93ebccd4d544ac650ee3653046d, type: 2}
+    tagIndex: 4
+    responseText: No wings.
+  - question: {fileID: 11400000, guid: 88be2b18d86528f459bb4d4d5a2e53bd, type: 2}
+    tagIndex: 1
+    responseText: Small and scrawny.
   weight: 1

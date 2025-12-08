@@ -148,10 +148,20 @@ public class HunterData : ScriptableObject
 
     public static GlobalHunterConfig GetGlobalConfig()
     {
+        if (cachedConfig != null) return cachedConfig;
+
+        if (GameManager.Instance != null)
+        {
+            cachedConfig = GameManager.Instance.GetGameConfig() != null
+                ? GameManager.Instance.GetGameConfig().hunterConfig
+                : null;
+        }
+
         if (cachedConfig == null)
         {
             cachedConfig = Resources.Load<GlobalHunterConfig>("GlobalHunterConfig");
         }
+
         return cachedConfig;
     }
 }
