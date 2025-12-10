@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private OrderGenerator orderGenerator;
     [SerializeField] private MissionResolver missionResolver;
     [SerializeField] private TimeManager timeManager;
+    [SerializeField] private InvestigationManager investigationManager;
     [SerializeField] private GameConfig gameConfig;
 
     [Header("Starting Values")]
@@ -45,6 +46,7 @@ public class GameManager : MonoBehaviour
         if (orderGenerator == null) orderGenerator = GetComponentInChildren<OrderGenerator>();
         if (missionResolver == null) missionResolver = GetComponentInChildren<MissionResolver>();
         if (timeManager == null) timeManager = FindObjectOfType<TimeManager>();
+        if (investigationManager == null) investigationManager = FindObjectOfType<InvestigationManager>();
         if (gameConfig == null) gameConfig = Resources.Load<GameConfig>("GameConfig");
 
         // Create basics if missing so the scene can run
@@ -95,6 +97,8 @@ public class GameManager : MonoBehaviour
     public ReputationManager GetReputationManager() => reputationManager;
     public HunterManager GetHunterManager() => hunterManager;
     public TimeManager GetTimeManager() => timeManager;
+    public InvestigationManager GetInvestigationManager() => investigationManager;
+    public OrderGenerator GetOrderGenerator() => orderGenerator;
     public GameConfig GetGameConfig() => gameConfig;
 
     public int GetReputation()

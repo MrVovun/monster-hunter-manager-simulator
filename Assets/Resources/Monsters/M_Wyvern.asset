@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d7003a09dfdd9dd498e3ab35a5abe032, type: 3}
-  m_Name: M_Dragon
+  m_Name: M_Wyvern
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
-  monsterId: aaead96b021643a686de747f54a85e33
-  displayName: Dragon
+  monsterId: 7c71c7c469b849e7bc68f09c174a426b
+  displayName: Wyvern
   portrait: {fileID: 0}
   possibleTraits: []
   traitCountRange: {x: 0, y: 3}
@@ -23,7 +23,7 @@ MonoBehaviour:
   - categoryName: size
     valueName: large
   - categoryName: sound
-    valueName: roar
+    valueName: screech
   - categoryName: tail
     valueName: hasTail
   - categoryName: winged
@@ -39,7 +39,7 @@ MonoBehaviour:
     responseText: Normal for its size...
   - question: {fileID: 11400000, guid: 7052173e211d8fd4e8ab035dc4d434b2, type: 2}
     tagIndex: 2
-    responseText: It roared! Roahhh! Like that!
+    responseText: Soul-shattering screech. Can't even imitate it.
   - question: {fileID: 11400000, guid: 7b7c77071c297ff46a62a80d5d33bb78, type: 2}
     tagIndex: 3
     responseText: Ay, a big long tail!

@@ -10,43 +10,43 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d7003a09dfdd9dd498e3ab35a5abe032, type: 3}
-  m_Name: M_Dragon
+  m_Name: M_Ratman
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
-  monsterId: aaead96b021643a686de747f54a85e33
-  displayName: Dragon
+  monsterId: e0ad94725a014591827a579356b03f55
+  displayName: Ratman
   portrait: {fileID: 0}
   possibleTraits: []
   traitCountRange: {x: 0, y: 3}
   evidenceTags:
   - categoryName: family
-    valueName: dragonkin
+    valueName: ratkin
   - categoryName: size
-    valueName: large
+    valueName: medium
   - categoryName: sound
-    valueName: roar
+    valueName: speech
   - categoryName: tail
     valueName: hasTail
   - categoryName: winged
-    valueName: twoWings
+    valueName: noWings
   - categoryName: movement
-    valueName: normal
+    valueName: fast
   questionResponses:
   - question: {fileID: 11400000, guid: 138b37c003abe654ab951864f1f191f4, type: 2}
     tagIndex: 0
-    responseText: It was a big lizard!
+    responseText: T'was a rat!
   - question: {fileID: 11400000, guid: ac95fca6036908f4e82a3a5014cb5c38, type: 2}
     tagIndex: 5
-    responseText: Normal for its size...
-  - question: {fileID: 11400000, guid: 7052173e211d8fd4e8ab035dc4d434b2, type: 2}
-    tagIndex: 2
-    responseText: It roared! Roahhh! Like that!
-  - question: {fileID: 11400000, guid: 7b7c77071c297ff46a62a80d5d33bb78, type: 2}
-    tagIndex: 3
-    responseText: Ay, a big long tail!
-  - question: {fileID: 11400000, guid: e301b93ebccd4d544ac650ee3653046d, type: 2}
-    tagIndex: 4
-    responseText: Two big wings, so big they create a shadow!
+    responseText: Fast, agile. Like a rat.
   - question: {fileID: 11400000, guid: 88be2b18d86528f459bb4d4d5a2e53bd, type: 2}
     tagIndex: 1
-    responseText: Giant! Biggest beast I saw!
+    responseText: A bit smaller than a human, but giant for a rat!
+  - question: {fileID: 11400000, guid: 7052173e211d8fd4e8ab035dc4d434b2, type: 2}
+    tagIndex: 2
+    responseText: It spokes! In a rat-like tongue!
+  - question: {fileID: 11400000, guid: 7b7c77071c297ff46a62a80d5d33bb78, type: 2}
+    tagIndex: 3
+    responseText: Ay, a rat tail!
+  - question: {fileID: 11400000, guid: e301b93ebccd4d544ac650ee3653046d, type: 2}
+    tagIndex: 4
+    responseText: No wings!
   weight: 1

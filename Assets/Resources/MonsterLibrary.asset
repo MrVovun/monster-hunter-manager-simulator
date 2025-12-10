@@ -14,5 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterLibrary
   monsters:
   - {fileID: 11400000, guid: 806c46a4f789bf243bc54e4ce7bee7b3, type: 2}
+  - {fileID: 11400000, guid: 5d89aec8c196f8f4081874fde9d0fb15, type: 2}
   - {fileID: 11400000, guid: 298bff6344a06024ea6dc2ea07fb495a, type: 2}
+  - {fileID: 11400000, guid: cb8d3cfb63d6ae04699e08acf066d650, type: 2}
   - {fileID: 11400000, guid: 87a43201a84ee104386a3cd58922e30a, type: 2}
+  - {fileID: 11400000, guid: 61a8e7472ccefd7408c22461a67a49cc, type: 2}
+  - {fileID: 11400000, guid: 91e96d17581210f4faa2751576d3621e, type: 2}
+  - {fileID: 11400000, guid: f1e5bda71cb339a47adf4810eb634b40, type: 2}

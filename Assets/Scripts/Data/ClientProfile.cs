@@ -12,8 +12,6 @@ public class ClientProfile : ScriptableObject
     [Tooltip("Optional visual prefabs to spawn while this client is present.")]
     public List<GameObject> visualPrefabs = new List<GameObject>();
 
-    private int visualIndex;
-
     private void OnEnable()
     {
         EnsureId();
@@ -35,7 +33,7 @@ public class ClientProfile : ScriptableObject
     public GameObject GetNextVisualPrefab()
     {
         if (visualPrefabs == null || visualPrefabs.Count == 0) return null;
-        visualIndex = (visualIndex + 1) % visualPrefabs.Count;
-        return visualPrefabs[visualIndex];
+        int index = UnityEngine.Random.Range(0, visualPrefabs.Count);
+        return visualPrefabs[index];
     }
 }

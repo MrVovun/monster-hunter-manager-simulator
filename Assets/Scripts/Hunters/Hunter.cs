@@ -19,6 +19,7 @@ public class Hunter : MonoBehaviour
     [Header("Components")]
     private NavMeshAgent navAgent;
     private Animator animator;
+    [SerializeField] private SharedCharacterAnimator sharedAnimator;
 
     [Header("Seating")]
     private HunterSeat assignedSeat;
@@ -48,6 +49,16 @@ public class Hunter : MonoBehaviour
         }
 
         animator = GetComponentInChildren<Animator>();
+        if (sharedAnimator == null)
+        {
+            sharedAnimator = GetComponent<SharedCharacterAnimator>();
+            if (sharedAnimator == null)
+            {
+                sharedAnimator = gameObject.AddComponent<SharedCharacterAnimator>();
+            }
+        }
+        sharedAnimator.SetNavAgent(navAgent);
+        sharedAnimator.AutoUpdateVelocity = true;
         stats = GetComponent<HunterStats>();
         if (stats == null)
         {
@@ -157,6 +168,7 @@ public class Hunter : MonoBehaviour
             transform.rotation = anchor.rotation;
             isSeated = true;
             playSitEntry = true;
+            sharedAnimator?.PlaySitSequence();
 
             if (navAgent != null)
             {
@@ -477,6 +489,16 @@ public class Hunter : MonoBehaviour
         {
             animator = GetComponentInChildren<Animator>();
         }
+
+        if (animator != null)
+        {
+            sharedAnimator?.SetAnimatorReference(animator);
+            sharedAnimator?.SetAnimationSpeed(1f);
+        }
+        else
+        {
+            Debug.LogWarning($"Hunter '{name}' has no Animator assigned after visual setup.", this);
+        }
     }
 
     private void UpdateAnimationParameters()
@@ -484,7 +506,6 @@ public class Hunter : MonoBehaviour
         if (animator == null) return;
 
         float speed = 0f;
-        animator.SetFloat("AnimationSpeed", 1f);
         if (!baseLayerInitialized)
         {
             animator.SetInteger("Weapon", -1);
@@ -493,23 +514,16 @@ public class Hunter : MonoBehaviour
             baseLayerInitialized = true;
         }
 
-        if (navAgent != null && navAgent.enabled)
+        bool navEnabled = navAgent != null && navAgent.enabled;
+        if (navEnabled)
         {
             speed = navAgent.velocity.magnitude;
-            Vector3 localVel = transform.InverseTransformDirection(navAgent.velocity);
-            float normalizedX = navAgent.speed > 0.01f ? localVel.x / navAgent.speed : 0f;
-            float normalizedZ = navAgent.speed > 0.01f ? localVel.z / navAgent.speed : 0f;
-            animator.SetFloat("Velocity X", Mathf.Clamp(normalizedX, -1f, 1f));
-            animator.SetFloat("Velocity Z", Mathf.Clamp(normalizedZ, -1f, 1f));
-        }
-        else
-        {
-            animator.SetFloat("Velocity X", 0f);
-            animator.SetFloat("Velocity Z", 0f);
         }
 
+        sharedAnimator?.SetAnimationSpeed(1f);
+
         bool moving = speed > 0.05f && !isSeated;
-        animator.SetBool("Moving", moving);
+        sharedAnimator?.SetMoving(moving);
         if (!moving && !isSeated && !isStandingUp)
         {
             animator.SetInteger("Action", 0);

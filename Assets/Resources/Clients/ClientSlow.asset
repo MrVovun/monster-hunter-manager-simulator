@@ -15,4 +15,5 @@ MonoBehaviour:
   profileId: 0331e973916946c79a17ae6abe645268
   categoryName: clientSlow
   responseDelaySeconds: 2
-  visualPrefabs: []
+  visualPrefabs:
+  - {fileID: 1430950555806150, guid: 96b84116ceefa1b40b5e0b8895fc9b38, type: 3}

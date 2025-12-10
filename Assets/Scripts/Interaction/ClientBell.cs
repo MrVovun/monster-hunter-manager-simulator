@@ -2,10 +2,9 @@ using UnityEngine;
 
 public class ClientBell : Interactable
 {
-    [SerializeField] private OrderOfferPanel orderOfferPanel;
     [SerializeField] private AudioSource bellAudio;
-
-    private PlayerInteraction pendingPlayerRelease;
+    [SerializeField] private InvestigationManager investigationManager;
+    [SerializeField] private OrderGenerator orderGenerator;
 
     private void Reset()
     {
@@ -23,72 +22,38 @@ public class ClientBell : Interactable
             bellAudio.Play();
         }
 
-        OrderManager manager = GameManager.Instance != null ? GameManager.Instance.GetOrderManager() : null;
-        if (manager != null)
+        var manager = ResolveInvestigationManager();
+        var generator = ResolveOrderGenerator();
+        if (manager == null || generator == null)
         {
-            Order newOrder = manager.GenerateAndOfferOrder();
-            if (orderOfferPanel != null)
-            {
-                orderOfferPanel.Show(newOrder);
-                if (locksPlayer)
-                {
-                    BeginWaitingForOrderPanel(player);
-                }
-            }
-        }
-        else
-        {
-            Debug.LogWarning("ClientBell: No OrderManager found.");
-        }
-
-        if (locksPlayer && pendingPlayerRelease == null)
-        {
-            pendingPlayerRelease = player;
-            RegisterLockRelease(ReleasePendingPlayerLock);
-        }
-
-        if (pendingPlayerRelease == null)
-        {
+            Debug.LogWarning("ClientBell: Missing InvestigationManager or OrderGenerator reference.");
             OnInteractionEnd(player);
+            return;
         }
-    }
 
-    private void BeginWaitingForOrderPanel(PlayerInteraction player)
-    {
-        pendingPlayerRelease = player;
-        orderOfferPanel.OnPanelHidden -= HandlePanelHidden;
-        orderOfferPanel.OnPanelHidden += HandlePanelHidden;
-        RegisterLockRelease(ReleasePendingPlayerLock);
-    }
-
-    private void HandlePanelHidden(OrderOfferPanel panel)
-    {
-        orderOfferPanel.OnPanelHidden -= HandlePanelHidden;
-        ReleasePendingPlayerLock();
-    }
-
-    public void ReleasePlayerLock()
-    {
-        ReleasePendingPlayerLock();
-    }
-
-    private void ReleasePendingPlayerLock()
-    {
-        if (pendingPlayerRelease != null)
+        Order newOrder = generator.GenerateRandomOrder();
+        if (newOrder == null)
         {
-            OnInteractionEnd(pendingPlayerRelease);
-            pendingPlayerRelease = null;
-            ClearLockRelease(ReleasePendingPlayerLock);
+            Debug.LogWarning("ClientBell: Failed to generate a new order.");
+            OnInteractionEnd(player);
+            return;
         }
+
+        manager.StartInvestigation(newOrder);
+        OnInteractionEnd(player);
     }
 
-    private void OnDisable()
+    private InvestigationManager ResolveInvestigationManager()
     {
-        if (orderOfferPanel != null)
-        {
-            orderOfferPanel.OnPanelHidden -= HandlePanelHidden;
-        }
-        ReleasePendingPlayerLock();
-        ClearLockRelease(ReleasePendingPlayerLock);
+        if (investigationManager != null) return investigationManager;
+        investigationManager = GameManager.Instance != null ? GameManager.Instance.GetInvestigationManager() : null;
+        return investigationManager;
+    }
+
+    private OrderGenerator ResolveOrderGenerator()
+    {
+        if (orderGenerator != null) return orderGenerator;
+        orderGenerator = GameManager.Instance != null ? GameManager.Instance.GetOrderGenerator() : null;
+        return orderGenerator;
     }
 }
