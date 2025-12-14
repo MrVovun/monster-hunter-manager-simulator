@@ -32,8 +32,11 @@ public class OrderGenerator : MonoBehaviour
             : "monster";
 
         Order order = new Order();
+        order.monsterNamePlaceholder = string.IsNullOrWhiteSpace(monsterNamePlaceholder)
+            ? Order.DefaultMonsterPlaceholder
+            : monsterNamePlaceholder;
         order.orderTitle = BuildOrderTitle(flavor, monsterName);
-        order.description = BuildOrderDescription(flavor, monsterName);
+        order.description = BuildOrderDescription(flavor, order.monsterNamePlaceholder);
         order.monsterData = monster;
         order.difficulty = difficultyValue;
         order.goldReward = difficultyEntry != null ? difficultyEntry.goldReward : difficultyValue * defaultGoldPerDifficulty;

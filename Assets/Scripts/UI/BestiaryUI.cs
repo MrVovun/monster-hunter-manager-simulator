@@ -82,8 +82,13 @@ public class BestiaryUI : MonoBehaviour
             orderManager = GameManager.Instance.GetOrderManager();
         }
 
-        BuildList();
-        ShowDetails(null);
+        currentSelection = null;
+        MonsterData defaultMonster = BuildList();
+        bool appliedDefault = TryApplyDefaultSelection(defaultMonster);
+        if (!appliedDefault)
+        {
+            ShowDetails(null);
+        }
         RefreshContext();
         SetActive(true);
     }
@@ -98,7 +103,7 @@ public class BestiaryUI : MonoBehaviour
         currentSelection = null;
     }
 
-    private void BuildList()
+    private MonsterData BuildList()
     {
         foreach (var go in spawnedEntries)
         {
@@ -107,7 +112,7 @@ public class BestiaryUI : MonoBehaviour
         spawnedEntries.Clear();
         listEntryPortraitLookup.Clear();
 
-        if (monsterListParent == null || monsterListItemPrefab == null) return;
+        if (monsterListParent == null || monsterListItemPrefab == null) return null;
 
         var grouped = availableMonsters
             .Where(m => m != null)
@@ -117,6 +122,8 @@ public class BestiaryUI : MonoBehaviour
                 return string.IsNullOrWhiteSpace(family) ? "Unknown" : family;
             })
             .OrderBy(g => g.Key);
+
+        MonsterData firstSelectable = null;
 
         foreach (var group in grouped)
         {
@@ -138,8 +145,14 @@ public class BestiaryUI : MonoBehaviour
                 spawnedEntries.Add(entry);
                 ConfigureMonsterListEntry(entry, monster);
                 EnsureButton(entry)?.onClick.AddListener(() => ShowDetails(monster));
+                if (firstSelectable == null)
+                {
+                    firstSelectable = monster;
+                }
             }
         }
+
+        return firstSelectable;
     }
 
     private Button EnsureButton(GameObject entry)
@@ -157,6 +170,17 @@ public class BestiaryUI : MonoBehaviour
 
         button = entry.AddComponent<Button>();
         return button;
+    }
+
+    private bool TryApplyDefaultSelection(MonsterData monster)
+    {
+        if (!selectionEnabled || monster == null)
+        {
+            return false;
+        }
+
+        ShowDetails(monster);
+        return true;
     }
 
     private void ShowDetails(MonsterData monster)
@@ -194,7 +218,7 @@ public class BestiaryUI : MonoBehaviour
         if (completionText != null)
         {
             int count = orderManager != null ? orderManager.GetMonsterCompletionCount(monster) : 0;
-            completionText.text = $"Orders Completed: {count}";
+            completionText.text = $"{count}";
         }
         if (portraitImage != null)
         {
@@ -348,18 +372,20 @@ public class BestiaryUI : MonoBehaviour
     private GameObject CreateTraitItem(MonsterTrait trait)
     {
         GameObject item = traitItemPrefab != null ? Instantiate(traitItemPrefab) : new GameObject("Trait");
-        TMP_Text text = item.GetComponentInChildren<TMP_Text>();
-        if (text == null)
+        RectTransform rect = item.GetComponent<RectTransform>();
+        if (rect == null)
         {
-            text = item.AddComponent<TMP_Text>();
+            rect = item.AddComponent<RectTransform>();
         }
-        text.text = trait != null ? trait.displayName : "???";
 
-        Image icon = item.GetComponentInChildren<Image>();
-        if (icon == null && traitIconPrototype != null)
+        TMP_Text text = item.GetComponentInChildren<TMP_Text>();
+        if (text != null)
         {
-            icon = Instantiate(traitIconPrototype, item.transform);
+            text.text = string.Empty;
+            text.gameObject.SetActive(false);
         }
+
+        Image icon = FindOrCreateTraitIcon(item);
         if (icon != null)
         {
             icon.sprite = trait != null ? trait.icon : null;
@@ -373,10 +399,44 @@ public class BestiaryUI : MonoBehaviour
             {
                 tooltip = item.AddComponent<TraitTooltipTrigger>();
             }
-            tooltip.Initialize(traitTooltipPanel, item.GetComponent<RectTransform>(), trait != null ? trait.displayName : "Trait", trait != null ? trait.description : string.Empty);
+            tooltip.Initialize(traitTooltipPanel, rect, trait != null ? trait.displayName : "Trait", trait != null ? trait.description : string.Empty);
         }
 
         return item;
+    }
+
+    private Image FindOrCreateTraitIcon(GameObject item)
+    {
+        if (item == null) return null;
+
+        Image icon = null;
+        var images = item.GetComponentsInChildren<Image>(true);
+        foreach (var candidate in images)
+        {
+            if (candidate == null) continue;
+            if (candidate.transform == item.transform && item.GetComponent<Button>() != null)
+            {
+                continue;
+            }
+            icon = candidate;
+            break;
+        }
+
+        if (icon == null && traitIconPrototype != null)
+        {
+            icon = Instantiate(traitIconPrototype, item.transform);
+        }
+
+        if (icon == null)
+        {
+            icon = item.GetComponent<Image>();
+            if (icon == null)
+            {
+                icon = item.AddComponent<Image>();
+            }
+        }
+
+        return icon;
     }
 
     private void ConfigureMonsterListEntry(GameObject entry, MonsterData monster)

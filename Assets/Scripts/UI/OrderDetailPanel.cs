@@ -85,8 +85,11 @@ public class OrderDetailPanel : MonoBehaviour
         RefreshSlotVisuals();
 
         if (titleText != null) titleText.text = order.orderTitle;
-        if (descriptionText != null) descriptionText.text = order.description;
-        string monsterName = order.GetMonsterName();
+        if (descriptionText != null)
+        {
+            descriptionText.text = order.GetDescriptionFor(Order.DescriptionAudience.DeclaredMonster);
+        }
+        string monsterName = order.GetDeclaredOrGenericMonsterName();
         if (statsText != null)
         {
             statsText.text =

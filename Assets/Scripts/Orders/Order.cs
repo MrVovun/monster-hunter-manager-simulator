@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 
 public enum OrderState
@@ -16,6 +18,8 @@ public class Order
 {
     public string orderTitle;
     public string description;
+    [Tooltip("Token replaced when generating player-facing descriptions (defaults to <monster_name>).")]
+    public string monsterNamePlaceholder = DefaultMonsterPlaceholder;
     public MonsterData monsterData;
     [Tooltip("Monster selected by the player when committing the order.")]
     public MonsterData declaredMonster;
@@ -35,6 +39,15 @@ public class Order
     public MissionTimer prepTimer;
     public MissionTimer missionTimer;
     public System.Guid orderId;
+
+    public enum DescriptionAudience
+    {
+        Client,
+        DeclaredMonster,
+        TrueMonster
+    }
+
+    public const string DefaultMonsterPlaceholder = "<monster_name>";
     
     public Order()
     {
@@ -71,5 +84,87 @@ public class Order
 
         return "Unknown Monster";
     }
-}
 
+    public string GetDeclaredOrGenericMonsterName()
+    {
+        if (declaredMonster != null && !string.IsNullOrWhiteSpace(declaredMonster.displayName))
+        {
+            return declaredMonster.displayName;
+        }
+
+        return "monster";
+    }
+
+    public string GetDescriptionFor(DescriptionAudience audience)
+    {
+        string replacement = "monster";
+        switch (audience)
+        {
+            case DescriptionAudience.DeclaredMonster:
+                replacement = declaredMonster != null && !string.IsNullOrWhiteSpace(declaredMonster.displayName)
+                    ? declaredMonster.displayName
+                    : "monster";
+                break;
+            case DescriptionAudience.TrueMonster:
+                replacement = monsterData != null && !string.IsNullOrWhiteSpace(monsterData.displayName)
+                    ? monsterData.displayName
+                    : "monster";
+                break;
+            default:
+                replacement = "monster";
+                break;
+        }
+
+        return BuildDescriptionFromTemplate(replacement);
+    }
+
+    private string BuildDescriptionFromTemplate(string replacement)
+    {
+        if (string.IsNullOrEmpty(description))
+        {
+            return string.Empty;
+        }
+
+        string token = string.IsNullOrWhiteSpace(monsterNamePlaceholder) ? DefaultMonsterPlaceholder : monsterNamePlaceholder;
+        string safeReplacement = string.IsNullOrWhiteSpace(replacement) ? "monster" : replacement;
+
+        if (!string.IsNullOrEmpty(token) && description.Contains(token, StringComparison.Ordinal))
+        {
+            return description.Replace(token, safeReplacement);
+        }
+
+        string truthName = monsterData != null ? monsterData.displayName : null;
+        if (!string.IsNullOrWhiteSpace(truthName) && !string.Equals(truthName, safeReplacement, StringComparison.OrdinalIgnoreCase))
+        {
+            return ReplaceInsensitive(description, truthName, safeReplacement);
+        }
+
+        return description;
+    }
+
+    private string ReplaceInsensitive(string source, string oldValue, string newValue)
+    {
+        if (string.IsNullOrEmpty(source) || string.IsNullOrEmpty(oldValue))
+        {
+            return source;
+        }
+
+        StringBuilder builder = new StringBuilder();
+        int position = 0;
+        while (true)
+        {
+            int index = source.IndexOf(oldValue, position, StringComparison.OrdinalIgnoreCase);
+            if (index < 0)
+            {
+                builder.Append(source, position, source.Length - position);
+                break;
+            }
+
+            builder.Append(source, position, index - position);
+            builder.Append(newValue);
+            position = index + oldValue.Length;
+        }
+
+        return builder.ToString();
+    }
+}

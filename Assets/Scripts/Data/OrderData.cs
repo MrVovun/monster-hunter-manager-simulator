@@ -40,6 +40,7 @@ public class OrderData : ScriptableObject
     {
         Order order = new Order();
         order.orderTitle = orderTitle;
+        order.monsterNamePlaceholder = Order.DefaultMonsterPlaceholder;
         order.description = description;
         order.monsterData = monsterData;
         order.difficulty = baseDifficulty + Random.Range(-difficultyVariance, difficultyVariance + 1);
@@ -59,4 +60,3 @@ public class OrderData : ScriptableObject
         return order;
     }
 }
-

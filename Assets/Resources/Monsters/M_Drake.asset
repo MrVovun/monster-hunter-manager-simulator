@@ -14,8 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: 6e032929691d46a59d29f5470a48b212
   displayName: Drake
-  portrait: {fileID: 21300000, guid: 90e99ee31082a974d8fe466a02d2195a, type: 3}
-  description: yada yada yada
+  portrait: {fileID: 21300000, guid: f6ff5c1ddf7b1134e884496498037fdf, type: 3}
+  description: Drakes are wingless dragonkin, roughly dragon-sized but more like
+    bulky, scaled war-beasts than lords of the sky. They move on all fours with a
+    heavy reptilian stride, but unlike dragons they have no tail and no wings at
+    all. Their voices are deep, bestial roars, more like a maddened bull than an
+    intelligent monster.
   requiredReputation: 1
   possibleTraits: []
   traitCountRange: {x: 0, y: 3}

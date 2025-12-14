@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -16,17 +17,36 @@ public class InvestigationDialogueUI : MonoBehaviour
     [SerializeField] private TMP_Text responseFallbackText;
     [SerializeField] private GameObject questionItemPrefab;
 
-    private readonly List<GameObject> spawnedItems = new List<GameObject>();
+    private readonly List<QuestionEntry> questionEntries = new List<QuestionEntry>();
     private InvestigationManager currentManager;
     private InvestigationCase currentCase;
     private System.Action onClose;
     private CursorLockMode previousLockState;
     private bool previousCursorVisible;
     private bool cursorCaptured;
+    private Coroutine responseRoutine;
+    private bool waitingForResponse;
+    private bool awaitingTypewriterCompletion;
 
     private void Awake()
     {
         SetActive(false);
+        if (responseTypewriter != null)
+        {
+            responseTypewriter.onTextShowed.AddListener(HandleTypewriterCompleted);
+        }
+    }
+
+    private string GetClientOpeningLine()
+    {
+        var order = currentManager != null ? currentManager.CurrentOrder : null;
+        if (order == null)
+        {
+            return "...";
+        }
+
+        string line = order.GetDescriptionFor(Order.DescriptionAudience.Client);
+        return string.IsNullOrWhiteSpace(line) ? "..." : line;
     }
 
     public void Show(InvestigationCase caseData, InvestigationManager manager, System.Action closeCallback)
@@ -37,7 +57,7 @@ public class InvestigationDialogueUI : MonoBehaviour
 
         RefreshQuestions();
         HookButtons();
-        PlayResponse("...");
+        PlayResponse(GetClientOpeningLine(), false);
         SetActive(true);
         CaptureCursor();
     }
@@ -62,6 +82,14 @@ public class InvestigationDialogueUI : MonoBehaviour
         }
     }
 
+    private void OnDestroy()
+    {
+        if (responseTypewriter != null)
+        {
+            responseTypewriter.onTextShowed.RemoveListener(HandleTypewriterCompleted);
+        }
+    }
+
     private void HandleViewOrder()
     {
         if (currentManager == null) return;
@@ -78,21 +106,23 @@ public class InvestigationDialogueUI : MonoBehaviour
 
     private void RefreshQuestions()
     {
-        foreach (var go in spawnedItems)
+        foreach (var entry in questionEntries)
         {
-            if (go != null) Destroy(go);
+            if (entry?.root != null)
+            {
+                Destroy(entry.root);
+            }
         }
-        spawnedItems.Clear();
+        questionEntries.Clear();
 
         if (questionItemPrefab == null || questionsList == null || currentManager == null) return;
 
         var available = currentManager.GetAvailableQuestions();
         foreach (var question in available)
         {
-            var entry = Instantiate(questionItemPrefab, questionsList);
-            spawnedItems.Add(entry);
-            var button = entry.GetComponentInChildren<Button>();
-            var text = entry.GetComponentInChildren<TMP_Text>();
+            var entryObj = Instantiate(questionItemPrefab, questionsList);
+            var button = entryObj.GetComponentInChildren<Button>();
+            var text = entryObj.GetComponentInChildren<TMP_Text>();
             if (text != null)
             {
                 text.text = question.promptText;
@@ -100,25 +130,61 @@ public class InvestigationDialogueUI : MonoBehaviour
 
             if (button != null)
             {
-                button.onClick.AddListener(() => HandleQuestionClicked(question));
+                var capturedQuestion = question;
+                button.onClick.AddListener(() => HandleQuestionClicked(capturedQuestion));
+                button.interactable = !waitingForResponse;
             }
+
+            questionEntries.Add(new QuestionEntry
+            {
+                root = entryObj,
+                button = button,
+                question = question
+            });
         }
     }
 
     private void HandleQuestionClicked(InvestigationQuestion question)
     {
-        string response = currentManager != null ? currentManager.ResolveQuestion(question) : string.Empty;
-        RefreshQuestions();
+        if (waitingForResponse || question == null || currentManager == null)
+        {
+            return;
+        }
+
+        if (responseRoutine != null)
+        {
+            StopCoroutine(responseRoutine);
+        }
+
+        responseRoutine = StartCoroutine(PlayResponseRoutine(question));
+    }
+
+    private IEnumerator PlayResponseRoutine(InvestigationQuestion question)
+    {
+        waitingForResponse = true;
+        SetQuestionsInteractable(false);
+
+        float waitTime = Mathf.Max(0f, currentManager.GetQuestionDuration(question));
+        if (waitTime > 0f)
+        {
+            yield return new WaitForSecondsRealtime(waitTime);
+        }
+
+        string response = currentManager.ResolveQuestion(question);
         if (string.IsNullOrWhiteSpace(response))
         {
             response = "...";
         }
-        PlayResponse(response);
+
+        RefreshQuestions();
+        PlayResponse(response, true);
+        responseRoutine = null;
     }
 
-    private void PlayResponse(string text)
+    private void PlayResponse(string text, bool lockDuringPlayback)
     {
         bool played = false;
+        bool shouldLock = lockDuringPlayback && responseTypewriter != null;
 
         if (responseTypewriter != null)
         {
@@ -126,6 +192,7 @@ public class InvestigationDialogueUI : MonoBehaviour
             {
                 responseTypewriter.ShowText(text);
                 responseTypewriter.StartShowingText();
+                awaitingTypewriterCompletion = shouldLock;
                 played = true;
             }
             catch (System.Exception ex)
@@ -137,6 +204,11 @@ public class InvestigationDialogueUI : MonoBehaviour
         if (!played && responseFallbackText != null)
         {
             responseFallbackText.text = text;
+        }
+
+        if (!shouldLock)
+        {
+            CompleteResponsePlayback();
         }
     }
 
@@ -151,6 +223,14 @@ public class InvestigationDialogueUI : MonoBehaviour
     {
         SetActive(false);
         ReleaseCursor();
+        if (responseRoutine != null)
+        {
+            StopCoroutine(responseRoutine);
+            responseRoutine = null;
+        }
+        waitingForResponse = false;
+        awaitingTypewriterCompletion = false;
+        SetQuestionsInteractable(true);
         onClose?.Invoke();
         onClose = null;
         currentManager = null;
@@ -185,5 +265,41 @@ public class InvestigationDialogueUI : MonoBehaviour
         Cursor.lockState = previousLockState;
         Cursor.visible = previousCursorVisible;
         cursorCaptured = false;
+    }
+
+    private void SetQuestionsInteractable(bool value)
+    {
+        foreach (var entry in questionEntries)
+        {
+            if (entry?.button != null)
+            {
+                entry.button.interactable = value;
+            }
+        }
+    }
+
+    private void HandleTypewriterCompleted()
+    {
+        if (!awaitingTypewriterCompletion) return;
+        awaitingTypewriterCompletion = false;
+        CompleteResponsePlayback();
+    }
+
+    private void CompleteResponsePlayback()
+    {
+        if (!waitingForResponse)
+        {
+            return;
+        }
+
+        waitingForResponse = false;
+        SetQuestionsInteractable(true);
+    }
+
+    private class QuestionEntry
+    {
+        public GameObject root;
+        public Button button;
+        public InvestigationQuestion question;
     }
 }

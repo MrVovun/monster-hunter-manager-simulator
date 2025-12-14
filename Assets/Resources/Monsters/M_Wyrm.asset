@@ -14,8 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: c7a84f2432fe4ab9879e34af4eca63e5
   displayName: Wyrm
-  portrait: {fileID: 21300000, guid: 90e99ee31082a974d8fe466a02d2195a, type: 3}
-  description: yada yada yada
+  portrait: {fileID: 21300000, guid: c40116eebeb0adc44ba2b8f6564c7262, type: 3}
+  description: Wyrms are ancient, serpentine dragonkin, massive but wingless, their
+    long bodies coiling like titanic snakes. They have a thick tail that is simply
+    the continuation of their sinuous form, and they move by slithering and heaving
+    themselves forward rather than walking. When they surface, the air fills with
+    a chilling, drawn-out screech that echoes through tunnels and canyons.
   requiredReputation: 1
   possibleTraits: []
   traitCountRange: {x: 0, y: 3}
