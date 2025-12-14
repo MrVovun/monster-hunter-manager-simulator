@@ -8,6 +8,7 @@ public class OrderManager : MonoBehaviour
     [SerializeField] private List<Order> offeredOrders = new List<Order>();
     [SerializeField] private List<Order> activeOrders = new List<Order>();
     [SerializeField] private List<MissionReport> missionHistory = new List<MissionReport>();
+    private readonly Dictionary<string, int> monsterCompletionCounts = new Dictionary<string, int>();
 
     [Header("Referral Settings")]
     [SerializeField] private int referralPayout = 25;
@@ -147,6 +148,11 @@ public class OrderManager : MonoBehaviour
         bool success = report.success;
         order.state = success ? OrderState.Completed : OrderState.Failed;
 
+        if (success)
+        {
+            IncrementMonsterCompletion(order.monsterData);
+        }
+
         // Return surviving hunters to idle
         foreach (var hunter in order.assignedHunters)
         {
@@ -217,5 +223,21 @@ public class OrderManager : MonoBehaviour
     public List<MissionReport> GetMissionHistory()
     {
         return new List<MissionReport>(missionHistory);
+    }
+
+    private void IncrementMonsterCompletion(MonsterData monster)
+    {
+        if (monster == null) return;
+        if (!monsterCompletionCounts.ContainsKey(monster.monsterId))
+        {
+            monsterCompletionCounts[monster.monsterId] = 0;
+        }
+        monsterCompletionCounts[monster.monsterId]++;
+    }
+
+    public int GetMonsterCompletionCount(MonsterData monster)
+    {
+        if (monster == null) return 0;
+        return monsterCompletionCounts.TryGetValue(monster.monsterId, out int value) ? value : 0;
     }
 }

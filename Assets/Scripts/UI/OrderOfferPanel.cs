@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Text;
 using TMPro;
 using UnityEngine;
@@ -21,8 +20,9 @@ public class OrderOfferPanel : MonoBehaviour
     [SerializeField] private TraitTooltipPanel traitTooltipPanel;
     [SerializeField] private Button backButton;
     [Header("Monster Declaration")]
-    [SerializeField] private TMP_Dropdown monsterDropdown;
+    [SerializeField] private Button selectMonsterButton;
     [SerializeField] private TMP_Text declarationHintText;
+    [SerializeField] private TMP_Text declaredMonsterText;
     [SerializeField] private Button acceptButton;
     [SerializeField] private Button referButton;
 
@@ -33,7 +33,6 @@ public class OrderOfferPanel : MonoBehaviour
     private Action onHiddenAction;
     private Action onBackAction;
     private bool backRequested;
-    private readonly List<InvestigationManager.MonsterCandidate> cachedCandidates = new List<InvestigationManager.MonsterCandidate>();
 
     public event Action<OrderOfferPanel> OnPanelHidden;
 
@@ -45,11 +44,12 @@ public class OrderOfferPanel : MonoBehaviour
         onBackAction = onBack;
         backRequested = false;
         ConfigureBackButton();
+        ConfigureSelectButton();
         RememberCursor();
         UnlockCursor();
         SetRootActive(true);
         UpdateUI();
-        PopulateMonsterDropdown();
+        UpdateDeclaredMonsterUI();
         UpdateActionButtons();
     }
 
@@ -71,22 +71,48 @@ public class OrderOfferPanel : MonoBehaviour
         Hide();
     }
 
+    private void ConfigureSelectButton()
+    {
+        if (selectMonsterButton == null) return;
+        bool canSelect = activeInvestigation != null;
+        selectMonsterButton.interactable = canSelect;
+        if (!canSelect) return;
+        selectMonsterButton.onClick.RemoveAllListeners();
+        selectMonsterButton.onClick.AddListener(HandleSelectMonsterPressed);
+    }
+
+    private void HandleSelectMonsterPressed()
+    {
+        if (activeInvestigation == null) return;
+        activeInvestigation.ShowBestiaryForDeclaration(monster =>
+        {
+            if (currentOrder != null)
+            {
+                currentOrder.declaredMonster = monster;
+                UpdateDeclaredMonsterUI();
+                UpdateActionButtons();
+                UpdateUI(); // refresh monster name
+            }
+        },
+        null);
+    }
+
     public void Hide()
     {
         var savedOrder = currentOrder;
         SetRootActive(false);
+        activeInvestigation = null;
         RestoreCursor();
         OnPanelHidden?.Invoke(this);
         if (backRequested)
         {
-            currentOrder = savedOrder;
             onBackAction?.Invoke();
         }
         else
         {
-            currentOrder = null;
             onHiddenAction?.Invoke();
         }
+        currentOrder = null;
         onHiddenAction = null;
         onBackAction = null;
         backRequested = false;
@@ -151,98 +177,27 @@ public class OrderOfferPanel : MonoBehaviour
         }
     }
 
-    private void PopulateMonsterDropdown()
+    private void UpdateDeclaredMonsterUI()
     {
-        if (monsterDropdown == null) return;
+        string declaredName = currentOrder != null && currentOrder.declaredMonster != null
+            ? currentOrder.declaredMonster.displayName
+            : "???";
 
-        monsterDropdown.onValueChanged.RemoveAllListeners();
-        monsterDropdown.ClearOptions();
-        cachedCandidates.Clear();
-
-        if (activeInvestigation != null)
+        if (declaredMonsterText != null)
         {
-            cachedCandidates.AddRange(activeInvestigation.GetMonsterCandidates());
-        }
-        else
-        {
-            var library = GameManager.Instance?.GetGameConfig()?.monsterLibrary;
-            if (library != null)
-            {
-                foreach (var monster in library.GetMonsters())
-                {
-                    cachedCandidates.Add(new InvestigationManager.MonsterCandidate
-                    {
-                        monster = monster,
-                        confidence = 0f
-                    });
-                }
-            }
+            declaredMonsterText.text = declaredName;
         }
 
-        List<TMP_Dropdown.OptionData> options = new List<TMP_Dropdown.OptionData>();
-        options.Add(new TMP_Dropdown.OptionData("Select monster..."));
-
-        foreach (var candidate in cachedCandidates)
-        {
-            string label = candidate.monster != null ? candidate.monster.displayName : "Unknown";
-            if (candidate.confidence > 0f)
-            {
-                label += $" - {(candidate.confidence * 100f):0}%";
-            }
-            options.Add(new TMP_Dropdown.OptionData(label));
-        }
-
-        monsterDropdown.AddOptions(options);
-
-        int selectedIndex = 0;
-        if (currentOrder != null && currentOrder.declaredMonster != null)
-        {
-            for (int i = 0; i < cachedCandidates.Count; i++)
-            {
-                if (cachedCandidates[i].monster == currentOrder.declaredMonster)
-                {
-                    selectedIndex = i + 1;
-                    break;
-                }
-            }
-        }
-        monsterDropdown.value = selectedIndex;
-        monsterDropdown.onValueChanged.AddListener(OnMonsterDropdownChanged);
-        UpdateDeclarationHint();
-    }
-
-    private void OnMonsterDropdownChanged(int selection)
-    {
-        if (currentOrder == null) return;
-
-        if (selection <= 0 || selection - 1 >= cachedCandidates.Count)
-        {
-            currentOrder.declaredMonster = null;
-        }
-        else
-        {
-            currentOrder.declaredMonster = cachedCandidates[selection - 1].monster;
-        }
-
-        UpdateDeclarationHint();
-        UpdateActionButtons();
-        // refresh monster text to show declared name
         if (monsterText != null)
         {
-            monsterText.text = currentOrder.GetMonsterName();
+            monsterText.text = declaredName;
         }
-    }
 
-    private void UpdateDeclarationHint()
-    {
-        if (declarationHintText == null) return;
-        if (currentOrder != null && currentOrder.declaredMonster != null)
+        if (declarationHintText != null)
         {
-            declarationHintText.text = $"Declared: {currentOrder.declaredMonster.displayName}";
-        }
-        else
-        {
-            declarationHintText.text = "Declare the monster before accepting or referring.";
+            declarationHintText.text = currentOrder != null && currentOrder.declaredMonster != null
+                ? $"Declared: {declaredName}"
+                : "Select a monster before accepting or referring.";
         }
     }
 

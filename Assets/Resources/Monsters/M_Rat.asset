@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: bb87fa37b0644b8084ba7349635d8954
   displayName: Giant Rat
-  portrait: {fileID: 0}
+  portrait: {fileID: 21300000, guid: 90e99ee31082a974d8fe466a02d2195a, type: 3}
+  description: yada yada yada
+  requiredReputation: 1
   possibleTraits: []
   traitCountRange: {x: 0, y: 3}
   evidenceTags:
@@ -38,15 +40,15 @@ MonoBehaviour:
     tagIndex: 5
     responseText: Fast, agile. Like a rat.
   - question: {fileID: 11400000, guid: 88be2b18d86528f459bb4d4d5a2e53bd, type: 2}
-    tagIndex: 1
+    tagIndex: 2
     responseText: Small compared to a human, but big for a rat!
   - question: {fileID: 11400000, guid: 7052173e211d8fd4e8ab035dc4d434b2, type: 2}
-    tagIndex: 2
+    tagIndex: 3
     responseText: ...Like a rat?
   - question: {fileID: 11400000, guid: 7b7c77071c297ff46a62a80d5d33bb78, type: 2}
-    tagIndex: 3
+    tagIndex: 4
     responseText: Ay, a rat tail!
   - question: {fileID: 11400000, guid: e301b93ebccd4d544ac650ee3653046d, type: 2}
-    tagIndex: 4
+    tagIndex: 1
     responseText: No wings!
   weight: 1

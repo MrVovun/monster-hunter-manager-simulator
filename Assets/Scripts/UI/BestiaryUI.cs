@@ -1,0 +1,438 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class BestiaryUI : MonoBehaviour
+{
+    [Header("Root")]
+    [SerializeField] private GameObject panelRoot;
+    [SerializeField] private Button closeButton;
+    [SerializeField] private Button selectButton;
+
+    [Header("List")]
+    [SerializeField] private RectTransform monsterListParent;
+    [SerializeField] private GameObject familyHeaderPrefab;
+    [SerializeField] private GameObject monsterListItemPrefab;
+
+    [Header("Details")]
+    [SerializeField] private TMP_Text nameText;
+    [SerializeField] private TMP_Text familyText;
+    [SerializeField] private TMP_Text descriptionText;
+    [SerializeField] private Transform possibleTraitsParent;
+    [SerializeField] private TMP_Text possibleTraitsFallbackText;
+    [SerializeField] private TMP_Text completionText;
+    [SerializeField] private Image portraitImage;
+
+    [Header("Investigation Context")]
+    [SerializeField] private GameObject contextPanel;
+    [SerializeField] private TMP_Text knownTagsText;
+    [SerializeField] private Transform knownTraitsParent;
+    [SerializeField] private TMP_Text knownTraitsFallbackText;
+    [Header("Trait Items")]
+    [SerializeField] private GameObject traitItemPrefab;
+    [SerializeField] private TraitTooltipPanel traitTooltipPanel;
+    [SerializeField] private Image traitIconPrototype;
+
+    private readonly List<GameObject> spawnedEntries = new List<GameObject>();
+    private readonly List<GameObject> spawnedPossibleTraits = new List<GameObject>();
+    private readonly List<GameObject> spawnedKnownTraits = new List<GameObject>();
+    private readonly Dictionary<GameObject, Image> listEntryPortraitLookup = new Dictionary<GameObject, Image>();
+    private List<MonsterData> availableMonsters = new List<MonsterData>();
+    private MonsterData currentSelection;
+    private System.Action<MonsterData> onSelection;
+    private System.Action onClosed;
+    private bool selectionEnabled;
+    private InvestigationCase contextCase;
+    private OrderManager orderManager;
+    public bool IsVisible => panelRoot != null ? panelRoot.activeSelf : gameObject.activeSelf;
+
+    private void Awake()
+    {
+        if (closeButton != null)
+        {
+            closeButton.onClick.AddListener(() => Hide());
+        }
+
+        if (selectButton != null)
+        {
+            selectButton.onClick.AddListener(HandleSelectPressed);
+        }
+
+        SetActive(false);
+    }
+
+    public void Show(List<MonsterData> monsters, bool allowSelection, InvestigationCase context, System.Action<MonsterData> selectionCallback, System.Action closedCallback)
+    {
+        availableMonsters = monsters ?? new List<MonsterData>();
+        selectionEnabled = allowSelection;
+        onSelection = selectionCallback;
+        onClosed = closedCallback;
+        contextCase = context;
+        if (selectButton != null)
+        {
+            selectButton.gameObject.SetActive(selectionEnabled);
+            selectButton.interactable = selectionEnabled && currentSelection != null;
+        }
+
+        if (orderManager == null && GameManager.Instance != null)
+        {
+            orderManager = GameManager.Instance.GetOrderManager();
+        }
+
+        BuildList();
+        ShowDetails(null);
+        RefreshContext();
+        SetActive(true);
+    }
+
+    public void Hide()
+    {
+        SetActive(false);
+        onClosed?.Invoke();
+        onClosed = null;
+        onSelection = null;
+        contextCase = null;
+        currentSelection = null;
+    }
+
+    private void BuildList()
+    {
+        foreach (var go in spawnedEntries)
+        {
+            if (go != null) Destroy(go);
+        }
+        spawnedEntries.Clear();
+        listEntryPortraitLookup.Clear();
+
+        if (monsterListParent == null || monsterListItemPrefab == null) return;
+
+        var grouped = availableMonsters
+            .Where(m => m != null)
+            .GroupBy(m =>
+            {
+                string family = m.GetTagValue("family");
+                return string.IsNullOrWhiteSpace(family) ? "Unknown" : family;
+            })
+            .OrderBy(g => g.Key);
+
+        foreach (var group in grouped)
+        {
+            if (familyHeaderPrefab != null)
+            {
+                var header = Instantiate(familyHeaderPrefab, monsterListParent);
+                var headerText = header.GetComponentInChildren<TMP_Text>();
+                if (headerText != null)
+                {
+                    headerText.text = group.Key;
+                }
+                spawnedEntries.Add(header);
+            }
+
+            var sortedMonsters = group.OrderBy(m => m.displayName).ToList();
+            foreach (var monster in sortedMonsters)
+            {
+                var entry = Instantiate(monsterListItemPrefab, monsterListParent);
+                spawnedEntries.Add(entry);
+                ConfigureMonsterListEntry(entry, monster);
+                EnsureButton(entry)?.onClick.AddListener(() => ShowDetails(monster));
+            }
+        }
+    }
+
+    private Button EnsureButton(GameObject entry)
+    {
+        if (entry == null) return null;
+        Button button = entry.GetComponent<Button>();
+        if (button != null) return button;
+
+        var image = entry.GetComponent<Image>();
+        if (image == null)
+        {
+            image = entry.AddComponent<Image>();
+            image.color = new Color(0f, 0f, 0f, 0f);
+        }
+
+        button = entry.AddComponent<Button>();
+        return button;
+    }
+
+    private void ShowDetails(MonsterData monster)
+    {
+        currentSelection = monster;
+        if (selectButton != null)
+        {
+            selectButton.interactable = selectionEnabled && monster != null;
+        }
+
+        if (monster == null)
+        {
+            if (nameText != null) nameText.text = "Select a Monster";
+            if (familyText != null) familyText.text = string.Empty;
+            if (descriptionText != null) descriptionText.text = string.Empty;
+            if (completionText != null) completionText.text = string.Empty;
+            if (portraitImage != null)
+            {
+                portraitImage.sprite = null;
+                portraitImage.enabled = false;
+            }
+            PopulatePossibleTraits(null);
+            PopulateKnownTraits();
+            return;
+        }
+
+        if (nameText != null) nameText.text = monster.displayName;
+        if (familyText != null)
+        {
+            string family = monster.GetTagValue("family") ?? "Unknown";
+            familyText.text = $"Family: {family}";
+        }
+        if (descriptionText != null) descriptionText.text = monster.description;
+        PopulatePossibleTraits(monster.possibleTraits);
+        if (completionText != null)
+        {
+            int count = orderManager != null ? orderManager.GetMonsterCompletionCount(monster) : 0;
+            completionText.text = $"Orders Completed: {count}";
+        }
+        if (portraitImage != null)
+        {
+            portraitImage.sprite = monster.portrait;
+            portraitImage.enabled = monster.portrait != null;
+        }
+
+        RefreshContext();
+    }
+
+    private void RefreshContext()
+    {
+        if (contextPanel != null)
+        {
+            contextPanel.SetActive(contextCase != null);
+        }
+
+        if (contextCase == null)
+        {
+            if (knownTagsText != null) knownTagsText.text = string.Empty;
+            return;
+        }
+
+        if (knownTagsText != null)
+        {
+            if (contextCase.knownTags != null && contextCase.knownTags.Count > 0)
+            {
+                var lines = contextCase.knownTags.Select(tag => $"{tag.categoryName}: {(!string.IsNullOrEmpty(tag.valueName) ? tag.valueName : "???")}");
+                knownTagsText.text = string.Join("\n", lines);
+            }
+            else
+            {
+                knownTagsText.text = "Tags: ???";
+            }
+        }
+
+        PopulateKnownTraits();
+    }
+
+    private void HandleSelectPressed()
+    {
+        if (!selectionEnabled || currentSelection == null) return;
+        onSelection?.Invoke(currentSelection);
+        Hide();
+    }
+
+    private void SetActive(bool value)
+    {
+        if (panelRoot != null)
+        {
+            panelRoot.SetActive(value);
+        }
+        else
+        {
+            gameObject.SetActive(value);
+        }
+    }
+
+    private void PopulatePossibleTraits(IEnumerable<MonsterTrait> traits)
+    {
+        ClearTraitEntries(spawnedPossibleTraits, possibleTraitsParent, possibleTraitsFallbackText);
+        var list = traits?.Where(t => t != null).ToList();
+        if (list == null || list.Count == 0)
+        {
+            if (possibleTraitsFallbackText != null)
+            {
+                possibleTraitsFallbackText.text = "Traits: ???";
+            }
+            return;
+        }
+
+        if (possibleTraitsFallbackText != null)
+        {
+            possibleTraitsFallbackText.text = string.Empty;
+        }
+
+        foreach (var trait in list)
+        {
+            var item = CreateTraitItem(trait);
+            item.transform.SetParent(possibleTraitsParent, false);
+            spawnedPossibleTraits.Add(item);
+        }
+    }
+
+    private void PopulateKnownTraits()
+    {
+        ClearTraitEntries(spawnedKnownTraits, knownTraitsParent, knownTraitsFallbackText);
+        if (contextCase == null || contextCase.confirmedTraitIds == null || contextCase.confirmedTraitIds.Count == 0)
+        {
+            if (knownTraitsFallbackText != null)
+            {
+                knownTraitsFallbackText.text = "Traits: ???";
+            }
+            return;
+        }
+
+        List<MonsterTrait> traits = new List<MonsterTrait>();
+        foreach (var traitId in contextCase.confirmedTraitIds)
+        {
+            var trait = contextCase.truthTraits?.FirstOrDefault(t => t != null && t.traitId == traitId);
+            if (trait != null)
+            {
+                traits.Add(trait);
+            }
+        }
+
+        if (traits.Count == 0)
+        {
+            if (knownTraitsFallbackText != null)
+            {
+                knownTraitsFallbackText.text = "Traits: ???";
+            }
+            return;
+        }
+
+        if (knownTraitsFallbackText != null)
+        {
+            knownTraitsFallbackText.text = string.Empty;
+        }
+
+        foreach (var trait in traits)
+        {
+            var item = CreateTraitItem(trait);
+            item.transform.SetParent(knownTraitsParent, false);
+            spawnedKnownTraits.Add(item);
+        }
+    }
+
+    private void ClearTraitEntries(List<GameObject> list, Transform parent, TMP_Text fallback)
+    {
+        foreach (var go in list)
+        {
+            if (go != null) Destroy(go);
+        }
+        list.Clear();
+
+        if (parent != null)
+        {
+            foreach (Transform child in parent)
+            {
+                Destroy(child.gameObject);
+            }
+        }
+
+        if (fallback != null)
+        {
+            fallback.text = string.Empty;
+        }
+    }
+
+    private GameObject CreateTraitItem(MonsterTrait trait)
+    {
+        GameObject item = traitItemPrefab != null ? Instantiate(traitItemPrefab) : new GameObject("Trait");
+        TMP_Text text = item.GetComponentInChildren<TMP_Text>();
+        if (text == null)
+        {
+            text = item.AddComponent<TMP_Text>();
+        }
+        text.text = trait != null ? trait.displayName : "???";
+
+        Image icon = item.GetComponentInChildren<Image>();
+        if (icon == null && traitIconPrototype != null)
+        {
+            icon = Instantiate(traitIconPrototype, item.transform);
+        }
+        if (icon != null)
+        {
+            icon.sprite = trait != null ? trait.icon : null;
+            icon.enabled = icon.sprite != null;
+        }
+
+        if (traitTooltipPanel != null)
+        {
+            var tooltip = item.GetComponent<TraitTooltipTrigger>();
+            if (tooltip == null)
+            {
+                tooltip = item.AddComponent<TraitTooltipTrigger>();
+            }
+            tooltip.Initialize(traitTooltipPanel, item.GetComponent<RectTransform>(), trait != null ? trait.displayName : "Trait", trait != null ? trait.description : string.Empty);
+        }
+
+        return item;
+    }
+
+    private void ConfigureMonsterListEntry(GameObject entry, MonsterData monster)
+    {
+        if (entry == null) return;
+
+        var label = entry.GetComponentInChildren<TMP_Text>();
+        if (label != null)
+        {
+            label.text = monster != null ? monster.displayName : string.Empty;
+        }
+
+        UpdateMonsterListPortrait(entry, monster);
+    }
+
+    private void UpdateMonsterListPortrait(GameObject entry, MonsterData monster)
+    {
+        if (entry == null) return;
+
+        if (!listEntryPortraitLookup.TryGetValue(entry, out var portrait) || portrait == null)
+        {
+            portrait = FindListItemPortraitImage(entry);
+            listEntryPortraitLookup[entry] = portrait;
+        }
+
+        if (portrait != null)
+        {
+            Sprite sprite = monster != null ? monster.portrait : null;
+            portrait.sprite = sprite;
+            portrait.enabled = sprite != null;
+        }
+    }
+
+    private Image FindListItemPortraitImage(GameObject entry)
+    {
+        if (entry == null) return null;
+
+        Image rootImage = entry.GetComponent<Image>();
+        Image fallback = null;
+        var images = entry.GetComponentsInChildren<Image>(true);
+        foreach (var image in images)
+        {
+            if (image == null || image == rootImage) continue;
+
+            string imageName = image.gameObject.name;
+            if (!string.IsNullOrEmpty(imageName) && imageName.IndexOf("portrait", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return image;
+            }
+
+            if (fallback == null && image.transform != entry.transform)
+            {
+                fallback = image;
+            }
+        }
+
+        return fallback;
+    }
+}

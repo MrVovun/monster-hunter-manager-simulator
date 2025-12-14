@@ -12,6 +12,8 @@ public class InvestigationManager : MonoBehaviour
     [SerializeField] private List<ClientProfile> clientProfiles = new List<ClientProfile>();
     [SerializeField] private ClientSpawner clientSpawner;
     [SerializeField] private OrderOfferPanel orderOfferPanel;
+    [SerializeField] private InvestigationDialogueUI dialogueUI;
+    [SerializeField] private BestiaryUI bestiaryUI;
 
     private readonly Dictionary<string, InvestigationQuestion> questionLookup = new Dictionary<string, InvestigationQuestion>();
 
@@ -228,7 +230,7 @@ public class InvestigationManager : MonoBehaviour
     public List<MonsterCandidate> GetMonsterCandidates()
     {
         List<MonsterCandidate> result = new List<MonsterCandidate>();
-        var library = monsterLibrary != null ? monsterLibrary.GetMonsters() : null;
+        var library = GetAccessibleMonsters();
         if (library == null || library.Count == 0)
         {
             return result;
@@ -319,8 +321,6 @@ public class InvestigationManager : MonoBehaviour
         CurrentOrder = null;
     }
 
-    [SerializeField] private InvestigationDialogueUI dialogueUI;
-
     public void BeginInvestigationUI(InvestigationCase investigationCase, System.Action onClose)
     {
         if (dialogueUI == null)
@@ -358,5 +358,57 @@ public class InvestigationManager : MonoBehaviour
     {
         dialogueUI?.Close();
         CompleteInvestigation();
+    }
+
+    public void ShowBestiaryForDeclaration(System.Action<MonsterData> onSelected, System.Action onClosed)
+    {
+        ShowBestiary(true, CurrentCase, onSelected, onClosed);
+    }
+
+    public void ShowBestiaryFree()
+    {
+        ShowBestiary(false, null, null, null);
+    }
+
+    private void ShowBestiary(bool allowSelection, InvestigationCase context, System.Action<MonsterData> onSelected, System.Action onClosed)
+    {
+        if (bestiaryUI == null)
+        {
+            bestiaryUI = FindObjectOfType<BestiaryUI>(true);
+        }
+
+        if (bestiaryUI == null)
+        {
+            onClosed?.Invoke();
+            return;
+        }
+
+        if (bestiaryUI.IsVisible) return;
+
+        var monsters = GetAccessibleMonsters();
+        bestiaryUI.Show(monsters, allowSelection, context, monster =>
+        {
+            onSelected?.Invoke(monster);
+        }, onClosed);
+    }
+
+    public List<MonsterData> GetAccessibleMonsters()
+    {
+        List<MonsterData> result = new List<MonsterData>();
+        var library = monsterLibrary != null ? monsterLibrary.GetMonsters() : null;
+        int reputation = GameManager.Instance != null ? GameManager.Instance.GetReputation() : 0;
+
+        if (library != null)
+        {
+            foreach (var monster in library)
+            {
+                if (monster == null) continue;
+                if (reputation >= monster.requiredReputation)
+                {
+                    result.Add(monster);
+                }
+            }
+        }
+        return result;
     }
 }

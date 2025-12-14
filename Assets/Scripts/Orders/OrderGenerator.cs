@@ -119,21 +119,41 @@ public class OrderGenerator : MonoBehaviour
             }
         }
 
+        IList<MonsterData> source = null;
         if (monsterLibrary != null)
         {
             var monsters = monsterLibrary.GetMonsters();
             if (monsters != null && monsters.Count > 0)
             {
-                return monsters;
+                source = monsters;
             }
         }
 
-        if (fallbackMonsters != null && fallbackMonsters.Count > 0)
+        if (source == null && fallbackMonsters != null && fallbackMonsters.Count > 0)
         {
-            return fallbackMonsters;
+            source = fallbackMonsters;
         }
 
-        return null;
+        if (source == null) return null;
+
+        return FilterByReputation(source);
+    }
+
+    private IList<MonsterData> FilterByReputation(IList<MonsterData> monsters)
+    {
+        if (monsters == null) return null;
+        int reputation = GameManager.Instance != null ? GameManager.Instance.GetReputation() : 0;
+        List<MonsterData> filtered = new List<MonsterData>();
+        foreach (var monster in monsters)
+        {
+            if (monster == null) continue;
+            if (reputation >= monster.requiredReputation)
+            {
+                filtered.Add(monster);
+            }
+        }
+
+        return filtered.Count > 0 ? (IList<MonsterData>)filtered : monsters;
     }
 
     private string BuildOrderTitle(OrderFlavorEntry flavor, string monsterName)

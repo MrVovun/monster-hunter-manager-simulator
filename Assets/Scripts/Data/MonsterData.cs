@@ -13,6 +13,10 @@ public class MonsterData : ScriptableObject
     public string monsterId;
     public string displayName;
     public Sprite portrait;
+    [Header("Lore")]
+    [TextArea(3, 6)] public string description;
+    [Header("Unlock Requirements")]
+    public int requiredReputation = 0;
 
     [Header("Traits / Counters")]
     [Tooltip("Pool of traits that this monster can roll during truth generation.")]

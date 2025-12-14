@@ -17,6 +17,10 @@ public class ClientInteractable : Interactable
 
     public void Initialize(InvestigationManager manager, InvestigationCase investigationCase)
     {
+        if (clientCharacter == null)
+        {
+            clientCharacter = GetComponent<ClientCharacter>();
+        }
         investigationManager = manager;
         linkedCase = investigationCase;
     }
