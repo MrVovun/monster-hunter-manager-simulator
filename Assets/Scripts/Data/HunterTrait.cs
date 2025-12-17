@@ -15,19 +15,8 @@ public string description;
 [Header("Visuals")]
 public Sprite icon;
 
-    [Header("Stat Modifiers")]
-    [Tooltip("Percent bonus expressed as decimal, e.g. 0.1 = +10%.")]
-    public float powerModifier = 0f;
-    public float defenseModifier = 0f;
-    public float resolveModifier = 0f;
-    
-    [Header("Mission Modifiers")]
-    [Tooltip("Flat success chance bonus in percent points.")]
-    public float successChanceBonus = 0f;
-    [Tooltip("Multiplier to injury risk. 1 = normal, 0.8 = safer, 1.2 = riskier.")]
-    public float injuryRiskModifier = 1f;
-    [Tooltip("Multiplier to death risk. 1 = normal.")]
-    public float deathRiskModifier = 1f;
+    [Header("Bonus Effects")]
+    public List<BonusEffect> bonusEffects = new List<BonusEffect>();
 
     [Header("Counters")]
     [Tooltip("Monster traits this hunter trait counters (e.g., FireDamage, Flying).")]
@@ -54,5 +43,42 @@ public Sprite icon;
         {
             displayName = traitId;
         }
+    }
+
+    [Serializable]
+    public class BonusEffect
+    {
+        public BonusEffectType bonusType = BonusEffectType.AddSuccessChancePercent;
+        [Tooltip("Meaning depends on effect type. Success bonuses are in percent points, chance modifiers are multipliers, XP bonuses are flat amounts.")]
+        public float value = 0f;
+        public TraitStackingMode stacking = TraitStackingMode.SingleInstance;
+        public BonusCondition condition = new BonusCondition();
+    }
+
+    public enum BonusEffectType
+    {
+        AddSuccessChancePercent = 0,
+        PreventInjury = 1,
+        PreventDeath = 2,
+        BonusSuccessXP = 3,
+        ModifyInjuryChanceMultiplier = 4,
+        ModifyDeathChanceMultiplier = 5
+    }
+
+    public enum TraitStackingMode
+    {
+        SingleInstance = 0,
+        Additive = 1
+    }
+
+    [Serializable]
+    public class BonusCondition
+    {
+        [Tooltip("Optional evidence tag category that must match the monster (e.g., \"Faction\").")]
+        public string requiredMonsterTagCategory;
+        [Tooltip("Value that must match in the selected category (e.g., \"Greenskin\").")]
+        public string requiredMonsterTagValue;
+        [Tooltip("When enabled, this effect only applies if exactly one hunter is assigned.")]
+        public bool requiresSoloParty = false;
     }
 }

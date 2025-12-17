@@ -47,7 +47,10 @@ public class BestiaryUI : MonoBehaviour
     private bool selectionEnabled;
     private InvestigationCase contextCase;
     private OrderManager orderManager;
-    public bool IsVisible => panelRoot != null ? panelRoot.activeSelf : gameObject.activeSelf;
+    public bool IsVisible => panelRoot != null ? panelRoot.gameObject.activeInHierarchy : gameObject.activeInHierarchy;
+    private CursorLockMode previousLockState;
+    private bool previousCursorVisible;
+    private bool cursorManaged;
 
     private void Awake()
     {
@@ -82,6 +85,8 @@ public class BestiaryUI : MonoBehaviour
             orderManager = GameManager.Instance.GetOrderManager();
         }
 
+        SetActive(true);
+        EnsureCursor();
         currentSelection = null;
         MonsterData defaultMonster = BuildList();
         bool appliedDefault = TryApplyDefaultSelection(defaultMonster);
@@ -90,12 +95,12 @@ public class BestiaryUI : MonoBehaviour
             ShowDetails(null);
         }
         RefreshContext();
-        SetActive(true);
     }
 
     public void Hide()
     {
         SetActive(false);
+        RestoreCursorIfNeeded();
         onClosed?.Invoke();
         onClosed = null;
         onSelection = null;
@@ -275,6 +280,24 @@ public class BestiaryUI : MonoBehaviour
         {
             gameObject.SetActive(value);
         }
+    }
+
+    private void EnsureCursor()
+    {
+        if (cursorManaged) return;
+        previousLockState = Cursor.lockState;
+        previousCursorVisible = Cursor.visible;
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+        cursorManaged = true;
+    }
+
+    private void RestoreCursorIfNeeded()
+    {
+        if (!cursorManaged) return;
+        Cursor.lockState = previousLockState;
+        Cursor.visible = previousCursorVisible;
+        cursorManaged = false;
     }
 
     private void PopulatePossibleTraits(IEnumerable<MonsterTrait> traits)

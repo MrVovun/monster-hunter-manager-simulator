@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0de90ea3325b43d4e91cf6a913342ea5, type: 3}
-  m_Name: MT_Flying
+  m_Name: MT_Lethal
   m_EditorClassIdentifier: Assembly-CSharp::MonsterTrait
-  traitId: 21726543e8584ae49a22a18d78643c57
-  displayName: Flying
-  description: This monster can fly. If not countered, hunters are guaranteed to
-    receive an injury.
-  dialogueRevealText: It was flying!
-  icon: {fileID: 21300000, guid: b5ea3b373f1c34847a938f7101025996, type: 3}
+  traitId: 989d22ecbfc04c2caa8414b5318c865e
+  displayName: Lethal
+  description: This monster is lethal. If not countered, the required power for the
+    order is doubled.
+  dialogueRevealText: It was slaying everyone around, indiscriminately!
+  icon: {fileID: 21300000, guid: 8409f4953e10b994d9d893f594f96b01, type: 3}
   missionEffects:
-  - effectType: 3
-    value: 1
+  - effectType: 1
+    value: 2

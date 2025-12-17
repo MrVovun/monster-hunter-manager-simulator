@@ -24,6 +24,9 @@ public class InvestigationQuestion : ScriptableObject
     public List<EvidenceCategorySelection> revealedCategories = new List<EvidenceCategorySelection>();
     [Tooltip("Optional extra evidence tags (category:value) that are directly confirmed.")]
     public List<EvidenceRequirement> explicitReveals = new List<EvidenceRequirement>();
+    [Header("Trait Outcomes")]
+    [Tooltip("Specific monster traits that get confirmed when this answer is revealed (only if the monster actually has them).")]
+    public List<MonsterTrait> revealedTraits = new List<MonsterTrait>();
 
     [Tooltip("Optional questions that become highlighted after this answer is obtained.")]
     public List<InvestigationQuestion> followUps = new List<InvestigationQuestion>();

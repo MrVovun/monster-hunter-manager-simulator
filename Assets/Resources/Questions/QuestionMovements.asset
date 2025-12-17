@@ -21,4 +21,5 @@ MonoBehaviour:
   revealedCategories:
   - categoryIndex: 5
   explicitReveals: []
+  revealedTraits: []
   followUps: []

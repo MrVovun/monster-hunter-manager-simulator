@@ -29,3 +29,5 @@ MonoBehaviour:
     orderLimit: 4
   - requiredReputation: 3
     orderLimit: 5
+  baseInjuryChance: 0.3
+  baseDeathChance: 0.1

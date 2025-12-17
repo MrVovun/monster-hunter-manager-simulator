@@ -22,7 +22,11 @@ MonoBehaviour:
     grounded, but prefer swooping strikes from above, announcing themselves with
     a piercing, predatory screech rather than a roar."
   requiredReputation: 1
-  possibleTraits: []
+  possibleTraits:
+  - {fileID: 11400000, guid: 6af8b3bbb8f5f8d4fbdb3a6057fd4b86, type: 2}
+  - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
+  - {fileID: 11400000, guid: 02041b403a87b234ba630b13fd996c0f, type: 2}
+  - {fileID: 11400000, guid: f149ed5426264cb4db6fac2830e77841, type: 2}
   traitCountRange: {x: 0, y: 3}
   evidenceTags:
   - categoryName: family

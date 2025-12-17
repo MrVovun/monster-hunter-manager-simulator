@@ -58,32 +58,17 @@ public class HunterData : ScriptableObject
     
     public int GetTotalPower(int level)
     {
-        int power = GetPowerAtLevel(level);
-        foreach (var trait in traits)
-        {
-            power += Mathf.RoundToInt(power * trait.powerModifier);
-        }
-        return power;
+        return GetPowerAtLevel(level);
     }
     
     public int GetTotalDefense(int level)
     {
-        int defense = GetDefenseAtLevel(level);
-        foreach (var trait in traits)
-        {
-            defense += Mathf.RoundToInt(defense * trait.defenseModifier);
-        }
-        return defense;
+        return GetDefenseAtLevel(level);
     }
     
     public int GetTotalResolve(int level)
     {
-        int resolve = GetResolveAtLevel(level);
-        foreach (var trait in traits)
-        {
-            resolve += Mathf.RoundToInt(resolve * trait.resolveModifier);
-        }
-        return resolve;
+        return GetResolveAtLevel(level);
     }
 
     public int GetXPRequirementForLevel(int level)

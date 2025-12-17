@@ -85,21 +85,22 @@ public class PartyFormation : MonoBehaviour
     public string GetRiskLevel()
     {
         float chance = CalculateSuccessChance();
-        
-        if (chance >= 80f) return "Low Risk";
-        if (chance >= 60f) return "Moderate Risk";
-        if (chance >= 40f) return "High Risk";
-        return "Very High Risk";
+        if (chance >= 150f) return "Overwhelming";
+        if (chance >= 100f) return "Safe";
+        if (chance >= 75f) return "Steady";
+        if (chance >= 50f) return "Risky";
+        if (chance >= 25f) return "Severe";
+        return "Dire";
     }
     
     public Color GetRiskColor()
     {
         float chance = CalculateSuccessChance();
-        
-        if (chance >= 80f) return Color.green;
-        if (chance >= 60f) return Color.yellow;
-        if (chance >= 40f) return new Color(1f, 0.5f, 0f); // Orange
+        if (chance >= 150f) return new Color(0.2f, 0.8f, 0.2f);
+        if (chance >= 100f) return Color.green;
+        if (chance >= 75f) return Color.yellow;
+        if (chance >= 50f) return new Color(1f, 0.6f, 0.1f);
+        if (chance >= 25f) return new Color(1f, 0.4f, 0.1f);
         return Color.red;
     }
 }
-

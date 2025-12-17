@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
@@ -7,6 +8,7 @@ public class ClientSpawner : MonoBehaviour
     [Header("References")]
     [SerializeField] private Transform spawnPoint;
     [SerializeField] private Transform waitingSpot;
+    [SerializeField] private Transform exitPoint;
     [SerializeField] private float approachThreshold = 0.25f;
 
     [Header("Prefabs")]
@@ -17,6 +19,8 @@ public class ClientSpawner : MonoBehaviour
     private NavMeshAgent clientAgent;
     private SharedCharacterAnimator animatorController;
     private InvestigationManager investigationManager;
+    private Coroutine arrivalRoutine;
+    private Coroutine departureRoutine;
 
     public bool HasActiveClient => activeClient != null;
 
@@ -76,7 +80,12 @@ public class ClientSpawner : MonoBehaviour
 
         Vector3 target = waitingSpot != null ? waitingSpot.position : transform.position;
         clientAgent.SetDestination(target);
-        StartCoroutine(WaitForArrival());
+
+        if (arrivalRoutine != null)
+        {
+            StopCoroutine(arrivalRoutine);
+        }
+        arrivalRoutine = StartCoroutine(WaitForArrival());
     }
 
     private IEnumerator WaitForArrival()
@@ -102,10 +111,23 @@ public class ClientSpawner : MonoBehaviour
         }
 
         animatorController?.SetMoving(false);
+        arrivalRoutine = null;
     }
 
     public void DespawnCurrentClient()
     {
+        if (arrivalRoutine != null)
+        {
+            StopCoroutine(arrivalRoutine);
+            arrivalRoutine = null;
+        }
+
+        if (departureRoutine != null)
+        {
+            StopCoroutine(departureRoutine);
+            departureRoutine = null;
+        }
+
         if (activeClient != null)
         {
             activeClient.Cleanup();
@@ -115,6 +137,87 @@ public class ClientSpawner : MonoBehaviour
         clientAgent = null;
         animatorController = null;
         activeProfile = null;
+    }
+
+    public void DismissCurrentClient(Action onComplete = null)
+    {
+        if (activeClient == null)
+        {
+            onComplete?.Invoke();
+            return;
+        }
+
+        activeClient.DisableInteraction();
+
+        if (arrivalRoutine != null)
+        {
+            StopCoroutine(arrivalRoutine);
+            arrivalRoutine = null;
+        }
+
+        if (clientAgent == null || !clientAgent.enabled)
+        {
+            DespawnCurrentClient();
+            onComplete?.Invoke();
+            return;
+        }
+
+        Vector3 targetPos = GetExitPosition();
+        Quaternion targetRot = GetExitRotation();
+
+        clientAgent.isStopped = false;
+        clientAgent.ResetPath();
+        clientAgent.stoppingDistance = approachThreshold;
+        clientAgent.SetDestination(targetPos);
+        animatorController?.SetMoving(true);
+
+        if (departureRoutine != null)
+        {
+            StopCoroutine(departureRoutine);
+        }
+        departureRoutine = StartCoroutine(WaitForDeparture(targetPos, targetRot, onComplete));
+    }
+
+    private IEnumerator WaitForDeparture(Vector3 targetPos, Quaternion targetRot, Action onComplete)
+    {
+        while (clientAgent != null && clientAgent.enabled)
+        {
+            if (!clientAgent.pathPending && clientAgent.remainingDistance <= approachThreshold)
+            {
+                break;
+            }
+            yield return null;
+        }
+
+        if (clientAgent != null)
+        {
+            clientAgent.isStopped = true;
+        }
+
+        if (activeClient != null)
+        {
+            activeClient.transform.position = targetPos;
+            activeClient.transform.rotation = targetRot;
+        }
+
+        animatorController?.SetMoving(false);
+        departureRoutine = null;
+        DespawnCurrentClient();
+        onComplete?.Invoke();
+    }
+
+    private Vector3 GetExitPosition()
+    {
+        if (exitPoint != null) return exitPoint.position;
+        if (spawnPoint != null) return spawnPoint.position;
+        return transform.position;
+    }
+
+    private Quaternion GetExitRotation()
+    {
+        if (exitPoint != null) return exitPoint.rotation;
+        if (spawnPoint != null) return spawnPoint.rotation;
+        return transform.rotation;
     }
 
     private void OnDisable()

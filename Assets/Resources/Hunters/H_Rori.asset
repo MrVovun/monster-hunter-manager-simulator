@@ -31,6 +31,7 @@ MonoBehaviour:
   baseResolve: 9
   traits:
   - {fileID: 11400000, guid: 2659e8d4d076c184991a442585b3eb68, type: 2}
+  - {fileID: 11400000, guid: 522773ae6f23eb14b845e52fd6753548, type: 2}
   dailyUpkeepCost: 50
   startingLevel: 1
   startingXP: 0

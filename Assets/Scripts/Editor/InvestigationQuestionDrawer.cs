@@ -11,6 +11,7 @@ public class InvestigationQuestionDrawer : Editor
     private SerializedProperty requiredEvidenceProp;
     private SerializedProperty revealedCategoriesProp;
     private SerializedProperty explicitRevealsProp;
+    private SerializedProperty revealedTraitsProp;
     private SerializedProperty followUpsProp;
 
     private EvidenceTagLibrary tagLibrary;
@@ -23,6 +24,7 @@ public class InvestigationQuestionDrawer : Editor
         requiredEvidenceProp = serializedObject.FindProperty("requiredEvidence");
         revealedCategoriesProp = serializedObject.FindProperty("revealedCategories");
         explicitRevealsProp = serializedObject.FindProperty("explicitReveals");
+        revealedTraitsProp = serializedObject.FindProperty("revealedTraits");
         followUpsProp = serializedObject.FindProperty("followUps");
 
         var config = GameManager.Instance != null ? GameManager.Instance.GetGameConfig() : null;
@@ -51,6 +53,7 @@ public class InvestigationQuestionDrawer : Editor
         DrawEvidenceList("Required Evidence", requiredEvidenceProp, true);
         DrawCategoryList("Revealed Categories", revealedCategoriesProp);
         DrawEvidenceList("Explicit Reveals", explicitRevealsProp, true);
+        DrawTraitList();
         EditorGUILayout.PropertyField(followUpsProp);
 
         serializedObject.ApplyModifiedProperties();
@@ -170,6 +173,32 @@ public class InvestigationQuestionDrawer : Editor
             }
         }
         return null;
+    }
+
+    private void DrawTraitList()
+    {
+        if (revealedTraitsProp == null)
+        {
+            return;
+        }
+
+        EditorGUILayout.LabelField("Revealed Traits", EditorStyles.boldLabel);
+
+        int newCount = Mathf.Max(0, EditorGUILayout.IntField("Count", revealedTraitsProp.arraySize));
+        if (newCount != revealedTraitsProp.arraySize)
+        {
+            revealedTraitsProp.arraySize = newCount;
+        }
+
+        EditorGUI.indentLevel++;
+        for (int i = 0; i < revealedTraitsProp.arraySize; i++)
+        {
+            SerializedProperty element = revealedTraitsProp.GetArrayElementAtIndex(i);
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            EditorGUILayout.PropertyField(element, GUIContent.none);
+            EditorGUILayout.EndVertical();
+        }
+        EditorGUI.indentLevel--;
     }
 }
 #endif

@@ -27,6 +27,10 @@ public class GameConfig : ScriptableObject
         new OrderLimitTier{ requiredReputation = 100, orderLimit = 5 },
     };
 
+    [Header("Mission Balance")]
+    [Range(0f, 1f)] public float baseInjuryChance = 0.2f;
+    [Range(0f, 1f)] public float baseDeathChance = 0.05f;
+
     public int GetOrderLimit(int reputation)
     {
         int limit = 0;

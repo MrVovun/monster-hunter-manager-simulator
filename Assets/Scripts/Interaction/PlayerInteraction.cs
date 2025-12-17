@@ -7,6 +7,9 @@ public class PlayerInteraction : MonoBehaviour
     [SerializeField] private float interactionRange = 3f;
     [SerializeField] private LayerMask interactionMask = ~0;
     [SerializeField] private KeyCode interactKey = KeyCode.E;
+    [Header("Visuals")]
+    [SerializeField] private Camera playerCamera;
+    [SerializeField] private GameObject[] visualRoots;
 
     private Interactable currentInteractable;
     private FirstPersonController fpsController;
@@ -14,6 +17,11 @@ public class PlayerInteraction : MonoBehaviour
     private void Awake()
     {
         fpsController = GetComponent<FirstPersonController>();
+        if (playerCamera == null)
+        {
+            var fpsCam = fpsController != null ? fpsController.GetPlayerCamera() : null;
+            playerCamera = fpsCam != null ? fpsCam : Camera.main;
+        }
     }
 
     private void Update()
@@ -65,5 +73,26 @@ public class PlayerInteraction : MonoBehaviour
     public FirstPersonController GetFirstPersonController()
     {
         return fpsController;
+    }
+
+    public Camera GetPlayerCamera()
+    {
+        if (playerCamera == null)
+        {
+            playerCamera = Camera.main;
+        }
+        return playerCamera;
+    }
+
+    public void SetPlayerVisualsActive(bool value)
+    {
+        if (visualRoots == null) return;
+        foreach (var root in visualRoots)
+        {
+            if (root != null)
+            {
+                root.SetActive(value);
+            }
+        }
     }
 }

@@ -29,7 +29,8 @@ MonoBehaviour:
   basePower: 11
   baseDefense: 13
   baseResolve: 15
-  traits: []
+  traits:
+  - {fileID: 11400000, guid: f22ae9b54a4822b45a63b7cd1024e28d, type: 2}
   dailyUpkeepCost: 10
   startingLevel: 1
   startingXP: 0

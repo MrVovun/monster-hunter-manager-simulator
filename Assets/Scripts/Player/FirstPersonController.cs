@@ -10,6 +10,7 @@ public class FirstPersonController : MonoBehaviour
     [Header("References")]
     [SerializeField] private Transform cameraTransform;
     [SerializeField] private CharacterController characterController;
+    [SerializeField] private InvestigationManager investigationManager;
     
     private Vector2 moveInput;
     private Vector2 lookInput;
@@ -83,6 +84,13 @@ public class FirstPersonController : MonoBehaviour
     {
         lookInput = context.ReadValue<Vector2>();
     }
+
+    public void OnBestiary(InputAction.CallbackContext context)
+    {
+        if (!context.performed) return;
+        var manager = ResolveInvestigationManager();
+        manager?.ShowBestiaryFree();
+    }
     
     // Always read keyboard fallback (works even if Input Actions aren't connected)
     private void ReadInputFallback()
@@ -118,5 +126,17 @@ public class FirstPersonController : MonoBehaviour
     public bool IsMovementLocked()
     {
         return isMovementLocked;
+    }
+
+    public Camera GetPlayerCamera()
+    {
+        if (cameraTransform == null) return null;
+        return cameraTransform.GetComponent<Camera>();
+    }
+
+    private InvestigationManager ResolveInvestigationManager()
+    {
+        if (investigationManager != null) return investigationManager;
+        return GameManager.Instance != null ? GameManager.Instance.GetInvestigationManager() : null;
     }
 }

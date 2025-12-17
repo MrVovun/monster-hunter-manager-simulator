@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0de90ea3325b43d4e91cf6a913342ea5, type: 3}
-  m_Name: MT_Flying
+  m_Name: MT_Pack
   m_EditorClassIdentifier: Assembly-CSharp::MonsterTrait
-  traitId: 21726543e8584ae49a22a18d78643c57
-  displayName: Flying
-  description: This monster can fly. If not countered, hunters are guaranteed to
-    receive an injury.
-  dialogueRevealText: It was flying!
-  icon: {fileID: 21300000, guid: b5ea3b373f1c34847a938f7101025996, type: 3}
+  traitId: e7c70f4da8e94331b691751c5d4af11b
+  displayName: Pack
+  description: This monster is actually a pack of monsters. If not countered, the
+    assigned hunters' strength is halved.
+  dialogueRevealText: There was a pack of them!
+  icon: {fileID: 21300000, guid: 9cab34d686d51364f8321f3ffa11ec36, type: 3}
   missionEffects:
-  - effectType: 3
-    value: 1
+  - effectType: 2
+    value: 0.5

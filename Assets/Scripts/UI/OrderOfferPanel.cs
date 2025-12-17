@@ -33,6 +33,7 @@ public class OrderOfferPanel : MonoBehaviour
     [SerializeField] private Button referButton;
     [Header("Monster Visuals")]
     [SerializeField] private Image declaredMonsterPortrait;
+    [SerializeField] [Range(0.1f, 1f)] private float disabledButtonAlpha = 0.4f;
 
     private Order currentOrder;
     private InvestigationManager activeInvestigation;
@@ -196,6 +197,8 @@ public class OrderOfferPanel : MonoBehaviour
     private void UpdateDeclaredMonsterUI()
     {
         string declaredName = currentOrder != null ? currentOrder.GetDeclaredOrGenericMonsterName() : "monster";
+        bool hasDeclaration = currentOrder != null && currentOrder.declaredMonster != null;
+        bool limitReached = !CanAcceptAnotherOrder();
 
         if (declaredMonsterText != null)
         {
@@ -209,9 +212,18 @@ public class OrderOfferPanel : MonoBehaviour
 
         if (declarationHintText != null)
         {
-            declarationHintText.text = currentOrder != null && currentOrder.declaredMonster != null
-                ? $"Declared: {declaredName}"
-                : "Select a monster before accepting or referring.";
+            if (limitReached)
+            {
+                declarationHintText.text = "Order limit reached. Finish or refer an order first.";
+            }
+            else if (hasDeclaration)
+            {
+                declarationHintText.text = $"Declared: {declaredName}";
+            }
+            else
+            {
+                declarationHintText.text = "Select a monster before accepting or referring.";
+            }
         }
 
         UpdateDeclaredMonsterPortrait();
@@ -220,14 +232,9 @@ public class OrderOfferPanel : MonoBehaviour
     private void UpdateActionButtons()
     {
         bool declarationValid = currentOrder != null && currentOrder.declaredMonster != null;
-        if (acceptButton != null)
-        {
-            acceptButton.interactable = declarationValid;
-        }
-        if (referButton != null)
-        {
-            referButton.interactable = declarationValid;
-        }
+        bool limitAllowsAccept = declarationValid && CanAcceptAnotherOrder();
+        SetButtonState(acceptButton, limitAllowsAccept);
+        SetButtonState(referButton, declarationValid);
     }
 
     private OrderManager GetOrderManager()
@@ -245,7 +252,13 @@ public class OrderOfferPanel : MonoBehaviour
         OrderManager manager = GetOrderManager();
         if (manager != null && currentOrder != null)
         {
-            manager.AcceptOrder(currentOrder);
+            bool accepted = manager.AcceptOrder(currentOrder);
+            if (!accepted)
+            {
+                UpdateActionButtons();
+                UpdateDeclaredMonsterUI();
+                return;
+            }
         }
         Hide();
     }
@@ -435,5 +448,24 @@ public class OrderOfferPanel : MonoBehaviour
         }
 
         return icon;
+    }
+
+    private bool CanAcceptAnotherOrder()
+    {
+        OrderManager manager = GetOrderManager();
+        return manager == null || manager.CanAcceptMoreOrders();
+    }
+
+    private void SetButtonState(Button button, bool enabled)
+    {
+        if (button == null) return;
+        button.interactable = enabled;
+
+        CanvasGroup group = button.GetComponent<CanvasGroup>();
+        if (group == null)
+        {
+            group = button.gameObject.AddComponent<CanvasGroup>();
+        }
+        group.alpha = enabled ? 1f : Mathf.Clamp01(disabledButtonAlpha);
     }
 }

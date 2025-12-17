@@ -12,6 +12,7 @@ public class ClientCharacter : MonoBehaviour
 
     public NavMeshAgent Agent => navAgent;
     public SharedCharacterAnimator AnimatorController => sharedAnimator;
+    public ClientInteractable Interactable => interactable;
 
     private void Awake()
     {
@@ -60,6 +61,14 @@ public class ClientCharacter : MonoBehaviour
         if (interactable != null)
         {
             interactable.Initialize(manager, caseData);
+        }
+    }
+
+    public void DisableInteraction()
+    {
+        if (interactable != null)
+        {
+            interactable.DisableInteraction();
         }
     }
 

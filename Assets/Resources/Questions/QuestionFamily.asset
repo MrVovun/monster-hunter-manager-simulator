@@ -19,6 +19,7 @@ MonoBehaviour:
   revealedCategories:
   - categoryIndex: 0
   explicitReveals: []
+  revealedTraits: []
   followUps:
   - {fileID: 11400000, guid: ac95fca6036908f4e82a3a5014cb5c38, type: 2}
   - {fileID: 11400000, guid: 7052173e211d8fd4e8ab035dc4d434b2, type: 2}

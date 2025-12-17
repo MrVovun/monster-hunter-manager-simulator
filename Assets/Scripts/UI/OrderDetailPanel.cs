@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class OrderDetailPanel : MonoBehaviour
 {
@@ -19,6 +21,12 @@ public class OrderDetailPanel : MonoBehaviour
     [SerializeField] private TMP_Text prepTimeText;
     [SerializeField] private TMP_Text missionTimeText;
     [SerializeField] private TraitTooltipPanel traitTooltipPanel;
+    [Header("Revealed Traits")]
+    [SerializeField] private Transform revealedTraitsParent;
+    [SerializeField] private GameObject traitItemPrefab;
+    [SerializeField] private Image traitIconPrototype;
+    [Header("Monster Visuals")]
+    [SerializeField] private Image declaredMonsterPortrait;
 
     [Header("Systems")]
     [SerializeField] private PartyFormation partyFormation;
@@ -39,6 +47,7 @@ public class OrderDetailPanel : MonoBehaviour
     private float timerRefreshCountdown;
     
     public System.Action OnPartyChanged;
+    private readonly List<GameObject> spawnedTraitItems = new List<GameObject>();
 
     private void Awake()
     {
@@ -104,6 +113,9 @@ public class OrderDetailPanel : MonoBehaviour
             monsterText.text = monsterName;
         }
 
+        UpdateMonsterPortrait(order);
+        UpdateRevealedTraitsUI();
+
         if (difficultyText != null)
         {
             difficultyText.text = order.difficulty.ToString();
@@ -131,7 +143,8 @@ public class OrderDetailPanel : MonoBehaviour
         if (partyInfoText != null && partyFormation != null)
         {
             var chance = partyFormation.CalculateSuccessChance();
-            partyInfoText.text = $"Party: {partyFormation.GetPartySize()}/{partyFormation.GetMaxPartySize()}  Success: {chance:0}%";
+            var riskLabel = partyFormation.GetRiskLevel();
+            partyInfoText.text = $"Party: {partyFormation.GetPartySize()}/{partyFormation.GetMaxPartySize()}  Success: {chance:0}% ({riskLabel})";
         }
 
         UpdateTimerText();
@@ -388,6 +401,8 @@ public class OrderDetailPanel : MonoBehaviour
         if (missionTimeText != null) missionTimeText.text = "-";
         if (partyInfoText != null) partyInfoText.text = string.Empty;
         if (timerText != null) timerText.text = string.Empty;
+        ClearRevealedTraitItems();
+        UpdateMonsterPortrait(null);
         ClearPartySlots();
     }
 
@@ -399,5 +414,149 @@ public class OrderDetailPanel : MonoBehaviour
         {
             panelRoot.SetActive(false);
         }
+    }
+
+    private void UpdateMonsterPortrait(Order order)
+    {
+        if (declaredMonsterPortrait == null) return;
+
+        Sprite sprite = order?.declaredMonster != null ? order.declaredMonster.portrait : null;
+        declaredMonsterPortrait.sprite = sprite;
+        declaredMonsterPortrait.enabled = sprite != null;
+    }
+
+    private void UpdateRevealedTraitsUI()
+    {
+        ClearRevealedTraitItems();
+
+        if (revealedTraitsParent == null)
+        {
+            return;
+        }
+
+        var caseData = currentOrder?.investigationCase;
+        if (caseData == null || caseData.confirmedTraitIds == null || caseData.confirmedTraitIds.Count == 0)
+        {
+            revealedTraitsParent.gameObject.SetActive(false);
+            return;
+        }
+
+        List<MonsterTrait> traits = new List<MonsterTrait>();
+        foreach (var traitId in caseData.confirmedTraitIds)
+        {
+            if (string.IsNullOrEmpty(traitId)) continue;
+            var trait = caseData.truthTraits?.Find(t => t != null && string.Equals(t.traitId, traitId, StringComparison.OrdinalIgnoreCase));
+            if (trait != null)
+            {
+                traits.Add(trait);
+            }
+        }
+
+        if (traits.Count == 0)
+        {
+            revealedTraitsParent.gameObject.SetActive(false);
+            return;
+        }
+
+        revealedTraitsParent.gameObject.SetActive(true);
+        foreach (var trait in traits)
+        {
+            var item = CreateTraitItem(trait);
+            if (item == null) continue;
+            item.transform.SetParent(revealedTraitsParent, false);
+            spawnedTraitItems.Add(item);
+        }
+    }
+
+    private void ClearRevealedTraitItems()
+    {
+        foreach (var item in spawnedTraitItems)
+        {
+            if (item != null)
+            {
+                Destroy(item);
+            }
+        }
+        spawnedTraitItems.Clear();
+
+        if (revealedTraitsParent != null)
+        {
+            foreach (Transform child in revealedTraitsParent)
+            {
+                Destroy(child.gameObject);
+            }
+            revealedTraitsParent.gameObject.SetActive(false);
+        }
+    }
+
+    private GameObject CreateTraitItem(MonsterTrait trait)
+    {
+        GameObject item = traitItemPrefab != null ? Instantiate(traitItemPrefab) : new GameObject("RevealedTrait");
+        RectTransform rect = item.GetComponent<RectTransform>();
+        if (rect == null)
+        {
+            rect = item.AddComponent<RectTransform>();
+        }
+
+        TMP_Text text = item.GetComponentInChildren<TMP_Text>();
+        if (text != null)
+        {
+            text.text = string.Empty;
+            text.gameObject.SetActive(false);
+        }
+
+        Image icon = FindOrCreateTraitIcon(item);
+        if (icon != null)
+        {
+            Sprite sprite = trait != null ? trait.icon : null;
+            icon.sprite = sprite;
+            icon.enabled = sprite != null;
+        }
+
+        if (traitTooltipPanel != null)
+        {
+            var tooltip = item.GetComponent<TraitTooltipTrigger>();
+            if (tooltip == null)
+            {
+                tooltip = item.AddComponent<TraitTooltipTrigger>();
+            }
+            tooltip.Initialize(traitTooltipPanel, rect, trait != null ? trait.displayName : "Trait", trait != null ? trait.description : string.Empty);
+        }
+
+        return item;
+    }
+
+    private Image FindOrCreateTraitIcon(GameObject item)
+    {
+        if (item == null) return null;
+
+        Image icon = null;
+        var images = item.GetComponentsInChildren<Image>(true);
+        foreach (var candidate in images)
+        {
+            if (candidate == null) continue;
+            if (candidate.transform == item.transform && item.GetComponent<Button>() != null)
+            {
+                continue;
+            }
+            icon = candidate;
+            break;
+        }
+
+        if (icon == null && traitIconPrototype != null)
+        {
+            icon = Instantiate(traitIconPrototype, item.transform);
+        }
+
+        if (icon == null)
+        {
+            icon = item.GetComponent<Image>();
+            if (icon == null)
+            {
+                icon = item.AddComponent<Image>();
+            }
+        }
+
+        return icon;
     }
 }

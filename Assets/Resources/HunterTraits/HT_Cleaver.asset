@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f9b5851c07143164599583754e0f3c84, type: 3}
-  m_Name: HT_Ranged
+  m_Name: HT_Cleaver
   m_EditorClassIdentifier: Assembly-CSharp::HunterTrait
-  traitId: d0ea41aabc894c729009338134de78a3
-  displayName: Ranged
-  description: This hunter carries a ranged weapon, able to hit flying enemies. Counters
-    "Flying" trait.
-  icon: {fileID: 21300000, guid: 560fa2119e1b133418691b8decbba013, type: 3}
+  traitId: 139f11349c48442591bcdcc8bce47f9d
+  displayName: Cleaver
+  description: This hunter wields a huge weapon, able to cleave enemies. Counters
+    "Pack" trait.
+  icon: {fileID: 21300000, guid: 1161253215b0bbb48972d17bff36f097, type: 3}
   bonusEffects: []
   counters:
-  - {fileID: 11400000, guid: 6af8b3bbb8f5f8d4fbdb3a6057fd4b86, type: 2}
+  - {fileID: 11400000, guid: 02041b403a87b234ba630b13fd996c0f, type: 2}

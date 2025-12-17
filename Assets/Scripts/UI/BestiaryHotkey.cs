@@ -1,16 +1,33 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class BestiaryHotkey : MonoBehaviour
 {
-    [SerializeField] private KeyCode hotkey = KeyCode.B;
+    [SerializeField] private InputActionReference bestiaryAction;
     [SerializeField] private InvestigationManager investigationManager;
 
-    private void Update()
+    private void OnEnable()
     {
-        if (!Input.GetKeyDown(hotkey)) return;
+        if (bestiaryAction == null) return;
 
-        var manager = ResolveManager();
-        manager?.ShowBestiaryFree();
+        bestiaryAction.action.performed += HandlePerformed;
+        if (!bestiaryAction.action.enabled)
+        {
+            bestiaryAction.action.Enable();
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (bestiaryAction == null) return;
+        bestiaryAction.action.performed -= HandlePerformed;
+    }
+
+    private void HandlePerformed(InputAction.CallbackContext context)
+    {
+        if (!context.performed) return;
+
+        ResolveManager()?.ShowBestiaryFree();
     }
 
     private InvestigationManager ResolveManager()

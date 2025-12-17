@@ -52,41 +52,4 @@ public class HunterStats : MonoBehaviour
         return totalPower + totalDefense + totalResolve;
     }
     
-    public float GetSuccessChanceModifier()
-    {
-        // Traits may modify success chance
-        if (hunterData == null) return 0f;
-        
-        float modifier = 0f;
-        foreach (var trait in hunterData.traits)
-        {
-            modifier += trait.successChanceBonus;
-        }
-        return modifier;
-    }
-    
-    public float GetInjuryRiskModifier()
-    {
-        if (hunterData == null) return 1f;
-        
-        float modifier = 1f;
-        foreach (var trait in hunterData.traits)
-        {
-            modifier *= trait.injuryRiskModifier;
-        }
-        return modifier;
-    }
-    
-    public float GetDeathRiskModifier()
-    {
-        if (hunterData == null) return 1f;
-        
-        float modifier = 1f;
-        foreach (var trait in hunterData.traits)
-        {
-            modifier *= trait.deathRiskModifier;
-        }
-        return modifier;
-    }
 }
-

@@ -36,9 +36,15 @@ public class OrderManager : MonoBehaviour
         return newOrder;
     }
 
-    public void AcceptOrder(Order order)
+    public bool AcceptOrder(Order order)
     {
-        if (order == null) return;
+        if (order == null) return false;
+
+        if (IsOrderLimitReached())
+        {
+            Debug.LogWarning("OrderManager: Cannot accept order because the active order limit has been reached.");
+            return false;
+        }
 
         offeredOrders.Remove(order);
         if (!activeOrders.Contains(order))
@@ -49,6 +55,7 @@ public class OrderManager : MonoBehaviour
         order.state = OrderState.Accepted;
         StartPrepTimer(order);
         NotifyOrdersChanged();
+        return true;
     }
 
     public void DeclineOrder(Order order)
@@ -208,6 +215,35 @@ public class OrderManager : MonoBehaviour
     {
         var hunterManager = GameManager.Instance != null ? GameManager.Instance.GetHunterManager() : null;
         hunterManager?.NotifyRosterChanged();
+    }
+
+    private bool IsOrderLimitReached()
+    {
+        GameManager manager = GameManager.Instance;
+        if (manager == null) return false;
+
+        GameConfig config = manager.GetGameConfig();
+        if (config == null) return false;
+
+        int reputation = manager.GetReputation();
+        int limit = config.GetOrderLimit(reputation);
+        if (limit <= 0) return false;
+
+        int activeCount = 0;
+        foreach (var order in activeOrders)
+        {
+            if (order != null && order.IsActive())
+            {
+                activeCount++;
+            }
+        }
+
+        return activeCount >= limit;
+    }
+
+    public bool CanAcceptMoreOrders()
+    {
+        return !IsOrderLimitReached();
     }
     
     public List<Order> GetActiveOrders()

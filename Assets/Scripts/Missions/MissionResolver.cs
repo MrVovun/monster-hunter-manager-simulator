@@ -3,12 +3,6 @@ using UnityEngine;
 
 public class MissionResolver : MonoBehaviour
 {
-    [Header("Resolution Settings")]
-    [SerializeField] private float baseInjuryChance = 0.2f; // 20% base chance
-    [SerializeField] private float baseDeathChance = 0.05f; // 5% base chance
-    [SerializeField] private float failureInjuryMultiplier = 2f; // Failed missions = higher injury risk
-    [SerializeField] private float failureDeathMultiplier = 3f;
-    
     public MissionReport ResolveMission(Order order, List<Hunter> party)
     {
         if (order == null || party == null || party.Count == 0)
@@ -22,8 +16,12 @@ public class MissionResolver : MonoBehaviour
         
         // Calculate success
         Mission mission = new Mission(order, party);
-        float successChance = mission.CalculateSuccessChance();
-        report.success = Random.Range(0f, 100f) < successChance;
+        MissionOutcomeConfig config = MissionOutcomeConfig.FromGameConfig(GameManager.Instance != null ? GameManager.Instance.GetGameConfig() : null);
+        MissionOutcomeResult outcome = MissionOutcomeCalculator.Evaluate(order, party, config);
+        float successChance = outcome.SuccessChancePercent;
+        bool guaranteedSuccess = successChance >= 100f;
+        float successRollThreshold = Mathf.Clamp(successChance, 0f, 100f);
+        report.success = guaranteedSuccess || Random.Range(0f, 100f) < successRollThreshold;
         
         // Calculate rewards
         if (report.success)
@@ -37,6 +35,15 @@ public class MissionResolver : MonoBehaviour
             report.reputationGained = 0;
         }
         
+        int successXpReward = Mathf.Max(0, Mathf.RoundToInt(order.xpReward + Mathf.Max(0f, outcome.AdditionalSuccessXP)));
+        int failureXpReward = Mathf.Max(0, order.xpReward / 2);
+
+        bool successPreventsInjury = outcome.InjuryProtectionFromSuccess;
+        bool successPreventsDeath = outcome.DeathProtectionFromSuccess;
+        bool guaranteedInjury = outcome.InjuriesGuaranteed && !outcome.InjuryPreventionActive;
+        float baseInjuryRisk = Mathf.Clamp01(outcome.FinalInjuryChance);
+        float baseDeathRisk = Mathf.Clamp01(outcome.FinalDeathChance);
+
         // Resolve each hunter
         foreach (var hunter in party)
         {
@@ -48,42 +55,40 @@ public class MissionResolver : MonoBehaviour
             // Track level before awarding XP so we can report level-ups correctly
             int levelBeforeMission = hunter.GetLevel();
             
-            // Calculate injury/death risk
-            float injuryRisk = baseInjuryChance;
-            float deathRisk = baseDeathChance;
-            
-            if (!report.success)
+            bool injuryPrevented = successPreventsInjury || outcome.InjuryPreventionActive;
+            bool shouldRollInjury = !guaranteedInjury && !injuryPrevented;
+            bool hunterInjured = guaranteedInjury;
+
+            float injuryRisk = baseInjuryRisk;
+            float deathRisk = baseDeathRisk;
+
+            if (shouldRollInjury)
             {
-                injuryRisk *= failureInjuryMultiplier;
-                deathRisk *= failureDeathMultiplier;
+                hunterInjured = Random.value < injuryRisk;
             }
-            
-            // Apply trait modifiers
-            if (hunter.GetStats() != null)
-            {
-                injuryRisk *= hunter.GetStats().GetInjuryRiskModifier();
-                deathRisk *= hunter.GetStats().GetDeathRiskModifier();
-            }
-            
-            // Roll for death first (if dead, can't be injured)
-            result.died = Random.Range(0f, 1f) < deathRisk;
-            
-            if (result.died)
+
+            bool deathPrevented = successPreventsDeath || outcome.DeathPreventionActive;
+            bool requiresInjuryForDeath = !outcome.AllowDeathWithoutInjury;
+            bool canDie = !deathPrevented && (!requiresInjuryForDeath || hunterInjured);
+            bool hunterDied = canDie && (Random.value < deathRisk);
+
+            result.died = hunterDied;
+            if (hunterDied)
             {
                 result.survived = false;
-                result.injured = false;
+                result.injured = hunterInjured;
                 hunter.SetState(HunterState.Dead);
             }
             else
             {
                 result.survived = true;
-                result.injured = Random.Range(0f, 1f) < injuryRisk;
+                result.injured = hunterInjured;
             }
             
             // Calculate XP gain
             if (result.survived)
             {
-                result.xpGained = report.success ? order.xpReward : order.xpReward / 2;
+                result.xpGained = report.success ? successXpReward : failureXpReward;
                 hunter.GainXP(result.xpGained);
                 result.leveledUp = hunter.GetLevel() > levelBeforeMission;
             }
@@ -110,4 +115,3 @@ public class MissionResolver : MonoBehaviour
         return report;
     }
 }
-

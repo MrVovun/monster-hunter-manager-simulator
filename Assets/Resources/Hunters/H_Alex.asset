@@ -29,7 +29,9 @@ MonoBehaviour:
   basePower: 10
   baseDefense: 10
   baseResolve: 10
-  traits: []
+  traits:
+  - {fileID: 11400000, guid: 848fa6195b9c4e740b4d5da8ed1e4b09, type: 2}
+  - {fileID: 11400000, guid: 619b337e37eb08e4a9c57a0d55d5e660, type: 2}
   dailyUpkeepCost: 10
   startingLevel: 1
   startingXP: 0
@@ -43,7 +45,3 @@ MonoBehaviour:
   minReputation: 1
   portrait: {fileID: 21300000, guid: ff25a3afa3c82e147bf10c96f2e73736, type: 3}
   visualPrefab: {fileID: 1978041737891688, guid: 54828571eee3fb04d86d2c0049de40f1, type: 3}
-  idleStateName: Relax-Idle
-  walkStateName: Relaxed-WalkRun-Blend
-  sitStateName: Sit-Sitdown
-  sitIdleStateName: Sit-Idle

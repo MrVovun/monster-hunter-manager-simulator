@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
@@ -14,8 +15,13 @@ public class InvestigationManager : MonoBehaviour
     [SerializeField] private OrderOfferPanel orderOfferPanel;
     [SerializeField] private InvestigationDialogueUI dialogueUI;
     [SerializeField] private BestiaryUI bestiaryUI;
+    [SerializeField] private Camera dialogueCamera;
+    [SerializeField] private float cameraTransitionDuration = 0.5f;
 
     private readonly Dictionary<string, InvestigationQuestion> questionLookup = new Dictionary<string, InvestigationQuestion>();
+    private Vector3 dialogueCameraHomePosition;
+    private Quaternion dialogueCameraHomeRotation;
+    private bool dialogueCameraCached;
 
     public InvestigationCase CurrentCase { get; private set; }
     public Order CurrentOrder { get; private set; }
@@ -25,6 +31,7 @@ public class InvestigationManager : MonoBehaviour
     {
         ApplyConfigDefaults();
         BuildQuestionLookup();
+        CacheDialogueCameraHome();
     }
 
     private void ApplyConfigDefaults()
@@ -139,6 +146,8 @@ public class InvestigationManager : MonoBehaviour
             AppendResponseLine(responseBuilder, responseText);
         }
 
+        RevealTraitsFromQuestion(question, responseBuilder);
+
         NotifyCaseUpdated();
         return responseBuilder.ToString().Trim();
     }
@@ -148,6 +157,46 @@ public class InvestigationManager : MonoBehaviour
         if (string.IsNullOrWhiteSpace(line)) return;
         if (builder.Length > 0) builder.AppendLine();
         builder.Append(line);
+    }
+
+    private void RevealTraitsFromQuestion(InvestigationQuestion question, StringBuilder responseBuilder)
+    {
+        if (question == null || CurrentCase == null || question.revealedTraits == null) return;
+
+        foreach (var traitReference in question.revealedTraits)
+        {
+            TryConfirmTrait(traitReference, responseBuilder);
+        }
+    }
+
+    private void TryConfirmTrait(MonsterTrait traitReference, StringBuilder responseBuilder)
+    {
+        if (traitReference == null || CurrentCase?.truthTraits == null) return;
+
+        string targetId = !string.IsNullOrEmpty(traitReference.traitId) ? traitReference.traitId : null;
+        foreach (var trait in CurrentCase.truthTraits)
+        {
+            if (trait == null) continue;
+            bool match = false;
+            if (!string.IsNullOrEmpty(targetId))
+            {
+                match = string.Equals(trait.traitId, targetId, StringComparison.OrdinalIgnoreCase);
+            }
+            else
+            {
+                match = trait == traitReference;
+            }
+
+            if (match)
+            {
+                CurrentCase.ConfirmTrait(trait);
+                string message = string.IsNullOrWhiteSpace(trait.dialogueRevealText)
+                    ? $"Trait confirmed: {trait.displayName}"
+                    : trait.dialogueRevealText.Trim();
+                AppendResponseLine(responseBuilder, message);
+                return;
+            }
+        }
     }
 
     public List<InvestigationQuestion> GetAvailableQuestions()
@@ -193,6 +242,8 @@ public class InvestigationManager : MonoBehaviour
         return clientProfiles[index];
     }
 
+    private Coroutine dialogueCameraRoutine;
+
     private void SpawnClient()
     {
         if (clientSpawner == null)
@@ -207,6 +258,12 @@ public class InvestigationManager : MonoBehaviour
         }
 
         clientSpawner.SpawnClientForCase(CurrentCase);
+        if (dialogueCamera != null)
+        {
+            dialogueCamera.transform.position = dialogueCameraHomePosition;
+            dialogueCamera.transform.rotation = dialogueCameraHomeRotation;
+            dialogueCamera.gameObject.SetActive(false);
+        }
     }
 
     private string BuildResponseText(InvestigationQuestion question, string categoryName, string valueName)
@@ -316,7 +373,10 @@ public class InvestigationManager : MonoBehaviour
 
     public void CompleteInvestigation()
     {
-        clientSpawner?.DespawnCurrentClient();
+        if (clientSpawner != null)
+        {
+            clientSpawner.DismissCurrentClient();
+        }
         CurrentCase = null;
         CurrentOrder = null;
     }
@@ -358,6 +418,7 @@ public class InvestigationManager : MonoBehaviour
     {
         dialogueUI?.Close();
         CompleteInvestigation();
+        DeactivateDialogueCamera();
     }
 
     public void ShowBestiaryForDeclaration(System.Action<MonsterData> onSelected, System.Action onClosed)
@@ -383,13 +444,114 @@ public class InvestigationManager : MonoBehaviour
             return;
         }
 
-        if (bestiaryUI.IsVisible) return;
+        if (bestiaryUI.IsVisible)
+        {
+            if (!allowSelection)
+            {
+                bestiaryUI.Hide();
+                onClosed?.Invoke();
+            }
+            return;
+        }
 
         var monsters = GetAccessibleMonsters();
         bestiaryUI.Show(monsters, allowSelection, context, monster =>
         {
             onSelected?.Invoke(monster);
         }, onClosed);
+    }
+
+    private void DeactivateDialogueCamera()
+    {
+        if (dialogueCamera == null) return;
+        dialogueCamera.transform.position = dialogueCameraHomePosition;
+        dialogueCamera.transform.rotation = dialogueCameraHomeRotation;
+        dialogueCamera.gameObject.SetActive(false);
+    }
+
+    public void ToggleDialogueCamera(bool activate, Camera playerCamera)
+    {
+        if (dialogueCamera == null) return;
+        if (dialogueCameraRoutine != null)
+        {
+            StopCoroutine(dialogueCameraRoutine);
+        }
+        dialogueCameraRoutine = StartCoroutine(HandleDialogueCameraTransition(activate, playerCamera));
+    }
+
+    private IEnumerator HandleDialogueCameraTransition(bool entering, Camera playerCamera)
+    {
+        CacheDialogueCameraHome();
+        Camera sourceCamera = playerCamera != null ? playerCamera : Camera.main;
+        float duration = Mathf.Max(0.05f, cameraTransitionDuration);
+
+        if (entering)
+        {
+            Vector3 startPos = sourceCamera != null ? sourceCamera.transform.position : dialogueCameraHomePosition;
+            Quaternion startRot = sourceCamera != null ? sourceCamera.transform.rotation : dialogueCameraHomeRotation;
+            Vector3 endPos = dialogueCameraHomePosition;
+            Quaternion endRot = dialogueCameraHomeRotation;
+
+            if (sourceCamera != null)
+            {
+                sourceCamera.enabled = false;
+            }
+
+            dialogueCamera.transform.SetPositionAndRotation(startPos, startRot);
+            dialogueCamera.gameObject.SetActive(true);
+
+            float elapsed = 0f;
+            while (elapsed < duration)
+            {
+                float t = Mathf.Clamp01(elapsed / duration);
+                dialogueCamera.transform.position = Vector3.Lerp(startPos, endPos, t);
+                dialogueCamera.transform.rotation = Quaternion.Slerp(startRot, endRot, t);
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+
+            dialogueCamera.transform.position = endPos;
+            dialogueCamera.transform.rotation = endRot;
+        }
+        else
+        {
+            Vector3 startPos = dialogueCamera.transform.position;
+            Quaternion startRot = dialogueCamera.transform.rotation;
+            Vector3 endPos = sourceCamera != null ? sourceCamera.transform.position : dialogueCameraHomePosition;
+            Quaternion endRot = sourceCamera != null ? sourceCamera.transform.rotation : dialogueCameraHomeRotation;
+
+            float elapsed = 0f;
+            while (elapsed < duration)
+            {
+                float t = Mathf.Clamp01(elapsed / duration);
+                dialogueCamera.transform.position = Vector3.Lerp(startPos, endPos, t);
+                dialogueCamera.transform.rotation = Quaternion.Slerp(startRot, endRot, t);
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+
+            dialogueCamera.transform.position = dialogueCameraHomePosition;
+            dialogueCamera.transform.rotation = dialogueCameraHomeRotation;
+            dialogueCamera.gameObject.SetActive(false);
+
+            if (sourceCamera != null)
+            {
+                sourceCamera.enabled = true;
+            }
+        }
+    }
+
+    public Camera GetDialogueCamera()
+    {
+        return dialogueCamera;
+    }
+
+    private void CacheDialogueCameraHome()
+    {
+        if (dialogueCamera == null || dialogueCameraCached) return;
+        dialogueCameraHomePosition = dialogueCamera.transform.position;
+        dialogueCameraHomeRotation = dialogueCamera.transform.rotation;
+        dialogueCameraCached = true;
     }
 
     public List<MonsterData> GetAccessibleMonsters()

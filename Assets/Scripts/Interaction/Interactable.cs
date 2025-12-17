@@ -57,14 +57,10 @@ public abstract class Interactable : MonoBehaviour
                 controller.LockMovement();
             }
         }
-        
-        if (useCustomCamera && customCamera != null)
-        {
-            Camera.main.enabled = false;
-            customCamera.enabled = true;
-        }
+
+        HandleCameraSwitch(player, true);
     }
-    
+
     protected virtual void OnInteractionEnd(PlayerInteraction player)
     {
         if (locksPlayer)
@@ -75,11 +71,31 @@ public abstract class Interactable : MonoBehaviour
                 controller.UnlockMovement();
             }
         }
-        
-        if (useCustomCamera && customCamera != null)
+
+        HandleCameraSwitch(player, false);
+    }
+
+    protected virtual void HandleCameraSwitch(PlayerInteraction player, bool entered)
+    {
+        if (!useCustomCamera || customCamera == null) return;
+
+        if (entered)
+        {
+            var main = Camera.main;
+            if (main != null)
+            {
+                main.enabled = false;
+            }
+            customCamera.enabled = true;
+        }
+        else
         {
             customCamera.enabled = false;
-            Camera.main.enabled = true;
+            var main = Camera.main;
+            if (main != null)
+            {
+                main.enabled = true;
+            }
         }
     }
 

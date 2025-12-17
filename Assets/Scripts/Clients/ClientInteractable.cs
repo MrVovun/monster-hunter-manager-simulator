@@ -3,16 +3,19 @@ using UnityEngine;
 public class ClientInteractable : Interactable
 {
     [SerializeField] private ClientCharacter clientCharacter;
+    [SerializeField] private Camera dialogueCamera;
     private InvestigationManager investigationManager;
     private InvestigationCase linkedCase;
     private bool awaitingRelease;
     private PlayerInteraction activePlayer;
+    private bool interactionDisabled;
 
     private void Reset()
     {
         interactionPrompt = "[E] Speak to client";
         interactionType = InteractionType.Trigger;
         locksPlayer = true;
+        useCustomCamera = false;
     }
 
     public void Initialize(InvestigationManager manager, InvestigationCase investigationCase)
@@ -23,10 +26,14 @@ public class ClientInteractable : Interactable
         }
         investigationManager = manager;
         linkedCase = investigationCase;
+        dialogueCamera = manager != null ? manager.GetDialogueCamera() : dialogueCamera;
+        interactionDisabled = false;
     }
 
     public override void Interact(PlayerInteraction player)
     {
+        if (interactionDisabled) return;
+
         if (linkedCase == null || investigationManager == null)
         {
             Debug.LogWarning("ClientInteractable: Missing linked case or investigation manager.");
@@ -55,5 +62,29 @@ public class ClientInteractable : Interactable
         ReleasePlayerLock();
         investigationManager = null;
         linkedCase = null;
+        dialogueCamera = null;
+        interactionDisabled = false;
+    }
+
+    protected override void HandleCameraSwitch(PlayerInteraction player, bool entered)
+    {
+        if (dialogueCamera == null || investigationManager == null)
+        {
+            base.HandleCameraSwitch(player, entered);
+            return;
+        }
+
+        if (player != null)
+        {
+            player.SetPlayerVisualsActive(!entered);
+        }
+
+        investigationManager.ToggleDialogueCamera(entered, player != null ? player.GetPlayerCamera() : null);
+    }
+
+    public void DisableInteraction()
+    {
+        interactionDisabled = true;
+        ReleasePlayerLock();
     }
 }
