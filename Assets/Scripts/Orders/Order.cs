@@ -28,15 +28,14 @@ public class Order
     public int difficulty;
     public int goldReward;
     public int xpReward;
+    public float reputationReward;
     public float missionDuration; // In game seconds
-    public float prepTimeLimit; // Time to assign party
     public int maxPartySize;
     public int minPartySize;
     public OrderState state;
     
     // Runtime data
     public List<Hunter> assignedHunters = new List<Hunter>();
-    public MissionTimer prepTimer;
     public MissionTimer missionTimer;
     public System.Guid orderId;
 

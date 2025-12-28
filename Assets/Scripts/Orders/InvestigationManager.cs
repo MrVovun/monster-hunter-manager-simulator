@@ -15,6 +15,8 @@ public class InvestigationManager : MonoBehaviour
     [SerializeField] private OrderOfferPanel orderOfferPanel;
     [SerializeField] private InvestigationDialogueUI dialogueUI;
     [SerializeField] private BestiaryUI bestiaryUI;
+    [SerializeField] private PlayerInteraction playerInteraction;
+    [SerializeField] private FirstPersonController playerController;
     [SerializeField] private Camera dialogueCamera;
     [SerializeField] private float cameraTransitionDuration = 0.5f;
 
@@ -22,6 +24,8 @@ public class InvestigationManager : MonoBehaviour
     private Vector3 dialogueCameraHomePosition;
     private Quaternion dialogueCameraHomeRotation;
     private bool dialogueCameraCached;
+    private Camera lastPlayerCamera;
+    private bool freeBrowseLockActive;
 
     public InvestigationCase CurrentCase { get; private set; }
     public Order CurrentOrder { get; private set; }
@@ -74,15 +78,8 @@ public class InvestigationManager : MonoBehaviour
 
     public void StartInvestigation(Order order)
     {
-        if (order == null) return;
-
-        CurrentCase = new InvestigationCase();
-        CurrentCase.truthMonster = order.monsterData;
-        CurrentCase.truthTraits = GenerateTruthTraits(order.monsterData);
-        CurrentCase.clientProfile = PickClientProfile();
-        order.investigationCase = CurrentCase;
-        CurrentOrder = order;
-
+        InitializeInvestigation(order, null);
+        if (CurrentCase == null) return;
         SpawnClient();
         NotifyCaseUpdated();
     }
@@ -223,7 +220,10 @@ public class InvestigationManager : MonoBehaviour
 
         int min = Mathf.Max(0, monster.traitCountRange.x);
         int max = Mathf.Max(min, monster.traitCountRange.y);
-        int count = UnityEngine.Random.Range(min, max + 1);
+        GameConfig config = GameManager.Instance != null ? GameManager.Instance.GetGameConfig() : null;
+        int count = config != null
+            ? config.RollTraitCount(min, max)
+            : UnityEngine.Random.Range(min, max + 1);
         List<MonsterTrait> pool = new List<MonsterTrait>(monster.possibleTraits);
         for (int i = 0; i < count && pool.Count > 0; i++)
         {
@@ -265,6 +265,33 @@ public class InvestigationManager : MonoBehaviour
             dialogueCamera.gameObject.SetActive(false);
         }
     }
+
+    private void InitializeInvestigation(Order order, ClientProfile overrideProfile)
+    {
+        if (order == null)
+        {
+            CurrentCase = null;
+            CurrentOrder = null;
+            return;
+        }
+
+        CurrentCase = new InvestigationCase();
+        CurrentCase.truthMonster = order.monsterData;
+        CurrentCase.truthTraits = GenerateTruthTraits(order.monsterData);
+        CurrentCase.clientProfile = overrideProfile != null ? overrideProfile : PickClientProfile();
+        order.investigationCase = CurrentCase;
+        CurrentOrder = order;
+    }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    public void DebugStartInvestigation(Order order, ClientProfile overrideProfile)
+    {
+        InitializeInvestigation(order, overrideProfile);
+        if (CurrentCase == null) return;
+        SpawnClient();
+        NotifyCaseUpdated();
+    }
+#endif
 
     private string BuildResponseText(InvestigationQuestion question, string categoryName, string valueName)
     {
@@ -418,7 +445,6 @@ public class InvestigationManager : MonoBehaviour
     {
         dialogueUI?.Close();
         CompleteInvestigation();
-        DeactivateDialogueCamera();
     }
 
     public void ShowBestiaryForDeclaration(System.Action<MonsterData> onSelected, System.Action onClosed)
@@ -426,44 +452,65 @@ public class InvestigationManager : MonoBehaviour
         ShowBestiary(true, CurrentCase, onSelected, onClosed);
     }
 
-    public void ShowBestiaryFree()
+    public void ShowBestiaryFree(System.Action onClosed = null)
     {
-        ShowBestiary(false, null, null, null);
+        ShowBestiary(false, null, null, onClosed);
     }
 
     private void ShowBestiary(bool allowSelection, InvestigationCase context, System.Action<MonsterData> onSelected, System.Action onClosed)
     {
-        if (bestiaryUI == null)
-        {
-            bestiaryUI = FindObjectOfType<BestiaryUI>(true);
-        }
-
-        if (bestiaryUI == null)
+        var ui = GetBestiaryUI();
+        if (ui == null)
         {
             onClosed?.Invoke();
             return;
         }
 
-        if (bestiaryUI.IsVisible)
+        bool freeBrowseMode = !allowSelection;
+
+        if (ui.IsVisible)
         {
-            if (!allowSelection)
+            if (freeBrowseMode)
             {
-                bestiaryUI.Hide();
-                onClosed?.Invoke();
+                ui.Hide();
             }
             return;
         }
 
+        System.Action wrappedClosed = () =>
+        {
+            if (freeBrowseMode)
+            {
+                ReleaseFreeBrowseLock();
+            }
+            onClosed?.Invoke();
+        };
+
+        if (freeBrowseMode)
+        {
+            ApplyFreeBrowseLock();
+        }
+
         var monsters = GetAccessibleMonsters();
-        bestiaryUI.Show(monsters, allowSelection, context, monster =>
+        ui.Show(monsters, allowSelection, context, monster =>
         {
             onSelected?.Invoke(monster);
-        }, onClosed);
+        }, wrappedClosed);
+
+        if (freeBrowseMode && !ui.IsVisible)
+        {
+            ReleaseFreeBrowseLock();
+        }
     }
 
     private void DeactivateDialogueCamera()
     {
         if (dialogueCamera == null) return;
+        Camera target = lastPlayerCamera != null ? lastPlayerCamera : Camera.main;
+        if (target != null)
+        {
+            target.enabled = true;
+        }
         dialogueCamera.transform.position = dialogueCameraHomePosition;
         dialogueCamera.transform.rotation = dialogueCameraHomeRotation;
         dialogueCamera.gameObject.SetActive(false);
@@ -472,6 +519,10 @@ public class InvestigationManager : MonoBehaviour
     public void ToggleDialogueCamera(bool activate, Camera playerCamera)
     {
         if (dialogueCamera == null) return;
+        if (playerCamera != null)
+        {
+            lastPlayerCamera = playerCamera;
+        }
         if (dialogueCameraRoutine != null)
         {
             StopCoroutine(dialogueCameraRoutine);
@@ -482,7 +533,9 @@ public class InvestigationManager : MonoBehaviour
     private IEnumerator HandleDialogueCameraTransition(bool entering, Camera playerCamera)
     {
         CacheDialogueCameraHome();
-        Camera sourceCamera = playerCamera != null ? playerCamera : Camera.main;
+        Camera sourceCamera = playerCamera != null
+            ? playerCamera
+            : (lastPlayerCamera != null ? lastPlayerCamera : Camera.main);
         float duration = Mathf.Max(0.05f, cameraTransitionDuration);
 
         if (entering)
@@ -532,18 +585,26 @@ public class InvestigationManager : MonoBehaviour
 
             dialogueCamera.transform.position = dialogueCameraHomePosition;
             dialogueCamera.transform.rotation = dialogueCameraHomeRotation;
-            dialogueCamera.gameObject.SetActive(false);
-
             if (sourceCamera != null)
             {
                 sourceCamera.enabled = true;
             }
+            dialogueCamera.gameObject.SetActive(false);
         }
     }
 
     public Camera GetDialogueCamera()
     {
         return dialogueCamera;
+    }
+
+    public BestiaryUI GetBestiaryUI()
+    {
+        if (bestiaryUI == null)
+        {
+            bestiaryUI = FindObjectOfType<BestiaryUI>(true);
+        }
+        return bestiaryUI;
     }
 
     private void CacheDialogueCameraHome()
@@ -572,5 +633,58 @@ public class InvestigationManager : MonoBehaviour
             }
         }
         return result;
+    }
+
+    private void ApplyFreeBrowseLock()
+    {
+        var controller = ResolvePlayerController();
+        if (controller != null && !controller.IsMovementLocked())
+        {
+            controller.LockMovement();
+            freeBrowseLockActive = true;
+        }
+        else
+        {
+            freeBrowseLockActive = false;
+        }
+
+        if (InteractionPromptUI.Instance != null)
+        {
+            InteractionPromptUI.Instance.HidePrompt();
+        }
+    }
+
+    private void ReleaseFreeBrowseLock()
+    {
+        if (!freeBrowseLockActive) return;
+
+        var controller = ResolvePlayerController();
+        if (controller != null)
+        {
+            controller.UnlockMovement();
+        }
+        freeBrowseLockActive = false;
+    }
+
+    private FirstPersonController ResolvePlayerController()
+    {
+        if (playerController != null) return playerController;
+
+        var interaction = ResolvePlayerInteraction();
+        if (interaction != null)
+        {
+            playerController = interaction.GetFirstPersonController();
+            if (playerController != null) return playerController;
+        }
+
+        playerController = FindObjectOfType<FirstPersonController>();
+        return playerController;
+    }
+
+    private PlayerInteraction ResolvePlayerInteraction()
+    {
+        if (playerInteraction != null) return playerInteraction;
+        playerInteraction = FindObjectOfType<PlayerInteraction>();
+        return playerInteraction;
     }
 }

@@ -81,7 +81,7 @@ CapsuleCollider:
   m_Radius: 0.5
   m_Height: 2
   m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: 0, y: 1, z: 0}
 --- !u!54 &3122124216833889819
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -162,7 +162,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ClientInteractable
   interactionType: 2
   locksPlayer: 1
-  useCustomCamera: 0
+  useCustomCamera: 1
   interactionPrompt: '[E] Speak to client'
   customCamera: {fileID: 0}
   clientCharacter: {fileID: 3773795090765767133}
+  dialogueCamera: {fileID: 0}

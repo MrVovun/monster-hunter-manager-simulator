@@ -24,12 +24,12 @@ public class StatisticsTab : MonoBehaviour
         int injuries = history.Sum(r => r.GetInjuriesCount());
         int deaths = history.Sum(r => r.GetDeathsCount());
         int goldEarned = history.Sum(r => r.goldEarned);
-        int repGained = history.Sum(r => r.reputationGained);
+        float repGained = history.Sum(r => r.reputationGained);
 
         statsText.text =
             $"Missions: {successes} success / {failures} failed (Total {total})\n" +
             $"Casualties: {injuries} injured / {deaths} dead\n" +
             $"Gold earned: {goldEarned}\n" +
-            $"Reputation gained: {repGained}";
+            $"Reputation gained: {repGained:0.##}";
     }
 }

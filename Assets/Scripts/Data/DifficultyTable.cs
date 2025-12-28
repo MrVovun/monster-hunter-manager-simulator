@@ -20,12 +20,12 @@ public class DifficultyEntry
     public int difficultyValue = 10;
 
     [Header("Timing")]
-    public float prepTimeSeconds = 180f;
     public float missionTimeSeconds = 300f;
 
     [Header("Rewards")]
     public int goldReward = 100;
     public int xpReward = 50;
+    public float reputationReward = 1f;
 
     [Header("Weight")]
     [Tooltip("How likely this entry is chosen when multiple are valid.")]

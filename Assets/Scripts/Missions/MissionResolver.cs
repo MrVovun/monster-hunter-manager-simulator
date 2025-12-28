@@ -27,12 +27,12 @@ public class MissionResolver : MonoBehaviour
         if (report.success)
         {
             report.goldEarned = order.goldReward;
-            report.reputationGained = Mathf.Max(1, order.difficulty / 10); // Reputation based on difficulty
+            report.reputationGained = Mathf.Max(0f, order.reputationReward);
         }
         else
         {
             report.goldEarned = order.goldReward / 2; // Half reward on failure
-            report.reputationGained = 0;
+            report.reputationGained = 0f;
         }
         
         int successXpReward = Mathf.Max(0, Mathf.RoundToInt(order.xpReward + Mathf.Max(0f, outcome.AdditionalSuccessXP)));
@@ -106,7 +106,7 @@ public class MissionResolver : MonoBehaviour
             }
             
             ReputationManager repManager = GameManager.Instance.GetReputationManager();
-            if (repManager != null && report.reputationGained > 0)
+            if (repManager != null && report.reputationGained > 0f)
             {
                 repManager.AddReputation(report.reputationGained);
             }

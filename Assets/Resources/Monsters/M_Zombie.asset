@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7003a09dfdd9dd498e3ab35a5abe032, type: 3}
+  m_Name: M_Zombie
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterData
+  monsterId: 20cc58e7283b4d6d9ce7d5940324a2c1
+  displayName: Zombie
+  portrait: {fileID: 0}
+  description: Zombies are shambling undead, roughly human-sized, with rotting flesh
+    and skin. They move with a dragging, very slow gait, often stumbling or falling
+    and then rising again. They do not truly speak; at most they emit low, unconscious
+    groans and wet gurgles, so they are effectively silent in terms of language or
+    meaningful sound.
+  requiredReputation: 1
+  minimumDifficulty: 40
+  possibleTraits: []
+  traitCountRange: {x: 0, y: 3}
+  evidenceTags: []
+  questionResponses: []
+  weight: 1

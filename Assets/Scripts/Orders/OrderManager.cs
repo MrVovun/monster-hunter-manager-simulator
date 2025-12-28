@@ -53,7 +53,6 @@ public class OrderManager : MonoBehaviour
         }
 
         order.state = OrderState.Accepted;
-        StartPrepTimer(order);
         NotifyOrdersChanged();
         return true;
     }
@@ -90,7 +89,6 @@ public class OrderManager : MonoBehaviour
         if (order.state != OrderState.Accepted) return false;
         if (party.Count < order.minPartySize || party.Count > order.maxPartySize) return false;
 
-        CleanupPrepTimer(order);
         order.assignedHunters.Clear();
         order.assignedHunters.AddRange(party);
 
@@ -107,15 +105,6 @@ public class OrderManager : MonoBehaviour
         NotifyOrdersChanged();
         NotifyHunterRosterChanged();
         return true;
-    }
-
-    private void StartPrepTimer(Order order)
-    {
-        if (timeManager == null || order == null || order.prepTimeLimit <= 0f) return;
-
-        order.prepTimer = new MissionTimer(order.prepTimeLimit);
-        order.prepTimer.OnExpired = () => ExpireOrder(order);
-        timeManager.RegisterTimer(order.prepTimer);
     }
 
     private void StartMissionTimer(Order order)
@@ -182,15 +171,6 @@ public class OrderManager : MonoBehaviour
         NotifyHunterRosterChanged();
     }
 
-    private void CleanupPrepTimer(Order order)
-    {
-        if (order?.prepTimer != null && timeManager != null)
-        {
-            timeManager.UnregisterTimer(order.prepTimer);
-            order.prepTimer = null;
-        }
-    }
-
     private void CleanupMissionTimer(Order order)
     {
         if (order?.missionTimer != null && timeManager != null)
@@ -202,7 +182,6 @@ public class OrderManager : MonoBehaviour
 
     private void CleanupTimers(Order order)
     {
-        CleanupPrepTimer(order);
         CleanupMissionTimer(order);
     }
 

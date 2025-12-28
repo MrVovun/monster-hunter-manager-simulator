@@ -100,5 +100,10 @@ public class HunterLevelSystem : MonoBehaviour
         int baseCost = 100;
         return baseCost * currentLevel;
     }
-}
 
+    public void DebugSetLevelAndXP(int level, int xp)
+    {
+        currentLevel = Mathf.Max(1, level);
+        currentXP = Mathf.Max(0, xp);
+    }
+}

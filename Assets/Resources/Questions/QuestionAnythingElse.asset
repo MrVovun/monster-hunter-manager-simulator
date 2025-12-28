@@ -15,7 +15,9 @@ MonoBehaviour:
   questionId: 936e5e3a91aa47b4a5123ddbafe3158e
   promptText: Anything else out of the ordinary?
   askDurationSeconds: 1
-  requiredEvidence: []
+  requiredEvidence:
+  - categoryIndex: 0
+    valueIndex: -1
   revealedCategories: []
   explicitReveals: []
   revealedTraits:

@@ -15,18 +15,22 @@ public class OrderGenerator : MonoBehaviour
     [SerializeField] private string monsterNamePlaceholder = "<monster_name>";
 
     [Header("Defaults (used if no data provided)")]
-    [SerializeField] private float defaultPrepTime = 180f;
     [SerializeField] private float defaultMissionTime = 300f;
     [SerializeField] private int defaultGoldPerDifficulty = 10;
     [SerializeField] private int defaultXpPerDifficulty = 5;
+    [SerializeField] private float defaultReputationPerDifficulty = 0.1f;
 
     public Order GenerateRandomOrder()
     {
         DifficultyEntry difficultyEntry = PickDifficulty();
-        MonsterData monster = PickMonster();
         OrderFlavorEntry flavor = flavorLibrary != null ? flavorLibrary.GetRandomFlavor() : null;
 
         int difficultyValue = difficultyEntry != null ? difficultyEntry.difficultyValue : Random.Range(5, 15);
+        MonsterData monster = PickMonster(difficultyValue);
+        if (monster == null)
+        {
+            monster = PickMonsterIgnoringDifficulty();
+        }
         string monsterName = monster != null && !string.IsNullOrWhiteSpace(monster.displayName)
             ? monster.displayName
             : "monster";
@@ -41,8 +45,9 @@ public class OrderGenerator : MonoBehaviour
         order.difficulty = difficultyValue;
         order.goldReward = difficultyEntry != null ? difficultyEntry.goldReward : difficultyValue * defaultGoldPerDifficulty;
         order.xpReward = difficultyEntry != null ? difficultyEntry.xpReward : difficultyValue * defaultXpPerDifficulty;
+        float fallbackReputation = Mathf.Max(0f, difficultyValue * Mathf.Max(0f, defaultReputationPerDifficulty));
+        order.reputationReward = difficultyEntry != null ? Mathf.Max(0f, difficultyEntry.reputationReward) : fallbackReputation;
         order.missionDuration = difficultyEntry != null ? difficultyEntry.missionTimeSeconds : defaultMissionTime;
-        order.prepTimeLimit = difficultyEntry != null ? difficultyEntry.prepTimeSeconds : defaultPrepTime;
         order.maxPartySize = 3;
         order.minPartySize = 1;
         order.state = OrderState.Offered;
@@ -88,9 +93,9 @@ public class OrderGenerator : MonoBehaviour
         return eligible[eligible.Count - 1];
     }
 
-    private MonsterData PickMonster()
+    private MonsterData PickMonster(int difficultyValue)
     {
-        IList<MonsterData> pool = GetMonsterPool();
+        IList<MonsterData> pool = GetMonsterPool(difficultyValue);
         if (pool == null || pool.Count == 0)
         {
             return null;
@@ -111,7 +116,14 @@ public class OrderGenerator : MonoBehaviour
         return pool[pool.Count - 1];
     }
 
-    private IList<MonsterData> GetMonsterPool()
+    private MonsterData PickMonsterIgnoringDifficulty()
+    {
+        var pool = GetMonsterPool(null);
+        if (pool == null || pool.Count == 0) return null;
+        return pool[Random.Range(0, pool.Count)];
+    }
+
+    private IList<MonsterData> GetMonsterPool(int? difficultyValue)
     {
         if (monsterLibrary == null)
         {
@@ -139,7 +151,8 @@ public class OrderGenerator : MonoBehaviour
 
         if (source == null) return null;
 
-        return FilterByReputation(source);
+        var filtered = FilterByReputation(source);
+        return difficultyValue.HasValue ? FilterByDifficulty(filtered, difficultyValue.Value) : filtered;
     }
 
     private IList<MonsterData> FilterByReputation(IList<MonsterData> monsters)
@@ -151,6 +164,22 @@ public class OrderGenerator : MonoBehaviour
         {
             if (monster == null) continue;
             if (reputation >= monster.requiredReputation)
+            {
+                filtered.Add(monster);
+            }
+        }
+
+        return filtered.Count > 0 ? (IList<MonsterData>)filtered : monsters;
+    }
+
+    private IList<MonsterData> FilterByDifficulty(IList<MonsterData> monsters, int difficultyValue)
+    {
+        if (monsters == null) return null;
+        List<MonsterData> filtered = new List<MonsterData>();
+        foreach (var monster in monsters)
+        {
+            if (monster == null) continue;
+            if (difficultyValue >= monster.minimumDifficulty)
             {
                 filtered.Add(monster);
             }

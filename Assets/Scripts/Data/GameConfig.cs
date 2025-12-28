@@ -30,6 +30,14 @@ public class GameConfig : ScriptableObject
     [Header("Mission Balance")]
     [Range(0f, 1f)] public float baseInjuryChance = 0.2f;
     [Range(0f, 1f)] public float baseDeathChance = 0.05f;
+    [Header("Monster Trait Generation")]
+    public List<TraitCountChance> traitCountChances = new List<TraitCountChance>
+    {
+        new TraitCountChance{ traitCount = 0, weight = 1f },
+        new TraitCountChance{ traitCount = 1, weight = 2f },
+        new TraitCountChance{ traitCount = 2, weight = 1.5f },
+        new TraitCountChance{ traitCount = 3, weight = 1f },
+    };
 
     public int GetOrderLimit(int reputation)
     {
@@ -49,5 +57,59 @@ public class GameConfig : ScriptableObject
     {
         public int requiredReputation;
         public int orderLimit = 3;
+    }
+
+    [Serializable]
+    public class TraitCountChance
+    {
+        public int traitCount = 1;
+        public float weight = 1f;
+    }
+
+    public int RollTraitCount(int min, int max)
+    {
+        min = Mathf.Max(0, min);
+        max = Mathf.Max(min, max);
+        if (traitCountChances == null || traitCountChances.Count == 0)
+        {
+            return UnityEngine.Random.Range(min, max + 1);
+        }
+
+        List<TraitCountChance> candidates = new List<TraitCountChance>();
+        foreach (var entry in traitCountChances)
+        {
+            if (entry == null) continue;
+            if (entry.traitCount < min || entry.traitCount > max) continue;
+            if (entry.weight <= 0f) continue;
+            candidates.Add(entry);
+        }
+
+        if (candidates.Count == 0)
+        {
+            return UnityEngine.Random.Range(min, max + 1);
+        }
+
+        float total = 0f;
+        foreach (var entry in candidates)
+        {
+            total += Mathf.Max(0f, entry.weight);
+        }
+        if (total <= 0f)
+        {
+            return UnityEngine.Random.Range(min, max + 1);
+        }
+
+        float roll = UnityEngine.Random.Range(0f, total);
+        float cumulative = 0f;
+        foreach (var entry in candidates)
+        {
+            cumulative += Mathf.Max(0f, entry.weight);
+            if (roll <= cumulative)
+            {
+                return entry.traitCount;
+            }
+        }
+
+        return candidates[candidates.Count - 1].traitCount;
     }
 }

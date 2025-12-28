@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7003a09dfdd9dd498e3ab35a5abe032, type: 3}
+  m_Name: M_Leprechaun
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterData
+  monsterId: 8a04c5d04c844b5c8a5fd18076b80939
+  displayName: Leprechaun
+  portrait: {fileID: 0}
+  description: "A leprechaun is a small fae humanoid, shorter than a child, with
+    a clever posture and quick hands. It moves at a deceptively calm normal pace\u2014until
+    it vanishes around a corner. Its weapon is its mouth: confident, teasing speech,
+    full of bargains, half-truths, and misdirection, as if every word is part of
+    a trick."
+  requiredReputation: 1
+  minimumDifficulty: 20
+  possibleTraits: []
+  traitCountRange: {x: 0, y: 3}
+  evidenceTags: []
+  questionResponses: []
+  weight: 1

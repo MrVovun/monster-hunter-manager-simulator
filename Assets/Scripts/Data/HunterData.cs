@@ -6,18 +6,19 @@ public class HunterData : ScriptableObject
 {
     [Header("Basic Info")]
     public string hunterName;
+    public string hunterId;
     private static GlobalHunterConfig cachedConfig;
     public GlobalHunterConfig.RarityType rarity = GlobalHunterConfig.RarityType.Common;
     [TextArea(3, 6)] public string bio;
     
     [Header("Base Stats")]
-    [Range(1, 100)]
+    [Tooltip("Base combined combat power at level 1.")]
+    [Range(1, 200)]
     public int basePower = 10;
-    [Range(1, 100)]
-    public int baseDefense = 10;
-    [Range(1, 100)]
-    public int baseResolve = 10;
-    
+    [Tooltip("Amount of combat power gained each level.")]
+    [Range(0, 50)]
+    public int powerPerLevel = 2;
+
     [Header("Traits")]
     public List<HunterTrait> traits = new List<HunterTrait>();
     
@@ -38,37 +39,10 @@ public class HunterData : ScriptableObject
 
     
     // Calculated stats (base + level bonuses)
-    public int GetPowerAtLevel(int level)
-    {
-        int levelBonus = (level - 1) * 2; // +2 power per level
-        return basePower + levelBonus;
-    }
-    
-    public int GetDefenseAtLevel(int level)
-    {
-        int levelBonus = (level - 1) * 2; // +2 defense per level
-        return baseDefense + levelBonus;
-    }
-    
-    public int GetResolveAtLevel(int level)
-    {
-        int levelBonus = (level - 1) * 2; // +2 resolve per level
-        return baseResolve + levelBonus;
-    }
-    
     public int GetTotalPower(int level)
     {
-        return GetPowerAtLevel(level);
-    }
-    
-    public int GetTotalDefense(int level)
-    {
-        return GetDefenseAtLevel(level);
-    }
-    
-    public int GetTotalResolve(int level)
-    {
-        return GetResolveAtLevel(level);
+        int levelBonus = Mathf.Max(0, level - 1) * powerPerLevel;
+        return basePower + levelBonus;
     }
 
     public int GetXPRequirementForLevel(int level)
@@ -112,6 +86,11 @@ public class HunterData : ScriptableObject
 
     private void OnValidate()
     {
+        if (string.IsNullOrWhiteSpace(hunterId))
+        {
+            hunterId = System.Guid.NewGuid().ToString("N");
+        }
+
         if (levelXPTable != null)
         {
             levelXPTable.Sort((a, b) =>

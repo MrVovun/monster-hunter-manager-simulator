@@ -74,11 +74,6 @@ public class ClientInteractable : Interactable
             return;
         }
 
-        if (player != null)
-        {
-            player.SetPlayerVisualsActive(!entered);
-        }
-
         investigationManager.ToggleDialogueCamera(entered, player != null ? player.GetPlayerCamera() : null);
     }
 

@@ -2,24 +2,34 @@ using UnityEngine;
 
 public class ReputationManager : MonoBehaviour
 {
-    private int currentReputation;
-    public event System.Action<int> OnReputationChanged;
+    private float currentReputation;
+    public event System.Action<float> OnReputationChanged;
 
-    public void Initialize(int startingValue)
+    public void Initialize(float startingValue)
     {
-        currentReputation = startingValue;
+        currentReputation = Mathf.Max(0f, startingValue);
         NotifyReputationChanged();
     }
 
     public int GetReputation()
     {
+        return Mathf.FloorToInt(currentReputation);
+    }
+
+    public float GetReputationPrecise()
+    {
         return currentReputation;
+    }
+
+    public void AddReputation(float amount)
+    {
+        currentReputation = Mathf.Max(0f, currentReputation + amount);
+        NotifyReputationChanged();
     }
 
     public void AddReputation(int amount)
     {
-        currentReputation = Mathf.Max(0, currentReputation + amount);
-        NotifyReputationChanged();
+        AddReputation((float)amount);
     }
 
     private void NotifyReputationChanged()

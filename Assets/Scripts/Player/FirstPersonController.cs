@@ -6,6 +6,8 @@ public class FirstPersonController : MonoBehaviour
     [Header("Movement Settings")]
     [SerializeField] private float walkSpeed = 5f;
     [SerializeField] private float mouseSensitivity = 2f;
+    [SerializeField] private float jumpForce = 5.5f;
+    [SerializeField] private float gravity = -9.81f;
     
     [Header("References")]
     [SerializeField] private Transform cameraTransform;
@@ -16,6 +18,7 @@ public class FirstPersonController : MonoBehaviour
     private Vector2 lookInput;
     private float verticalRotation = 0f;
     private bool isMovementLocked = false;
+    private float verticalVelocity = 0f;
     
     private void Awake()
     {
@@ -56,12 +59,25 @@ public class FirstPersonController : MonoBehaviour
     private void HandleMovement()
     {
         Vector3 moveDirection = transform.right * moveInput.x + transform.forward * moveInput.y;
-        moveDirection = moveDirection.normalized * walkSpeed;
-        
-        // Apply gravity
-        moveDirection.y = -9.81f;
-        
-        characterController.Move(moveDirection * Time.deltaTime);
+        if (moveDirection.sqrMagnitude > 1f)
+        {
+            moveDirection.Normalize();
+        }
+
+        Vector3 horizontal = moveDirection * walkSpeed;
+
+        if (characterController.isGrounded)
+        {
+            if (verticalVelocity < 0f)
+            {
+                verticalVelocity = -2f; // keep grounded
+            }
+        }
+
+        verticalVelocity += gravity * Time.deltaTime;
+
+        Vector3 finalVelocity = new Vector3(horizontal.x, verticalVelocity, horizontal.z);
+        characterController.Move(finalVelocity * Time.deltaTime);
     }
     
     private void HandleLook()
@@ -91,6 +107,15 @@ public class FirstPersonController : MonoBehaviour
         var manager = ResolveInvestigationManager();
         manager?.ShowBestiaryFree();
     }
+
+    public void OnJump(InputAction.CallbackContext context)
+    {
+        if (!context.performed || isMovementLocked) return;
+        if (characterController != null && characterController.isGrounded)
+        {
+            verticalVelocity = jumpForce;
+        }
+    }
     
     // Always read keyboard fallback (works even if Input Actions aren't connected)
     private void ReadInputFallback()
@@ -103,6 +128,11 @@ public class FirstPersonController : MonoBehaviour
             if (Keyboard.current.aKey.isPressed) move.x -= 1;
             if (Keyboard.current.dKey.isPressed) move.x += 1;
             moveInput = move;
+
+            if (Keyboard.current.spaceKey.wasPressedThisFrame && characterController != null && characterController.isGrounded)
+            {
+                verticalVelocity = jumpForce;
+            }
         }
 
         if (Mouse.current != null)

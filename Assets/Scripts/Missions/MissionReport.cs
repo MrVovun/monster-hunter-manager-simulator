@@ -7,7 +7,7 @@ public class MissionReport
     public Order order;
     public bool success;
     public int goldEarned;
-    public int reputationGained;
+    public float reputationGained;
     
     [System.Serializable]
     public class HunterResult
@@ -76,4 +76,3 @@ public class MissionReport
         return count;
     }
 }
-

@@ -31,6 +31,10 @@ public class PlayerInteraction : MonoBehaviour
         if (WasInteractPressed() && currentInteractable != null)
         {
             currentInteractable.Interact(this);
+            if (InteractionPromptUI.Instance != null)
+            {
+                InteractionPromptUI.Instance.HidePrompt();
+            }
         }
     }
 
@@ -67,6 +71,26 @@ public class PlayerInteraction : MonoBehaviour
         {
             currentInteractable.OnPlayerExit();
             currentInteractable = null;
+        }
+
+        UpdatePrompt();
+    }
+
+    private void UpdatePrompt()
+    {
+        if (InteractionPromptUI.Instance == null) return;
+        if (fpsController != null && fpsController.IsMovementLocked())
+        {
+            InteractionPromptUI.Instance.HidePrompt();
+            return;
+        }
+        if (currentInteractable != null)
+        {
+            InteractionPromptUI.Instance.ShowPrompt(currentInteractable.GetInteractionPrompt());
+        }
+        else
+        {
+            InteractionPromptUI.Instance.HidePrompt();
         }
     }
 

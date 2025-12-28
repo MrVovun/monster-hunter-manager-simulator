@@ -17,6 +17,8 @@ public class MonsterData : ScriptableObject
     [TextArea(3, 6)] public string description;
     [Header("Unlock Requirements")]
     public int requiredReputation = 0;
+    [Tooltip("Minimum mission difficulty required for this monster to appear in an order.")]
+    public int minimumDifficulty = 0;
 
     [Header("Traits / Counters")]
     [Tooltip("Pool of traits that this monster can roll during truth generation.")]
@@ -56,6 +58,7 @@ public class MonsterData : ScriptableObject
             monsterId = Guid.NewGuid().ToString("N");
         }
 
+        minimumDifficulty = Mathf.Max(0, minimumDifficulty);
         traitCountRange.x = Mathf.Max(0, traitCountRange.x);
         traitCountRange.y = Mathf.Max(traitCountRange.x, traitCountRange.y);
     }

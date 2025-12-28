@@ -18,7 +18,6 @@ public class OrderDetailPanel : MonoBehaviour
     [SerializeField] private TMP_Text difficultyText;
     [SerializeField] private TMP_Text rewardGoldText;
     [SerializeField] private TMP_Text rewardXPText;
-    [SerializeField] private TMP_Text prepTimeText;
     [SerializeField] private TMP_Text missionTimeText;
     [SerializeField] private TraitTooltipPanel traitTooltipPanel;
     [Header("Revealed Traits")]
@@ -105,7 +104,7 @@ public class OrderDetailPanel : MonoBehaviour
                 $"Monster: {monsterName}\n" +
                 $"Difficulty: {order.difficulty}\n" +
                 $"Reward: {order.goldReward}g / {order.xpReward}xp\n" +
-                $"Prep: {order.prepTimeLimit:0}s  Mission: {order.missionDuration:0}s";
+                $"Mission: {order.missionDuration:0}s";
         }
 
         if (monsterText != null)
@@ -128,11 +127,6 @@ public class OrderDetailPanel : MonoBehaviour
         if (rewardXPText != null)
         {
             rewardXPText.text = $"{order.xpReward} XP";
-        }
-
-        if (prepTimeText != null)
-        {
-            prepTimeText.text = $"{order.prepTimeLimit:0}s";
         }
 
         if (missionTimeText != null)
@@ -216,10 +210,6 @@ public class OrderDetailPanel : MonoBehaviour
             if (currentOrder.missionTimer != null)
             {
                 timerLine = $"Mission: {currentOrder.missionTimer.GetFormattedRemainingTime()}";
-            }
-            else if (currentOrder.prepTimer != null)
-            {
-                timerLine = $"Prep: {currentOrder.prepTimer.GetFormattedRemainingTime()}";
             }
         }
 
@@ -397,7 +387,6 @@ public class OrderDetailPanel : MonoBehaviour
         if (difficultyText != null) difficultyText.text = "-";
         if (rewardGoldText != null) rewardGoldText.text = "-";
         if (rewardXPText != null) rewardXPText.text = "-";
-        if (prepTimeText != null) prepTimeText.text = "-";
         if (missionTimeText != null) missionTimeText.text = "-";
         if (partyInfoText != null) partyInfoText.text = string.Empty;
         if (timerText != null) timerText.text = string.Empty;

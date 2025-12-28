@@ -76,7 +76,7 @@ public class MissionReportPanel : MonoBehaviour
 
         if (rewardsText != null)
         {
-            rewardsText.text = $"Gold: {report.goldEarned}\nReputation: {report.reputationGained}";
+            rewardsText.text = $"Gold: {report.goldEarned}\nReputation: {report.reputationGained:0.##}";
         }
 
         if (casualtiesText != null)

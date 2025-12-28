@@ -26,9 +26,8 @@ MonoBehaviour:
     predator. Everything about me invites you in. My voice, my face, even my smell.
     As if I would need any of that. As if you could out run me. As if you could fight
     me off. (He shows off his powers.) I''m designed to kill.'
-  basePower: 10
-  baseDefense: 10
-  baseResolve: 10
+  basePower: 30
+  powerPerLevel: 2
   traits:
   - {fileID: 11400000, guid: 848fa6195b9c4e740b4d5da8ed1e4b09, type: 2}
   - {fileID: 11400000, guid: 619b337e37eb08e4a9c57a0d55d5e660, type: 2}

@@ -39,6 +39,7 @@ public class Hunter : MonoBehaviour
     private HunterStats stats;
     private HunterLevelSystem levelSystem;
     private HunterManager hunterManager;
+    private int debugUpkeepOverride = -1;
 
     private void Awake()
     {
@@ -417,6 +418,36 @@ public class Hunter : MonoBehaviour
     public int GetLevelUpCost()
     {
         return levelSystem != null ? levelSystem.GetLevelUpCost() : 0;
+    }
+
+    public void DebugSetLevelAndXP(int level, int xp)
+    {
+        if (levelSystem == null) return;
+        levelSystem.DebugSetLevelAndXP(level, xp);
+        currentLevel = levelSystem.GetCurrentLevel();
+        currentXP = levelSystem.GetCurrentXP();
+        stats?.UpdateLevel(currentLevel);
+    }
+
+    public void SetDebugUpkeep(int value)
+    {
+        debugUpkeepOverride = Mathf.Max(0, value);
+    }
+
+    public void ClearDebugUpkeep()
+    {
+        debugUpkeepOverride = -1;
+    }
+
+    public bool HasDebugUpkeepOverride()
+    {
+        return debugUpkeepOverride >= 0;
+    }
+
+    public int GetUpkeepCost()
+    {
+        if (debugUpkeepOverride >= 0) return debugUpkeepOverride;
+        return hunterData != null ? hunterData.dailyUpkeepCost : 0;
     }
 
     public bool LevelUp()

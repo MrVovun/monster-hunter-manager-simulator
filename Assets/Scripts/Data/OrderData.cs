@@ -26,8 +26,6 @@ public class OrderData : ScriptableObject
     [Header("Time")]
     public float baseMissionDuration = 300f; // In game seconds (5 minutes default)
     public float durationVariance = 60f; // Random variation
-    public float basePrepTimeLimit = 180f; // Time to assign party (3 minutes default)
-    public float prepTimeVariance = 60f;
     
     [Header("Party")]
     [Range(1, 5)]
@@ -51,8 +49,6 @@ public class OrderData : ScriptableObject
         order.xpReward = Mathf.Max(1, order.xpReward);
         order.missionDuration = baseMissionDuration + Random.Range(-durationVariance, durationVariance);
         order.missionDuration = Mathf.Max(60f, order.missionDuration); // Minimum 1 minute
-        order.prepTimeLimit = basePrepTimeLimit + Random.Range(-prepTimeVariance, prepTimeVariance);
-        order.prepTimeLimit = Mathf.Max(60f, order.prepTimeLimit); // Minimum 1 minute
         order.maxPartySize = maxPartySize;
         order.minPartySize = minPartySize;
         order.state = OrderState.Offered;

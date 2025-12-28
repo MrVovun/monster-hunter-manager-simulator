@@ -21,6 +21,7 @@ MonoBehaviour:
     into holes and shadows. The sounds they make are all animalistic - squeaks, hisses,
     and chittering - never words.
   requiredReputation: 1
+  minimumDifficulty: 20
   possibleTraits:
   - {fileID: 11400000, guid: 02041b403a87b234ba630b13fd996c0f, type: 2}
   traitCountRange: {x: 0, y: 3}

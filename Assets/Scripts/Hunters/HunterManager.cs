@@ -7,6 +7,7 @@ public class HunterManager : MonoBehaviour
 {
     [Header("Hunter Database")]
     [SerializeField] private List<HunterData> allHunterData = new List<HunterData>();
+    [SerializeField] private List<HunterData> initialHunters = new List<HunterData>();
     
     [Header("Prefabs")]
     [SerializeField] private GameObject hunterPrefab;
@@ -20,7 +21,9 @@ public class HunterManager : MonoBehaviour
     [SerializeField] private Transform doorExitPoint;
     [SerializeField] private Transform returnSpawnPoint;
 
-    private List<Hunter> activeHunters = new List<Hunter>();
+    private readonly List<Hunter> activeHunters = new List<Hunter>();
+    private readonly Dictionary<string, HunterData> hunterLookup = new Dictionary<string, HunterData>();
+    private readonly HashSet<string> hiredHunterIds = new HashSet<string>();
     private int nextSeatIndex = 0;
     private bool navMeshChecked = false;
     private bool navMeshAvailable = false;
@@ -29,6 +32,8 @@ public class HunterManager : MonoBehaviour
     
     private void Awake()
     {
+        BuildHunterLookup();
+
         if (hunterSpawnPoint == null)
         {
             // Try to find spawn point
@@ -52,8 +57,7 @@ public class HunterManager : MonoBehaviour
     
     private void Start()
     {
-        // Initialize available hunters based on reputation
-        UpdateAvailableHunters();
+        EnsureInitialHunters();
     }
     
     private void FindIdleSeats()
@@ -68,21 +72,50 @@ public class HunterManager : MonoBehaviour
         }
     }
     
-    public void UpdateAvailableHunters()
+    private void BuildHunterLookup()
     {
-        int currentReputation = GameManager.Instance != null ? 
-            GameManager.Instance.GetReputation() : 0;
-        
-        // Spawn hunters that are unlocked
-        foreach (var hunterData in allHunterData)
+        hunterLookup.Clear();
+        foreach (var data in allHunterData)
         {
-            if (hunterData.minReputation <= currentReputation)
+            if (data == null || string.IsNullOrEmpty(data.hunterId))
             {
-                // Check if already spawned
-                if (!IsHunterSpawned(hunterData))
-                {
-                    SpawnHunter(hunterData);
-                }
+                continue;
+            }
+
+            if (!hunterLookup.ContainsKey(data.hunterId))
+            {
+                hunterLookup.Add(data.hunterId, data);
+            }
+        }
+    }
+
+    private void EnsureInitialHunters()
+    {
+        if (activeHunters.Count > 0 || hiredHunterIds.Count > 0)
+        {
+            return;
+        }
+
+        var starterList = initialHunters != null && initialHunters.Count > 0
+            ? initialHunters
+            : GetDefaultInitialHunters();
+
+        foreach (var data in starterList)
+        {
+            TryHireHunter(data);
+        }
+    }
+
+    private IEnumerable<HunterData> GetDefaultInitialHunters()
+    {
+        int desiredCount = GlobalHunterConfig.GetGlobalConfig()?.GetDefaultInitialHunterCount() ?? 3;
+        desiredCount = Mathf.Max(0, desiredCount);
+        int count = Mathf.Min(desiredCount, allHunterData.Count);
+        for (int i = 0; i < count; i++)
+        {
+            if (allHunterData[i] != null)
+            {
+                yield return allHunterData[i];
             }
         }
     }
@@ -94,31 +127,47 @@ public class HunterManager : MonoBehaviour
     
     public Hunter SpawnHunter(HunterData data)
     {
+        Hunter hunter = InstantiateHunter(data, hunterSpawnPoint);
+        if (hunter == null)
+        {
+            return null;
+        }
+
+        activeHunters.Add(hunter);
+        AssignHunterToSeat(hunter);
+        NotifyHuntersChanged();
+        return hunter;
+    }
+
+    private Hunter InstantiateHunter(HunterData data, Transform spawnOverride)
+    {
         if (data == null) return null;
-        
-        Vector3 spawnPosition = hunterSpawnPoint != null ? 
-            hunterSpawnPoint.position : Vector3.zero;
-        
+
+        Vector3 spawnPosition = spawnOverride != null
+            ? spawnOverride.position
+            : (hunterSpawnPoint != null ? hunterSpawnPoint.position : Vector3.zero);
+        Quaternion spawnRotation = spawnOverride != null
+            ? spawnOverride.rotation
+            : Quaternion.identity;
+
         GameObject hunterObj;
         if (hunterPrefab != null)
         {
-            hunterObj = Instantiate(hunterPrefab, spawnPosition, Quaternion.identity);
+            hunterObj = Instantiate(hunterPrefab, spawnPosition, spawnRotation);
         }
         else
         {
-            // Create basic hunter object
             hunterObj = new GameObject(data.hunterName);
-            hunterObj.transform.position = spawnPosition;
+            hunterObj.transform.SetPositionAndRotation(spawnPosition, spawnRotation);
             hunterObj.AddComponent<UnityEngine.AI.NavMeshAgent>();
         }
-        
+
         Hunter hunter = hunterObj.GetComponent<Hunter>();
         if (hunter == null)
         {
             hunter = hunterObj.AddComponent<Hunter>();
         }
 
-        // Disable NavMeshAgent if no navmesh is present to avoid warnings
         if (hunterObj.TryGetComponent<NavMeshAgent>(out var agent))
         {
             if (!navMeshChecked)
@@ -127,21 +176,52 @@ public class HunterManager : MonoBehaviour
                 navMeshChecked = true;
             }
 
-            if (!navMeshAvailable)
-            {
-                agent.enabled = false;
-            }
+            agent.enabled = navMeshAvailable;
         }
 
         hunter.Initialize(data);
-        hunterObj.name = data.hunterName; // Ensure name matches data
-        activeHunters.Add(hunter);
-        
-        // Assign to a seat
-        AssignHunterToSeat(hunter);
-        NotifyHuntersChanged();
-        
+        hunterObj.name = data.hunterName;
         return hunter;
+    }
+
+    public Hunter CreateCandidateInstance(HunterData data, Transform spawnPoint)
+    {
+        Hunter hunter = InstantiateHunter(data, spawnPoint);
+        if (hunter == null)
+        {
+            return null;
+        }
+        hunter.SetState(HunterState.Candidate);
+        return hunter;
+    }
+
+    public bool TryHireCandidate(Hunter candidate)
+    {
+        if (candidate == null) return false;
+        HunterData data = candidate.GetHunterData();
+        if (data == null) return false;
+        if (hiredHunterIds.Contains(data.hunterId)) return false;
+
+        hiredHunterIds.Add(data.hunterId);
+        if (!activeHunters.Contains(candidate))
+        {
+            activeHunters.Add(candidate);
+        }
+
+        candidate.SetState(HunterState.Idle);
+        AssignHunterToSeat(candidate);
+        NotifyHuntersChanged();
+        return true;
+    }
+
+    public void DestroyCandidateInstance(Hunter candidate)
+    {
+        if (candidate == null) return;
+        if (activeHunters.Contains(candidate))
+        {
+            return;
+        }
+        Destroy(candidate.gameObject);
     }
     
     public void AssignHunterToSeat(Hunter hunter)
@@ -207,9 +287,9 @@ public class HunterManager : MonoBehaviour
         }
     }
     
-    public void OnReputationChanged(int newReputation)
+    public void OnReputationChanged(float newReputation)
     {
-        UpdateAvailableHunters();
+        // No automatic spawning; recruitment manager handles availability.
     }
 
     public int CalculateDailyUpkeep()
@@ -219,7 +299,7 @@ public class HunterManager : MonoBehaviour
         {
             if (hunter != null && hunter.GetState() != HunterState.Dead && hunter.GetHunterData() != null)
             {
-                total += hunter.GetHunterData().dailyUpkeepCost;
+                total += hunter.GetUpkeepCost();
             }
         }
         return total;
@@ -283,4 +363,78 @@ public class HunterManager : MonoBehaviour
     {
         NotifyHuntersChanged();
     }
+
+    public IReadOnlyList<HunterData> GetAllHunterData() => allHunterData;
+
+    public List<HunterData> GetRecruitableHunters(int reputation)
+    {
+        List<HunterData> result = new List<HunterData>();
+        foreach (var data in allHunterData)
+        {
+            if (data == null) continue;
+            if (data.minReputation > reputation) continue;
+            if (hiredHunterIds.Contains(data.hunterId)) continue;
+            result.Add(data);
+        }
+        return result;
+    }
+
+    public bool IsHunterHired(HunterData data)
+    {
+        return data != null && hiredHunterIds.Contains(data.hunterId);
+    }
+
+    public bool TryHireHunter(HunterData data)
+    {
+        if (data == null || hiredHunterIds.Contains(data.hunterId))
+        {
+            return false;
+        }
+
+        hiredHunterIds.Add(data.hunterId);
+        SpawnHunter(data);
+        return true;
+    }
+
+    public void LoadHiredHunters(IEnumerable<string> ids)
+    {
+        if (ids == null) return;
+        foreach (var id in ids)
+        {
+            if (string.IsNullOrEmpty(id) || hiredHunterIds.Contains(id)) continue;
+            if (!hunterLookup.TryGetValue(id, out var data) || data == null) continue;
+            hiredHunterIds.Add(id);
+            SpawnHunter(data);
+        }
+    }
+
+    public List<string> GetHiredHunterIds()
+    {
+        return new List<string>(hiredHunterIds);
+    }
+
+    public HunterData GetHunterDataById(string id)
+    {
+        if (string.IsNullOrEmpty(id)) return null;
+        hunterLookup.TryGetValue(id, out var data);
+        return data;
+    }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    public void DebugResetRoster()
+    {
+        foreach (var hunter in activeHunters)
+        {
+            if (hunter != null)
+            {
+                Destroy(hunter.gameObject);
+            }
+        }
+        activeHunters.Clear();
+        hiredHunterIds.Clear();
+        nextSeatIndex = 0;
+        EnsureInitialHunters();
+        NotifyHuntersChanged();
+    }
+#endif
 }

@@ -4,10 +4,9 @@ public class HunterStats : MonoBehaviour
 {
     private HunterData hunterData;
     private int currentLevel;
-    
     private int totalPower;
-    private int totalDefense;
-    private int totalResolve;
+    private bool debugOverrideActive;
+    private int debugOverridePower;
     
     public void Initialize(HunterData data, int level)
     {
@@ -25,31 +24,29 @@ public class HunterStats : MonoBehaviour
     private void CalculateStats()
     {
         if (hunterData == null) return;
-        
+        if (debugOverrideActive) return;
         totalPower = hunterData.GetTotalPower(currentLevel);
-        totalDefense = hunterData.GetTotalDefense(currentLevel);
-        totalResolve = hunterData.GetTotalResolve(currentLevel);
-    }
-    
-    public int GetPower()
-    {
-        return totalPower;
-    }
-    
-    public int GetDefense()
-    {
-        return totalDefense;
-    }
-    
-    public int GetResolve()
-    {
-        return totalResolve;
     }
     
     public int GetTotalPower()
     {
-        // Total power for mission calculations (power + defense + resolve)
-        return totalPower + totalDefense + totalResolve;
+        return debugOverrideActive ? debugOverridePower : totalPower;
     }
     
+    public void SetDebugPowerOverride(int value)
+    {
+        debugOverrideActive = true;
+        debugOverridePower = Mathf.Max(0, value);
+    }
+
+    public void ClearDebugPowerOverride()
+    {
+        debugOverrideActive = false;
+        CalculateStats();
+    }
+
+    public bool HasDebugPowerOverride()
+    {
+        return debugOverrideActive;
+    }
 }

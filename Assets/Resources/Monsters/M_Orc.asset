@@ -14,13 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: 13509a38a86244eabf6750e6da6ab6b5
   displayName: Orc
-  portrait: {fileID: 21300000, guid: 548fcf3bcfcceb04db9919904a8d5134, type: 3}
+  portrait: {fileID: 21300000, guid: bb2685e6eb7673a4d8d52f775d0dc18a, type: 3}
   description: Orcs are stocky, muscular greenskins of medium human size, broad-shouldered
     and brutish but not gigantic. They are striding on two powerful legs with a solid,
     steady walking pace rather than goblin-like scampering. Orcs bark orders and
     battle cries in coarse speech, their guttural voices carrying across camps and
     warbands.
-  requiredReputation: 1
+  requiredReputation: 2
+  minimumDifficulty: 50
   possibleTraits:
   - {fileID: 11400000, guid: 02041b403a87b234ba630b13fd996c0f, type: 2}
   - {fileID: 11400000, guid: f149ed5426264cb4db6fac2830e77841, type: 2}

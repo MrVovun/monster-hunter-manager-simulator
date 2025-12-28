@@ -20,14 +20,20 @@ MonoBehaviour:
   defaultClientProfiles:
   - {fileID: 11400000, guid: a386fdc52ecc16142beb2fc924c5c91e, type: 2}
   - {fileID: 11400000, guid: 2cdf72bfa74ddd046afb17c83b82a246, type: 2}
-  dayLengthSeconds: 6000
+  dayLengthSeconds: 600
   allowInvestigationPauseToggle: 1
   orderLimitByReputation:
   - requiredReputation: 1
-    orderLimit: 3
-  - requiredReputation: 2
     orderLimit: 4
+  - requiredReputation: 2
+    orderLimit: 7
   - requiredReputation: 3
-    orderLimit: 5
-  baseInjuryChance: 0.3
-  baseDeathChance: 0.1
+    orderLimit: 10
+  - requiredReputation: 4
+    orderLimit: 11
+  - requiredReputation: 5
+    orderLimit: 13
+  - requiredReputation: 6
+    orderLimit: 13
+  baseInjuryChance: 0.5
+  baseDeathChance: 0.25

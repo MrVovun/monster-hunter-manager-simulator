@@ -19,5 +19,5 @@ MonoBehaviour:
     description: Travelers say that a lot of <monster_name>s wander around the forest.
       Someone needs to hunt them down!
   - title: The tower appeared again
-    description: A tower hangs over the city again, and this time it's raining <monster_name>s!
-      We need brave heroes to stop it!
+    description: A magical tower hangs over the city again, and this time it's raining
+      <monster_name>s! We need brave heroes to stop it!

@@ -18,7 +18,6 @@ public class OrderOfferPanel : MonoBehaviour
     [SerializeField] private TMP_Text rewardGoldText;
     [SerializeField] private TMP_Text rewardXPText;
     [SerializeField] private TMP_Text partySizeText;
-    [SerializeField] private TMP_Text prepTimeText;
     [SerializeField] private TraitTooltipPanel traitTooltipPanel;
     [Header("Revealed Traits")]
     [SerializeField] private Transform revealedTraitsParent;
@@ -158,7 +157,6 @@ public class OrderOfferPanel : MonoBehaviour
             sb.AppendLine($"Difficulty: {currentOrder.difficulty}");
             sb.AppendLine($"Reward: {currentOrder.goldReward}g / {currentOrder.xpReward}xp");
             sb.AppendLine($"Party Size: {currentOrder.minPartySize} - {currentOrder.maxPartySize}");
-            sb.AppendLine($"Prep Time: {currentOrder.prepTimeLimit:0}s");
             statsText.text = sb.ToString();
         }
 
@@ -186,10 +184,6 @@ public class OrderOfferPanel : MonoBehaviour
             partySizeText.text = $"{currentOrder.minPartySize}-{currentOrder.maxPartySize}";
         }
 
-        if (prepTimeText != null)
-        {
-            prepTimeText.text = $"{currentOrder.prepTimeLimit:0}s";
-        }
 
         UpdateRevealedTraitsUI();
     }

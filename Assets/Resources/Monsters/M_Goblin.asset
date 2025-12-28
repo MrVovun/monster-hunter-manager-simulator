@@ -14,13 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: e0cc0d7bc53b4258944aa7c15346b34e
   displayName: Goblin
-  portrait: {fileID: 21300000, guid: 58f3dc7af1d2026438b637029072efe2, type: 3}
+  portrait: {fileID: 21300000, guid: ed099cb105dd32745b0ba6ea57ab44b6, type: 3}
   description: "Goblins are the smallest of the greenskin tribes, shorter than a
     human\u2019s chest, with wiry limbs. They scramble over rocks and ruins with
     frantic, unnaturally fast footwork. Their voices are shrill speech, chattering
     and arguing in high-pitched tongues, often accompanied by mocking laughter and
     rude insults."
   requiredReputation: 1
+  minimumDifficulty: 30
   possibleTraits:
   - {fileID: 11400000, guid: 02041b403a87b234ba630b13fd996c0f, type: 2}
   traitCountRange: {x: 0, y: 3}

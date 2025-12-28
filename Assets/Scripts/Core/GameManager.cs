@@ -105,4 +105,9 @@ public class GameManager : MonoBehaviour
     {
         return reputationManager != null ? reputationManager.GetReputation() : 0;
     }
+
+    public float GetReputationPrecise()
+    {
+        return reputationManager != null ? reputationManager.GetReputationPrecise() : 0f;
+    }
 }

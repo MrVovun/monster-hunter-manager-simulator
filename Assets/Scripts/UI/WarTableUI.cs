@@ -8,18 +8,21 @@ public class WarTableUI : MonoBehaviour
     [SerializeField] private Button huntersTabButton;
     [SerializeField] private Button economyTabButton;
     [SerializeField] private Button statisticsTabButton;
+    [SerializeField] private Button hiringTabButton;
     
     [Header("Tab Panels")]
     [SerializeField] private GameObject ordersTabPanel;
     [SerializeField] private GameObject huntersTabPanel;
     [SerializeField] private GameObject economyTabPanel;
     [SerializeField] private GameObject statisticsTabPanel;
+    [SerializeField] private GameObject hiringTabPanel;
     
     [Header("Tab Components")]
     [SerializeField] private OrdersTab ordersTab;
     [SerializeField] private HuntersTab huntersTab;
     [SerializeField] private EconomyTab economyTab;
     [SerializeField] private StatisticsTab statisticsTab;
+    [SerializeField] private HiringTab hiringTab;
 
     [Header("Auto Refresh")]
     [SerializeField] private float refreshIntervalSeconds = 0.5f;
@@ -32,6 +35,7 @@ public class WarTableUI : MonoBehaviour
     private bool huntersDirty;
     private bool economyDirty;
     private bool statisticsDirty;
+    private bool hiringDirty;
 
     private OrderManager orderManager;
     private HunterManager hunterManager;
@@ -45,6 +49,7 @@ public class WarTableUI : MonoBehaviour
         if (huntersTab == null) huntersTab = GetComponentInChildren<HuntersTab>();
         if (economyTab == null) economyTab = GetComponentInChildren<EconomyTab>();
         if (statisticsTab == null) statisticsTab = GetComponentInChildren<StatisticsTab>();
+        if (hiringTab == null) hiringTab = GetComponentInChildren<HiringTab>();
         
         // Set up tab buttons
         if (ordersTabButton != null)
@@ -55,6 +60,8 @@ public class WarTableUI : MonoBehaviour
             economyTabButton.onClick.AddListener(() => SwitchTab(2));
         if (statisticsTabButton != null)
             statisticsTabButton.onClick.AddListener(() => SwitchTab(3));
+        if (hiringTabButton != null)
+            hiringTabButton.onClick.AddListener(() => SwitchTab(4));
     }
     
     private void Start()
@@ -112,6 +119,7 @@ public class WarTableUI : MonoBehaviour
         if (huntersTabPanel != null) huntersTabPanel.SetActive(tabIndex == 1);
         if (economyTabPanel != null) economyTabPanel.SetActive(tabIndex == 2);
         if (statisticsTabPanel != null) statisticsTabPanel.SetActive(tabIndex == 3);
+        if (hiringTabPanel != null) hiringTabPanel.SetActive(tabIndex == 4);
         
         // Refresh active tab
         switch (tabIndex)
@@ -127,6 +135,9 @@ public class WarTableUI : MonoBehaviour
                 break;
             case 3:
                 statisticsTab?.Refresh();
+                break;
+            case 4:
+                hiringTab?.Refresh();
                 break;
         }
     }
@@ -209,6 +220,7 @@ public class WarTableUI : MonoBehaviour
         huntersDirty = true;
         economyDirty = true;
         statisticsDirty = true;
+        hiringDirty = true;
         TryRefreshDirtyTabsImmediately();
     }
 
@@ -216,19 +228,22 @@ public class WarTableUI : MonoBehaviour
     {
         huntersDirty = true;
         economyDirty = true;
+        hiringDirty = true;
         TryRefreshDirtyTabsImmediately();
     }
 
     private void HandleGoldChanged(int _)
     {
         economyDirty = true;
+        hiringDirty = true;
         TryRefreshDirtyTabsImmediately();
     }
 
-    private void HandleReputationChanged(int _)
+    private void HandleReputationChanged(float _)
     {
         economyDirty = true;
         huntersDirty = true;
+        hiringDirty = true;
         TryRefreshDirtyTabsImmediately();
     }
 
@@ -264,6 +279,12 @@ public class WarTableUI : MonoBehaviour
         {
             statisticsTab?.Refresh();
             statisticsDirty = false;
+        }
+
+        if (hiringDirty)
+        {
+            hiringTab?.Refresh();
+            hiringDirty = false;
         }
     }
 

@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: H_Edd
   m_EditorClassIdentifier: Assembly-CSharp::HunterData
   hunterName: Edd
-  rarity: 1
+  hunterId: 75067a70ef6b489f8a58059e717caae8
+  rarity: 0
   bio: 'Bella: It''s like diamonds. You''re beautiful.
 
     Edward: Beautiful? This
@@ -26,9 +27,8 @@ MonoBehaviour:
     predator. Everything about me invites you in. My voice, my face, even my smell.
     As if I would need any of that. As if you could out run me. As if you could fight
     me off. (He shows off his powers.) I''m designed to kill.'
-  basePower: 11
-  baseDefense: 13
-  baseResolve: 15
+  basePower: 10
+  powerPerLevel: 2
   traits:
   - {fileID: 11400000, guid: f22ae9b54a4822b45a63b7cd1024e28d, type: 2}
   dailyUpkeepCost: 10

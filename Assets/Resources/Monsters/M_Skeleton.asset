@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7003a09dfdd9dd498e3ab35a5abe032, type: 3}
+  m_Name: M_Skeleton
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterData
+  monsterId: 530857a6af4243caadb6d22cd86e9f74
+  displayName: Skeleton
+  portrait: {fileID: 0}
+  description: 'Skeletons are undead humanoid frames of medium size, stripped to
+    bare bone. They move with stiff, jerky steps at a normal walking pace, bones
+    clattering and armor rattling but seldom rushing. They are unnervingly silent
+    in voice: no breathing, no speech - only the dry scrape of bones and weapons.'
+  requiredReputation: 1
+  minimumDifficulty: 30
+  possibleTraits: []
+  traitCountRange: {x: 0, y: 3}
+  evidenceTags: []
+  questionResponses: []
+  weight: 1
