@@ -59,12 +59,19 @@ public class PlayerInteraction : MonoBehaviour
         if (Physics.Raycast(ray, out RaycastHit hit, interactionRange, interactionMask, QueryTriggerInteraction.Collide))
         {
             Interactable interactable = hit.collider.GetComponentInParent<Interactable>();
-
-            if (interactable != null && interactable != currentInteractable)
+            if (interactable != null && interactable.isActiveAndEnabled)
             {
-                currentInteractable?.OnPlayerExit();
-                currentInteractable = interactable;
-                currentInteractable.OnPlayerEnter();
+                if (interactable != currentInteractable)
+                {
+                    currentInteractable?.OnPlayerExit();
+                    currentInteractable = interactable;
+                    currentInteractable.OnPlayerEnter();
+                }
+            }
+            else if (currentInteractable != null)
+            {
+                currentInteractable.OnPlayerExit();
+                currentInteractable = null;
             }
         }
         else if (currentInteractable != null)

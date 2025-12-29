@@ -20,6 +20,9 @@ MonoBehaviour:
   defaultClientProfiles:
   - {fileID: 11400000, guid: a386fdc52ecc16142beb2fc924c5c91e, type: 2}
   - {fileID: 11400000, guid: 2cdf72bfa74ddd046afb17c83b82a246, type: 2}
+  guildConstructions:
+  - {fileID: 11400000, guid: 3e1a403cae5200a479c982b8cd59bc08, type: 2}
+  - {fileID: 11400000, guid: ced3e1246a3430e48af4afb09f4aba0d, type: 2}
   dayLengthSeconds: 600
   allowInvestigationPauseToggle: 1
   orderLimitByReputation:
@@ -37,3 +40,12 @@ MonoBehaviour:
     orderLimit: 13
   baseInjuryChance: 0.5
   baseDeathChance: 0.25
+  traitCountChances:
+  - traitCount: 0
+    weight: 0.5
+  - traitCount: 1
+    weight: 0.35
+  - traitCount: 2
+    weight: 0.1
+  - traitCount: 3
+    weight: 0.05

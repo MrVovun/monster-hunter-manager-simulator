@@ -17,6 +17,7 @@ public class DeveloperToolsPanel : MonoBehaviour
     private HunterManager hunterManager;
     private OrderManager orderManager;
     private HunterRecruitmentManager recruitmentManager;
+    private GuildConstructionManager constructionManager;
     private GoldManager goldManager;
     private ReputationManager reputationManager;
     private InvestigationManager investigationManager;
@@ -84,6 +85,7 @@ public class DeveloperToolsPanel : MonoBehaviour
             goldManager = gm.GetGoldManager();
             reputationManager = gm.GetReputationManager();
             investigationManager = gm.GetInvestigationManager();
+            constructionManager = gm.GetConstructionManager();
         }
 
         if (recruitmentManager == null)
@@ -196,6 +198,26 @@ public class DeveloperToolsPanel : MonoBehaviour
         else
         {
             GUILayout.Label("ReputationManager not found.");
+        }
+
+        if (constructionManager == null)
+        {
+            CacheManagers();
+        }
+
+        using (new GUILayout.HorizontalScope())
+        {
+            if (GUILayout.Button("Revert All Constructions"))
+            {
+                if (constructionManager != null)
+                {
+                    constructionManager.ResetAllConstructions();
+                }
+                else
+                {
+                    Debug.LogWarning("DeveloperTools: ConstructionManager not found.");
+                }
+            }
         }
     }
 

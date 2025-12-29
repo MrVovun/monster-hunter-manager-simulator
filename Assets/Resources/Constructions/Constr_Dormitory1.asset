@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c36aeecd21b815440a668ca3bb4d0acf, type: 3}
+  m_Name: Constr_Dormitory1
+  m_EditorClassIdentifier: Assembly-CSharp::GuildConstructionDefinition
+  constructionId: Constr_Dormitory1
+  displayName: Hunters' Dormitory (Rep 1)
+  description: Dormitory is used for hunters to sleep if they stay in the guild.
+    This is also where they rest if injuried, until the Infirmary is built or if
+    it is occupied.
+  planOverlay: {fileID: 0}
+  goldCost: 0
+  requiredReputation: 1
+  prerequisite: {fileID: 0}
+  startsBuilt: 1

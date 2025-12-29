@@ -43,5 +43,5 @@ MonoBehaviour:
   - level: 4
     requiredXP: 400
   minReputation: 1
-  portrait: {fileID: 21300000, guid: 6adf6e044478dae47a180815a6942faf, type: 3}
+  portrait: {fileID: 21300000, guid: d94420c45685b3a439714b1c10d4e444, type: 3}
   visualPrefab: {fileID: 1290725874115128, guid: 2d1f3a5f7b4e6374296a6647c4018050, type: 3}

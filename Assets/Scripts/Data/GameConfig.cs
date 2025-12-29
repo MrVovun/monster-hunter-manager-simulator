@@ -11,6 +11,8 @@ public class GameConfig : ScriptableObject
     public EvidenceTagLibrary evidenceTagLibrary;
     public List<InvestigationQuestion> defaultInvestigationQuestions = new List<InvestigationQuestion>();
     public List<ClientProfile> defaultClientProfiles = new List<ClientProfile>();
+    [Header("Guild Constructions")]
+    public List<GuildConstructionDefinition> guildConstructions = new List<GuildConstructionDefinition>();
 
     [Header("Time")]
     [Tooltip("Length of an in-game day in real-time seconds.")]
@@ -111,5 +113,20 @@ public class GameConfig : ScriptableObject
         }
 
         return candidates[candidates.Count - 1].traitCount;
+    }
+
+    public GuildConstructionDefinition GetConstructionById(string id)
+    {
+        if (string.IsNullOrEmpty(id) || guildConstructions == null) return null;
+        for (int i = 0; i < guildConstructions.Count; i++)
+        {
+            var def = guildConstructions[i];
+            if (def == null) continue;
+            if (string.Equals(def.ConstructionId, id, StringComparison.OrdinalIgnoreCase))
+            {
+                return def;
+            }
+        }
+        return null;
     }
 }
