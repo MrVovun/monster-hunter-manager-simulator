@@ -34,6 +34,12 @@ MonoBehaviour:
     - valueName: fae
       displayName: Fae
       description: 
+    - valueName: construct
+      displayName: Construct
+      description: 
+    - valueName: hybrid
+      displayName: Hybrid
+      description: 
   - categoryName: size
     displayName: Size
     values:

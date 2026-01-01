@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: 7779fbfb875d402196bca32239f86644
   displayName: Sprite
-  portrait: {fileID: 0}
+  portrait: {fileID: 21300000, guid: dcda955cff8566e40bb16e2215c1cbe5, type: 3}
   description: "Sprites are tiny fae with delicate bodies and two wings that buzz
     like a hummingbird\u2019s. They zip through the air with fast, playful motion,
     rarely staying still. Unlike many fae beasts, sprites use rapid, bright speech,
@@ -23,6 +23,20 @@ MonoBehaviour:
   minimumDifficulty: 30
   possibleTraits: []
   traitCountRange: {x: 0, y: 3}
-  evidenceTags: []
+  evidenceTags:
+  - categoryName: family
+    valueName: fae
+  - categoryName: size
+    valueName: small
+  - categoryName: sound
+    valueName: speech
+  - categoryName: tail
+    valueName: noTail
+  - categoryName: winged
+    valueName: twoWings
+  - categoryName: movement
+    valueName: fast
   questionResponses: []
   weight: 1
+  trophyHeadPrefab: {fileID: 0}
+  trophyScale: 1

@@ -58,3 +58,5 @@ MonoBehaviour:
     tagIndex: 1
     responseText: Small and scrawny.
   weight: 1
+  trophyHeadPrefab: {fileID: 0}
+  trophyScale: 1

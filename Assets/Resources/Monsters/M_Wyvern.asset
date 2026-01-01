@@ -21,7 +21,7 @@ MonoBehaviour:
     bodies are slimmer and their legs fewer. They move with quick, lunging hops when
     grounded, but prefer swooping strikes from above, announcing themselves with
     a piercing, predatory screech rather than a roar."
-  requiredReputation: 3
+  requiredReputation: 1
   minimumDifficulty: 70
   possibleTraits:
   - {fileID: 11400000, guid: 6af8b3bbb8f5f8d4fbdb3a6057fd4b86, type: 2}
@@ -62,3 +62,5 @@ MonoBehaviour:
     tagIndex: 1
     responseText: Giant! Biggest beast I saw!
   weight: 1
+  trophyHeadPrefab: {fileID: 4531971642176072909, guid: 9a22c45a260ea9c45ab520195c522fd5, type: 3}
+  trophyScale: 0.5

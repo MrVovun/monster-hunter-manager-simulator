@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a49f0ed5688e46f448863f779d80b001, type: 3}
+  m_Name: TrophyWallConfig
+  m_EditorClassIdentifier: Assembly-CSharp::TrophyWallConfig
+  familyOrder:
+  - fae
+  - greenskin
+  - undead
+  - demon
+  - dragonkin
+  - hybrid
+  - ratkin
+  - construct
+  emptyPlaquePrefab: {fileID: 8798864640794140700, guid: 0bbc3f241d8535b42959f71846a15f80, type: 3}
+  baseFramePrefab: {fileID: 8798864640794140700, guid: 0bbc3f241d8535b42959f71846a15f80, type: 3}
+  frameTiers:
+  - killThreshold: 25
+    framePrefab: {fileID: 8798864640794140700, guid: 0bbc3f241d8535b42959f71846a15f80, type: 3}
+  - killThreshold: 50
+    framePrefab: {fileID: 8798864640794140700, guid: 0bbc3f241d8535b42959f71846a15f80, type: 3}
+  - killThreshold: 100
+    framePrefab: {fileID: 8798864640794140700, guid: 0bbc3f241d8535b42959f71846a15f80, type: 3}

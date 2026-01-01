@@ -11,6 +11,8 @@ public class GameConfig : ScriptableObject
     public EvidenceTagLibrary evidenceTagLibrary;
     public List<InvestigationQuestion> defaultInvestigationQuestions = new List<InvestigationQuestion>();
     public List<ClientProfile> defaultClientProfiles = new List<ClientProfile>();
+    [Header("Trophy Wall")]
+    public TrophyWallConfig trophyWallConfig;
     [Header("Guild Constructions")]
     public List<GuildConstructionDefinition> guildConstructions = new List<GuildConstructionDefinition>();
 

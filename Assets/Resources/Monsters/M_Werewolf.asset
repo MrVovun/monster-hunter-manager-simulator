@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7003a09dfdd9dd498e3ab35a5abe032, type: 3}
+  m_Name: M_Werewolf
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterData
+  monsterId: c4ec1e34505343429b9ed5a60ac55b6a
+  displayName: Werewolf
+  portrait: {fileID: 0}
+  description: "The werewolf is a medium-sized undead beast, shaped like a wolf-man
+    - taller than a wolf, broader than a man - with a visible tail that whips as
+    it runs. It moves fast, closing distance in a blur of claws and teeth. It doesn\u2019t
+    speak; it communicates with raw animalistic sounds - growls, snarls, and hunting
+    howls that sound like hunger given a voice."
+  requiredReputation: 10
+  minimumDifficulty: 80
+  possibleTraits: []
+  traitCountRange: {x: 0, y: 3}
+  evidenceTags:
+  - categoryName: family
+    valueName: undead
+  - categoryName: size
+    valueName: medium
+  - categoryName: sound
+    valueName: animalistic
+  - categoryName: tail
+    valueName: hasTail
+  - categoryName: winged
+    valueName: noWings
+  - categoryName: movement
+    valueName: fast
+  questionResponses: []
+  weight: 1
+  trophyHeadPrefab: {fileID: 2416677971883142677, guid: eb01e3d6985307d43a0e7ff80e4bf5fb, type: 3}
+  trophyScale: 1

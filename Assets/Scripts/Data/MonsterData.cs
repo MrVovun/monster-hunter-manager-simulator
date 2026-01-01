@@ -38,6 +38,12 @@ public class MonsterData : ScriptableObject
     [Tooltip("Higher weight = more likely to be chosen.")]
     public int weight = 1;
 
+    [Header("Trophy Wall")]
+    [Tooltip("Prefab representing this monster's trophy head for the trophy wall.")]
+    public GameObject trophyHeadPrefab;
+    [Tooltip("Optional scale multiplier for this monster's trophy head.")]
+    public float trophyScale = 1f;
+
     private void OnEnable()
     {
         EnsureId();

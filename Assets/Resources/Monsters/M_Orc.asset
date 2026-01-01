@@ -20,7 +20,7 @@ MonoBehaviour:
     steady walking pace rather than goblin-like scampering. Orcs bark orders and
     battle cries in coarse speech, their guttural voices carrying across camps and
     warbands.
-  requiredReputation: 2
+  requiredReputation: 1
   minimumDifficulty: 50
   possibleTraits:
   - {fileID: 11400000, guid: 02041b403a87b234ba630b13fd996c0f, type: 2}
@@ -59,3 +59,5 @@ MonoBehaviour:
     tagIndex: 1
     responseText: A tit taller than I am!
   weight: 1
+  trophyHeadPrefab: {fileID: 781456675445060408, guid: 639d3931927a3c840a1db93431c4ac1c, type: 3}
+  trophyScale: 1.1

@@ -14,16 +14,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: 8a04c5d04c844b5c8a5fd18076b80939
   displayName: Leprechaun
-  portrait: {fileID: 0}
-  description: "A leprechaun is a small fae humanoid, shorter than a child, with
-    a clever posture and quick hands. It moves at a deceptively calm normal pace\u2014until
-    it vanishes around a corner. Its weapon is its mouth: confident, teasing speech,
-    full of bargains, half-truths, and misdirection, as if every word is part of
-    a trick."
+  portrait: {fileID: 21300000, guid: dc4578cdc53ebc9438c6e0c51d38da01, type: 3}
+  description: 'A leprechaun is a small fae humanoid, shorter than a child, with
+    a clever posture and quick hands. It moves at a deceptively calm normal pace
+    - until it vanishes around a corner. Its weapon is its mouth: confident, teasing
+    speech, full of bargains, half-truths, and misdirection, as if every word is
+    part of a trick.'
   requiredReputation: 1
   minimumDifficulty: 20
   possibleTraits: []
   traitCountRange: {x: 0, y: 3}
-  evidenceTags: []
+  evidenceTags:
+  - categoryName: family
+    valueName: fae
+  - categoryName: size
+    valueName: small
+  - categoryName: sound
+    valueName: speech
+  - categoryName: tail
+    valueName: noTail
+  - categoryName: winged
+    valueName: noWings
+  - categoryName: movement
+    valueName: normal
   questionResponses: []
   weight: 1
+  trophyHeadPrefab: {fileID: 0}
+  trophyScale: 1

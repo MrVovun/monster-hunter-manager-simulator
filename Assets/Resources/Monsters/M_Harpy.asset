@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7003a09dfdd9dd498e3ab35a5abe032, type: 3}
+  m_Name: M_Harpy
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterData
+  monsterId: 1aa0f517fbae4f1fbe4b5a12e8e67244
+  displayName: Harpy
+  portrait: {fileID: 0}
+  description: "Harpies are medium-sized hybrid creatures, roughly human-sized but
+    clearly avian, with a visible tail of a bird and two wings that fold tightly
+    when they perch. They move at a normal pace when grounded but rely on flight
+    for ambush and escape. Their voices are entirely animalistic - warbling shrieks
+    and birdlike cries - rather than words, even if they seem to \u201Cmock\u201D
+    with sound."
+  requiredReputation: 10
+  minimumDifficulty: 50
+  possibleTraits: []
+  traitCountRange: {x: 0, y: 3}
+  evidenceTags:
+  - categoryName: family
+    valueName: hybrid
+  - categoryName: size
+    valueName: medium
+  - categoryName: sound
+    valueName: animalistic
+  - categoryName: tail
+    valueName: hasTail
+  - categoryName: winged
+    valueName: twoWings
+  - categoryName: movement
+    valueName: normal
+  questionResponses: []
+  weight: 1
+  trophyHeadPrefab: {fileID: 0}
+  trophyScale: 1

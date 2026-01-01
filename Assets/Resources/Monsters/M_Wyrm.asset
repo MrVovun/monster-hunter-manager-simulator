@@ -20,7 +20,7 @@ MonoBehaviour:
     the continuation of their sinuous form, and they move by slithering and heaving
     themselves forward rather than walking. When they surface, the air fills with
     a chilling, drawn-out screech that echoes through tunnels and canyons.
-  requiredReputation: 4
+  requiredReputation: 1
   minimumDifficulty: 90
   possibleTraits:
   - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
@@ -60,3 +60,5 @@ MonoBehaviour:
     tagIndex: 1
     responseText: Giant! Biggest beast I saw!
   weight: 1
+  trophyHeadPrefab: {fileID: 4408953823017713675, guid: ed250b0ea1c204c4fa2600998a350502, type: 3}
+  trophyScale: 0.5

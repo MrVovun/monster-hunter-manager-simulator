@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7003a09dfdd9dd498e3ab35a5abe032, type: 3}
+  m_Name: M_RathivePraetorian
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterData
+  monsterId: 4b898978274b42febeae3e2de1c85f62
+  displayName: Rathive Praetorian
+  portrait: {fileID: 0}
+  description: The Rathive Praetorians are elite ratkin soldiers, sworn to protect
+    their queen, roughly human-sized, built lean and corded with muscle. A thick
+    tail trails behind them and flicks with irritation like a whip. They move at
+    a disciplined steady pace, neither skittering nor lumbering. They speak in clipped
+    speech - commands, warnings, and harsh, military jargon - often while advancing
+    in formation.
+  requiredReputation: 10
+  minimumDifficulty: 120
+  possibleTraits: []
+  traitCountRange: {x: 0, y: 3}
+  evidenceTags:
+  - categoryName: family
+    valueName: ratkin
+  - categoryName: size
+    valueName: medium
+  - categoryName: sound
+    valueName: speech
+  - categoryName: tail
+    valueName: hasTail
+  - categoryName: winged
+    valueName: noWings
+  - categoryName: movement
+    valueName: normal
+  questionResponses: []
+  weight: 1
+  trophyHeadPrefab: {fileID: 14361918902022259, guid: d21c382b2c2b59c44b9fe0e5a271421b, type: 3}
+  trophyScale: 10

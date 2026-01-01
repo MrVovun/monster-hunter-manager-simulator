@@ -20,7 +20,7 @@ MonoBehaviour:
     sides. They move with a heavy but steady four-limbed gait when on the ground,
     then take to the air effortlessly. Their presence is usually announced by a deafening,
     thunderous roar that shakes windows before you ever see them.
-  requiredReputation: 5
+  requiredReputation: 1
   minimumDifficulty: 130
   possibleTraits:
   - {fileID: 11400000, guid: 6af8b3bbb8f5f8d4fbdb3a6057fd4b86, type: 2}
@@ -60,3 +60,5 @@ MonoBehaviour:
     tagIndex: 1
     responseText: Giant! Biggest beast I saw!
   weight: 1
+  trophyHeadPrefab: {fileID: 1636885676774316774, guid: 16126a3aadd193d41a45bb0fb94160cb, type: 3}
+  trophyScale: 0.7

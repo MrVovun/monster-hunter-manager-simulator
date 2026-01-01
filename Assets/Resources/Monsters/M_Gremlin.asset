@@ -14,16 +14,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: 3960426e1b0c4972a990da20fc75dc9d
   displayName: Gremlin
-  portrait: {fileID: 0}
+  portrait: {fileID: 21300000, guid: 229d30d8ed952be40a5ece0f55378e9a, type: 3}
   description: "Gremlins are small fae pests, wiry and ugly, often seen as a blur
     scrambling over furniture and rafters. They move fast, darting in short, chaotic
-    bursts. They don\u2019t speak; they make animalistic noises\u2014clicks, chittering,
-    and sharp yelps\u2014like a furious animal that learned to hate everything around
+    bursts. They don\u2019t speak; they make animalistic noises - clicks, chittering,
+    and sharp yelps - like a furious animal that learned to hate everything around
     it."
   requiredReputation: 1
   minimumDifficulty: 30
   possibleTraits: []
   traitCountRange: {x: 0, y: 3}
-  evidenceTags: []
+  evidenceTags:
+  - categoryName: family
+    valueName: fae
+  - categoryName: size
+    valueName: small
+  - categoryName: sound
+    valueName: animalistic
+  - categoryName: tail
+    valueName: noTail
+  - categoryName: winged
+    valueName: noWings
+  - categoryName: movement
+    valueName: fast
   questionResponses: []
   weight: 1
+  trophyHeadPrefab: {fileID: 0}
+  trophyScale: 1

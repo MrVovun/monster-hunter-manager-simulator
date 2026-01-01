@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: abf3d5a7c9e746d1b9b0d73527f52864
   displayName: Fiend
-  portrait: {fileID: 0}
+  portrait: {fileID: 21300000, guid: b90578b74a780c54d8a4fc8ce2780c0d, type: 3}
   description: Fiends are medium-sized demons, roughly human in height, with twisted
     horns or spines and a sinuous tail. They bear no wings, preferring to stalk on
     foot with a steady, predatory stride. Their voices are cold, cruel speech, often
@@ -24,6 +24,20 @@ MonoBehaviour:
   minimumDifficulty: 40
   possibleTraits: []
   traitCountRange: {x: 0, y: 3}
-  evidenceTags: []
+  evidenceTags:
+  - categoryName: family
+    valueName: demon
+  - categoryName: size
+    valueName: medium
+  - categoryName: sound
+    valueName: speech
+  - categoryName: tail
+    valueName: hasTail
+  - categoryName: winged
+    valueName: noWings
+  - categoryName: movement
+    valueName: normal
   questionResponses: []
   weight: 1
+  trophyHeadPrefab: {fileID: 6442642377470529292, guid: 159d8ea12598bd040bd62dda3d57ebef, type: 3}
+  trophyScale: 1

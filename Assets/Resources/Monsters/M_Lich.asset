@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7003a09dfdd9dd498e3ab35a5abe032, type: 3}
+  m_Name: M_Lich
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterData
+  monsterId: 28686aeab6ca40abad93a01c71635cf0
+  displayName: Lich
+  portrait: {fileID: 0}
+  description: Liches are powerful undead spellcasters, typically medium-sized robed
+    figures with withered or skeletal bodies. They move at a measured, unhurried
+    pace, often more focused on their magic than their physical form. Their voices
+    are dry, echoing speech, speaking incantations and commands with eerie clarity
+    despite their decayed throats.
+  requiredReputation: 10
+  minimumDifficulty: 140
+  possibleTraits: []
+  traitCountRange: {x: 0, y: 3}
+  evidenceTags:
+  - categoryName: family
+    valueName: undead
+  - categoryName: size
+    valueName: medium
+  - categoryName: sound
+    valueName: speech
+  - categoryName: tail
+    valueName: noTail
+  - categoryName: winged
+    valueName: noWings
+  - categoryName: movement
+    valueName: normal
+  questionResponses: []
+  weight: 1
+  trophyHeadPrefab: {fileID: 7953490262890999442, guid: 1e9cd93995e89304a80976e4f522fb73, type: 3}
+  trophyScale: 3

@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7003a09dfdd9dd498e3ab35a5abe032, type: 3}
+  m_Name: M_Golem
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterData
+  monsterId: 9c4dc4ff2bba4ee7b3d976cb3233cccd
+  displayName: Golem
+  portrait: {fileID: 0}
+  description: A golem is a large construct, a towering mass of stone, clay, or metal
+    shaped into a humanoid form. It moves with a heavy, slow march that shakes the
+    ground with each step. It is completely silent - no breath, no voice, no growl
+    - only the grinding of material and the dull impact of its feet.
+  requiredReputation: 10
+  minimumDifficulty: 70
+  possibleTraits: []
+  traitCountRange: {x: 0, y: 3}
+  evidenceTags:
+  - categoryName: family
+    valueName: construct
+  - categoryName: size
+    valueName: large
+  - categoryName: sound
+    valueName: silent
+  - categoryName: tail
+    valueName: noTail
+  - categoryName: winged
+    valueName: noWings
+  - categoryName: movement
+    valueName: slow
+  questionResponses: []
+  weight: 1
+  trophyHeadPrefab: {fileID: 3150134377286027175, guid: de11b876f590288429a4cdd629d2d905, type: 3}
+  trophyScale: 0.5

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: 0a208f7e6f514ef4849e76d0ca5b87f0
   displayName: Imp
-  portrait: {fileID: 0}
+  portrait: {fileID: 21300000, guid: 1150e54b130d6a844901adb4687ca851, type: 3}
   description: Imps are tiny demons, roughly child-sized or smaller, with sharp features,
     a thin tail, and two small, leathery wings sprouting from their backs. They flit
     and hover constantly, darting just out of reach with quick, agile movement both
@@ -24,6 +24,20 @@ MonoBehaviour:
   minimumDifficulty: 20
   possibleTraits: []
   traitCountRange: {x: 0, y: 3}
-  evidenceTags: []
+  evidenceTags:
+  - categoryName: family
+    valueName: demon
+  - categoryName: size
+    valueName: small
+  - categoryName: sound
+    valueName: speech
+  - categoryName: tail
+    valueName: hasTail
+  - categoryName: winged
+    valueName: twoWings
+  - categoryName: movement
+    valueName: fast
   questionResponses: []
   weight: 1
+  trophyHeadPrefab: {fileID: 5520018223545873439, guid: 78142d89f59de29498608ea09895f4a6, type: 3}
+  trophyScale: 1.5

@@ -21,6 +21,8 @@ public class DeveloperToolsPanel : MonoBehaviour
     private GoldManager goldManager;
     private ReputationManager reputationManager;
     private InvestigationManager investigationManager;
+    private MonsterSlainTracker slainTracker;
+    private MonsterLibrary monsterLibrary;
 
     private Rect windowRect = new Rect(30f, 30f, 420f, 640f);
     private bool visible;
@@ -43,6 +45,9 @@ public class DeveloperToolsPanel : MonoBehaviour
     private int debugOrderXp = 100;
     private float debugOrderDuration = 120f;
     private float customResponseDelay = -1f;
+
+    private int selectedTrophyMonsterIndex;
+    private int addKillAmount = 1;
 
     private GUIStyle headerStyle;
     private bool cursorModified;
@@ -86,11 +91,17 @@ public class DeveloperToolsPanel : MonoBehaviour
             reputationManager = gm.GetReputationManager();
             investigationManager = gm.GetInvestigationManager();
             constructionManager = gm.GetConstructionManager();
+            monsterLibrary = gm.GetGameConfig() != null ? gm.GetGameConfig().monsterLibrary : null;
         }
 
         if (recruitmentManager == null)
         {
             recruitmentManager = FindObjectOfType<HunterRecruitmentManager>();
+        }
+
+        if (slainTracker == null)
+        {
+            slainTracker = FindObjectOfType<MonsterSlainTracker>();
         }
     }
 
@@ -130,6 +141,8 @@ public class DeveloperToolsPanel : MonoBehaviour
         DrawRecruitmentSection();
         GUILayout.Space(8f);
         DrawClientSection();
+        GUILayout.Space(8f);
+        DrawTrophyWallSection();
         GUILayout.EndScrollView();
 
         GUI.DragWindow(new Rect(0, 0, windowRect.width, 20f));
@@ -429,6 +442,51 @@ public class DeveloperToolsPanel : MonoBehaviour
 
             var runtimeProfile = BuildRuntimeProfile(profile, customResponseDelay);
             investigationManager.DebugStartInvestigation(order, runtimeProfile);
+        }
+    }
+
+    private void DrawTrophyWallSection()
+    {
+        GUILayout.Label("Trophy Wall", headerStyle);
+        if (slainTracker == null)
+        {
+            GUILayout.Label("MonsterSlainTracker not found.");
+            return;
+        }
+
+        if (GUILayout.Button("Reset All Kills"))
+        {
+            slainTracker.ResetAll();
+        }
+
+        var monsters = monsterLibrary != null ? monsterLibrary.GetMonsters() : null;
+        if (monsters == null || monsters.Count == 0)
+        {
+            GUILayout.Label("No monsters available.");
+            return;
+        }
+
+        selectedTrophyMonsterIndex = Mathf.Clamp(selectedTrophyMonsterIndex, 0, monsters.Count - 1);
+        GUILayout.BeginHorizontal();
+        if (GUILayout.Button("<", GUILayout.Width(30f)))
+        {
+            selectedTrophyMonsterIndex = (selectedTrophyMonsterIndex - 1 + monsters.Count) % monsters.Count;
+        }
+        GUILayout.Label(monsters[selectedTrophyMonsterIndex] != null ? monsters[selectedTrophyMonsterIndex].displayName : "<null>", GUILayout.ExpandWidth(true));
+        if (GUILayout.Button(">", GUILayout.Width(30f)))
+        {
+            selectedTrophyMonsterIndex = (selectedTrophyMonsterIndex + 1) % monsters.Count;
+        }
+        GUILayout.EndHorizontal();
+
+        addKillAmount = IntField("Add kills (can be negative)", addKillAmount);
+        var selected = monsters[selectedTrophyMonsterIndex];
+        int current = slainTracker.GetKillCount(selected);
+        GUILayout.Label($"Current kills: {current}");
+
+        if (GUILayout.Button("Apply"))
+        {
+            slainTracker.AddKills(selected, addKillAmount);
         }
     }
 
