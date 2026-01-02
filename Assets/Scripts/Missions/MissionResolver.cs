@@ -83,6 +83,15 @@ public class MissionResolver : MonoBehaviour
             {
                 result.survived = true;
                 result.injured = hunterInjured;
+                if (hunterInjured)
+                {
+                    var state = hunter.GetComponent<HunterInteractionState>();
+                    if (state == null)
+                    {
+                        state = hunter.gameObject.AddComponent<HunterInteractionState>();
+                    }
+                    state.SetWounded(true);
+                }
             }
             
             // Calculate XP gain

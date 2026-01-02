@@ -341,10 +341,10 @@ public class HunterRecruitmentManager : MonoBehaviour
         controller.Initialize(this, candidate, candidateSpawnPoint, spot, candidateExitPoint);
         candidate.controller = controller;
 
-        HunterCandidateInteractable interactable = instance.GetComponentInChildren<HunterCandidateInteractable>();
+        HunterInteractable interactable = instance.GetComponentInChildren<HunterInteractable>();
         if (interactable == null)
         {
-            interactable = instance.gameObject.AddComponent<HunterCandidateInteractable>();
+            interactable = instance.gameObject.AddComponent<HunterInteractable>();
         }
         interactable.Initialize(this, candidate, candidateInteractionCamera);
 
@@ -386,7 +386,7 @@ public class HunterRecruitmentManager : MonoBehaviour
 
         if (candidate.spawnedHunter != null)
         {
-            var interactable = candidate.spawnedHunter.GetComponent<HunterCandidateInteractable>();
+            var interactable = candidate.spawnedHunter.GetComponent<HunterInteractable>();
             if (interactable != null)
             {
                 Destroy(interactable);

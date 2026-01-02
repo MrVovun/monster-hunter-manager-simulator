@@ -79,7 +79,7 @@ public class HunterRosterItem : MonoBehaviour, IBeginDragHandler, IDragHandler, 
 
         if (portraitImage != null)
         {
-            Sprite portrait = hunter.GetHunterData()?.portrait;
+            Sprite portrait = hunter.Data?.portrait;
             portraitImage.sprite = portrait;
             portraitImage.enabled = portrait != null;
         }

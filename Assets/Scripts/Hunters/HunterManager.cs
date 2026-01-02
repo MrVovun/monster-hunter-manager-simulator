@@ -122,7 +122,7 @@ public class HunterManager : MonoBehaviour
     
     private bool IsHunterSpawned(HunterData data)
     {
-        return activeHunters.Any(h => h != null && h.GetHunterData() == data);
+        return activeHunters.Any(h => h != null && h.Data == data);
     }
     
     public Hunter SpawnHunter(HunterData data)
@@ -198,7 +198,7 @@ public class HunterManager : MonoBehaviour
     public bool TryHireCandidate(Hunter candidate)
     {
         if (candidate == null) return false;
-        HunterData data = candidate.GetHunterData();
+        HunterData data = candidate.Data;
         if (data == null) return false;
         if (hiredHunterIds.Contains(data.hunterId)) return false;
 
@@ -274,7 +274,7 @@ public class HunterManager : MonoBehaviour
     
     public Hunter GetHunterByName(string name)
     {
-        return activeHunters.Find(h => h != null && h.GetHunterData().hunterName == name);
+        return activeHunters.Find(h => h != null && h.Data != null && h.Data.hunterName == name);
     }
     
     public void RemoveHunter(Hunter hunter)
@@ -297,7 +297,7 @@ public class HunterManager : MonoBehaviour
         int total = 0;
         foreach (var hunter in activeHunters)
         {
-            if (hunter != null && hunter.GetState() != HunterState.Dead && hunter.GetHunterData() != null)
+            if (hunter != null && hunter.GetState() != HunterState.Dead && hunter.Data != null)
             {
                 total += hunter.GetUpkeepCost();
             }

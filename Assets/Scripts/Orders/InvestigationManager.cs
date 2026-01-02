@@ -26,6 +26,15 @@ public class InvestigationManager : MonoBehaviour
     private bool dialogueCameraCached;
     private Camera lastPlayerCamera;
     private bool freeBrowseLockActive;
+    private bool hunterDialogueActive;
+    private List<InvestigationQuestion> hunterQuestions = new List<InvestigationQuestion>();
+    private Dictionary<string, string> hunterAnswers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+    private System.Action<InvestigationQuestion> hunterQuestionCallback;
+    private System.Action hunterCloseCallback;
+    private Hunter currentHunter;
+    private Vector3 dialogueCameraBasePosition;
+    private Quaternion dialogueCameraBaseRotation;
+    private bool dialogueCameraBaseCached;
 
     public InvestigationCase CurrentCase { get; private set; }
     public Order CurrentOrder { get; private set; }
@@ -100,6 +109,10 @@ public class InvestigationManager : MonoBehaviour
 
     public float GetQuestionDuration(InvestigationQuestion question)
     {
+        if (hunterDialogueActive)
+        {
+            return Mathf.Max(0f, question != null ? question.askDurationSeconds : 0f);
+        }
         if (question == null) return 0f;
         float duration = Mathf.Max(0f, question.askDurationSeconds);
         if (CurrentCase?.clientProfile != null)
@@ -112,6 +125,15 @@ public class InvestigationManager : MonoBehaviour
 
     public string ResolveQuestion(InvestigationQuestion question)
     {
+        if (hunterDialogueActive)
+        {
+            hunterQuestionCallback?.Invoke(question);
+            if (question != null && hunterAnswers.TryGetValue(question.questionId, out var ans))
+            {
+                return ans;
+            }
+            return "...";
+        }
         if (CurrentCase == null || question == null) return string.Empty;
 
         StringBuilder responseBuilder = new StringBuilder();
@@ -198,6 +220,10 @@ public class InvestigationManager : MonoBehaviour
 
     public List<InvestigationQuestion> GetAvailableQuestions()
     {
+        if (hunterDialogueActive)
+        {
+            return new List<InvestigationQuestion>(hunterQuestions);
+        }
         var result = new List<InvestigationQuestion>();
         foreach (var question in questions)
         {
@@ -400,6 +426,11 @@ public class InvestigationManager : MonoBehaviour
 
     public void CompleteInvestigation()
     {
+        if (hunterDialogueActive)
+        {
+            HandleHunterDialogueClosed();
+            return;
+        }
         if (clientSpawner != null)
         {
             clientSpawner.DismissCurrentClient();
@@ -447,11 +478,73 @@ public class InvestigationManager : MonoBehaviour
         CompleteInvestigation();
     }
 
+    public void BeginHunterDialogue(List<InvestigationQuestion> questions, Dictionary<string, string> answers, Hunter hunter, Camera overrideCamera, float transitionDuration, System.Action<InvestigationQuestion> onQuestionSelected, System.Action onClosed)
+    {
+        hunterDialogueActive = true;
+        hunterQuestions = questions != null ? new List<InvestigationQuestion>(questions) : new List<InvestigationQuestion>();
+        hunterAnswers.Clear();
+        if (answers != null)
+        {
+            foreach (var kvp in answers)
+            {
+                hunterAnswers[kvp.Key] = kvp.Value;
+            }
+        }
+        hunterQuestionCallback = onQuestionSelected;
+        hunterCloseCallback = onClosed;
+        currentHunter = hunter;
+
+        // Create a dummy case to satisfy UI
+        CurrentCase = new InvestigationCase();
+        CurrentOrder = null;
+        if (overrideCamera != null)
+        {
+            dialogueCamera = overrideCamera;
+        }
+
+        ToggleDialogueCamera(true, lastPlayerCamera != null ? lastPlayerCamera : (playerInteraction != null ? playerInteraction.GetPlayerCamera() : Camera.main));
+        if (dialogueUI == null)
+        {
+            dialogueUI = FindObjectOfType<InvestigationDialogueUI>(true);
+        }
+        if (dialogueUI != null)
+        {
+            dialogueUI.Show(CurrentCase, this, HandleHunterDialogueClosed);
+        }
+        else
+        {
+            HandleHunterDialogueClosed();
+        }
+    }
+
+    public void BeginHunterHeal(Hunter hunter, float duration, System.Action onComplete)
+    {
+        StartCoroutine(HunterHealRoutine(duration, onComplete));
+    }
+
+    private IEnumerator HunterHealRoutine(float duration, System.Action onComplete)
+    {
+        yield return new WaitForSecondsRealtime(Mathf.Max(0f, duration));
+        onComplete?.Invoke();
+    }
+
     public void ShowBestiaryForDeclaration(System.Action<MonsterData> onSelected, System.Action onClosed)
     {
         ShowBestiary(true, CurrentCase, onSelected, onClosed);
     }
 
+    private void HandleHunterDialogueClosed()
+    {
+        hunterDialogueActive = false;
+        hunterQuestions.Clear();
+        hunterAnswers.Clear();
+        hunterQuestionCallback = null;
+        var closeCb = hunterCloseCallback;
+        hunterCloseCallback = null;
+        closeCb?.Invoke();
+        ToggleDialogueCamera(false, lastPlayerCamera != null ? lastPlayerCamera : (playerInteraction != null ? playerInteraction.GetPlayerCamera() : Camera.main));
+        RestoreDialogueCameraHome();
+    }
     public void ShowBestiaryFree(System.Action onClosed = null)
     {
         ShowBestiary(false, null, null, onClosed);
@@ -593,6 +686,31 @@ public class InvestigationManager : MonoBehaviour
         }
     }
 
+    public void SetDialogueCameraHome(Vector3 position, Quaternion rotation, bool setAsBase = false)
+    {
+        dialogueCameraHomePosition = position;
+        dialogueCameraHomeRotation = rotation;
+        dialogueCameraCached = true;
+        if (setAsBase)
+        {
+            dialogueCameraBasePosition = position;
+            dialogueCameraBaseRotation = rotation;
+            dialogueCameraBaseCached = true;
+        }
+        if (dialogueCamera != null)
+        {
+            dialogueCamera.transform.SetPositionAndRotation(position, rotation);
+        }
+    }
+
+    public void RestoreDialogueCameraHome()
+    {
+        if (!dialogueCameraBaseCached) return;
+        dialogueCameraHomePosition = dialogueCameraBasePosition;
+        dialogueCameraHomeRotation = dialogueCameraBaseRotation;
+        dialogueCameraCached = true;
+    }
+
     public Camera GetDialogueCamera()
     {
         return dialogueCamera;
@@ -610,6 +728,12 @@ public class InvestigationManager : MonoBehaviour
     private void CacheDialogueCameraHome()
     {
         if (dialogueCamera == null || dialogueCameraCached) return;
+        if (!dialogueCameraBaseCached && dialogueCamera != null)
+        {
+            dialogueCameraBasePosition = dialogueCamera.transform.position;
+            dialogueCameraBaseRotation = dialogueCamera.transform.rotation;
+            dialogueCameraBaseCached = true;
+        }
         dialogueCameraHomePosition = dialogueCamera.transform.position;
         dialogueCameraHomeRotation = dialogueCamera.transform.rotation;
         dialogueCameraCached = true;

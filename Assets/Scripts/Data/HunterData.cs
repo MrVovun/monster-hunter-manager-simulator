@@ -37,6 +37,11 @@ public class HunterData : ScriptableObject
     public Sprite portrait; // For UI display
     public GameObject visualPrefab;
 
+    [Header("Dialogue")]
+    [TextArea(2, 4)] public string greeting;
+    [TextArea(2, 4)] public string healLine;
+    public List<HunterDialogueQuestion> dialogueQuestions = new List<HunterDialogueQuestion>();
+
     
     // Calculated stats (base + level bonuses)
     public int GetTotalPower(int level)

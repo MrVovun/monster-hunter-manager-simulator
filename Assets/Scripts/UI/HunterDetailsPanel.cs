@@ -51,7 +51,7 @@ public class HunterDetailsPanel : MonoBehaviour
             panelRoot.SetActive(true);
         }
 
-        HunterData data = hunter.GetHunterData();
+        HunterData data = hunter.Data;
         HunterStats stats = hunter.GetStats();
 
         if (nameText != null) nameText.text = hunter.name;

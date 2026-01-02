@@ -44,3 +44,12 @@ MonoBehaviour:
   minReputation: 1
   portrait: {fileID: 21300000, guid: 89ec072d438464842928dab02cbdf660, type: 3}
   visualPrefab: {fileID: 1782384603142300, guid: feb0e5cecfc437e46820eeecb60c482a, type: 3}
+  greeting: Manager?
+  healLine: I appreciate it.
+  dialogueQuestions:
+  - questionId: 
+    questionText: What's new?
+    answerText: While in the market place I witnessed a thief cut a purse from a
+      noble. Even as he did so, the noble noticed and called for the city guards.
+      In his haste to get away, the thief dropped the purse near me. Surprisingly
+      no one seemed to notice the bag of coins at my feet.

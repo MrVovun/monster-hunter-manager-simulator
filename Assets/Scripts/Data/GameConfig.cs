@@ -43,6 +43,10 @@ public class GameConfig : ScriptableObject
         new TraitCountChance{ traitCount = 3, weight = 1f },
     };
 
+    [Header("Hunter Interaction")]
+    [Tooltip("Base time in seconds to heal a wounded hunter.")]
+    public float hunterHealDurationSeconds = 10f;
+
     public int GetOrderLimit(int reputation)
     {
         int limit = 0;

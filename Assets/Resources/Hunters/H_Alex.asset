@@ -45,3 +45,12 @@ MonoBehaviour:
   minReputation: 1
   portrait: {fileID: 21300000, guid: 9b67b11bd2748b64d9d856d5b082f8b0, type: 3}
   visualPrefab: {fileID: 1978041737891688, guid: 54828571eee3fb04d86d2c0049de40f1, type: 3}
+  greeting: Hey there!
+  healLine: Oh, thank you for that!
+  dialogueQuestions:
+  - questionId: 
+    questionText: What's new?
+    answerText: There is a lot of heated discussion at the local tavern over a group
+      of people called 'Telepaths'. They have been hired by certain City-State kings.
+      Rumor has it these Telepaths read a person's mind and tell their lord whether
+      a follower is telling the truth or not.

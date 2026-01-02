@@ -316,6 +316,31 @@ public class DeveloperToolsPanel : MonoBehaviour
             selected.ClearDebugUpkeep();
         }
         GUILayout.EndHorizontal();
+
+        GUILayout.BeginHorizontal();
+        if (GUILayout.Button("Set Alive"))
+        {
+            var state = GetOrAddInteractionState(selected);
+            if (state != null)
+            {
+                state.SetWounded(false);
+            }
+            selected.SetState(HunterState.Idle);
+        }
+        if (GUILayout.Button("Set Wounded"))
+        {
+            var state = GetOrAddInteractionState(selected);
+            if (state != null)
+            {
+                state.SetWounded(true);
+            }
+            selected.SetState(HunterState.Idle);
+        }
+        if (GUILayout.Button("Set Dead"))
+        {
+            selected.SetState(HunterState.Dead);
+        }
+        GUILayout.EndHorizontal();
     }
 
     private void DrawRecruitmentSection()
@@ -496,6 +521,17 @@ public class DeveloperToolsPanel : MonoBehaviour
         hunterLevelInput = hunter.GetLevel();
         hunterXPInput = hunter.GetXP();
         hunterUpkeepInput = hunter.GetUpkeepCost();
+    }
+
+    private HunterInteractionState GetOrAddInteractionState(Hunter hunter)
+    {
+        if (hunter == null) return null;
+        var state = hunter.GetComponent<HunterInteractionState>();
+        if (state == null)
+        {
+            state = hunter.gameObject.AddComponent<HunterInteractionState>();
+        }
+        return state;
     }
 
     private int IntField(string label, int value)

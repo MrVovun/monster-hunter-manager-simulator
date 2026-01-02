@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 632102277933263927}
   - component: {fileID: 52147961745594684}
   - component: {fileID: -2078971216778818512}
-  - component: {fileID: -3347763700930023983}
+  - component: {fileID: 8755115682773110774}
   m_Layer: 0
   m_Name: HunterGenericPrefab
   m_TagString: Untagged
@@ -176,7 +176,7 @@ MonoBehaviour:
   animator: {fileID: 0}
   navAgent: {fileID: 0}
   autoUpdateVelocity: 1
---- !u!114 &-3347763700930023983
+--- !u!114 &8755115682773110774
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -185,11 +185,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 3801014712604621282}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 153bb10f68326d547a790af6ab25e53e, type: 3}
+  m_Script: {fileID: 11500000, guid: 2f133266dac62e441a6ae7198082c6bb, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::HunterCandidateInteractable
+  m_EditorClassIdentifier: Assembly-CSharp::HunterInteractable
   interactionType: 2
   locksPlayer: 1
-  useCustomCamera: 1
-  interactionPrompt: '[E] Interact'
+  useCustomCamera: 0
+  interactionPrompt: '[E] Speak'
   customCamera: {fileID: 0}
+  recruitmentManager: {fileID: 0}
+  investigationManager: {fileID: 0}
+  dialogueCameraOverride: {fileID: 0}
+  cameraTransitionDuration: 0.5
+  debugLogs: 0

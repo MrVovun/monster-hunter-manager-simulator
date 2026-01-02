@@ -101,7 +101,7 @@ public static class MissionOutcomeCalculator
 
         foreach (var hunter in party)
         {
-            var data = hunter?.GetHunterData();
+            var data = hunter?.Data;
             if (data == null || data.traits == null) continue;
             foreach (var trait in data.traits)
             {
@@ -175,7 +175,7 @@ public static class MissionOutcomeCalculator
 
         foreach (var hunter in party)
         {
-            var data = hunter?.GetHunterData();
+            var data = hunter?.Data;
             if (data == null || data.traits == null) continue;
 
             foreach (var trait in data.traits)

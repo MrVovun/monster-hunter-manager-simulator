@@ -60,7 +60,7 @@ public class OrderPartySlot : MonoBehaviour, IDropHandler, IPointerClickHandler
             }
             else
             {
-                Sprite portrait = hunter.GetHunterData()?.portrait;
+                Sprite portrait = hunter.Data?.portrait;
                 portraitImage.sprite = portrait != null ? portrait : emptyPortraitSprite;
                 portraitImage.color = Color.white;
             }

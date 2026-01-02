@@ -400,10 +400,7 @@ public class Hunter : MonoBehaviour
         return levelSystem.GetXPForNextLevel();
     }
 
-    public HunterData GetHunterData()
-    {
-        return hunterData;
-    }
+    public HunterData Data => hunterData;
 
     public HunterStats GetStats()
     {

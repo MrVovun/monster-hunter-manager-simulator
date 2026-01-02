@@ -20,6 +20,7 @@ MonoBehaviour:
   defaultClientProfiles:
   - {fileID: 11400000, guid: a386fdc52ecc16142beb2fc924c5c91e, type: 2}
   - {fileID: 11400000, guid: 2cdf72bfa74ddd046afb17c83b82a246, type: 2}
+  trophyWallConfig: {fileID: 0}
   guildConstructions:
   - {fileID: 11400000, guid: 3e1a403cae5200a479c982b8cd59bc08, type: 2}
   - {fileID: 11400000, guid: ced3e1246a3430e48af4afb09f4aba0d, type: 2}
@@ -49,3 +50,4 @@ MonoBehaviour:
     weight: 0.1
   - traitCount: 3
     weight: 0.05
+  hunterHealDurationSeconds: 4
