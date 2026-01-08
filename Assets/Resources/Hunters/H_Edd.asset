@@ -46,6 +46,7 @@ MonoBehaviour:
   visualPrefab: {fileID: 1782384603142300, guid: feb0e5cecfc437e46820eeecb60c482a, type: 3}
   greeting: Manager?
   healLine: I appreciate it.
+  goodbyeLine: See ya, Edd.
   dialogueQuestions:
   - questionId: 
     questionText: What's new?

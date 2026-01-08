@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: c4ec1e34505343429b9ed5a60ac55b6a
   displayName: Werewolf
-  portrait: {fileID: 0}
+  portrait: {fileID: 21300000, guid: 038a5a716189d33498aa5ddc72881a24, type: 3}
   description: "The werewolf is a medium-sized undead beast, shaped like a wolf-man
     - taller than a wolf, broader than a man - with a visible tail that whips as
     it runs. It moves fast, closing distance in a blur of claws and teeth. It doesn\u2019t
     speak; it communicates with raw animalistic sounds - growls, snarls, and hunting
     howls that sound like hunger given a voice."
-  requiredReputation: 10
+  requiredReputation: 1
   minimumDifficulty: 80
   possibleTraits: []
   traitCountRange: {x: 0, y: 3}

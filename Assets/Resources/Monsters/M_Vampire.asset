@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: b7ec1e8af3c14c768a6658757560cbe0
   displayName: Vampire
-  portrait: {fileID: 0}
+  portrait: {fileID: 21300000, guid: c8d8c72da26143849a6bc1885bb47882, type: 3}
   description: Vampires are elegant undead predators, of medium human size, outwardly
     almost human with pale skin and predatory eyes. They are moving with fluid, predatory
     strides that can burst into supernatural speed when they choose. Unlike most
     undead, they use smooth, persuasive speech, charming or taunting their prey with
     perfectly formed words.
-  requiredReputation: 10
+  requiredReputation: 1
   minimumDifficulty: 110
   possibleTraits: []
   traitCountRange: {x: 0, y: 3}

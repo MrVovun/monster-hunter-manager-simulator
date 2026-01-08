@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: 9c4dc4ff2bba4ee7b3d976cb3233cccd
   displayName: Golem
-  portrait: {fileID: 0}
+  portrait: {fileID: 21300000, guid: 24788404adbbf2444b19d809814e6b54, type: 3}
   description: A golem is a large construct, a towering mass of stone, clay, or metal
     shaped into a humanoid form. It moves with a heavy, slow march that shakes the
     ground with each step. It is completely silent - no breath, no voice, no growl
     - only the grinding of material and the dull impact of its feet.
-  requiredReputation: 10
+  requiredReputation: 1
   minimumDifficulty: 70
   possibleTraits: []
   traitCountRange: {x: 0, y: 3}

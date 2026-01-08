@@ -47,6 +47,7 @@ MonoBehaviour:
   visualPrefab: {fileID: 1290725874115128, guid: 2d1f3a5f7b4e6374296a6647c4018050, type: 3}
   greeting: Boss?
   healLine: It's but a scratch.
+  goodbyeLine: See ya, Rori.
   dialogueQuestions:
   - questionId: 
     questionText: What's new?

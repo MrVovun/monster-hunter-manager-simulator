@@ -14,14 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: 1aa0f517fbae4f1fbe4b5a12e8e67244
   displayName: Harpy
-  portrait: {fileID: 0}
+  portrait: {fileID: 21300000, guid: 93e87a5e32ced7a449465ffd5e68e8ef, type: 3}
   description: "Harpies are medium-sized hybrid creatures, roughly human-sized but
     clearly avian, with a visible tail of a bird and two wings that fold tightly
     when they perch. They move at a normal pace when grounded but rely on flight
     for ambush and escape. Their voices are entirely animalistic - warbling shrieks
     and birdlike cries - rather than words, even if they seem to \u201Cmock\u201D
     with sound."
-  requiredReputation: 10
+  requiredReputation: 1
   minimumDifficulty: 50
   possibleTraits: []
   traitCountRange: {x: 0, y: 3}
