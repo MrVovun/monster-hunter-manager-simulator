@@ -386,12 +386,6 @@ public class HunterRecruitmentManager : MonoBehaviour
 
         if (candidate.spawnedHunter != null)
         {
-            var interactable = candidate.spawnedHunter.GetComponent<HunterInteractable>();
-            if (interactable != null)
-            {
-                Destroy(interactable);
-            }
-
             if (!keepHunterAlive && hunterManager != null)
             {
                 hunterManager.DestroyCandidateInstance(candidate.spawnedHunter);
@@ -565,11 +559,12 @@ public class HunterRecruitmentManager : MonoBehaviour
         OnStateChanged?.Invoke();
     }
 
-    public bool ShowCandidateProfile(Hunter hunterInstance, Action onClosed)
+    public bool ShowCandidateProfile(Hunter hunterInstance, Action onClosed, bool onlyIfPending = true)
     {
         if (hunterInstance == null || candidateProfilePanel == null) return false;
         var candidate = FindCandidateByHunter(hunterInstance);
         if (candidate == null) return false;
+        if (onlyIfPending && candidate.status != CandidateStatus.Pending) return false;
         candidateProfilePanel.ShowCandidate(candidate, onClosed);
         return true;
     }

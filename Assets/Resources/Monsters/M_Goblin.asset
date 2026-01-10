@@ -56,7 +56,7 @@ MonoBehaviour:
     responseText: No wings.
   - question: {fileID: 11400000, guid: 88be2b18d86528f459bb4d4d5a2e53bd, type: 2}
     tagIndex: 1
-    responseText: Small and scrawny.
+    responseText: Small, like a child.
   weight: 1
   trophyHeadPrefab: {fileID: 0}
   trophyScale: 1

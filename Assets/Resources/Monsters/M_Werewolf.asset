@@ -22,7 +22,10 @@ MonoBehaviour:
     howls that sound like hunger given a voice."
   requiredReputation: 1
   minimumDifficulty: 80
-  possibleTraits: []
+  possibleTraits:
+  - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
+  - {fileID: 11400000, guid: 02041b403a87b234ba630b13fd996c0f, type: 2}
+  - {fileID: 11400000, guid: f149ed5426264cb4db6fac2830e77841, type: 2}
   traitCountRange: {x: 0, y: 3}
   evidenceTags:
   - categoryName: family
@@ -37,7 +40,25 @@ MonoBehaviour:
     valueName: noWings
   - categoryName: movement
     valueName: fast
-  questionResponses: []
+  questionResponses:
+  - question: {fileID: 11400000, guid: 138b37c003abe654ab951864f1f191f4, type: 2}
+    tagIndex: 0
+    responseText: A cadavre! Like it rose from dead.
+  - question: {fileID: 11400000, guid: 88be2b18d86528f459bb4d4d5a2e53bd, type: 2}
+    tagIndex: 1
+    responseText: Slightly bigger than a man.
+  - question: {fileID: 11400000, guid: 7052173e211d8fd4e8ab035dc4d434b2, type: 2}
+    tagIndex: 2
+    responseText: It howled like a wolf!
+  - question: {fileID: 11400000, guid: 7b7c77071c297ff46a62a80d5d33bb78, type: 2}
+    tagIndex: 3
+    responseText: Ay, a tail like dogs or wolves have.
+  - question: {fileID: 11400000, guid: e301b93ebccd4d544ac650ee3653046d, type: 2}
+    tagIndex: 4
+    responseText: Negative, no wings.
+  - question: {fileID: 11400000, guid: ac95fca6036908f4e82a3a5014cb5c38, type: 2}
+    tagIndex: 5
+    responseText: Supernaturally fast!
   weight: 1
   trophyHeadPrefab: {fileID: 2416677971883142677, guid: eb01e3d6985307d43a0e7ff80e4bf5fb, type: 3}
   trophyScale: 1

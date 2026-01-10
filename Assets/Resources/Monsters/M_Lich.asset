@@ -22,7 +22,10 @@ MonoBehaviour:
     despite their decayed throats.
   requiredReputation: 1
   minimumDifficulty: 140
-  possibleTraits: []
+  possibleTraits:
+  - {fileID: 11400000, guid: 6af8b3bbb8f5f8d4fbdb3a6057fd4b86, type: 2}
+  - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
+  - {fileID: 11400000, guid: f149ed5426264cb4db6fac2830e77841, type: 2}
   traitCountRange: {x: 0, y: 3}
   evidenceTags:
   - categoryName: family
@@ -37,7 +40,25 @@ MonoBehaviour:
     valueName: noWings
   - categoryName: movement
     valueName: normal
-  questionResponses: []
+  questionResponses:
+  - question: {fileID: 11400000, guid: 138b37c003abe654ab951864f1f191f4, type: 2}
+    tagIndex: 0
+    responseText: A cadavre! Like it rose from dead.
+  - question: {fileID: 11400000, guid: 88be2b18d86528f459bb4d4d5a2e53bd, type: 2}
+    tagIndex: 1
+    responseText: Like a regular human.
+  - question: {fileID: 11400000, guid: 7052173e211d8fd4e8ab035dc4d434b2, type: 2}
+    tagIndex: 2
+    responseText: Indistinctive from a regular man.
+  - question: {fileID: 11400000, guid: 7b7c77071c297ff46a62a80d5d33bb78, type: 2}
+    tagIndex: 3
+    responseText: Do skeletons have tails?
+  - question: {fileID: 11400000, guid: e301b93ebccd4d544ac650ee3653046d, type: 2}
+    tagIndex: 4
+    responseText: 'Only stripes of robes flowing behind. '
+  - question: {fileID: 11400000, guid: ac95fca6036908f4e82a3a5014cb5c38, type: 2}
+    tagIndex: 5
+    responseText: Floating menacingly!
   weight: 1
   trophyHeadPrefab: {fileID: 7953490262890999442, guid: 1e9cd93995e89304a80976e4f522fb73, type: 3}
   trophyScale: 3

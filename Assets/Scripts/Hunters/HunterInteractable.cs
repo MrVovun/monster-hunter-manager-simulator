@@ -68,6 +68,16 @@ public class HunterInteractable : Interactable
             return;
         }
 
+        // If this hunter is a recruitment candidate, show the hiring panel instead of dialogue.
+        if (recruitmentManager != null && recruitmentManager.ShowCandidateProfile(ownerHunter, ReleaseInteraction, onlyIfPending: true))
+        {
+            OnInteractionStart(player);
+            activePlayer = player;
+            awaitingRelease = true;
+            PauseMovementIfNeeded();
+            return;
+        }
+
         interactionState = ownerHunter.GetComponent<HunterInteractionState>();
         if (interactionState == null)
         {
