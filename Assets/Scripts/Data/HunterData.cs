@@ -40,6 +40,7 @@ public class HunterData : ScriptableObject
     [Header("Dialogue")]
     [TextArea(2, 4)] public string greeting;
     [TextArea(2, 4)] public string healLine;
+    [TextArea(2, 4)] public string goodbyeLine;
     public List<HunterDialogueQuestion> dialogueQuestions = new List<HunterDialogueQuestion>();
 
     

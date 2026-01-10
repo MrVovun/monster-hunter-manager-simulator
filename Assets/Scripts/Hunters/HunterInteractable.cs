@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class HunterInteractable : Interactable
 {
@@ -10,12 +11,20 @@ public class HunterInteractable : Interactable
     [SerializeField] private bool debugLogs = false;
     [SerializeField] private Vector3 cameraOffset = new Vector3(0f, 1.6f, -1.8f);
     [SerializeField] private Vector3 cameraLookOffset = new Vector3(0f, 1.5f, 0f);
+    [SerializeField] private GameObject healVfx;
 
     private PlayerInteraction activePlayer;
     private Hunter ownerHunter;
     private HunterInteractionState interactionState;
     private bool awaitingRelease;
     private InvestigationCase tempCase;
+    private NavMeshAgent pausedAgent;
+    private bool navWasStopped;
+    private bool navPaused;
+    private Quaternion originalHunterRotation;
+    private bool healPending;
+    private string pendingHealLine;
+    private float pendingHealDuration;
 
     private void Reset()
     {
@@ -68,6 +77,10 @@ public class HunterInteractable : Interactable
         OnInteractionStart(player);
         activePlayer = player;
         awaitingRelease = true;
+        PauseMovementIfNeeded();
+        CacheHunterRotation();
+        AimAtHunter(player);
+        FacePlayer();
 
         BuildTempCaseAndShowDialogue();
     }
@@ -108,15 +121,26 @@ public class HunterInteractable : Interactable
             questionList.Add(healQuestion);
         }
 
+        // Goodbye entry
+        var goodbye = ScriptableObject.CreateInstance<InvestigationQuestion>();
+        goodbye.questionId = "goodbye";
+        string goodbyeLine = hunterData != null && !string.IsNullOrWhiteSpace(hunterData.goodbyeLine)
+            ? hunterData.goodbyeLine
+            : "That's all, thanks.";
+        goodbye.promptText = goodbyeLine;
+        answers[goodbye.questionId] = goodbyeLine;
+        questionList.Add(goodbye);
+
         ConfigureDialogueCameraTarget();
-        investigationManager.BeginHunterDialogue(questionList, answers, ownerHunter, dialogueCameraOverride, cameraTransitionDuration, HandleQuestionSelected, ReleaseInteraction);
+        investigationManager.BeginHunterDialogue(questionList, answers, ownerHunter, null, cameraTransitionDuration, HandleQuestionSelected, ReleaseInteraction, useDialogueCamera: false, onResponseFinished: HandleResponseFinished);
     }
 
     private void ConfigureDialogueCameraTarget()
     {
         if (investigationManager == null || ownerHunter == null) return;
-        Vector3 targetPos = ownerHunter.transform.TransformPoint(cameraOffset);
-        Vector3 lookTarget = ownerHunter.transform.position + ownerHunter.transform.TransformDirection(cameraLookOffset);
+        Vector3 forward = ownerHunter.transform.forward;
+        Vector3 targetPos = ownerHunter.transform.position - forward * Mathf.Abs(cameraOffset.z) + Vector3.up * cameraOffset.y;
+        Vector3 lookTarget = ownerHunter.transform.position + Vector3.up * cameraLookOffset.y;
         Quaternion targetRot = Quaternion.LookRotation((lookTarget - targetPos).normalized, Vector3.up);
         investigationManager.SetDialogueCameraHome(targetPos, targetRot);
     }
@@ -126,17 +150,57 @@ public class HunterInteractable : Interactable
         if (question == null) return;
         if (question.questionId == "heal")
         {
-            StartHeal();
+            PrepareHeal();
+        }
+        else if (question.questionId == "goodbye")
+        {
+            investigationManager?.CompleteInvestigation();
         }
     }
 
-    private void StartHeal()
+    private void PrepareHeal()
     {
         if (interactionState == null) return;
         float duration = GetHealDuration();
-        interactionState.StartHealing(duration);
-        // Notify UI to show progress / hide dialogue
-        investigationManager?.BeginHunterHeal(ownerHunter, duration, ReleaseInteraction);
+        pendingHealDuration = duration;
+        pendingHealLine = ownerHunter != null && ownerHunter.Data != null && !string.IsNullOrWhiteSpace(ownerHunter.Data.healLine)
+            ? ownerHunter.Data.healLine
+            : "Hold still while we patch you up.";
+        healPending = true;
+    }
+
+    private void HandleResponseFinished(InvestigationQuestion question, string responseText)
+    {
+        if (question == null) return;
+        if (question.questionId == "heal" && healPending)
+        {
+            StartCoroutine(HealRoutine());
+        }
+    }
+
+    private System.Collections.IEnumerator HealRoutine()
+    {
+        healPending = false;
+        interactionState?.StartHealing(pendingHealDuration);
+        SetHealVfxActive(true);
+        investigationManager?.HideDialoguePanel();
+        float wait = Mathf.Max(0f, pendingHealDuration);
+        float elapsed = 0f;
+        while (elapsed < wait)
+        {
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        SetHealVfxActive(false);
+        interactionState?.SetWounded(false);
+        if (investigationManager != null)
+        {
+            investigationManager.RemoveHunterQuestion("heal");
+        }
+        if (investigationManager != null)
+        {
+            investigationManager.ShowDialogueResponse(pendingHealLine, refreshQuestions: true);
+        }
     }
 
     private float GetHealDuration()
@@ -172,6 +236,9 @@ public class HunterInteractable : Interactable
             OnInteractionEnd(activePlayer);
             activePlayer = null;
         }
+        ResumeMovementIfNeeded();
+        RestoreHunterRotation();
+        SetHealVfxActive(false);
     }
 
     private void ResolveManagers()
@@ -185,4 +252,81 @@ public class HunterInteractable : Interactable
             recruitmentManager = FindObjectOfType<HunterRecruitmentManager>();
         }
     }
+
+    private void PauseMovementIfNeeded()
+    {
+        if (ownerHunter == null) return;
+        var agent = ownerHunter.GetComponent<NavMeshAgent>();
+        if (agent != null && agent.enabled && agent.isOnNavMesh)
+        {
+            pausedAgent = agent;
+            navWasStopped = agent.isStopped;
+            if (!agent.isStopped)
+            {
+                agent.isStopped = true;
+                navPaused = true;
+            }
+        }
+    }
+
+    private void ResumeMovementIfNeeded()
+    {
+        if (pausedAgent == null) return;
+        if (pausedAgent.enabled && pausedAgent.isOnNavMesh && navPaused)
+        {
+            pausedAgent.isStopped = navWasStopped;
+        }
+        pausedAgent = null;
+        navPaused = false;
+        navWasStopped = false;
+    }
+
+    private void CacheHunterRotation()
+    {
+        if (ownerHunter != null)
+        {
+            originalHunterRotation = ownerHunter.transform.rotation;
+        }
+    }
+
+    private void RestoreHunterRotation()
+    {
+        if (ownerHunter != null && originalHunterRotation != Quaternion.identity)
+        {
+            ownerHunter.transform.rotation = originalHunterRotation;
+        }
+    }
+
+    private void FacePlayer()
+    {
+        if (ownerHunter == null || activePlayer == null) return;
+        var playerCam = activePlayer.GetPlayerCamera();
+        if (playerCam == null) return;
+        Vector3 direction = playerCam.transform.position - ownerHunter.transform.position;
+        direction.y = 0f;
+        if (direction.sqrMagnitude < 0.001f) return;
+        Quaternion desired = Quaternion.LookRotation(direction.normalized, Vector3.up);
+        ownerHunter.transform.rotation = Quaternion.RotateTowards(ownerHunter.transform.rotation, desired, 45f);
+    }
+
+    private void AimAtHunter(PlayerInteraction player)
+    {
+        if (player == null) return;
+        var cam = player.GetPlayerCamera();
+        if (cam == null) return;
+        Vector3 target = ownerHunter != null
+            ? ownerHunter.transform.position + Vector3.up * cameraLookOffset.y
+            : cam.transform.position + cam.transform.forward;
+        Vector3 dir = (target - cam.transform.position).normalized;
+        cam.transform.rotation = Quaternion.LookRotation(dir, Vector3.up);
+    }
+
+    private void SetHealVfxActive(bool value)
+    {
+        if (healVfx != null)
+        {
+            healVfx.SetActive(value);
+        }
+    }
+
 }

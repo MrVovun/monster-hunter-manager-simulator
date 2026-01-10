@@ -32,9 +32,12 @@ public class InvestigationManager : MonoBehaviour
     private System.Action<InvestigationQuestion> hunterQuestionCallback;
     private System.Action hunterCloseCallback;
     private Hunter currentHunter;
+    private string hunterGreetingOverride = "...";
     private Vector3 dialogueCameraBasePosition;
     private Quaternion dialogueCameraBaseRotation;
     private bool dialogueCameraBaseCached;
+    public bool IsHunterDialogueActive => hunterDialogueActive;
+    private System.Action<InvestigationQuestion, string> hunterResponseFinishedCallback;
 
     public InvestigationCase CurrentCase { get; private set; }
     public Order CurrentOrder { get; private set; }
@@ -478,7 +481,7 @@ public class InvestigationManager : MonoBehaviour
         CompleteInvestigation();
     }
 
-    public void BeginHunterDialogue(List<InvestigationQuestion> questions, Dictionary<string, string> answers, Hunter hunter, Camera overrideCamera, float transitionDuration, System.Action<InvestigationQuestion> onQuestionSelected, System.Action onClosed)
+    public void BeginHunterDialogue(List<InvestigationQuestion> questions, Dictionary<string, string> answers, Hunter hunter, Camera overrideCamera, float transitionDuration, System.Action<InvestigationQuestion> onQuestionSelected, System.Action onClosed, bool useDialogueCamera = true, System.Action<InvestigationQuestion, string> onResponseFinished = null)
     {
         hunterDialogueActive = true;
         hunterQuestions = questions != null ? new List<InvestigationQuestion>(questions) : new List<InvestigationQuestion>();
@@ -492,7 +495,11 @@ public class InvestigationManager : MonoBehaviour
         }
         hunterQuestionCallback = onQuestionSelected;
         hunterCloseCallback = onClosed;
+        hunterResponseFinishedCallback = onResponseFinished;
         currentHunter = hunter;
+        hunterGreetingOverride = hunter != null && hunter.Data != null && !string.IsNullOrWhiteSpace(hunter.Data.greeting)
+            ? hunter.Data.greeting
+            : "...";
 
         // Create a dummy case to satisfy UI
         CurrentCase = new InvestigationCase();
@@ -502,7 +509,28 @@ public class InvestigationManager : MonoBehaviour
             dialogueCamera = overrideCamera;
         }
 
-        ToggleDialogueCamera(true, lastPlayerCamera != null ? lastPlayerCamera : (playerInteraction != null ? playerInteraction.GetPlayerCamera() : Camera.main));
+        if (useDialogueCamera)
+        {
+            if (currentHunter != null)
+            {
+                Vector3 forward = currentHunter.transform.forward;
+                Vector3 targetPos = currentHunter.transform.position - forward * 1.8f + Vector3.up * 1.6f;
+                Vector3 lookTarget = currentHunter.transform.position + Vector3.up * 1.5f;
+                Quaternion targetRot = Quaternion.LookRotation((lookTarget - targetPos).normalized, Vector3.up);
+                SetDialogueCameraHome(targetPos, targetRot);
+            }
+
+            ToggleDialogueCamera(true, lastPlayerCamera != null ? lastPlayerCamera : (playerInteraction != null ? playerInteraction.GetPlayerCamera() : Camera.main));
+        }
+        else
+        {
+            // Do not toggle cameras when using player view; just cache the last player camera.
+            var playerCam = lastPlayerCamera != null ? lastPlayerCamera : (playerInteraction != null ? playerInteraction.GetPlayerCamera() : Camera.main);
+            if (playerCam != null)
+            {
+                lastPlayerCamera = playerCam;
+            }
+        }
         if (dialogueUI == null)
         {
             dialogueUI = FindObjectOfType<InvestigationDialogueUI>(true);
@@ -542,8 +570,23 @@ public class InvestigationManager : MonoBehaviour
         var closeCb = hunterCloseCallback;
         hunterCloseCallback = null;
         closeCb?.Invoke();
+        if (dialogueUI != null)
+        {
+            dialogueUI.Close(invokeCallback: false);
+        }
         ToggleDialogueCamera(false, lastPlayerCamera != null ? lastPlayerCamera : (playerInteraction != null ? playerInteraction.GetPlayerCamera() : Camera.main));
         RestoreDialogueCameraHome();
+    }
+
+    public void HandleResponsePlaybackFinished(InvestigationQuestion question, string responseText)
+    {
+        if (!hunterDialogueActive || question == null) return;
+        hunterResponseFinishedCallback?.Invoke(question, responseText);
+    }
+
+    public string GetHunterGreeting()
+    {
+        return hunterGreetingOverride;
     }
     public void ShowBestiaryFree(System.Action onClosed = null)
     {
@@ -612,6 +655,10 @@ public class InvestigationManager : MonoBehaviour
     public void ToggleDialogueCamera(bool activate, Camera playerCamera)
     {
         if (dialogueCamera == null) return;
+        if (!activate && !dialogueCamera.gameObject.activeSelf)
+        {
+            return;
+        }
         if (playerCamera != null)
         {
             lastPlayerCamera = playerCamera;
@@ -714,6 +761,44 @@ public class InvestigationManager : MonoBehaviour
     public Camera GetDialogueCamera()
     {
         return dialogueCamera;
+    }
+
+    public void HideDialogueUI()
+    {
+        if (dialogueUI != null)
+        {
+            dialogueUI.Close();
+        }
+    }
+
+    public void HideDialoguePanel()
+    {
+        if (dialogueUI == null)
+        {
+            dialogueUI = FindObjectOfType<InvestigationDialogueUI>(true);
+        }
+        if (dialogueUI != null)
+        {
+            dialogueUI.HidePanel();
+        }
+    }
+
+    public void ShowDialogueResponse(string text, bool refreshQuestions = true)
+    {
+        if (dialogueUI == null)
+        {
+            dialogueUI = FindObjectOfType<InvestigationDialogueUI>(true);
+        }
+        if (dialogueUI != null)
+        {
+            dialogueUI.ShowPanelWithResponse(text, refreshQuestions);
+        }
+    }
+
+    public void RemoveHunterQuestion(string questionId)
+    {
+        if (!hunterDialogueActive || string.IsNullOrEmpty(questionId)) return;
+        hunterQuestions.RemoveAll(q => q != null && string.Equals(q.questionId, questionId, StringComparison.OrdinalIgnoreCase));
     }
 
     public BestiaryUI GetBestiaryUI()

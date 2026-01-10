@@ -28,6 +28,9 @@ public class InvestigationDialogueUI : MonoBehaviour
     private bool waitingForResponse;
     private bool awaitingTypewriterCompletion;
 
+    private InvestigationQuestion lastQuestion;
+    private string lastResponse;
+
     private void Awake()
     {
         SetActive(false);
@@ -39,6 +42,10 @@ public class InvestigationDialogueUI : MonoBehaviour
 
     private string GetClientOpeningLine()
     {
+        if (currentManager != null && currentManager.IsHunterDialogueActive)
+        {
+            return currentManager.GetHunterGreeting();
+        }
         var order = currentManager != null ? currentManager.CurrentOrder : null;
         if (order == null)
         {
@@ -65,10 +72,12 @@ public class InvestigationDialogueUI : MonoBehaviour
     private void HookButtons()
     {
         var viewButton = viewOrderButton != null ? viewOrderButton : acceptButton;
+        bool hunterDialogue = currentManager != null && currentManager.IsHunterDialogueActive;
         if (viewButton != null)
         {
             viewButton.onClick.RemoveAllListeners();
             viewButton.onClick.AddListener(HandleViewOrder);
+            viewButton.gameObject.SetActive(!hunterDialogue);
         }
 
         if (declineButton != null)
@@ -79,6 +88,12 @@ public class InvestigationDialogueUI : MonoBehaviour
                 currentManager?.CompleteInvestigation();
                 Close();
             });
+            declineButton.gameObject.SetActive(!hunterDialogue);
+        }
+
+        if (acceptButton != null)
+        {
+            acceptButton.gameObject.SetActive(!hunterDialogue);
         }
     }
 
@@ -171,6 +186,8 @@ public class InvestigationDialogueUI : MonoBehaviour
         }
 
         string response = currentManager.ResolveQuestion(question);
+        lastQuestion = question;
+        lastResponse = response;
         if (string.IsNullOrWhiteSpace(response))
         {
             response = "...";
@@ -219,7 +236,7 @@ public class InvestigationDialogueUI : MonoBehaviour
         CaptureCursor();
     }
 
-    public void Close()
+    public void Close(bool invokeCallback = true)
     {
         SetActive(false);
         ReleaseCursor();
@@ -230,11 +247,74 @@ public class InvestigationDialogueUI : MonoBehaviour
         }
         waitingForResponse = false;
         awaitingTypewriterCompletion = false;
+        if (responseTypewriter != null)
+        {
+            responseTypewriter.StopShowingText();
+        }
         SetQuestionsInteractable(true);
-        onClose?.Invoke();
+        if (invokeCallback)
+        {
+            onClose?.Invoke();
+        }
         onClose = null;
         currentManager = null;
         currentCase = null;
+        lastQuestion = null;
+        lastResponse = null;
+    }
+
+    public void ReopenWithResponse(string text)
+    {
+        Reopen();
+        if (responseTypewriter != null)
+        {
+            responseTypewriter.StopShowingText();
+        }
+        if (responseFallbackText != null)
+        {
+            responseFallbackText.text = string.IsNullOrWhiteSpace(text) ? "..." : text;
+        }
+    }
+
+    public void HidePanel()
+    {
+        if (rootPanel != null)
+        {
+            rootPanel.SetActive(false);
+        }
+        else
+        {
+            gameObject.SetActive(false);
+        }
+    }
+
+    public void ShowPanelWithResponse(string text, bool refreshQuestions = true)
+    {
+        if (refreshQuestions)
+        {
+            RefreshQuestions();
+        }
+        if (rootPanel != null)
+        {
+            rootPanel.SetActive(true);
+        }
+        else
+        {
+            gameObject.SetActive(true);
+        }
+
+        CaptureCursor();
+        waitingForResponse = false;
+        awaitingTypewriterCompletion = false;
+        if (responseTypewriter != null)
+        {
+            responseTypewriter.StopShowingText();
+        }
+        if (responseFallbackText != null)
+        {
+            responseFallbackText.text = string.IsNullOrWhiteSpace(text) ? "..." : text;
+        }
+        SetQuestionsInteractable(true);
     }
 
     private void SetActive(bool value)
@@ -294,6 +374,10 @@ public class InvestigationDialogueUI : MonoBehaviour
 
         waitingForResponse = false;
         SetQuestionsInteractable(true);
+        if (currentManager != null && lastQuestion != null)
+        {
+            currentManager.HandleResponsePlaybackFinished(lastQuestion, lastResponse);
+        }
     }
 
     private class QuestionEntry
