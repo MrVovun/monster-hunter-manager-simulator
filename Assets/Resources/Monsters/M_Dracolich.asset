@@ -13,14 +13,34 @@ MonoBehaviour:
   m_Name: M_Dracolich
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: 2764b94d3f694bfd96b8491c636d6af0
-  displayName: 
-  portrait: {fileID: 0}
-  description: 
-  requiredReputation: 0
-  minimumDifficulty: 0
-  possibleTraits: []
+  displayName: Dracolich
+  portrait: {fileID: 21300000, guid: 1d639387a517c444f9cd0a24b74ac8a4, type: 3}
+  description: Dracoliches are undeads, sometimes mistaken for dragonkin, massive
+    like dragons but reduced to bone and tattered hide, with a skeletal tail and
+    great skeletal wings that still carry them aloft with necromantic magic. On the
+    ground they move with a slow, deliberate draconic stride, more inexorable than
+    agile. They are hauntingly silent - no living roar, just the whistle of wind
+    through bones and the grinding of ancient joints.
+  requiredReputation: 1
+  minimumDifficulty: 170
+  possibleTraits:
+  - {fileID: 11400000, guid: 6af8b3bbb8f5f8d4fbdb3a6057fd4b86, type: 2}
+  - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
+  - {fileID: 11400000, guid: f149ed5426264cb4db6fac2830e77841, type: 2}
   traitCountRange: {x: 0, y: 3}
-  evidenceTags: []
+  evidenceTags:
+  - categoryName: family
+    valueName: undead
+  - categoryName: size
+    valueName: large
+  - categoryName: sound
+    valueName: silent
+  - categoryName: tail
+    valueName: hasTail
+  - categoryName: winged
+    valueName: twoWings
+  - categoryName: movement
+    valueName: normal
   questionResponses: []
   weight: 1
   trophyHeadPrefab: {fileID: 0}

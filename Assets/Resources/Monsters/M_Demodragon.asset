@@ -13,14 +13,33 @@ MonoBehaviour:
   m_Name: M_Demodragon
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: a3781f9d5aad44cf8ea1713fbca65fba
-  displayName: 
-  portrait: {fileID: 0}
-  description: 
-  requiredReputation: 0
-  minimumDifficulty: 0
-  possibleTraits: []
+  displayName: Demodragon
+  portrait: {fileID: 21300000, guid: 47827c5ad4d96a147b5a46001b3e9538, type: 3}
+  description: Demodragons are colossal demons, sometimes mistaken for dragonkin,
+    truly massive creatures combining draconic bulk with infernal corruption. They
+    have a thick, bladed tail and two vast, tattered wings, and move with a heavy,
+    but still sure-footed gait before launching themselves skyward. Their presence
+    is heralded by unearthly roars that carry both dragon fury and demonic resonance.
+  requiredReputation: 1
+  minimumDifficulty: 170
+  possibleTraits:
+  - {fileID: 11400000, guid: 6af8b3bbb8f5f8d4fbdb3a6057fd4b86, type: 2}
+  - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
+  - {fileID: 11400000, guid: f149ed5426264cb4db6fac2830e77841, type: 2}
   traitCountRange: {x: 0, y: 3}
-  evidenceTags: []
+  evidenceTags:
+  - categoryName: family
+    valueName: demon
+  - categoryName: size
+    valueName: large
+  - categoryName: sound
+    valueName: roar
+  - categoryName: tail
+    valueName: hasTail
+  - categoryName: winged
+    valueName: twoWings
+  - categoryName: movement
+    valueName: normal
   questionResponses: []
   weight: 1
   trophyHeadPrefab: {fileID: 0}

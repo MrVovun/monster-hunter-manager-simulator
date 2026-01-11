@@ -13,14 +13,33 @@ MonoBehaviour:
   m_Name: M_Centaur
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: 66de6746c0664784815556d0570e9920
-  displayName: 
-  portrait: {fileID: 0}
-  description: 
-  requiredReputation: 0
-  minimumDifficulty: 0
-  possibleTraits: []
+  displayName: Centaur
+  portrait: {fileID: 21300000, guid: 621aef7111bff3248abbca6a458f6d2c, type: 3}
+  description: Centaurs are medium-sized hybrids, half human and half horse, with
+    a strong tail and two pairs of hooves. They move fast, able to gallop and circle
+    prey with ease, outrunning most armored hunters. They communicate mostly with
+    animalistic sounds - snorts, stamping, whinnies - though their expressions and
+    gestures can feel unsettlingly intelligent.
+  requiredReputation: 1
+  minimumDifficulty: 90
+  possibleTraits:
+  - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
+  - {fileID: 11400000, guid: 02041b403a87b234ba630b13fd996c0f, type: 2}
+  - {fileID: 11400000, guid: f149ed5426264cb4db6fac2830e77841, type: 2}
   traitCountRange: {x: 0, y: 3}
-  evidenceTags: []
+  evidenceTags:
+  - categoryName: family
+    valueName: hybrid
+  - categoryName: size
+    valueName: medium
+  - categoryName: sound
+    valueName: animalistic
+  - categoryName: tail
+    valueName: hasTail
+  - categoryName: winged
+    valueName: noWings
+  - categoryName: movement
+    valueName: fast
   questionResponses: []
   weight: 1
   trophyHeadPrefab: {fileID: 0}

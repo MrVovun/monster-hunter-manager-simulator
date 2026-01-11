@@ -13,14 +13,34 @@ MonoBehaviour:
   m_Name: M_WildElf
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: a443b3ed1f354fd693d682cb6418e115
-  displayName: 
-  portrait: {fileID: 0}
-  description: 
-  requiredReputation: 0
-  minimumDifficulty: 0
-  possibleTraits: []
+  displayName: Wild Elf
+  portrait: {fileID: 21300000, guid: 5a919da52303321438b0a5d1ea00c379, type: 3}
+  description: Wild elves are lithe, medium-sized fae-touched humanoids, roughly
+    human height. They move with exceptional grace and fast, quiet steps through
+    forests and ruins, often faster than most armored warriors can keep up. Their
+    voices are clear speech, though their accent and choice of words often feel otherworldly
+    or old.
+  requiredReputation: 1
+  minimumDifficulty: 90
+  possibleTraits:
+  - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
+  - {fileID: 11400000, guid: 02041b403a87b234ba630b13fd996c0f, type: 2}
+  - {fileID: 11400000, guid: f149ed5426264cb4db6fac2830e77841, type: 2}
+  - {fileID: 11400000, guid: 6af8b3bbb8f5f8d4fbdb3a6057fd4b86, type: 2}
   traitCountRange: {x: 0, y: 3}
-  evidenceTags: []
+  evidenceTags:
+  - categoryName: family
+    valueName: fae
+  - categoryName: size
+    valueName: medium
+  - categoryName: sound
+    valueName: speech
+  - categoryName: tail
+    valueName: noTail
+  - categoryName: winged
+    valueName: noWings
+  - categoryName: movement
+    valueName: fast
   questionResponses: []
   weight: 1
   trophyHeadPrefab: {fileID: 0}

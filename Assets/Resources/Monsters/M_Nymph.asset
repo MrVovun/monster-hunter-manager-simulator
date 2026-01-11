@@ -13,14 +13,32 @@ MonoBehaviour:
   m_Name: M_Nymph
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: 3264dab9cc234878bb96d6299e0fbf32
-  displayName: 
-  portrait: {fileID: 0}
-  description: 
-  requiredReputation: 0
-  minimumDifficulty: 0
-  possibleTraits: []
+  displayName: Nymph
+  portrait: {fileID: 21300000, guid: 613d37b9f0ae45d419768d094cfa7d91, type: 3}
+  description: Nymphs are medium-sized fae, human-like in form and height, graceful
+    and unsettlingly beautiful. They move at a calm pace that feels more like drifting
+    than walking. They speak with soft, mesmerizing speech, often coaxing, bargaining,
+    or luring with carefully chosen words.
+  requiredReputation: 1
+  minimumDifficulty: 60
+  possibleTraits:
+  - {fileID: 11400000, guid: 6af8b3bbb8f5f8d4fbdb3a6057fd4b86, type: 2}
+  - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
+  - {fileID: 11400000, guid: 02041b403a87b234ba630b13fd996c0f, type: 2}
   traitCountRange: {x: 0, y: 3}
-  evidenceTags: []
+  evidenceTags:
+  - categoryName: family
+    valueName: fae
+  - categoryName: size
+    valueName: medium
+  - categoryName: sound
+    valueName: speech
+  - categoryName: tail
+    valueName: noTail
+  - categoryName: winged
+    valueName: noWings
+  - categoryName: movement
+    valueName: normal
   questionResponses: []
   weight: 1
   trophyHeadPrefab: {fileID: 0}

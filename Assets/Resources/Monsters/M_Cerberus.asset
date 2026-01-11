@@ -13,14 +13,34 @@ MonoBehaviour:
   m_Name: M_Cerberus
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: f94f2098d93149d49191b1ab145e573e
-  displayName: 
-  portrait: {fileID: 0}
-  description: 
-  requiredReputation: 0
-  minimumDifficulty: 0
-  possibleTraits: []
+  displayName: Cerberus
+  portrait: {fileID: 21300000, guid: 24fd00da0cc416b4c9162d83f11598ca, type: 3}
+  description: "Cerberus is a medium-sized demonic beast, roughly the size of a large
+    wolf or small bear, with a thick, whipping tail and three heads. It moves at
+    a steady pace, closing in like a hunter that never tires rather than a sprinter.
+    It does not speak - its sounds are purely animalistic: deep snarls, guttural
+    growls, and chorus-like barking that feels more like a warning from the underworld
+    than a natural animal\u2019s voice."
+  requiredReputation: 1
+  minimumDifficulty: 60
+  possibleTraits:
+  - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
+  - {fileID: 11400000, guid: 02041b403a87b234ba630b13fd996c0f, type: 2}
+  - {fileID: 11400000, guid: f149ed5426264cb4db6fac2830e77841, type: 2}
   traitCountRange: {x: 0, y: 3}
-  evidenceTags: []
+  evidenceTags:
+  - categoryName: family
+    valueName: demon
+  - categoryName: size
+    valueName: medium
+  - categoryName: sound
+    valueName: animalistic
+  - categoryName: tail
+    valueName: hasTail
+  - categoryName: winged
+    valueName: noWings
+  - categoryName: movement
+    valueName: normal
   questionResponses: []
   weight: 1
   trophyHeadPrefab: {fileID: 0}

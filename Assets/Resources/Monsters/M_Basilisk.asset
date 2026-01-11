@@ -13,14 +13,34 @@ MonoBehaviour:
   m_Name: M_Basilisk
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: bcf535c1416f45158219f0232d5b7365
-  displayName: 
-  portrait: {fileID: 0}
-  description: 
-  requiredReputation: 0
-  minimumDifficulty: 0
-  possibleTraits: []
+  displayName: Basilisk
+  portrait: {fileID: 21300000, guid: 57d420da852622440994524d0fcdf324, type: 3}
+  description: A basilisk is a large hybrid reptile, heavy-bodied with a powerful
+    tail, resembling a dragonkin. Despite its bulk, it moves fast, darting forward
+    with sudden, predatory lunges. It makes only animalistic noises - hisses, rattling
+    breaths, and deep reptilian growls, though its stare often feels deliberate and
+    calculating.
+  requiredReputation: 1
+  minimumDifficulty: 110
+  possibleTraits:
+  - {fileID: 11400000, guid: 6af8b3bbb8f5f8d4fbdb3a6057fd4b86, type: 2}
+  - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
+  - {fileID: 11400000, guid: 02041b403a87b234ba630b13fd996c0f, type: 2}
+  - {fileID: 11400000, guid: f149ed5426264cb4db6fac2830e77841, type: 2}
   traitCountRange: {x: 0, y: 3}
-  evidenceTags: []
+  evidenceTags:
+  - categoryName: family
+    valueName: hybrid
+  - categoryName: size
+    valueName: large
+  - categoryName: sound
+    valueName: animalistic
+  - categoryName: tail
+    valueName: hasTail
+  - categoryName: winged
+    valueName: noWings
+  - categoryName: movement
+    valueName: fast
   questionResponses: []
   weight: 1
   trophyHeadPrefab: {fileID: 0}

@@ -13,14 +13,33 @@ MonoBehaviour:
   m_Name: M_Devil
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: 05c75fd924aa4b10b20e94843817b32e
-  displayName: 
-  portrait: {fileID: 0}
-  description: 
-  requiredReputation: 0
-  minimumDifficulty: 0
-  possibleTraits: []
+  displayName: Devil
+  portrait: {fileID: 21300000, guid: 4de22c6d0fdc7c9408b43c96d2f72bd0, type: 3}
+  description: Devils are disciplined demons of medium size, often armored or sharply
+    dressed, with barbed tails and a pair of imposing wings folded neatly behind
+    them. They move with controlled, purposeful steps, taking flight when it suits
+    them but not fidgeting like imps. Their voices are clear, commanding speech,
+    used for contracts, orders, and chillingly polite threats.
+  requiredReputation: 1
+  minimumDifficulty: 120
+  possibleTraits:
+  - {fileID: 11400000, guid: 6af8b3bbb8f5f8d4fbdb3a6057fd4b86, type: 2}
+  - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
+  - {fileID: 11400000, guid: f149ed5426264cb4db6fac2830e77841, type: 2}
   traitCountRange: {x: 0, y: 3}
-  evidenceTags: []
+  evidenceTags:
+  - categoryName: family
+    valueName: demon
+  - categoryName: size
+    valueName: medium
+  - categoryName: sound
+    valueName: speech
+  - categoryName: tail
+    valueName: hasTail
+  - categoryName: winged
+    valueName: twoWings
+  - categoryName: movement
+    valueName: normal
   questionResponses: []
   weight: 1
   trophyHeadPrefab: {fileID: 0}

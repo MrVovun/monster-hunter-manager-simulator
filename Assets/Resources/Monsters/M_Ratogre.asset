@@ -13,14 +13,33 @@ MonoBehaviour:
   m_Name: M_Ratogre
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: 95b8de444b204220a5c211a2a353959a
-  displayName: 
-  portrait: {fileID: 0}
-  description: 
-  requiredReputation: 0
-  minimumDifficulty: 0
-  possibleTraits: []
+  displayName: Ratogre
+  portrait: {fileID: 21300000, guid: a9a07b2a73d45f5448054ef5ebee9e6e, type: 3}
+  description: Ratogres are hulking ratkin brutes, ogre-sized monsters with swollen,
+    muscular frames and thick tails dragging behind them. They move with a slow,
+    ponderous gait, though when enraged they can surge forward in short bursts. Their
+    throats produce deep, bestial roars rather than articulate words, more beast
+    than thinking creature.
+  requiredReputation: 1
+  minimumDifficulty: 80
+  possibleTraits:
+  - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
+  - {fileID: 11400000, guid: 02041b403a87b234ba630b13fd996c0f, type: 2}
+  - {fileID: 11400000, guid: f149ed5426264cb4db6fac2830e77841, type: 2}
   traitCountRange: {x: 0, y: 3}
-  evidenceTags: []
+  evidenceTags:
+  - categoryName: family
+    valueName: ratkin
+  - categoryName: size
+    valueName: large
+  - categoryName: sound
+    valueName: roar
+  - categoryName: tail
+    valueName: hasTail
+  - categoryName: winged
+    valueName: noWings
+  - categoryName: movement
+    valueName: slow
   questionResponses: []
   weight: 1
   trophyHeadPrefab: {fileID: 0}

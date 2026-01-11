@@ -13,14 +13,32 @@ MonoBehaviour:
   m_Name: M_Satyr
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: 855ff2c33cf7404f952908ce0adfa98f
-  displayName: 
-  portrait: {fileID: 0}
-  description: 
-  requiredReputation: 0
-  minimumDifficulty: 0
-  possibleTraits: []
+  displayName: Satyr
+  portrait: {fileID: 21300000, guid: 4dd08b0a083995f4b985dc3f1b3e87e2, type: 3}
+  description: "Satyrs are medium-sized fae with humanoid torsos and bestial lower
+    bodies, marked by a clear tail and a restless stance. They move fast, bounding
+    with energetic, springy steps. They don\u2019t speak clearly in words; their
+    sounds are animalistic - laughs, bleats, snorts, and wild whoops - like a party
+    that turned feral."
+  requiredReputation: 1
+  minimumDifficulty: 60
+  possibleTraits:
+  - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
+  - {fileID: 11400000, guid: 02041b403a87b234ba630b13fd996c0f, type: 2}
   traitCountRange: {x: 0, y: 3}
-  evidenceTags: []
+  evidenceTags:
+  - categoryName: family
+    valueName: fae
+  - categoryName: size
+    valueName: medium
+  - categoryName: sound
+    valueName: animalistic
+  - categoryName: tail
+    valueName: hasTail
+  - categoryName: winged
+    valueName: noWings
+  - categoryName: movement
+    valueName: fast
   questionResponses: []
   weight: 1
   trophyHeadPrefab: {fileID: 0}

@@ -13,14 +13,32 @@ MonoBehaviour:
   m_Name: M_Unicorn
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: b629816946704a60953f8d08b4943ed3
-  displayName: 
-  portrait: {fileID: 0}
-  description: 
-  requiredReputation: 0
-  minimumDifficulty: 0
-  possibleTraits: []
+  displayName: Unicorn
+  portrait: {fileID: 21300000, guid: 5abfd3d50c753e54eacbff8842eca99f, type: 3}
+  description: Unicorns are noble fae beasts of medium size, roughly the size of
+    a large horse, with a flowing mane and a long tail ending in a tuft of hair.
+    They have no wings, but gallop with smooth, four-legged movement. They do not
+    speak in words; instead they produce soft animalistic sounds - snorts, whinnies,
+    and quiet neighs - though many claim their meaning can be felt in the mind.
+  requiredReputation: 1
+  minimumDifficulty: 120
+  possibleTraits:
+  - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
+  - {fileID: 11400000, guid: 02041b403a87b234ba630b13fd996c0f, type: 2}
   traitCountRange: {x: 0, y: 3}
-  evidenceTags: []
+  evidenceTags:
+  - categoryName: family
+    valueName: fae
+  - categoryName: size
+    valueName: medium
+  - categoryName: sound
+    valueName: animalistic
+  - categoryName: tail
+    valueName: hasTail
+  - categoryName: winged
+    valueName: noWings
+  - categoryName: movement
+    valueName: normal
   questionResponses: []
   weight: 1
   trophyHeadPrefab: {fileID: 0}

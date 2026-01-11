@@ -13,14 +13,31 @@ MonoBehaviour:
   m_Name: M_Dryad
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: 5bdd416e1a8b43eab593150f39c0e08b
-  displayName: 
-  portrait: {fileID: 0}
-  description: 
-  requiredReputation: 0
-  minimumDifficulty: 0
-  possibleTraits: []
+  displayName: Dryad
+  portrait: {fileID: 21300000, guid: 4becec01ffc9aab4e9844ecd608c2cca, type: 3}
+  description: A dryad is a medium-sized fae bound to the wild - tall as a person,
+    with bark-like skin and leaf-shadowed hair. It moves with a measured stride,
+    never hurried. Dryads are silent - they do not speak aloud - communicating only
+    through presence, gesture, and the sudden stillness of the woods around them.
+  requiredReputation: 1
+  minimumDifficulty: 60
+  possibleTraits:
+  - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
+  - {fileID: 11400000, guid: 02041b403a87b234ba630b13fd996c0f, type: 2}
   traitCountRange: {x: 0, y: 3}
-  evidenceTags: []
+  evidenceTags:
+  - categoryName: family
+    valueName: fae
+  - categoryName: size
+    valueName: medium
+  - categoryName: sound
+    valueName: silent
+  - categoryName: tail
+    valueName: noTail
+  - categoryName: winged
+    valueName: noWings
+  - categoryName: movement
+    valueName: normal
   questionResponses: []
   weight: 1
   trophyHeadPrefab: {fileID: 0}

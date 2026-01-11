@@ -13,14 +13,32 @@ MonoBehaviour:
   m_Name: M_Kelpie
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: 2d1f8c5a67524e54bbad1f6bd66f9006
-  displayName: 
-  portrait: {fileID: 0}
-  description: 
-  requiredReputation: 0
-  minimumDifficulty: 0
-  possibleTraits: []
+  displayName: Kelpie
+  portrait: {fileID: 21300000, guid: 5bf1b02cc8e772d498d73d7e7f014351, type: 3}
+  description: Kelpies are medium-sized fae beasts, shaped like sleek, predatory
+    horses with a whipping fishy tail. They are fast, galloping with sudden surges
+    that feel almost unnatural, especially near water. They make only animalistic
+    sounds - snorts, shrill neighs, and wet, hungry breathing - like a horse imitating
+    a predator.
+  requiredReputation: 1
+  minimumDifficulty: 120
+  possibleTraits:
+  - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
+  - {fileID: 11400000, guid: 02041b403a87b234ba630b13fd996c0f, type: 2}
   traitCountRange: {x: 0, y: 3}
-  evidenceTags: []
+  evidenceTags:
+  - categoryName: family
+    valueName: fae
+  - categoryName: size
+    valueName: medium
+  - categoryName: sound
+    valueName: animalistic
+  - categoryName: tail
+    valueName: hasTail
+  - categoryName: winged
+    valueName: noWings
+  - categoryName: movement
+    valueName: fast
   questionResponses: []
   weight: 1
   trophyHeadPrefab: {fileID: 0}
