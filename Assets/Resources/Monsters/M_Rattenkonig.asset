@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7003a09dfdd9dd498e3ab35a5abe032, type: 3}
+  m_Name: M_Rattenkonig
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterData
+  monsterId: 87207ed72c3e4320a888f00aa6d3d079
+  displayName: "Rattenk\xF6nig"
+  portrait: {fileID: 21300000, guid: 36c68274b898f6d45a1236c85ff910af, type: 3}
+  description: "The Rattenk\xF6nig is a monstrous avatar of a ratkin god - large,
+    regal, and unmistakably unnatural - with a long tail and four angelic wings,
+    creating a false celestial image and allowing sudden bursts of movement. Though
+    a similar in size to a ratogre, this creature is unnaturally fast, darting and
+    leaping with terrifying agility for its size. It does not speak, sicne their
+    magical nature allows them to communicate telepathically to the whole hive."
+  requiredReputation: 1
+  minimumDifficulty: 200
+  possibleTraits:
+  - {fileID: 11400000, guid: 6af8b3bbb8f5f8d4fbdb3a6057fd4b86, type: 2}
+  - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
+  - {fileID: 11400000, guid: f149ed5426264cb4db6fac2830e77841, type: 2}
+  traitCountRange: {x: 0, y: 3}
+  evidenceTags:
+  - categoryName: family
+    valueName: ratkin
+  - categoryName: size
+    valueName: large
+  - categoryName: sound
+    valueName: silent
+  - categoryName: tail
+    valueName: hasTail
+  - categoryName: winged
+    valueName: fourWings
+  - categoryName: movement
+    valueName: fast
+  questionResponses: []
+  weight: 1
+  trophyHeadPrefab: {fileID: 0}
+  trophyScale: 1
