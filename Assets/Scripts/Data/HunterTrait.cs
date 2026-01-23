@@ -18,6 +18,9 @@ public Sprite icon;
     [Header("Bonus Effects")]
     public List<BonusEffect> bonusEffects = new List<BonusEffect>();
 
+    [Header("Mission Effects")]
+    public List<MonsterTrait.MissionEffect> missionEffects = new List<MonsterTrait.MissionEffect>();
+
     [Header("Counters")]
     [Tooltip("Monster traits this hunter trait counters (e.g., FireDamage, Flying).")]
     public List<MonsterTrait> counters = new List<MonsterTrait>();
@@ -62,7 +65,8 @@ public Sprite icon;
         PreventDeath = 2,
         BonusSuccessXP = 3,
         ModifyInjuryChanceMultiplier = 4,
-        ModifyDeathChanceMultiplier = 5
+        ModifyDeathChanceMultiplier = 5,
+        MinSuccessPercent = 6
     }
 
     public enum TraitStackingMode

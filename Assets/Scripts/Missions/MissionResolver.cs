@@ -27,7 +27,7 @@ public class MissionResolver : MonoBehaviour
         if (report.success)
         {
             report.goldEarned = order.goldReward;
-            report.reputationGained = Mathf.Max(0f, order.reputationReward);
+            report.reputationGained = Mathf.Max(0f, order.reputationPointsReward);
         }
         else
         {

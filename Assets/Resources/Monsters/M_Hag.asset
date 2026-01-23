@@ -19,13 +19,14 @@ MonoBehaviour:
     human height. They move with a crooked, crippled walking gait, sometimes limping,
     but capable of surprising bursts of speed when provoked. Their voices are rasping,
     spiteful speech, full of curses, bargains, and mocking laughter.
-  requiredReputation: 1
+  requiredReputation: 5
   minimumDifficulty: 130
   possibleTraits:
   - {fileID: 11400000, guid: 6af8b3bbb8f5f8d4fbdb3a6057fd4b86, type: 2}
   - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
   - {fileID: 11400000, guid: f149ed5426264cb4db6fac2830e77841, type: 2}
   - {fileID: 11400000, guid: 02041b403a87b234ba630b13fd996c0f, type: 2}
+  - {fileID: 11400000, guid: 1baf58fa8f43050499b86fd6d8886381, type: 2}
   traitCountRange: {x: 0, y: 3}
   evidenceTags:
   - categoryName: family
@@ -40,7 +41,25 @@ MonoBehaviour:
     valueName: noWings
   - categoryName: movement
     valueName: slow
-  questionResponses: []
+  questionResponses:
+  - question: {fileID: 11400000, guid: 138b37c003abe654ab951864f1f191f4, type: 2}
+    tagIndex: 0
+    responseText: It was a creature from the fairy tales!
+  - question: {fileID: 11400000, guid: 88be2b18d86528f459bb4d4d5a2e53bd, type: 2}
+    tagIndex: 1
+    responseText: Like a regular human.
+  - question: {fileID: 11400000, guid: 7052173e211d8fd4e8ab035dc4d434b2, type: 2}
+    tagIndex: 2
+    responseText: It swore and bragged in our language.
+  - question: {fileID: 11400000, guid: 7b7c77071c297ff46a62a80d5d33bb78, type: 2}
+    tagIndex: 3
+    responseText: Nope, no tail.
+  - question: {fileID: 11400000, guid: e301b93ebccd4d544ac650ee3653046d, type: 2}
+    tagIndex: 4
+    responseText: No wings.
+  - question: {fileID: 11400000, guid: ac95fca6036908f4e82a3a5014cb5c38, type: 2}
+    tagIndex: 5
+    responseText: Normal, a bit shaky, like a drunkard.
   weight: 1
   trophyHeadPrefab: {fileID: 0}
   trophyScale: 1

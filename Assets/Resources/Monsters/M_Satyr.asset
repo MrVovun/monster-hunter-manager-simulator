@@ -15,16 +15,16 @@ MonoBehaviour:
   monsterId: 855ff2c33cf7404f952908ce0adfa98f
   displayName: Satyr
   portrait: {fileID: 21300000, guid: 4dd08b0a083995f4b985dc3f1b3e87e2, type: 3}
-  description: "Satyrs are medium-sized fae with humanoid torsos and bestial lower
+  description: Satyrs are medium-sized fae with humanoid torsos and bestial lower
     bodies, marked by a clear tail and a restless stance. They move fast, bounding
-    with energetic, springy steps. They don\u2019t speak clearly in words; their
-    sounds are animalistic - laughs, bleats, snorts, and wild whoops - like a party
-    that turned feral."
-  requiredReputation: 1
+    with energetic, springy steps. They speak clearly in a human language, although
+    sometimes their speech abrupts with goat-like sounds.
+  requiredReputation: 2
   minimumDifficulty: 60
   possibleTraits:
   - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
   - {fileID: 11400000, guid: 02041b403a87b234ba630b13fd996c0f, type: 2}
+  - {fileID: 11400000, guid: 1baf58fa8f43050499b86fd6d8886381, type: 2}
   traitCountRange: {x: 0, y: 3}
   evidenceTags:
   - categoryName: family
@@ -32,14 +32,32 @@ MonoBehaviour:
   - categoryName: size
     valueName: medium
   - categoryName: sound
-    valueName: animalistic
+    valueName: speech
   - categoryName: tail
     valueName: hasTail
   - categoryName: winged
     valueName: noWings
   - categoryName: movement
     valueName: fast
-  questionResponses: []
+  questionResponses:
+  - question: {fileID: 0}
+    tagIndex: 0
+    responseText: It was a creature from the fairy tales!
+  - question: {fileID: 11400000, guid: 88be2b18d86528f459bb4d4d5a2e53bd, type: 2}
+    tagIndex: 1
+    responseText: Like a regular human.
+  - question: {fileID: 11400000, guid: 7052173e211d8fd4e8ab035dc4d434b2, type: 2}
+    tagIndex: 2
+    responseText: It swore and bragged in our language.
+  - question: {fileID: 11400000, guid: 7b7c77071c297ff46a62a80d5d33bb78, type: 2}
+    tagIndex: 3
+    responseText: A small tail, yes!
+  - question: {fileID: 11400000, guid: e301b93ebccd4d544ac650ee3653046d, type: 2}
+    tagIndex: 4
+    responseText: No wings.
+  - question: {fileID: 11400000, guid: ac95fca6036908f4e82a3a5014cb5c38, type: 2}
+    tagIndex: 5
+    responseText: Fast, blink and you'll miss it!
   weight: 1
   trophyHeadPrefab: {fileID: 0}
   trophyScale: 1

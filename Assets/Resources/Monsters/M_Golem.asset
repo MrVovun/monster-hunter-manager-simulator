@@ -19,7 +19,7 @@ MonoBehaviour:
     shaped into a humanoid form. It moves with a heavy, slow march that shakes the
     ground with each step. It is completely silent - no breath, no voice, no growl
     - only the grinding of material and the dull impact of its feet.
-  requiredReputation: 1
+  requiredReputation: 3
   minimumDifficulty: 70
   possibleTraits:
   - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}

@@ -20,7 +20,7 @@ MonoBehaviour:
     heavy reptilian stride, but unlike dragons they have no tail and no wings at
     all. Their voices are deep, bestial roars, more like a maddened bull than an
     intelligent monster.
-  requiredReputation: 1
+  requiredReputation: 4
   minimumDifficulty: 90
   possibleTraits:
   - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}

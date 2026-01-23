@@ -64,6 +64,8 @@ public class GameConfig : ScriptableObject
     public class OrderLimitTier
     {
         public int requiredReputation;
+        [Tooltip("Reputation points required to reach this reputation level.")]
+        public int requiredReputationPoints;
         public int orderLimit = 3;
     }
 

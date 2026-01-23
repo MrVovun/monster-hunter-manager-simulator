@@ -19,7 +19,7 @@ MonoBehaviour:
     missionTimeSeconds: 120
     goldReward: 10
     xpReward: 10
-    reputationReward: 0
+    reputationPointsReward: 0
     weight: 1
   - minReputation: 1
     maxReputation: 1
@@ -27,7 +27,7 @@ MonoBehaviour:
     missionTimeSeconds: 120
     goldReward: 20
     xpReward: 20
-    reputationReward: 0
+    reputationPointsReward: 0
     weight: 1
   - minReputation: 1
     maxReputation: 1
@@ -35,7 +35,7 @@ MonoBehaviour:
     missionTimeSeconds: 120
     goldReward: 30
     xpReward: 30
-    reputationReward: 0
+    reputationPointsReward: 0
     weight: 1
   - minReputation: 1
     maxReputation: 1
@@ -43,7 +43,7 @@ MonoBehaviour:
     missionTimeSeconds: 120
     goldReward: 40
     xpReward: 40
-    reputationReward: 0
+    reputationPointsReward: 0
     weight: 1
   - minReputation: 1
     maxReputation: 1
@@ -51,7 +51,7 @@ MonoBehaviour:
     missionTimeSeconds: 120
     goldReward: 50
     xpReward: 50
-    reputationReward: 0
+    reputationPointsReward: 0
     weight: 1
   - minReputation: 1
     maxReputation: 2
@@ -59,7 +59,7 @@ MonoBehaviour:
     missionTimeSeconds: 120
     goldReward: 60
     xpReward: 60
-    reputationReward: 0
+    reputationPointsReward: 0
     weight: 1
   - minReputation: 1
     maxReputation: 2
@@ -67,7 +67,7 @@ MonoBehaviour:
     missionTimeSeconds: 120
     goldReward: 70
     xpReward: 70
-    reputationReward: 0
+    reputationPointsReward: 0
     weight: 1
   - minReputation: 1
     maxReputation: 2
@@ -75,7 +75,7 @@ MonoBehaviour:
     missionTimeSeconds: 120
     goldReward: 80
     xpReward: 80
-    reputationReward: 0
+    reputationPointsReward: 0
     weight: 1
   - minReputation: 1
     maxReputation: 2
@@ -83,7 +83,7 @@ MonoBehaviour:
     missionTimeSeconds: 120
     goldReward: 90
     xpReward: 90
-    reputationReward: 0
+    reputationPointsReward: 0
     weight: 1
   - minReputation: 0
     maxReputation: 0
@@ -91,7 +91,7 @@ MonoBehaviour:
     missionTimeSeconds: 0
     goldReward: 0
     xpReward: 0
-    reputationReward: 1
+    reputationPointsReward: 1
     weight: 0
   - minReputation: 2
     maxReputation: 2
@@ -99,7 +99,7 @@ MonoBehaviour:
     missionTimeSeconds: 120
     goldReward: 100
     xpReward: 100
-    reputationReward: 0
+    reputationPointsReward: 0
     weight: 1
   - minReputation: 2
     maxReputation: 2
@@ -107,7 +107,7 @@ MonoBehaviour:
     missionTimeSeconds: 120
     goldReward: 110
     xpReward: 110
-    reputationReward: 0
+    reputationPointsReward: 0
     weight: 1
   - minReputation: 2
     maxReputation: 2
@@ -115,7 +115,7 @@ MonoBehaviour:
     missionTimeSeconds: 120
     goldReward: 120
     xpReward: 120
-    reputationReward: 0
+    reputationPointsReward: 0
     weight: 1
   - minReputation: 2
     maxReputation: 2
@@ -123,5 +123,5 @@ MonoBehaviour:
     missionTimeSeconds: 120
     goldReward: 130
     xpReward: 130
-    reputationReward: 0
+    reputationPointsReward: 0
     weight: 1

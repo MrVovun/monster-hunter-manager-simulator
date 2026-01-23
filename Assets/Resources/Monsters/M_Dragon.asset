@@ -20,7 +20,7 @@ MonoBehaviour:
     sides. They move with a heavy but steady four-limbed gait when on the ground,
     then take to the air effortlessly. Their presence is usually announced by a deafening,
     thunderous roar that shakes windows before you ever see them.
-  requiredReputation: 1
+  requiredReputation: 5
   minimumDifficulty: 130
   possibleTraits:
   - {fileID: 11400000, guid: 6af8b3bbb8f5f8d4fbdb3a6057fd4b86, type: 2}

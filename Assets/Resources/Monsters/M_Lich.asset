@@ -20,7 +20,7 @@ MonoBehaviour:
     pace, often more focused on their magic than their physical form. Their voices
     are dry, echoing speech, speaking incantations and commands with eerie clarity
     despite their decayed throats.
-  requiredReputation: 1
+  requiredReputation: 5
   minimumDifficulty: 140
   possibleTraits:
   - {fileID: 11400000, guid: 6af8b3bbb8f5f8d4fbdb3a6057fd4b86, type: 2}

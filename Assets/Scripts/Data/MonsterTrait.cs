@@ -14,8 +14,8 @@ public class MonsterTrait : ScriptableObject
     [TextArea(1, 3)] public string dialogueRevealText;
     [Header("Visuals")]
     public Sprite icon;
-    [Header("Mission Effects")]
-    public List<MissionEffect> missionEffects = new List<MissionEffect>();
+        [Header("Mission Effects")]
+        public List<MissionEffect> missionEffects = new List<MissionEffect>();
 
     private void OnEnable()
     {
@@ -41,18 +41,22 @@ public class MonsterTrait : ScriptableObject
         public MissionEffectType effectType = MissionEffectType.None;
         [Tooltip("For multiplier effects use 1.0 = no change. For additive effects use decimal (0.15 = +15%).")]
         public float value = 1f;
+        [Tooltip("Optional: only applies when this monster is the target (used primarily for hunter traits like Nemesis).")]
+        public MonsterData targetMonster;
     }
 
-    public enum MissionEffectType
-    {
-        None = 0,
-        RequiredPowerMultiplier = 1,
-        PartyPowerMultiplier = 2,
-        GuaranteeInjury = 3,
-        AllowDeathWithoutInjury = 4,
-        InjuryChanceAdd = 5,
-        InjuryChanceMultiplier = 6,
-        DeathChanceAdd = 7,
-        DeathChanceMultiplier = 8,
+        public enum MissionEffectType
+        {
+            None = 0,
+            RequiredPowerMultiplier = 1,
+            PartyPowerMultiplier = 2,
+            GuaranteeInjury = 3,
+            AllowDeathWithoutInjury = 4,
+            InjuryChanceAdd = 5,
+            InjuryChanceMultiplier = 6,
+            DeathChanceAdd = 7,
+            DeathChanceMultiplier = 8,
+            CapSuccess = 9,
+            MissionTimeMultiplier = 10,
+        }
     }
-}

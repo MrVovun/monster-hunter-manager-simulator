@@ -20,7 +20,7 @@ MonoBehaviour:
   defaultClientProfiles:
   - {fileID: 11400000, guid: a386fdc52ecc16142beb2fc924c5c91e, type: 2}
   - {fileID: 11400000, guid: 2cdf72bfa74ddd046afb17c83b82a246, type: 2}
-  trophyWallConfig: {fileID: 0}
+  trophyWallConfig: {fileID: 11400000, guid: 9503df5262c85054f881712a2c24c35e, type: 2}
   guildConstructions:
   - {fileID: 11400000, guid: 3e1a403cae5200a479c982b8cd59bc08, type: 2}
   - {fileID: 11400000, guid: ced3e1246a3430e48af4afb09f4aba0d, type: 2}
@@ -28,16 +28,22 @@ MonoBehaviour:
   allowInvestigationPauseToggle: 1
   orderLimitByReputation:
   - requiredReputation: 1
+    requiredReputationPoints: 0
     orderLimit: 4
   - requiredReputation: 2
+    requiredReputationPoints: 0
     orderLimit: 7
   - requiredReputation: 3
+    requiredReputationPoints: 0
     orderLimit: 10
   - requiredReputation: 4
+    requiredReputationPoints: 0
     orderLimit: 11
   - requiredReputation: 5
+    requiredReputationPoints: 0
     orderLimit: 13
   - requiredReputation: 6
+    requiredReputationPoints: 0
     orderLimit: 13
   baseInjuryChance: 0.5
   baseDeathChance: 0.25

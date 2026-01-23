@@ -19,11 +19,13 @@ MonoBehaviour:
     massive arms and thick torsos. They lumber rather than run, every step a slow,
     heavy stomp that you can feel through the ground. Their voices are crude speech,
     often simple words or bellowed threats, but always loud enough to rattle teeth.
-  requiredReputation: 1
+  requiredReputation: 3
   minimumDifficulty: 70
   possibleTraits:
   - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
   - {fileID: 11400000, guid: f149ed5426264cb4db6fac2830e77841, type: 2}
+  - {fileID: 11400000, guid: 1baf58fa8f43050499b86fd6d8886381, type: 2}
+  - {fileID: 11400000, guid: 31ab73eb407b39846811d46d64ddf238, type: 2}
   traitCountRange: {x: 0, y: 3}
   evidenceTags:
   - categoryName: family

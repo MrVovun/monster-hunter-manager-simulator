@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9b5851c07143164599583754e0f3c84, type: 3}
+  m_Name: HT_Healer
+  m_EditorClassIdentifier: Assembly-CSharp::HunterTrait
+  traitId: 39157d625c34476d971bc83c702e81ad
+  displayName: Healer
+  description: This hunter is blessed by the Gods the with healing power, able to
+    treat wounds. Counters "Lethal" trait.
+  icon: {fileID: 21300000, guid: ddaee8398680b3e44aae3d961059f152, type: 3}
+  bonusEffects: []
+  counters:
+  - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}

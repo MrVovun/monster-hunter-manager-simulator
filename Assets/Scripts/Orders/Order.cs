@@ -28,7 +28,7 @@ public class Order
     public int difficulty;
     public int goldReward;
     public int xpReward;
-    public float reputationReward;
+    public float reputationPointsReward;
     public float missionDuration; // In game seconds
     public int maxPartySize;
     public int minPartySize;

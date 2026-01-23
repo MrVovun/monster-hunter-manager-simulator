@@ -19,7 +19,7 @@ MonoBehaviour:
     an eagle\u2019s head and a powerful tail. It has two wings, broad and feathered,
     and moves at a strong pace on the ground, stalking like a big cat before taking
     off. It makes only animalistic cries - screams, barks, and harsh eagle-shrieks."
-  requiredReputation: 1
+  requiredReputation: 3
   minimumDifficulty: 70
   possibleTraits:
   - {fileID: 11400000, guid: 6af8b3bbb8f5f8d4fbdb3a6057fd4b86, type: 2}
@@ -40,7 +40,25 @@ MonoBehaviour:
     valueName: twoWings
   - categoryName: movement
     valueName: normal
-  questionResponses: []
+  questionResponses:
+  - question: {fileID: 11400000, guid: 138b37c003abe654ab951864f1f191f4, type: 2}
+    tagIndex: 0
+    responseText: A terrible amalgamation of various beasts!
+  - question: {fileID: 11400000, guid: 88be2b18d86528f459bb4d4d5a2e53bd, type: 2}
+    tagIndex: 1
+    responseText: Big, tall, and menacing!
+  - question: {fileID: 11400000, guid: 7052173e211d8fd4e8ab035dc4d434b2, type: 2}
+    tagIndex: 2
+    responseText: Like a bird?
+  - question: {fileID: 11400000, guid: 7b7c77071c297ff46a62a80d5d33bb78, type: 2}
+    tagIndex: 3
+    responseText: A feathery tail.
+  - question: {fileID: 11400000, guid: e301b93ebccd4d544ac650ee3653046d, type: 2}
+    tagIndex: 4
+    responseText: Two wings on a back!
+  - question: {fileID: 11400000, guid: ac95fca6036908f4e82a3a5014cb5c38, type: 2}
+    tagIndex: 5
+    responseText: Nothing supernatural, like a human-sized bird.
   weight: 1
   trophyHeadPrefab: {fileID: 0}
   trophyScale: 1

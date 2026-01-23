@@ -24,6 +24,8 @@ MonoBehaviour:
   minimumDifficulty: 30
   possibleTraits:
   - {fileID: 11400000, guid: 02041b403a87b234ba630b13fd996c0f, type: 2}
+  - {fileID: 11400000, guid: 1baf58fa8f43050499b86fd6d8886381, type: 2}
+  - {fileID: 11400000, guid: 31ab73eb407b39846811d46d64ddf238, type: 2}
   traitCountRange: {x: 0, y: 3}
   evidenceTags:
   - categoryName: family

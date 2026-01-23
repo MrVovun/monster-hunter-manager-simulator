@@ -20,7 +20,7 @@ MonoBehaviour:
     the continuation of their sinuous form, and they move by slithering and heaving
     themselves forward rather than walking. When they surface, the air fills with
     a chilling, drawn-out screech that echoes through tunnels and canyons.
-  requiredReputation: 1
+  requiredReputation: 4
   minimumDifficulty: 90
   possibleTraits:
   - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}

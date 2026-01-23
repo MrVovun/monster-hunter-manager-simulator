@@ -100,6 +100,13 @@ public class OrderManager : MonoBehaviour
             }
         }
 
+        // Apply mission time modifiers from monster traits
+        var outcome = MissionOutcomeCalculator.Evaluate(order, party);
+        if (outcome != null && outcome.MissionTimeMultiplier > 0f)
+        {
+            order.missionDuration = Mathf.Max(1f, order.missionDuration * outcome.MissionTimeMultiplier);
+        }
+
         order.state = OrderState.InProgress;
         StartMissionTimer(order);
         NotifyOrdersChanged();

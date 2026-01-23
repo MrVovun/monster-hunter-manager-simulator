@@ -20,12 +20,14 @@ MonoBehaviour:
     them. They move with controlled, purposeful steps, taking flight when it suits
     them but not fidgeting like imps. Their voices are clear, commanding speech,
     used for contracts, orders, and chillingly polite threats.
-  requiredReputation: 1
+  requiredReputation: 5
   minimumDifficulty: 120
   possibleTraits:
   - {fileID: 11400000, guid: 6af8b3bbb8f5f8d4fbdb3a6057fd4b86, type: 2}
   - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
   - {fileID: 11400000, guid: f149ed5426264cb4db6fac2830e77841, type: 2}
+  - {fileID: 11400000, guid: 1baf58fa8f43050499b86fd6d8886381, type: 2}
+  - {fileID: 11400000, guid: 31ab73eb407b39846811d46d64ddf238, type: 2}
   traitCountRange: {x: 0, y: 3}
   evidenceTags:
   - categoryName: family
@@ -40,7 +42,25 @@ MonoBehaviour:
     valueName: twoWings
   - categoryName: movement
     valueName: normal
-  questionResponses: []
+  questionResponses:
+  - question: {fileID: 11400000, guid: 138b37c003abe654ab951864f1f191f4, type: 2}
+    tagIndex: 0
+    responseText: A beast from the pits of hell!
+  - question: {fileID: 11400000, guid: 88be2b18d86528f459bb4d4d5a2e53bd, type: 2}
+    tagIndex: 1
+    responseText: Like a regular human.
+  - question: {fileID: 11400000, guid: 7052173e211d8fd4e8ab035dc4d434b2, type: 2}
+    tagIndex: 2
+    responseText: Indistinctive from a regular man.
+  - question: {fileID: 11400000, guid: 7b7c77071c297ff46a62a80d5d33bb78, type: 2}
+    tagIndex: 3
+    responseText: Had a tail allright.
+  - question: {fileID: 11400000, guid: e301b93ebccd4d544ac650ee3653046d, type: 2}
+    tagIndex: 4
+    responseText: Two bat-like wings.
+  - question: {fileID: 11400000, guid: ac95fca6036908f4e82a3a5014cb5c38, type: 2}
+    tagIndex: 5
+    responseText: Not faster nor slower than a human.
   weight: 1
   trophyHeadPrefab: {fileID: 0}
   trophyScale: 1

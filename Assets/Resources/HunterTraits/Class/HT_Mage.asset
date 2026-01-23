@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f9b5851c07143164599583754e0f3c84, type: 3}
-  m_Name: HT_Cleaver
+  m_Name: HT_Mage
   m_EditorClassIdentifier: Assembly-CSharp::HunterTrait
-  traitId: 139f11349c48442591bcdcc8bce47f9d
-  displayName: Cleaver
-  description: This hunter wields a huge weapon, able to cleave enemies. Counters
-    "Pack" trait.
-  icon: {fileID: 21300000, guid: 1161253215b0bbb48972d17bff36f097, type: 3}
+  traitId: 4c8c6b44ca434b348127dff568c56505
+  displayName: Mage
+  description: This hunter is a master of magical powers, able to slay enemies with
+    it. Counters "Tempered" trait.
+  icon: {fileID: 21300000, guid: 4c926cd94fc687a44b31504662f389ea, type: 3}
   bonusEffects: []
   counters:
-  - {fileID: 11400000, guid: 02041b403a87b234ba630b13fd996c0f, type: 2}
+  - {fileID: 11400000, guid: f149ed5426264cb4db6fac2830e77841, type: 2}

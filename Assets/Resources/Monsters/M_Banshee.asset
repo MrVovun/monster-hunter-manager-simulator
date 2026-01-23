@@ -20,7 +20,7 @@ MonoBehaviour:
     with a mournful, slow float that glides through halls and ruins. Its defining
     feature is its voice: a piercing, soul-chilling screech that can be heard long
     before it is seen, echoing off stone and making the hair on your arms rise.'
-  requiredReputation: 1
+  requiredReputation: 2
   minimumDifficulty: 50
   possibleTraits:
   - {fileID: 11400000, guid: 6af8b3bbb8f5f8d4fbdb3a6057fd4b86, type: 2}

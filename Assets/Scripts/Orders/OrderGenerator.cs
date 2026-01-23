@@ -46,7 +46,7 @@ public class OrderGenerator : MonoBehaviour
         order.goldReward = difficultyEntry != null ? difficultyEntry.goldReward : difficultyValue * defaultGoldPerDifficulty;
         order.xpReward = difficultyEntry != null ? difficultyEntry.xpReward : difficultyValue * defaultXpPerDifficulty;
         float fallbackReputation = Mathf.Max(0f, difficultyValue * Mathf.Max(0f, defaultReputationPerDifficulty));
-        order.reputationReward = difficultyEntry != null ? Mathf.Max(0f, difficultyEntry.reputationReward) : fallbackReputation;
+        order.reputationPointsReward = difficultyEntry != null ? Mathf.Max(0f, difficultyEntry.reputationPointsReward) : fallbackReputation;
         order.missionDuration = difficultyEntry != null ? difficultyEntry.missionTimeSeconds : defaultMissionTime;
         order.maxPartySize = 3;
         order.minPartySize = 1;

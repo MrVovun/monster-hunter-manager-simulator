@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0de90ea3325b43d4e91cf6a913342ea5, type: 3}
+  m_Name: MT_Ambusher
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterTrait
+  traitId: 35ba5e770e554808ac90374e45478c8e
+  displayName: Ambusher
+  description: "This monster is hiding in the ambush. If not countered, doubles the
+    mission\u2019s time."
+  dialogueRevealText: It hid somewhere after rampaging!
+  icon: {fileID: 21300000, guid: e83c0d4eec39f4b469d007e66f70d343, type: 3}
+  missionEffects:
+  - effectType: 10
+    value: 2

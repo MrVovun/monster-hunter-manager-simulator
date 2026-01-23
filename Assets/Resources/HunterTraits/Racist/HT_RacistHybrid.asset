@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f9b5851c07143164599583754e0f3c84, type: 3}
-  m_Name: HT_OrcHater
+  m_Name: HT_RacistHybrid
   m_EditorClassIdentifier: Assembly-CSharp::HunterTrait
-  traitId: 921dea3c8747469c8bf91bcc2e2e1fcc
-  displayName: Racist (Greenskins)
-  description: This hunter hates all variants of greenskins. Provides a free 20%
-    bonus to success chance in orders against greenskins
+  traitId: d3010285821c46bab7e2b6530de8f136
+  displayName: Racist (Hybrid)
+  description: This hunter hates all variants of hybrids. Provides a free 20% bonus
+    to success chance in orders against hybrids.
   icon: {fileID: 21300000, guid: b5b5396c85265564d835386cdd2d4eda, type: 3}
   bonusEffects:
   - bonusType: 0
@@ -23,6 +23,7 @@ MonoBehaviour:
     stacking: 1
     condition:
       requiredMonsterTagCategory: family
-      requiredMonsterTagValue: greenskin
+      requiredMonsterTagValue: hybrid
       requiresSoloParty: 0
+  missionEffects: []
   counters: []

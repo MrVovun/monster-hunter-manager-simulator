@@ -579,7 +579,7 @@ public class DeveloperToolsPanel : MonoBehaviour
             difficulty = Mathf.Max(1, debugOrderDifficulty),
             goldReward = Mathf.Max(0, debugOrderGold),
             xpReward = Mathf.Max(0, debugOrderXp),
-            reputationReward = Mathf.Max(0f, debugOrderDifficulty / 5f),
+            reputationPointsReward = Mathf.Max(0f, debugOrderDifficulty / 5f),
             missionDuration = Mathf.Max(30f, debugOrderDuration),
             maxPartySize = 3,
             minPartySize = 1,

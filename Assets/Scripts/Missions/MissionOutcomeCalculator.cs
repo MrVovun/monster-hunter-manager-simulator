@@ -36,6 +36,8 @@ public static class MissionOutcomeCalculator
         float deathChance = Mathf.Clamp01(config.baseDeathChance);
         bool guaranteeInjury = false;
         bool allowDeathWithoutInjury = false;
+        float capSuccessLimit = MaxSuccessChance;
+        float missionTimeMultiplier = 1f;
 
         var counteredTraits = BuildCounteredTraitSet(party);
         var monsterTraits = CollectMonsterTraits(order);
@@ -43,8 +45,11 @@ public static class MissionOutcomeCalculator
         {
             if (monsterTrait == null) continue;
             if (IsCountered(monsterTrait, counteredTraits)) continue;
-            ApplyMonsterEffects(monsterTrait, ref requiredMultiplier, ref partyMultiplier, ref injuryChance, ref deathChance, ref guaranteeInjury, ref allowDeathWithoutInjury);
+            ApplyMonsterEffects(monsterTrait, order, ref requiredMultiplier, ref partyMultiplier, ref injuryChance, ref deathChance, ref guaranteeInjury, ref allowDeathWithoutInjury, ref capSuccessLimit, ref missionTimeMultiplier);
         }
+
+        // Apply hunter-driven mission effects
+        ApplyHunterMissionEffects(order, party, ref requiredMultiplier, ref partyMultiplier, ref injuryChance, ref deathChance, ref guaranteeInjury, ref allowDeathWithoutInjury, ref capSuccessLimit, ref missionTimeMultiplier);
 
         result.RequiredPower = Mathf.Max(1f, result.RequiredPower * Mathf.Max(0.01f, requiredMultiplier));
         result.PartyPower = Mathf.Max(0f, result.PartyPower * Mathf.Max(0f, partyMultiplier));
@@ -54,7 +59,10 @@ public static class MissionOutcomeCalculator
 
         var aggregate = AggregateHunterBonuses(order?.monsterData, party);
         float successChance = Mathf.Clamp(baseSuccess + aggregate.successChanceBonus, 0f, MaxSuccessChance);
+        successChance = Mathf.Clamp(successChance, 0f, capSuccessLimit);
+        successChance = Mathf.Max(successChance, aggregate.minSuccessPercent);
         result.SuccessChancePercent = successChance;
+        result.MissionTimeMultiplier = Mathf.Max(0.01f, missionTimeMultiplier);
 
         injuryChance = Mathf.Clamp01(injuryChance * aggregate.injuryChanceMultiplier);
         deathChance = Mathf.Clamp01(deathChance * aggregate.deathChanceMultiplier);
@@ -124,13 +132,17 @@ public static class MissionOutcomeCalculator
         return counteredTraits.Contains(trait.traitId);
     }
 
-    private static void ApplyMonsterEffects(MonsterTrait trait, ref float requiredMultiplier, ref float partyMultiplier, ref float injuryChance, ref float deathChance, ref bool guaranteeInjury, ref bool allowDeathWithoutInjury)
+    private static void ApplyMonsterEffects(MonsterTrait trait, Order order, ref float requiredMultiplier, ref float partyMultiplier, ref float injuryChance, ref float deathChance, ref bool guaranteeInjury, ref bool allowDeathWithoutInjury, ref float capSuccessLimit, ref float missionTimeMultiplier)
     {
         if (trait == null || trait.missionEffects == null) return;
 
         foreach (var effect in trait.missionEffects)
         {
             if (effect == null) continue;
+            if (effect.targetMonster != null && order != null)
+            {
+                if (order.monsterData != effect.targetMonster) continue;
+            }
             float value = effect.value;
             switch (effect.effectType)
             {
@@ -158,11 +170,34 @@ public static class MissionOutcomeCalculator
                 case MonsterTrait.MissionEffectType.DeathChanceMultiplier:
                     deathChance *= Mathf.Max(0f, value);
                     break;
+                case MonsterTrait.MissionEffectType.CapSuccess:
+                    capSuccessLimit = Mathf.Min(capSuccessLimit, Mathf.Max(0f, value));
+                    break;
+                case MonsterTrait.MissionEffectType.MissionTimeMultiplier:
+                    missionTimeMultiplier *= Mathf.Max(0.01f, value);
+                    break;
             }
         }
 
         injuryChance = Mathf.Clamp01(injuryChance);
         deathChance = Mathf.Clamp01(deathChance);
+    }
+
+    private static void ApplyHunterMissionEffects(Order order, List<Hunter> party, ref float requiredMultiplier, ref float partyMultiplier, ref float injuryChance, ref float deathChance, ref bool guaranteeInjury, ref bool allowDeathWithoutInjury, ref float capSuccessLimit, ref float missionTimeMultiplier)
+    {
+        if (party == null) return;
+        foreach (var hunter in party)
+        {
+            var data = hunter?.Data;
+            if (data == null || data.traits == null) continue;
+            foreach (var trait in data.traits)
+            {
+                if (trait == null || trait.missionEffects == null) continue;
+                // Reuse monster effect application for hunter mission effects (optional monster targeting supported)
+                var tempMonsterTrait = new MonsterTrait { missionEffects = trait.missionEffects };
+                ApplyMonsterEffects(tempMonsterTrait, order, ref requiredMultiplier, ref partyMultiplier, ref injuryChance, ref deathChance, ref guaranteeInjury, ref allowDeathWithoutInjury, ref capSuccessLimit, ref missionTimeMultiplier);
+            }
+        }
     }
 
     private static HunterBonusAggregate AggregateHunterBonuses(MonsterData monster, List<Hunter> party)
@@ -211,6 +246,9 @@ public static class MissionOutcomeCalculator
                         case HunterTrait.BonusEffectType.ModifyDeathChanceMultiplier:
                             aggregate.deathChanceMultiplier *= effect.value <= 0f ? 1f : effect.value;
                             break;
+                        case HunterTrait.BonusEffectType.MinSuccessPercent:
+                            aggregate.minSuccessPercent = Mathf.Max(aggregate.minSuccessPercent, effect.value);
+                            break;
                     }
                 }
             }
@@ -249,6 +287,7 @@ public static class MissionOutcomeCalculator
         public bool preventInjury;
         public bool preventDeath;
         public float additionalSuccessXp;
+        public float minSuccessPercent;
 
         public static HunterBonusAggregate CreateDefault()
         {
@@ -259,7 +298,8 @@ public static class MissionOutcomeCalculator
                 deathChanceMultiplier = 1f,
                 preventInjury = false,
                 preventDeath = false,
-                additionalSuccessXp = 0f
+                additionalSuccessXp = 0f,
+                minSuccessPercent = 0f
             };
         }
     }
@@ -296,6 +336,7 @@ public class MissionOutcomeResult
     public float RequiredPower { get; internal set; }
     public float PartyPower { get; internal set; }
     public float SuccessChancePercent { get; internal set; }
+    public float MissionTimeMultiplier { get; internal set; } = 1f;
     public float FinalInjuryChance { get; internal set; }
     public float FinalDeathChance { get; internal set; }
     public bool InjuriesGuaranteed { get; internal set; }

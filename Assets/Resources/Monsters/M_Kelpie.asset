@@ -20,7 +20,7 @@ MonoBehaviour:
     that feel almost unnatural, especially near water. They make only animalistic
     sounds - snorts, shrill neighs, and wet, hungry breathing - like a horse imitating
     a predator.
-  requiredReputation: 1
+  requiredReputation: 5
   minimumDifficulty: 120
   possibleTraits:
   - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
@@ -39,7 +39,25 @@ MonoBehaviour:
     valueName: noWings
   - categoryName: movement
     valueName: fast
-  questionResponses: []
+  questionResponses:
+  - question: {fileID: 11400000, guid: 138b37c003abe654ab951864f1f191f4, type: 2}
+    tagIndex: 0
+    responseText: It was a creature from the fairy tales!
+  - question: {fileID: 11400000, guid: 88be2b18d86528f459bb4d4d5a2e53bd, type: 2}
+    tagIndex: 1
+    responseText: Slightly bigger than a man.
+  - question: {fileID: 11400000, guid: 7052173e211d8fd4e8ab035dc4d434b2, type: 2}
+    tagIndex: 2
+    responseText: Like a horse!
+  - question: {fileID: 11400000, guid: 7b7c77071c297ff46a62a80d5d33bb78, type: 2}
+    tagIndex: 3
+    responseText: It had a tail alright.
+  - question: {fileID: 11400000, guid: e301b93ebccd4d544ac650ee3653046d, type: 2}
+    tagIndex: 4
+    responseText: No wings.
+  - question: {fileID: 11400000, guid: ac95fca6036908f4e82a3a5014cb5c38, type: 2}
+    tagIndex: 5
+    responseText: Fast, like a sea serpent!
   weight: 1
   trophyHeadPrefab: {fileID: 0}
   trophyScale: 1

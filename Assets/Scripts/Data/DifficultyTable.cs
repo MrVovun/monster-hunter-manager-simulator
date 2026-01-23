@@ -25,7 +25,8 @@ public class DifficultyEntry
     [Header("Rewards")]
     public int goldReward = 100;
     public int xpReward = 50;
-    public float reputationReward = 1f;
+    [Tooltip("Reputation points awarded for completing an order of this difficulty.")]
+    public float reputationPointsReward = 1f;
 
     [Header("Weight")]
     [Tooltip("How likely this entry is chosen when multiple are valid.")]
