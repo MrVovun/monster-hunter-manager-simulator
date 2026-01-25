@@ -31,19 +31,19 @@ MonoBehaviour:
     requiredReputationPoints: 0
     orderLimit: 4
   - requiredReputation: 2
-    requiredReputationPoints: 0
+    requiredReputationPoints: 130
     orderLimit: 7
   - requiredReputation: 3
-    requiredReputationPoints: 0
+    requiredReputationPoints: 609
     orderLimit: 10
   - requiredReputation: 4
-    requiredReputationPoints: 0
+    requiredReputationPoints: 2058
     orderLimit: 11
   - requiredReputation: 5
-    requiredReputationPoints: 0
+    requiredReputationPoints: 10053
     orderLimit: 13
   - requiredReputation: 6
-    requiredReputationPoints: 0
+    requiredReputationPoints: 18477
     orderLimit: 13
   baseInjuryChance: 0.5
   baseDeathChance: 0.25

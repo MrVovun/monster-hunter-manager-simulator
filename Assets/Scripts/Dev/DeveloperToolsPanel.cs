@@ -200,12 +200,12 @@ public class DeveloperToolsPanel : MonoBehaviour
 
         if (reputationManager != null)
         {
-            GUILayout.Label($"Reputation: {reputationManager.GetReputationPrecise():0.##}");
+        GUILayout.Label($"Reputation: {reputationManager.GetReputation():0.##} (Points: {reputationManager.GetReputationPointsPrecise():0.##})");
             GUILayout.BeginHorizontal();
-            if (GUILayout.Button("+5")) reputationManager.AddReputation(5f);
-            if (GUILayout.Button("+25")) reputationManager.AddReputation(25f);
-            if (GUILayout.Button("-5")) reputationManager.AddReputation(-5f);
-            if (GUILayout.Button("-25")) reputationManager.AddReputation(-25f);
+        if (GUILayout.Button("+5 pts")) reputationManager.AddReputationPoints(5f);
+        if (GUILayout.Button("+25 pts")) reputationManager.AddReputationPoints(25f);
+        if (GUILayout.Button("-5 pts")) reputationManager.AddReputationPoints(-5f);
+        if (GUILayout.Button("-25 pts")) reputationManager.AddReputationPoints(-25f);
             GUILayout.EndHorizontal();
         }
         else

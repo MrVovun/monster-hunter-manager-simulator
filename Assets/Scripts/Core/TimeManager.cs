@@ -6,6 +6,7 @@ public class TimeManager : MonoBehaviour
     [Header("Time Settings")]
     [SerializeField] private float timeScale = 60f; // 1 real second = 60 game seconds (1 game minute)
     [SerializeField] private bool pauseTime = false;
+    [SerializeField] private float dayLengthRealSeconds = 600f; // default fallback in case config is missing
     
     private float gameTimeInSeconds = 0f; // Total game time elapsed
     private List<MissionTimer> activeTimers = new List<MissionTimer>();
@@ -15,8 +16,17 @@ public class TimeManager : MonoBehaviour
     public event TimeUpdateDelegate OnTimeUpdate;
     public event System.Action<int> OnDayStarted; // Fires with day index (0-based)
 
+    private float DayLengthGameSeconds => Mathf.Max(1f, dayLengthRealSeconds * timeScale);
+
     private void Start()
     {
+        // Pull day length from config if available
+        var config = GameManager.Instance != null ? GameManager.Instance.GetGameConfig() : null;
+        if (config != null && config.dayLengthSeconds > 0f)
+        {
+            dayLengthRealSeconds = config.dayLengthSeconds;
+        }
+
         // Fire day 0 start so systems can run once at beginning
         OnDayStarted?.Invoke(currentDayIndex);
     }
@@ -49,8 +59,8 @@ public class TimeManager : MonoBehaviour
         
         OnTimeUpdate?.Invoke(gameDeltaTime);
 
-        // Check day rollover (1 day = 86400 game seconds)
-        int newDayIndex = Mathf.FloorToInt(gameTimeInSeconds / 86400f);
+        // Check day rollover
+        int newDayIndex = Mathf.FloorToInt(gameTimeInSeconds / DayLengthGameSeconds);
         if (newDayIndex > currentDayIndex)
         {
             currentDayIndex = newDayIndex;
@@ -123,6 +133,29 @@ public class TimeManager : MonoBehaviour
     public int GetCurrentDayIndex()
     {
         return currentDayIndex;
+    }
+
+    public float GetSecondsIntoCurrentDay()
+    {
+        float secondsIntoDay = gameTimeInSeconds - (currentDayIndex * DayLengthGameSeconds);
+        return Mathf.Clamp(secondsIntoDay, 0f, DayLengthGameSeconds);
+    }
+
+    public float GetSecondsRemainingInDay()
+    {
+        return Mathf.Max(0f, DayLengthGameSeconds - GetSecondsIntoCurrentDay());
+    }
+
+    public float GetDayLengthRealSeconds()
+    {
+        return dayLengthRealSeconds;
+    }
+
+    public float GetDayProgress01()
+    {
+        float length = DayLengthGameSeconds;
+        if (length <= 0f) return 0f;
+        return Mathf.Clamp01(GetSecondsIntoCurrentDay() / length);
     }
 }
 

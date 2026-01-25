@@ -117,7 +117,7 @@ public class MissionResolver : MonoBehaviour
             ReputationManager repManager = GameManager.Instance.GetReputationManager();
             if (repManager != null && report.reputationGained > 0f)
             {
-                repManager.AddReputation(report.reputationGained);
+                repManager.AddReputationPoints(report.reputationGained);
             }
         }
         

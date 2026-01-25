@@ -14,76 +14,76 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DifficultyTable
   entries:
   - minReputation: 1
-    maxReputation: 1
-    difficultyValue: 10
-    missionTimeSeconds: 120
-    goldReward: 10
-    xpReward: 10
-    reputationPointsReward: 0
-    weight: 1
-  - minReputation: 1
-    maxReputation: 1
+    maxReputation: 6
     difficultyValue: 20
-    missionTimeSeconds: 120
+    missionTimeSeconds: 76
     goldReward: 20
-    xpReward: 20
-    reputationPointsReward: 0
+    xpReward: 25
+    reputationPointsReward: 10
     weight: 1
   - minReputation: 1
-    maxReputation: 1
+    maxReputation: 6
     difficultyValue: 30
-    missionTimeSeconds: 120
-    goldReward: 30
-    xpReward: 30
-    reputationPointsReward: 0
-    weight: 1
-  - minReputation: 1
-    maxReputation: 1
-    difficultyValue: 40
-    missionTimeSeconds: 120
+    missionTimeSeconds: 84
     goldReward: 40
-    xpReward: 40
-    reputationPointsReward: 0
+    xpReward: 30
+    reputationPointsReward: 10
     weight: 1
   - minReputation: 1
-    maxReputation: 1
-    difficultyValue: 50
-    missionTimeSeconds: 120
+    maxReputation: 6
+    difficultyValue: 40
+    missionTimeSeconds: 92
     goldReward: 50
     xpReward: 50
-    reputationPointsReward: 0
+    reputationPointsReward: 10
     weight: 1
-  - minReputation: 1
-    maxReputation: 2
+  - minReputation: 2
+    maxReputation: 6
+    difficultyValue: 50
+    missionTimeSeconds: 100
+    goldReward: 95
+    xpReward: 50
+    reputationPointsReward: 20
+    weight: 1
+  - minReputation: 2
+    maxReputation: 6
     difficultyValue: 60
-    missionTimeSeconds: 120
-    goldReward: 60
+    missionTimeSeconds: 108
+    goldReward: 110
     xpReward: 60
-    reputationPointsReward: 0
+    reputationPointsReward: 20
     weight: 1
-  - minReputation: 1
-    maxReputation: 2
+  - minReputation: 3
+    maxReputation: 6
     difficultyValue: 70
-    missionTimeSeconds: 120
-    goldReward: 70
+    missionTimeSeconds: 116
+    goldReward: 150
     xpReward: 70
-    reputationPointsReward: 0
+    reputationPointsReward: 30
     weight: 1
-  - minReputation: 1
-    maxReputation: 2
+  - minReputation: 3
+    maxReputation: 6
     difficultyValue: 80
-    missionTimeSeconds: 120
-    goldReward: 80
+    missionTimeSeconds: 124
+    goldReward: 190
     xpReward: 80
-    reputationPointsReward: 0
+    reputationPointsReward: 30
     weight: 1
-  - minReputation: 1
-    maxReputation: 2
+  - minReputation: 4
+    maxReputation: 6
     difficultyValue: 90
-    missionTimeSeconds: 120
-    goldReward: 90
-    xpReward: 90
-    reputationPointsReward: 0
+    missionTimeSeconds: 132
+    goldReward: 220
+    xpReward: 120
+    reputationPointsReward: 40
+    weight: 1
+  - minReputation: 4
+    maxReputation: 6
+    difficultyValue: 100
+    missionTimeSeconds: 140
+    goldReward: 280
+    xpReward: 145
+    reputationPointsReward: 40
     weight: 1
   - minReputation: 0
     maxReputation: 0
@@ -93,35 +93,59 @@ MonoBehaviour:
     xpReward: 0
     reputationPointsReward: 1
     weight: 0
-  - minReputation: 2
-    maxReputation: 2
-    difficultyValue: 100
-    missionTimeSeconds: 120
-    goldReward: 100
-    xpReward: 100
-    reputationPointsReward: 0
-    weight: 1
-  - minReputation: 2
-    maxReputation: 2
+  - minReputation: 5
+    maxReputation: 6
     difficultyValue: 110
-    missionTimeSeconds: 120
-    goldReward: 110
-    xpReward: 110
-    reputationPointsReward: 0
+    missionTimeSeconds: 148
+    goldReward: 300
+    xpReward: 150
+    reputationPointsReward: 50
     weight: 1
-  - minReputation: 2
-    maxReputation: 2
+  - minReputation: 5
+    maxReputation: 6
     difficultyValue: 120
-    missionTimeSeconds: 120
-    goldReward: 120
-    xpReward: 120
-    reputationPointsReward: 0
+    missionTimeSeconds: 156
+    goldReward: 320
+    xpReward: 160
+    reputationPointsReward: 50
     weight: 1
-  - minReputation: 2
-    maxReputation: 2
+  - minReputation: 5
+    maxReputation: 6
     difficultyValue: 130
-    missionTimeSeconds: 120
-    goldReward: 130
-    xpReward: 130
-    reputationPointsReward: 0
+    missionTimeSeconds: 164
+    goldReward: 360
+    xpReward: 160
+    reputationPointsReward: 50
+    weight: 1
+  - minReputation: 5
+    maxReputation: 6
+    difficultyValue: 140
+    missionTimeSeconds: 172
+    goldReward: 390
+    xpReward: 140
+    reputationPointsReward: 50
+    weight: 1
+  - minReputation: 6
+    maxReputation: 6
+    difficultyValue: 150
+    missionTimeSeconds: 180
+    goldReward: 400
+    xpReward: 150
+    reputationPointsReward: 60
+    weight: 1
+  - minReputation: 6
+    maxReputation: 6
+    difficultyValue: 160
+    missionTimeSeconds: 188
+    goldReward: 440
+    xpReward: 180
+    reputationPointsReward: 60
+    weight: 1
+  - minReputation: 5
+    maxReputation: 6
+    difficultyValue: 140
+    missionTimeSeconds: 172
+    goldReward: 390
+    xpReward: 140
+    reputationPointsReward: 50
     weight: 1
