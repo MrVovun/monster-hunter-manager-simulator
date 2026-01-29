@@ -60,6 +60,22 @@ public class GameConfig : ScriptableObject
         return limit;
     }
 
+    public int GetHunterLimit(int reputation)
+    {
+        int limit = 0;
+        foreach (var tier in orderLimitByReputation)
+        {
+            if (reputation >= tier.requiredReputation)
+            {
+                if (tier.hunterLimit > 0)
+                {
+                    limit = Mathf.Max(limit, tier.hunterLimit);
+                }
+            }
+        }
+        return limit;
+    }
+
     [Serializable]
     public class OrderLimitTier
     {
@@ -67,6 +83,8 @@ public class GameConfig : ScriptableObject
         [Tooltip("Reputation points required to reach this reputation level.")]
         public int requiredReputationPoints;
         public int orderLimit = 3;
+        [Tooltip("Maximum hunters allowed at this reputation tier. 0 or less = no limit.")]
+        public int hunterLimit = 0;
     }
 
     [Serializable]

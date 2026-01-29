@@ -143,6 +143,11 @@ public class HunterRecruitmentManager : MonoBehaviour
     private void Update()
     {
         if (!campaignActive) return;
+        if (hunterManager != null && hunterManager.IsAtHunterLimit())
+        {
+            StopCampaign();
+            return;
+        }
         float delta = Time.deltaTime;
         if (campaignTimeRemaining > 0f)
         {
@@ -469,12 +474,23 @@ public class HunterRecruitmentManager : MonoBehaviour
     public bool IsCampaignActive => campaignActive;
     public float CampaignTimeRemaining => campaignTimeRemaining;
     public float CurrentCampaignCost => campaignCost;
+    public float GetEstimatedCost(float durationSeconds)
+    {
+        float minutes = Mathf.Max(0f, durationSeconds) / 60f;
+        return Mathf.Max(0f, baseFee + costPerMinute * minutes);
+    }
 
     public void PostAd(AdSettings settings)
     {
         if (campaignActive)
         {
             StopCampaign();
+        }
+
+        if (hunterManager != null && hunterManager.IsAtHunterLimit())
+        {
+            Debug.LogWarning("HunterRecruitment: Hunter limit reached. Cannot start campaign.");
+            return;
         }
 
         ClearAllCandidates();
@@ -512,6 +528,7 @@ public class HunterRecruitmentManager : MonoBehaviour
         campaignActive = false;
         campaignTimeRemaining = 0f;
         burnAccumulator = 0f;
+        campaignCost = 0f;
         SaveState();
         OnStateChanged?.Invoke();
     }

@@ -79,6 +79,7 @@ public class HiringTab : MonoBehaviour
         if (recruitmentManager == null) return;
 
         UpdateScalarUI();
+        UpdateCostUI();
 
         if (timerText != null)
         {
@@ -91,11 +92,6 @@ public class HiringTab : MonoBehaviour
             {
                 timerText.text = "Ad Inactive";
             }
-        }
-
-        if (costText != null)
-        {
-            costText.text = $"Spent: {recruitmentManager.CurrentCampaignCost:0}";
         }
 
         if (statusText != null)
@@ -232,6 +228,23 @@ public class HiringTab : MonoBehaviour
     {
         currentDurationMinutes = Mathf.Max(minDurationMinutes, currentDurationMinutes + deltaMinutes);
         UpdateScalarUI();
+        UpdateCostUI();
+    }
+
+    private void UpdateCostUI()
+    {
+        if (recruitmentManager == null || costText == null) return;
+
+        if (recruitmentManager.IsCampaignActive)
+        {
+            costText.text = $"Spent: {recruitmentManager.CurrentCampaignCost:0}";
+        }
+        else
+        {
+            float durationSeconds = Mathf.Max(30f, currentDurationMinutes * 60f);
+            float estimate = recruitmentManager.GetEstimatedCost(durationSeconds);
+            costText.text = $"Estimated: {estimate:0}";
+        }
     }
 
     private void SyncSettingsFromManager()
@@ -258,4 +271,3 @@ public class HiringTab : MonoBehaviour
         UpdateScalarUI();
     }
 }
-

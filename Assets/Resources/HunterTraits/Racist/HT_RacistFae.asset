@@ -19,11 +19,15 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: b5b5396c85265564d835386cdd2d4eda, type: 3}
   bonusEffects:
   - bonusType: 0
-    value: 0.2
+    value: 20
     stacking: 1
     condition:
       requiredMonsterTagCategory: family
       requiredMonsterTagValue: fae
+      targetMonster: {fileID: 0}
+      minPartySize: 0
+      maxPartySize: 0
+      procChancePercent: 100
       requiresSoloParty: 0
   missionEffects: []
   counters: []

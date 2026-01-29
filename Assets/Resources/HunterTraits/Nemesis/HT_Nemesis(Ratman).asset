@@ -19,7 +19,7 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: 99d7bedd9a203bf46b64f9a4d7f48a21, type: 3}
   bonusEffects:
   - bonusType: 0
-    value: 0.35
+    value: 35
     stacking: 1
     condition:
       requiredMonsterTagCategory: 

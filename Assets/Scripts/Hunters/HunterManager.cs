@@ -140,6 +140,12 @@ public class HunterManager : MonoBehaviour
     
     public Hunter SpawnHunter(HunterData data)
     {
+        if (IsAtHunterLimit())
+        {
+            Debug.LogWarning("HunterManager: Hunter limit reached. Cannot spawn more hunters.");
+            return null;
+        }
+
         Hunter hunter = InstantiateHunter(data, hunterSpawnPoint);
         if (hunter == null)
         {
@@ -416,6 +422,11 @@ public class HunterManager : MonoBehaviour
         {
             return false;
         }
+        if (IsAtHunterLimit())
+        {
+            Debug.LogWarning("HunterManager: Hunter limit reached. Cannot hire new hunter.");
+            return false;
+        }
 
         hiredHunterIds.Add(data.hunterId);
         var hunter = SpawnHunter(data);
@@ -433,6 +444,7 @@ public class HunterManager : MonoBehaviour
         {
             if (string.IsNullOrEmpty(id) || hiredHunterIds.Contains(id)) continue;
             if (!hunterLookup.TryGetValue(id, out var data) || data == null) continue;
+            if (IsAtHunterLimit()) break;
             hiredHunterIds.Add(id);
             SpawnHunter(data);
         }
@@ -499,6 +511,17 @@ public class HunterManager : MonoBehaviour
         if (string.IsNullOrEmpty(id)) return null;
         hunterLookup.TryGetValue(id, out var data);
         return data;
+    }
+
+    public bool IsAtHunterLimit()
+    {
+        var config = GameManager.Instance != null ? GameManager.Instance.GetGameConfig() : null;
+        if (config == null) return false;
+        int rep = GameManager.Instance != null ? GameManager.Instance.GetReputation() : 0;
+        int limit = config.GetHunterLimit(rep);
+        if (limit <= 0) return false;
+        int aliveCount = activeHunters.Count(h => h != null && h.GetState() != HunterState.Dead);
+        return aliveCount >= limit;
     }
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD

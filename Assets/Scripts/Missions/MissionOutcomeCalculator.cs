@@ -116,8 +116,15 @@ public static class MissionOutcomeCalculator
                 if (trait == null || trait.counters == null) continue;
                 foreach (var counter in trait.counters)
                 {
-                    if (counter == null || string.IsNullOrEmpty(counter.traitId)) continue;
-                    countered.Add(counter.traitId);
+                    if (counter == null) continue;
+                    if (!string.IsNullOrEmpty(counter.traitId))
+                    {
+                        countered.Add(counter.traitId);
+                    }
+                    if (!string.IsNullOrEmpty(counter.displayName))
+                    {
+                        countered.Add(counter.displayName);
+                    }
                 }
             }
         }
@@ -128,8 +135,20 @@ public static class MissionOutcomeCalculator
     private static bool IsCountered(MonsterTrait trait, HashSet<string> counteredTraits)
     {
         if (trait == null || counteredTraits == null) return false;
-        if (string.IsNullOrEmpty(trait.traitId)) return false;
-        return counteredTraits.Contains(trait.traitId);
+
+        // Match by ID if available
+        if (!string.IsNullOrEmpty(trait.traitId) && counteredTraits.Contains(trait.traitId))
+        {
+            return true;
+        }
+
+        // Fallback: match by display name to be resilient to mismatched IDs
+        if (!string.IsNullOrEmpty(trait.displayName))
+        {
+            return counteredTraits.Contains(trait.displayName);
+        }
+
+        return false;
     }
 
     private static void ApplyMonsterEffects(MonsterTrait trait, Order order, ref float requiredMultiplier, ref float partyMultiplier, ref float injuryChance, ref float deathChance, ref bool guaranteeInjury, ref bool allowDeathWithoutInjury, ref float capSuccessLimit, ref float missionTimeMultiplier)
@@ -193,9 +212,48 @@ public static class MissionOutcomeCalculator
             foreach (var trait in data.traits)
             {
                 if (trait == null || trait.missionEffects == null) continue;
-                // Reuse monster effect application for hunter mission effects (optional monster targeting supported)
-                var tempMonsterTrait = new MonsterTrait { missionEffects = trait.missionEffects };
-                ApplyMonsterEffects(tempMonsterTrait, order, ref requiredMultiplier, ref partyMultiplier, ref injuryChance, ref deathChance, ref guaranteeInjury, ref allowDeathWithoutInjury, ref capSuccessLimit, ref missionTimeMultiplier);
+                foreach (var effect in trait.missionEffects)
+                {
+                    if (effect == null) continue;
+                    if (effect.targetMonster != null && order != null && order.monsterData != effect.targetMonster) continue;
+                    float value = effect.value;
+                    switch (effect.effectType)
+                    {
+                        case MonsterTrait.MissionEffectType.RequiredPowerMultiplier:
+                            requiredMultiplier *= Mathf.Max(0.01f, value);
+                            break;
+                        case MonsterTrait.MissionEffectType.PartyPowerMultiplier:
+                            partyMultiplier *= Mathf.Max(0f, value);
+                            break;
+                        case MonsterTrait.MissionEffectType.GuaranteeInjury:
+                            guaranteeInjury = true;
+                            break;
+                        case MonsterTrait.MissionEffectType.AllowDeathWithoutInjury:
+                            allowDeathWithoutInjury = true;
+                            break;
+                        case MonsterTrait.MissionEffectType.InjuryChanceAdd:
+                            injuryChance += value;
+                            break;
+                        case MonsterTrait.MissionEffectType.InjuryChanceMultiplier:
+                            injuryChance *= Mathf.Max(0f, value);
+                            break;
+                        case MonsterTrait.MissionEffectType.DeathChanceAdd:
+                            deathChance += value;
+                            break;
+                        case MonsterTrait.MissionEffectType.DeathChanceMultiplier:
+                            deathChance *= Mathf.Max(0f, value);
+                            break;
+                        case MonsterTrait.MissionEffectType.CapSuccess:
+                            capSuccessLimit = Mathf.Min(capSuccessLimit, Mathf.Max(0f, value));
+                            break;
+                        case MonsterTrait.MissionEffectType.MissionTimeMultiplier:
+                            missionTimeMultiplier *= Mathf.Max(0.01f, value);
+                            break;
+                    }
+                }
+
+                injuryChance = Mathf.Clamp01(injuryChance);
+                deathChance = Mathf.Clamp01(deathChance);
             }
         }
     }
@@ -271,10 +329,12 @@ public static class MissionOutcomeCalculator
     {
         if (condition == null) return true;
 
-        if (condition.procChancePercent < 100f)
+        float proc = condition.procChancePercent;
+        if (proc <= 0f) proc = 100f; // treat unset as always apply
+        if (proc < 100f)
         {
             float roll = UnityEngine.Random.Range(0f, 100f);
-            if (roll > Mathf.Max(0f, condition.procChancePercent))
+            if (roll > Mathf.Max(0f, proc))
             {
                 return false;
             }
