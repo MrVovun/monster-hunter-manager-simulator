@@ -147,6 +147,7 @@ public class InvestigationManager : MonoBehaviour
             if (string.IsNullOrEmpty(categoryName)) continue;
 
             string truthValue = CurrentCase.truthMonster?.GetTagValue(categoryName);
+            if (string.IsNullOrWhiteSpace(truthValue)) continue;
             string responseText = BuildResponseText(question, categoryName, truthValue);
             CurrentCase.RevealTag(categoryName, truthValue, responseText);
             AppendResponseLine(responseBuilder, responseText);
@@ -162,6 +163,7 @@ public class InvestigationManager : MonoBehaviour
             {
                 value = CurrentCase.truthMonster?.GetTagValue(categoryName);
             }
+            if (string.IsNullOrWhiteSpace(value)) continue;
 
             string responseText = BuildResponseText(question, categoryName, value);
             CurrentCase.RevealTag(categoryName, value, responseText);

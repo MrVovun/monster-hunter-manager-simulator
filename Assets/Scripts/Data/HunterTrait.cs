@@ -66,7 +66,12 @@ public Sprite icon;
         BonusSuccessXP = 3,
         ModifyInjuryChanceMultiplier = 4,
         ModifyDeathChanceMultiplier = 5,
-        MinSuccessPercent = 6
+        MinSuccessPercent = 6,
+        UpkeepCostMultiplier = 7,
+        RewardMultiplier = 8,
+        RewardFlat = 9,
+        GuardianSacrifice = 10,
+        MentorGrantXP = 11
     }
 
     public enum TraitStackingMode
@@ -82,6 +87,14 @@ public Sprite icon;
         public string requiredMonsterTagCategory;
         [Tooltip("Value that must match in the selected category (e.g., \"Greenskin\").")]
         public string requiredMonsterTagValue;
+        [Tooltip("Optional: restrict this effect to a specific monster asset.")]
+        public MonsterData targetMonster;
+        [Tooltip("Optional minimum party size for this effect.")]
+        public int minPartySize = 0;
+        [Tooltip("Optional maximum party size for this effect (0 = no max).")]
+        public int maxPartySize = 0;
+        [Tooltip("Chance (0-100%) for this effect to apply each mission check.")]
+        public float procChancePercent = 100f;
         [Tooltip("When enabled, this effect only applies if exactly one hunter is assigned.")]
         public bool requiresSoloParty = false;
     }

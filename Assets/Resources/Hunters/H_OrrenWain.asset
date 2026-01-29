@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 155ec2172406e054ca92e4ea9b6cbd3a, type: 3}
+  m_Name: H_OrrenWain
+  m_EditorClassIdentifier: Assembly-CSharp::HunterData
+  hunterName: Orren Wain
+  hunterId: f33ddb9d94fe421d9bc382a6e31c8434
+  rarity: 0
+  bio: Orren was a successful tradesman until a mischievous Leprechaun robbed him.
+    He invests every penny in the pursuit to find that one specific Fae and return
+    his riches.
+  basePower: 15
+  powerPerLevel: 2
+  traits:
+  - {fileID: 11400000, guid: 117fc4f297fb4494e9a2e7e33705fd3d, type: 2}
+  - {fileID: 11400000, guid: 0b35bbec4053f024bb1c4bfac0bb5b20, type: 2}
+  dailyUpkeepCost: 30
+  startingLevel: 1
+  startingXP: 0
+  levelXPTable:
+  - level: 2
+    requiredXP: 200
+  - level: 3
+    requiredXP: 300
+  - level: 4
+    requiredXP: 400
+  minReputation: 1
+  portrait: {fileID: 21300000, guid: 5cd2708aa839fd74b8f6ecf74d75b9d7, type: 3}
+  visualPrefab: {fileID: 1782384603142300, guid: 8d62b4c95adcd33468c7a6c6551ea945, type: 3}
+  greeting: Business as usual?
+  healLine: I'm not paying for that.
+  goodbyeLine: Money talk.
+  dialogueQuestions: []

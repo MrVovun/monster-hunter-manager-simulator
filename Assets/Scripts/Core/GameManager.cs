@@ -87,6 +87,9 @@ public class GameManager : MonoBehaviour
     private void HandleDayStarted(int dayIndex)
     {
         if (hunterManager == null || goldManager == null) return;
+
+        hunterManager.OnDayStarted(dayIndex);
+
         bool paid = hunterManager.PayUpkeep(goldManager);
         if (!paid)
         {

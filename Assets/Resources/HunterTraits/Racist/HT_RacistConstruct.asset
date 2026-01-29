@@ -24,6 +24,7 @@ MonoBehaviour:
     condition:
       requiredMonsterTagCategory: family
       requiredMonsterTagValue: construct
+      targetMonster: {fileID: 0}
       requiresSoloParty: 0
   missionEffects: []
   counters: []

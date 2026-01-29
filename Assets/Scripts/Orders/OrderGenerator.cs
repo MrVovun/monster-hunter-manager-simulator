@@ -30,6 +30,12 @@ public class OrderGenerator : MonoBehaviour
         if (monster == null)
         {
             monster = PickMonsterIgnoringDifficulty();
+            if (monster == null)
+            {
+                string libName = monsterLibrary != null ? monsterLibrary.name : "null";
+                int fallbackCount = fallbackMonsters != null ? fallbackMonsters.Count : 0;
+                Debug.LogWarning($"[OrderGenerator] No monster could be selected. Difficulty={difficultyValue}, library={libName}, fallbackCount={fallbackCount}", this);
+            }
         }
         string monsterName = monster != null && !string.IsNullOrWhiteSpace(monster.displayName)
             ? monster.displayName

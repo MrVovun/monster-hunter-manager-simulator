@@ -19,9 +19,14 @@ MonoBehaviour:
   bonusEffects:
   - bonusType: 3
     value: 50
-    stacking: 0
+    stacking: 1
     condition:
       requiredMonsterTagCategory: 
       requiredMonsterTagValue: 
+      targetMonster: {fileID: 0}
+      minPartySize: 0
+      maxPartySize: 0
+      procChancePercent: 100
       requiresSoloParty: 1
+  missionEffects: []
   counters: []

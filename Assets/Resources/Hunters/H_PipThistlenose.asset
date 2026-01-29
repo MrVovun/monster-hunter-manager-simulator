@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 155ec2172406e054ca92e4ea9b6cbd3a, type: 3}
+  m_Name: H_PipThistlenose
+  m_EditorClassIdentifier: Assembly-CSharp::HunterData
+  hunterName: Pip Thistlenose
+  hunterId: ddb129b604ff4e3e8b7084288567ee10
+  rarity: 0
+  bio: Pip was a farmer who's home was raided and destroyed by the goblins. Now he
+    seeks revenge, armed with nothing but his pitchfork and determination.
+  basePower: 15
+  powerPerLevel: 2
+  traits:
+  - {fileID: 11400000, guid: 6448cb94be3d5684d8fee6ec42a34578, type: 2}
+  - {fileID: 11400000, guid: b562a09bcfd3a274c979df8459ce19f0, type: 2}
+  dailyUpkeepCost: 30
+  startingLevel: 1
+  startingXP: 0
+  levelXPTable:
+  - level: 2
+    requiredXP: 200
+  - level: 3
+    requiredXP: 300
+  - level: 4
+    requiredXP: 400
+  minReputation: 1
+  portrait: {fileID: 21300000, guid: 704477e15589ce84bbfccf02f04e4f4a, type: 3}
+  visualPrefab: {fileID: 1290725874115128, guid: 2d1f3a5f7b4e6374296a6647c4018050, type: 3}
+  greeting: Boss?
+  healLine: It's but a scratch.
+  goodbyeLine: See ya, Pip.
+  dialogueQuestions:
+  - questionId: 
+    questionText: What's new?
+    answerText: My cousin has given me a very embarrassing nickname and, even worse,
+      likes to call me it in front of my friends. I asked him to stop, but he finds
+      it very amusing to watch me blush.

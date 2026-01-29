@@ -104,6 +104,9 @@ public class Hunter : MonoBehaviour
         if (state == newState) return;
         state = newState;
 
+        CacheHunterManager();
+        hunterManager?.NotifyHunterStateChanged(this, state);
+
         if (newState == HunterState.OnMission)
         {
             bool wasSeated = isSeated;
@@ -444,7 +447,27 @@ public class Hunter : MonoBehaviour
     public int GetUpkeepCost()
     {
         if (debugUpkeepOverride >= 0) return debugUpkeepOverride;
-        return hunterData != null ? hunterData.dailyUpkeepCost : 0;
+        int baseCost = hunterData != null ? hunterData.dailyUpkeepCost : 0;
+        float multiplier = 1f;
+
+        var traits = hunterData != null ? hunterData.traits : null;
+        if (traits != null)
+        {
+            foreach (var trait in traits)
+            {
+                if (trait == null || trait.bonusEffects == null) continue;
+                foreach (var effect in trait.bonusEffects)
+                {
+                    if (effect == null) continue;
+                    if (effect.bonusType != HunterTrait.BonusEffectType.UpkeepCostMultiplier) continue;
+                    if (!MissionOutcomeCalculator.DoesConditionPass(effect.condition, null, 1)) continue;
+                    float mult = effect.value <= 0f ? 1f : effect.value;
+                    multiplier *= mult;
+                }
+            }
+        }
+
+        return Mathf.Max(0, Mathf.RoundToInt(baseCost * multiplier));
     }
 
     public bool LevelUp()

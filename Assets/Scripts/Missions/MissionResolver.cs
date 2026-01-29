@@ -26,7 +26,13 @@ public class MissionResolver : MonoBehaviour
         // Calculate rewards
         if (report.success)
         {
-            report.goldEarned = order.goldReward;
+            // Apply reward modifiers from hunter traits
+            float rewardMultiplier = 1f;
+            float rewardFlat = 0f;
+            ApplyRewardBonuses(order, party, ref rewardMultiplier, ref rewardFlat);
+
+            float gold = order.goldReward * rewardMultiplier + rewardFlat;
+            report.goldEarned = Mathf.Max(0, Mathf.RoundToInt(gold));
             report.reputationGained = Mathf.Max(0f, order.reputationPointsReward);
         }
         else
@@ -104,6 +110,8 @@ public class MissionResolver : MonoBehaviour
             
             report.hunterResults.Add(result);
         }
+
+        ApplyGuardianSacrifice(report);
         
         // Apply rewards
         if (GameManager.Instance != null)
@@ -122,5 +130,82 @@ public class MissionResolver : MonoBehaviour
         }
         
         return report;
+    }
+
+    private void ApplyRewardBonuses(Order order, List<Hunter> party, ref float rewardMultiplier, ref float rewardFlat)
+    {
+        if (party == null) return;
+        int partySize = party.Count;
+        foreach (var hunter in party)
+        {
+            var data = hunter?.Data;
+            if (data == null || data.traits == null) continue;
+            foreach (var trait in data.traits)
+            {
+                if (trait == null || trait.bonusEffects == null) continue;
+                foreach (var effect in trait.bonusEffects)
+                {
+                    if (effect == null) continue;
+                    if (effect.bonusType != HunterTrait.BonusEffectType.RewardMultiplier &&
+                        effect.bonusType != HunterTrait.BonusEffectType.RewardFlat) continue;
+
+                    if (!MissionOutcomeCalculator.DoesConditionPass(effect.condition, order.monsterData, partySize))
+                        continue;
+
+                    if (effect.bonusType == HunterTrait.BonusEffectType.RewardMultiplier)
+                    {
+                        float mult = effect.value <= 0f ? 1f : effect.value;
+                        rewardMultiplier *= mult;
+                    }
+                    else if (effect.bonusType == HunterTrait.BonusEffectType.RewardFlat)
+                    {
+                        rewardFlat += effect.value;
+                    }
+                }
+            }
+        }
+    }
+
+    private void ApplyGuardianSacrifice(MissionReport report)
+    {
+        if (report == null || report.hunterResults == null || report.hunterResults.Count == 0) return;
+
+        // find first guardian who is alive
+        MissionReport.HunterResult guardian = null;
+        foreach (var hr in report.hunterResults)
+        {
+            if (hr == null || hr.hunter == null) continue;
+            var data = hr.hunter.Data;
+            if (data == null || data.traits == null) continue;
+            bool hasGuardian = data.traits.Exists(t => t != null && t.bonusEffects != null &&
+                t.bonusEffects.Exists(be => be.bonusType == HunterTrait.BonusEffectType.GuardianSacrifice));
+            if (hasGuardian && !hr.died)
+            {
+                guardian = hr;
+                break;
+            }
+        }
+
+        if (guardian == null) return;
+
+        // find first death to redirect
+        MissionReport.HunterResult victim = report.hunterResults.Find(hr => hr != null && hr.died);
+        if (victim == null) return;
+
+        // revive victim
+        victim.died = false;
+        victim.survived = true;
+        if (victim.hunter != null && victim.hunter.GetState() == HunterState.Dead)
+        {
+            victim.hunter.SetState(victim.injured ? HunterState.Idle : HunterState.Idle);
+        }
+
+        // guardian dies
+        guardian.died = true;
+        guardian.survived = false;
+        if (guardian.hunter != null)
+        {
+            guardian.hunter.SetState(HunterState.Dead);
+        }
     }
 }

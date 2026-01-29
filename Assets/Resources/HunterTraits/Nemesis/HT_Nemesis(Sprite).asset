@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9b5851c07143164599583754e0f3c84, type: 3}
+  m_Name: HT_Nemesis(Sprite)
+  m_EditorClassIdentifier: Assembly-CSharp::HunterTrait
+  traitId: 2f54aa4b863d4302b7a43c249dc47854
+  displayName: Nemesis (Sprite)
+  description: This hunter has a nemesis. Provides a free 35% bonus to success chance
+    in orders against Sprites.
+  icon: {fileID: 21300000, guid: dcda955cff8566e40bb16e2215c1cbe5, type: 3}
+  bonusEffects:
+  - bonusType: 0
+    value: 0.35
+    stacking: 1
+    condition:
+      requiredMonsterTagCategory: 
+      requiredMonsterTagValue: 
+      targetMonster: {fileID: 11400000, guid: d851f5aa97d3ce84ba80a11a33834a29, type: 2}
+      minPartySize: 0
+      maxPartySize: 0
+      procChancePercent: 0
+      requiresSoloParty: 0
+  missionEffects: []
+  counters: []

@@ -249,6 +249,15 @@ public static class MissionOutcomeCalculator
                         case HunterTrait.BonusEffectType.MinSuccessPercent:
                             aggregate.minSuccessPercent = Mathf.Max(aggregate.minSuccessPercent, effect.value);
                             break;
+                        case HunterTrait.BonusEffectType.UpkeepCostMultiplier:
+                            // handled elsewhere
+                            break;
+                        case HunterTrait.BonusEffectType.RewardMultiplier:
+                        case HunterTrait.BonusEffectType.RewardFlat:
+                        case HunterTrait.BonusEffectType.GuardianSacrifice:
+                        case HunterTrait.BonusEffectType.MentorGrantXP:
+                            // handled in MissionResolver / upkeep hooks
+                            break;
                     }
                 }
             }
@@ -258,9 +267,36 @@ public static class MissionOutcomeCalculator
         return aggregate;
     }
 
-    private static bool DoesConditionPass(HunterTrait.BonusCondition condition, MonsterData monster, int partySize)
+    public static bool DoesConditionPass(HunterTrait.BonusCondition condition, MonsterData monster, int partySize)
     {
         if (condition == null) return true;
+
+        if (condition.procChancePercent < 100f)
+        {
+            float roll = UnityEngine.Random.Range(0f, 100f);
+            if (roll > Mathf.Max(0f, condition.procChancePercent))
+            {
+                return false;
+            }
+        }
+
+        if (condition.minPartySize > 0 && partySize < condition.minPartySize)
+        {
+            return false;
+        }
+
+        if (condition.maxPartySize > 0 && partySize > condition.maxPartySize)
+        {
+            return false;
+        }
+
+        if (condition.targetMonster != null)
+        {
+            if (monster == null || condition.targetMonster != monster)
+            {
+                return false;
+            }
+        }
 
         if (!string.IsNullOrWhiteSpace(condition.requiredMonsterTagCategory))
         {

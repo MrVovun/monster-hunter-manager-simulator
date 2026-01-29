@@ -87,6 +87,15 @@ public class HunterTraitEditor : Editor
         var catProp = conditionProp.FindPropertyRelative("requiredMonsterTagCategory");
         var valProp = conditionProp.FindPropertyRelative("requiredMonsterTagValue");
         var soloProp = conditionProp.FindPropertyRelative("requiresSoloParty");
+        var targetMonsterProp = conditionProp.FindPropertyRelative("targetMonster");
+        var minPartyProp = conditionProp.FindPropertyRelative("minPartySize");
+        var maxPartyProp = conditionProp.FindPropertyRelative("maxPartySize");
+        var procChanceProp = conditionProp.FindPropertyRelative("procChancePercent");
+
+        EditorGUILayout.PropertyField(targetMonsterProp);
+        EditorGUILayout.PropertyField(minPartyProp);
+        EditorGUILayout.PropertyField(maxPartyProp);
+        EditorGUILayout.Slider(procChanceProp, 0f, 100f, new GUIContent("Proc Chance (%)"));
 
         int currentCatIndex = Mathf.Max(0, System.Array.IndexOf(categoryNames, catProp.stringValue));
         int newCatIndex = EditorGUILayout.Popup("Required Monster Tag Category", currentCatIndex, categoryNames);

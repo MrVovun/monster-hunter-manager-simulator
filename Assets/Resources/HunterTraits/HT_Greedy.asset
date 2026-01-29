@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9b5851c07143164599583754e0f3c84, type: 3}
+  m_Name: HT_Greedy
+  m_EditorClassIdentifier: Assembly-CSharp::HunterTrait
+  traitId: 36913a8ac7e443468cac5f9374ed9a74
+  displayName: Greedy
+  description: Has a 50% chance to increase the order's reward by 15%. Requires additional
+    10% upkeep.
+  icon: {fileID: 21300000, guid: 85227243bcd9c7f47a430efe8fef74dc, type: 3}
+  bonusEffects:
+  - bonusType: 8
+    value: 1.15
+    stacking: 0
+    condition:
+      requiredMonsterTagCategory: 
+      requiredMonsterTagValue: 
+      targetMonster: {fileID: 0}
+      minPartySize: 0
+      maxPartySize: 0
+      procChancePercent: 50
+      requiresSoloParty: 0
+  - bonusType: 7
+    value: 1.1
+    stacking: 0
+    condition:
+      requiredMonsterTagCategory: 
+      requiredMonsterTagValue: 
+      targetMonster: {fileID: 0}
+      minPartySize: 0
+      maxPartySize: 0
+      procChancePercent: 0
+      requiresSoloParty: 0
+  missionEffects: []
+  counters: []

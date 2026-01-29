@@ -29,6 +29,9 @@ public class MissionReportPanel : MonoBehaviour
     [SerializeField] private GameObject partyItemPrefab;
     [Header("Controls")]
     [SerializeField] private Button closeButton;
+    [Header("Visibility Blocking")]
+    [Tooltip("If any of these roots are active, the report will wait until they close.")]
+    [SerializeField] private List<GameObject> blockWhileActive = new List<GameObject>();
 
     private OrderManager trackedManager;
     private CursorLockMode previousLockState;
@@ -40,6 +43,11 @@ public class MissionReportPanel : MonoBehaviour
     private bool cursorUnlockedForPanel;
     private bool movementLocked;
     private FirstPersonController cachedController;
+    private PlayerInteraction cachedInteraction;
+    private bool interactionWasEnabled;
+    private readonly Queue<MissionReport> pendingReports = new Queue<MissionReport>();
+    private MissionReport currentReport;
+    private bool isVisible;
 
     private void OnEnable()
     {
@@ -93,9 +101,12 @@ public class MissionReportPanel : MonoBehaviour
 
     private void HandleMissionResolved(MissionReport report)
     {
-        if (report != null)
+        if (report == null) return;
+
+        pendingReports.Enqueue(report);
+        if (!isVisible && !IsBlockedByOtherUI())
         {
-            ShowReport(report);
+            TryShowNextPending();
         }
     }
 
@@ -103,6 +114,7 @@ public class MissionReportPanel : MonoBehaviour
     {
         if (report == null) return;
 
+        currentReport = report;
         RememberCursor();
         UnlockCursor();
         cursorUnlockedForPanel = true;
@@ -149,6 +161,8 @@ public class MissionReportPanel : MonoBehaviour
             cursorUnlockedForPanel = false;
         }
         UnlockPlayer();
+        currentReport = null;
+        TryShowNextPending();
     }
 
     private void RememberCursor()
@@ -216,9 +230,7 @@ public class MissionReportPanel : MonoBehaviour
         if (traitsParent == null || order == null) return;
 
         var caseData = order.investigationCase;
-        var truthTraits = caseData?.truthTraits != null && caseData.truthTraits.Count > 0
-            ? caseData.truthTraits
-            : order.monsterData != null ? order.monsterData.possibleTraits : null;
+        var truthTraits = caseData?.truthTraits;
 
         if (truthTraits == null || truthTraits.Count == 0)
         {
@@ -333,6 +345,40 @@ public class MissionReportPanel : MonoBehaviour
         }
     }
 
+    private void LateUpdate()
+    {
+        // In case a blocking UI just closed, try to show pending reports.
+        if (!isVisible && pendingReports.Count > 0)
+        {
+            TryShowNextPending();
+        }
+    }
+
+    private void TryShowNextPending()
+    {
+        if (isVisible) return;
+        if (IsBlockedByOtherUI()) return;
+        if (pendingReports.Count == 0) return;
+
+        var next = pendingReports.Dequeue();
+        ShowReport(next);
+    }
+
+    private bool IsBlockedByOtherUI()
+    {
+        if (blockWhileActive != null)
+        {
+            foreach (var go in blockWhileActive)
+            {
+                if (go != null && go.activeInHierarchy)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     private void LockPlayer()
     {
         var controller = ResolvePlayerController();
@@ -340,6 +386,17 @@ public class MissionReportPanel : MonoBehaviour
         {
             controller.LockMovement();
             movementLocked = true;
+        }
+
+        var interaction = ResolvePlayerInteraction();
+        if (interaction != null && interaction.enabled)
+        {
+            interactionWasEnabled = true;
+            interaction.enabled = false;
+        }
+        else
+        {
+            interactionWasEnabled = false;
         }
     }
 
@@ -352,6 +409,12 @@ public class MissionReportPanel : MonoBehaviour
             controller.UnlockMovement();
         }
         movementLocked = false;
+
+        var interaction = ResolvePlayerInteraction();
+        if (interaction != null && interactionWasEnabled && !interaction.enabled)
+        {
+            interaction.enabled = true;
+        }
     }
 
     private FirstPersonController ResolvePlayerController()
@@ -361,12 +424,20 @@ public class MissionReportPanel : MonoBehaviour
         return cachedController;
     }
 
+    private PlayerInteraction ResolvePlayerInteraction()
+    {
+        if (cachedInteraction != null) return cachedInteraction;
+        cachedInteraction = FindObjectOfType<PlayerInteraction>();
+        return cachedInteraction;
+    }
+
     private void ShowVisuals(bool visible)
     {
         // If a dedicated panel root is provided and differs from this GameObject, toggle it normally.
         if (panelRoot != null && panelRoot != gameObject)
         {
             panelRoot.SetActive(visible);
+            isVisible = visible;
             return;
         }
 
@@ -383,5 +454,6 @@ public class MissionReportPanel : MonoBehaviour
         canvasGroup.alpha = visible ? 1f : 0f;
         canvasGroup.interactable = visible;
         canvasGroup.blocksRaycasts = visible;
+        isVisible = visible;
     }
 }

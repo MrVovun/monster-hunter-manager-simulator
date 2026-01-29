@@ -24,11 +24,24 @@ public class HunterManager : MonoBehaviour
     private readonly List<Hunter> activeHunters = new List<Hunter>();
     private readonly Dictionary<string, HunterData> hunterLookup = new Dictionary<string, HunterData>();
     private readonly HashSet<string> hiredHunterIds = new HashSet<string>();
+    private readonly Dictionary<Hunter, bool> idleAllDayCandidates = new Dictionary<Hunter, bool>();
     private int nextSeatIndex = 0;
     private bool navMeshChecked = false;
     private bool navMeshAvailable = false;
     
     public event System.Action OnHuntersChanged;
+    public void OnDayStarted(int dayIndex)
+    {
+        ApplyMentorBonuses();
+
+        // reset idle tracking for the new day
+        idleAllDayCandidates.Clear();
+        foreach (var hunter in activeHunters)
+        {
+            if (hunter == null) continue;
+            idleAllDayCandidates[hunter] = hunter.GetState() == HunterState.Idle;
+        }
+    }
     
     private void Awake()
     {
@@ -282,6 +295,7 @@ public class HunterManager : MonoBehaviour
         if (hunter != null)
         {
             activeHunters.Remove(hunter);
+            idleAllDayCandidates.Remove(hunter);
             Destroy(hunter.gameObject);
             NotifyHuntersChanged();
         }
@@ -290,6 +304,18 @@ public class HunterManager : MonoBehaviour
     public void OnReputationChanged(float newReputation)
     {
         // No automatic spawning; recruitment manager handles availability.
+    }
+
+    public void NotifyHunterStateChanged(Hunter hunter, HunterState newState)
+    {
+        if (hunter == null) return;
+        if (idleAllDayCandidates.ContainsKey(hunter))
+        {
+            if (newState != HunterState.Idle)
+            {
+                idleAllDayCandidates[hunter] = false;
+            }
+        }
     }
 
     public int CalculateDailyUpkeep()
@@ -392,7 +418,11 @@ public class HunterManager : MonoBehaviour
         }
 
         hiredHunterIds.Add(data.hunterId);
-        SpawnHunter(data);
+        var hunter = SpawnHunter(data);
+        if (hunter != null)
+        {
+            idleAllDayCandidates[hunter] = hunter.GetState() == HunterState.Idle;
+        }
         return true;
     }
 
@@ -411,6 +441,57 @@ public class HunterManager : MonoBehaviour
     public List<string> GetHiredHunterIds()
     {
         return new List<string>(hiredHunterIds);
+    }
+
+    private void ApplyMentorBonuses()
+    {
+        if (activeHunters == null || activeHunters.Count == 0) return;
+
+        List<HunterTrait.BonusEffect> mentorEffects = new List<HunterTrait.BonusEffect>();
+        foreach (var kvp in idleAllDayCandidates)
+        {
+            if (!kvp.Value) continue; // not idle all day
+            var hunter = kvp.Key;
+            if (hunter == null || hunter.Data == null || hunter.Data.traits == null) continue;
+            foreach (var trait in hunter.Data.traits)
+            {
+                if (trait == null || trait.bonusEffects == null) continue;
+                foreach (var effect in trait.bonusEffects)
+                {
+                    if (effect == null) continue;
+                    if (effect.bonusType != HunterTrait.BonusEffectType.MentorGrantXP) continue;
+                    // Conditions use monster=null, partySize=1
+                    if (!MissionOutcomeCalculator.DoesConditionPass(effect.condition, null, 1)) continue;
+                    mentorEffects.Add(effect);
+                }
+            }
+        }
+
+        if (mentorEffects.Count == 0) return;
+
+        Hunter target = null;
+        int lowestLevel = int.MaxValue;
+        int lowestXP = int.MaxValue;
+        foreach (var hunter in activeHunters)
+        {
+            if (hunter == null || hunter.GetState() == HunterState.Dead) continue;
+            int lvl = hunter.GetLevel();
+            int xp = hunter.GetXP();
+            if (lvl < lowestLevel || (lvl == lowestLevel && xp < lowestXP))
+            {
+                lowestLevel = lvl;
+                lowestXP = xp;
+                target = hunter;
+            }
+        }
+
+        if (target == null) return;
+
+        foreach (var effect in mentorEffects)
+        {
+            int xpGain = Mathf.Max(0, Mathf.RoundToInt(effect.value));
+            target.GainXP(xpGain);
+        }
     }
 
     public HunterData GetHunterDataById(string id)
