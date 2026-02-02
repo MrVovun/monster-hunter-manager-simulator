@@ -38,7 +38,11 @@ public class InvestigationManager : MonoBehaviour
     private bool dialogueCameraBaseCached;
     public bool IsHunterDialogueActive => hunterDialogueActive;
     private System.Action<InvestigationQuestion, string> hunterResponseFinishedCallback;
-
+    private const int TalkingIdleValue = 0;
+    // Animator expects speaking variants in the range 1..8
+    private const int TalkingSpeakBase = 1;
+    private const int ActionIdleValue = 0;
+    private const int ActionThinkingValue = 4;
     public InvestigationCase CurrentCase { get; private set; }
     public Order CurrentOrder { get; private set; }
     public event Action OnCaseUpdated;
@@ -294,6 +298,88 @@ public class InvestigationManager : MonoBehaviour
             dialogueCamera.transform.position = dialogueCameraHomePosition;
             dialogueCamera.transform.rotation = dialogueCameraHomeRotation;
             dialogueCamera.gameObject.SetActive(false);
+        }
+    }
+
+    private SharedCharacterAnimator GetActiveClientAnimator()
+    {
+        if (hunterDialogueActive) return null;
+        if (clientSpawner == null)
+        {
+            clientSpawner = FindObjectOfType<ClientSpawner>();
+        }
+        return clientSpawner != null ? clientSpawner.GetActiveAnimator() : null;
+    }
+
+    private UnityEngine.AI.NavMeshAgent GetActiveClientAgent()
+    {
+        if (hunterDialogueActive) return null;
+        if (clientSpawner == null)
+        {
+            clientSpawner = FindObjectOfType<ClientSpawner>();
+        }
+        return clientSpawner != null && clientSpawner.HasActiveClient
+            ? clientSpawner.GetActiveClientAgent()
+            : null;
+    }
+
+    public void PlayClientThinkingAnimation()
+    {
+        if (hunterDialogueActive) return;
+        var anim = GetActiveClientAnimator();
+        var agent = GetActiveClientAgent();
+        if (anim != null)
+        {
+            anim.SetActionValue(ActionThinkingValue);
+            anim.SetTalkingValue(TalkingIdleValue);
+            anim.AutoUpdateVelocity = false;
+            anim.SetMoving(false);
+            anim.PlayThinkingClip();
+        }
+
+        if (agent != null)
+        {
+            agent.isStopped = true;
+            agent.velocity = Vector3.zero;
+        }
+    }
+
+    public void PlayClientSpeakingAnimation()
+    {
+        if (hunterDialogueActive) return;
+        var anim = GetActiveClientAnimator();
+        var agent = GetActiveClientAgent();
+        if (anim != null)
+        {
+            anim.SetActionValue(ActionIdleValue);
+            int variant = UnityEngine.Random.Range(0, 8);
+            anim.SetTalkingValue(TalkingSpeakBase + variant);
+            anim.AutoUpdateVelocity = false;
+            anim.SetMoving(false);
+            anim.PlayRandomSpeakingClip();
+        }
+
+        if (agent != null)
+        {
+            agent.isStopped = true;
+            agent.velocity = Vector3.zero;
+        }
+    }
+
+    public void StopClientTalkingAnimation()
+    {
+        var anim = GetActiveClientAnimator();
+        var agent = GetActiveClientAgent();
+        if (anim != null)
+        {
+            anim.SetActionValue(ActionIdleValue);
+            anim.SetTalkingValue(TalkingIdleValue);
+            anim.AutoUpdateVelocity = true;
+        }
+
+        if (agent != null)
+        {
+            agent.isStopped = false;
         }
     }
 

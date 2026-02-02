@@ -28,6 +28,8 @@ public class InvestigationDialogueUI : MonoBehaviour
     private bool waitingForResponse;
     private bool awaitingTypewriterCompletion;
 
+    private CanvasGroup questionsCanvasGroup;
+
     private InvestigationQuestion lastQuestion;
     private string lastResponse;
 
@@ -37,6 +39,15 @@ public class InvestigationDialogueUI : MonoBehaviour
         if (responseTypewriter != null)
         {
             responseTypewriter.onTextShowed.AddListener(HandleTypewriterCompleted);
+        }
+
+        if (questionsList != null)
+        {
+            questionsCanvasGroup = questionsList.GetComponent<CanvasGroup>();
+            if (questionsCanvasGroup == null)
+            {
+                questionsCanvasGroup = questionsList.gameObject.AddComponent<CanvasGroup>();
+            }
         }
     }
 
@@ -182,6 +193,7 @@ public class InvestigationDialogueUI : MonoBehaviour
         float waitTime = Mathf.Max(0f, currentManager.GetQuestionDuration(question));
         if (waitTime > 0f)
         {
+            currentManager?.PlayClientThinkingAnimation();
             yield return new WaitForSecondsRealtime(waitTime);
         }
 
@@ -194,6 +206,8 @@ public class InvestigationDialogueUI : MonoBehaviour
         }
 
         RefreshQuestions();
+        SetQuestionsInteractable(false);
+        currentManager?.PlayClientSpeakingAnimation();
         PlayResponse(response, true);
         responseRoutine = null;
     }
@@ -252,6 +266,7 @@ public class InvestigationDialogueUI : MonoBehaviour
             responseTypewriter.StopShowingText();
         }
         SetQuestionsInteractable(true);
+        currentManager?.StopClientTalkingAnimation();
         if (invokeCallback)
         {
             onClose?.Invoke();
@@ -356,6 +371,12 @@ public class InvestigationDialogueUI : MonoBehaviour
                 entry.button.interactable = value;
             }
         }
+
+        if (questionsCanvasGroup != null)
+        {
+            questionsCanvasGroup.interactable = value;
+            questionsCanvasGroup.blocksRaycasts = value;
+        }
     }
 
     private void HandleTypewriterCompleted()
@@ -373,6 +394,7 @@ public class InvestigationDialogueUI : MonoBehaviour
         }
 
         waitingForResponse = false;
+        currentManager?.StopClientTalkingAnimation();
         SetQuestionsInteractable(true);
         if (currentManager != null && lastQuestion != null)
         {

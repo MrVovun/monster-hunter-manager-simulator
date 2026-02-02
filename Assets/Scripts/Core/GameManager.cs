@@ -79,22 +79,27 @@ public class GameManager : MonoBehaviour
         if (timeManager != null)
         {
             timeManager.OnDayStarted += HandleDayStarted;
-            // Pay once at startup to cover day 0
-            HandleDayStarted(timeManager.GetCurrentDayIndex());
         }
     }
 
     private void HandleDayStarted(int dayIndex)
     {
         if (hunterManager == null || goldManager == null) return;
-
         hunterManager.OnDayStarted(dayIndex);
-
         bool paid = hunterManager.PayUpkeep(goldManager);
         if (!paid)
         {
             Debug.LogWarning($"Day {dayIndex}: Unable to pay upkeep (gold too low)." );
         }
+    }
+
+    public void HandleEndOfDaySleep()
+    {
+        // Clear non-in-progress orders
+        orderManager?.ClearNonInProgressOrders();
+
+        // Advance day
+        timeManager?.AdvanceToNextDay();
     }
 
     public OrderManager GetOrderManager() => orderManager;

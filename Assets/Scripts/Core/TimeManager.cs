@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class TimeManager : MonoBehaviour
 {
+    public enum DayState { PreBell, Active, Evening }
+
     [Header("Time Settings")]
     [SerializeField] private float timeScale = 60f; // 1 real second = 60 game seconds (1 game minute)
     [SerializeField] private bool pauseTime = false;
@@ -11,10 +13,13 @@ public class TimeManager : MonoBehaviour
     private float gameTimeInSeconds = 0f; // Total game time elapsed
     private List<MissionTimer> activeTimers = new List<MissionTimer>();
     private int currentDayIndex = 0; // Day 0 at game start
+    private float remainingDayGameSeconds;
+    private DayState dayState = DayState.PreBell;
     
     public delegate void TimeUpdateDelegate(float gameTimeDelta);
     public event TimeUpdateDelegate OnTimeUpdate;
     public event System.Action<int> OnDayStarted; // Fires with day index (0-based)
+    public event System.Action<DayState> OnDayStateChanged;
 
     private float DayLengthGameSeconds => Mathf.Max(1f, dayLengthRealSeconds * timeScale);
 
@@ -26,6 +31,8 @@ public class TimeManager : MonoBehaviour
         {
             dayLengthRealSeconds = config.dayLengthSeconds;
         }
+
+        remainingDayGameSeconds = DayLengthGameSeconds;
 
         // Fire day 0 start so systems can run once at beginning
         OnDayStarted?.Invoke(currentDayIndex);
@@ -39,33 +46,39 @@ public class TimeManager : MonoBehaviour
         float gameDeltaTime = realDeltaTime * timeScale;
         
         gameTimeInSeconds += gameDeltaTime;
+
+        bool allowTimers = dayState != DayState.PreBell;
         
-        // Update all active timers
-        for (int i = activeTimers.Count - 1; i >= 0; i--)
+        if (allowTimers)
         {
-            if (activeTimers[i] != null)
+            // Update all active timers
+            for (int i = activeTimers.Count - 1; i >= 0; i--)
             {
-                var timer = activeTimers[i];
-                timer.Update(gameDeltaTime);
-                
-                if (timer.IsExpired())
+                if (activeTimers[i] != null)
                 {
-                    // Remove first to avoid re-entrancy double-removal
-                    activeTimers.RemoveAt(i);
-                    timer.OnExpired?.Invoke();
+                    var timer = activeTimers[i];
+                    timer.Update(gameDeltaTime);
+                    
+                    if (timer.IsExpired())
+                    {
+                        // Remove first to avoid re-entrancy double-removal
+                        activeTimers.RemoveAt(i);
+                        timer.OnExpired?.Invoke();
+                    }
+                }
+            }
+
+            if (dayState == DayState.Active)
+            {
+                remainingDayGameSeconds = Mathf.Max(0f, remainingDayGameSeconds - gameDeltaTime);
+                if (remainingDayGameSeconds <= 0f)
+                {
+                    SetDayState(DayState.Evening);
                 }
             }
         }
         
         OnTimeUpdate?.Invoke(gameDeltaTime);
-
-        // Check day rollover
-        int newDayIndex = Mathf.FloorToInt(gameTimeInSeconds / DayLengthGameSeconds);
-        if (newDayIndex > currentDayIndex)
-        {
-            currentDayIndex = newDayIndex;
-            OnDayStarted?.Invoke(currentDayIndex);
-        }
     }
     
     public void RegisterTimer(MissionTimer timer)
@@ -143,7 +156,7 @@ public class TimeManager : MonoBehaviour
 
     public float GetSecondsRemainingInDay()
     {
-        return Mathf.Max(0f, DayLengthGameSeconds - GetSecondsIntoCurrentDay());
+        return Mathf.Max(0f, remainingDayGameSeconds);
     }
 
     public float GetDayLengthRealSeconds()
@@ -155,7 +168,35 @@ public class TimeManager : MonoBehaviour
     {
         float length = DayLengthGameSeconds;
         if (length <= 0f) return 0f;
-        return Mathf.Clamp01(GetSecondsIntoCurrentDay() / length);
+        return Mathf.Clamp01(1f - (remainingDayGameSeconds / length));
+    }
+
+    public DayState GetDayState() => dayState;
+
+    public void StartDayCountdown()
+    {
+        if (dayState != DayState.PreBell) return;
+        SetDayState(DayState.Active);
+    }
+
+    public void EnterEvening()
+    {
+        SetDayState(DayState.Evening);
+    }
+
+    public void AdvanceToNextDay()
+    {
+        currentDayIndex++;
+        remainingDayGameSeconds = DayLengthGameSeconds;
+        SetDayState(DayState.PreBell);
+        OnDayStarted?.Invoke(currentDayIndex);
+    }
+
+    private void SetDayState(DayState newState)
+    {
+        if (dayState == newState) return;
+        dayState = newState;
+        OnDayStateChanged?.Invoke(dayState);
     }
 }
 

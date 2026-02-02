@@ -237,6 +237,20 @@ public class OrderManager : MonoBehaviour
         return activeOrders.Where(o => o != null && o.IsActive()).ToList();
     }
 
+    public void ClearNonInProgressOrders()
+    {
+        offeredOrders.Clear();
+        for (int i = activeOrders.Count - 1; i >= 0; i--)
+        {
+            var o = activeOrders[i];
+            if (o == null || o.state != OrderState.InProgress)
+            {
+                activeOrders.RemoveAt(i);
+            }
+        }
+        NotifyOrdersChanged();
+    }
+
     public List<Order> GetOfferedOrders()
     {
         return new List<Order>(offeredOrders);

@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Playables;
+using UnityEngine.Animations;
 
 /// <summary>
 /// Shared animator driver used by any character that relies on the Relax animator controller.
@@ -16,6 +18,24 @@ public class SharedCharacterAnimator : MonoBehaviour
     [SerializeField] private string weaponParameter = "Weapon";
     [SerializeField] private string triggerNumberParameter = "TriggerNumber";
     [SerializeField] private string triggerParameter = "Trigger";
+    [SerializeField] private string actionIntParameter = "Action";
+
+    [Header("Optional Clip Playback (designer friendly)")]
+    [Tooltip("If true, will try to play these clips directly via Playables. Falls back to state names/parameters if missing.")]
+    [SerializeField] private bool useClipPlayback = true;
+    [SerializeField] private AnimationClip thinkingClip;
+    [SerializeField] private float thinkingClipSpeed = 1f;
+    [SerializeField] private bool thinkingClipLoop = false;
+
+    [System.Serializable]
+    public class ClipEntry
+    {
+        public AnimationClip clip;
+        public float speed = 1f;
+        public bool loop = false;
+    }
+
+    [SerializeField] private ClipEntry[] speakingClips;
 
     [Header("Dependencies")]
     [SerializeField] private Animator animator;
@@ -34,6 +54,10 @@ public class SharedCharacterAnimator : MonoBehaviour
     private bool hasWeapon;
     private bool hasTriggerNumber;
     private bool hasTrigger;
+    private bool hasAction;
+
+    // Playable-driven clip playback
+    private UnityEngine.Playables.PlayableGraph dialogueGraph;
 
     public bool AutoUpdateVelocity
     {
@@ -59,6 +83,16 @@ public class SharedCharacterAnimator : MonoBehaviour
     private void OnEnable()
     {
         InitializeBaseLayer();
+    }
+
+    private void OnDisable()
+    {
+        StopDialogueClip();
+    }
+
+    private void OnDestroy()
+    {
+        StopDialogueClip();
     }
 
     private void Update()
@@ -100,6 +134,7 @@ public class SharedCharacterAnimator : MonoBehaviour
         hasWeapon = HasParameter(weaponParameter, AnimatorControllerParameterType.Int);
         hasTriggerNumber = HasParameter(triggerNumberParameter, AnimatorControllerParameterType.Int);
         hasTrigger = HasParameter(triggerParameter, AnimatorControllerParameterType.Trigger);
+        hasAction = HasParameter(actionIntParameter, AnimatorControllerParameterType.Int);
 
         parameterCacheBuilt = true;
     }
@@ -186,9 +221,94 @@ public class SharedCharacterAnimator : MonoBehaviour
 
     public void SetTalkingValue(int value)
     {
-        if (animator == null || !hasTalking) return;
+        if (animator == null || !hasTalking)
+        {
+            if (animator != null)
+            {
+                Debug.LogWarning($"SharedCharacterAnimator: Animator '{animator.runtimeAnimatorController?.name}' has no int parameter named '{talkingIntParameter}'.", this);
+            }
+            return;
+        }
         animator.SetInteger(talkingIntParameter, value);
     }
+
+    public void SetActionValue(int value)
+    {
+        if (animator == null || !hasAction)
+        {
+            if (animator != null)
+            {
+                Debug.LogWarning($"SharedCharacterAnimator: Animator '{animator.runtimeAnimatorController?.name}' has no int parameter named '{actionIntParameter}'.", this);
+            }
+            return;
+        }
+        animator.SetInteger(actionIntParameter, value);
+    }
+
+    public bool HasTalkingParameter() => hasTalking;
+    public bool HasActionParameter() => hasAction;
+    public string GetControllerName() => animator != null ? animator.runtimeAnimatorController?.name : "<none>";
+
+    /// <summary>
+    /// Crossfades to a named state if provided. Returns true if a play was issued.
+    /// </summary>
+    #region Clip Playback
+    private void StopDialogueClip()
+    {
+        if (dialogueGraph.IsValid())
+        {
+            dialogueGraph.Destroy();
+        }
+    }
+
+    private bool PlayClip(AnimationClip clip, float duration = -1f, float speedOverride = 1f, bool loop = false)
+    {
+        if (clip == null || animator == null) return false;
+        StopDialogueClip();
+
+        dialogueGraph = PlayableGraph.Create($"DialogueClipGraph_{name}");
+        var output = AnimationPlayableOutput.Create(dialogueGraph, "DialogueOutput", animator);
+        var playable = AnimationClipPlayable.Create(dialogueGraph, clip);
+        playable.SetApplyFootIK(false);
+        playable.SetApplyPlayableIK(false);
+
+        float targetDuration = duration > 0f ? duration : clip.length;
+        float baseSpeed = Mathf.Approximately(targetDuration, 0f) ? 1f : clip.length / targetDuration;
+
+        playable.SetDuration(loop ? double.PositiveInfinity : clip.length);
+        playable.SetTime(0);
+        playable.SetSpeed(baseSpeed * Mathf.Max(0.01f, speedOverride));
+
+        output.SetSourcePlayable(playable);
+        dialogueGraph.Play();
+        if (!loop)
+        {
+            StartCoroutine(StopDialogueClipAfter(targetDuration / Mathf.Max(0.01f, (float)playable.GetSpeed())));
+        }
+        return true;
+    }
+
+    private System.Collections.IEnumerator StopDialogueClipAfter(float seconds)
+    {
+        yield return new WaitForSeconds(seconds);
+        StopDialogueClip();
+    }
+
+    public bool PlayThinkingClip(float duration = -1f)
+    {
+        if (!useClipPlayback) return false;
+        return PlayClip(thinkingClip, duration, thinkingClipSpeed, thinkingClipLoop);
+    }
+
+    public bool PlayRandomSpeakingClip()
+    {
+        if (!useClipPlayback || speakingClips == null || speakingClips.Length == 0) return false;
+        int idx = Random.Range(0, speakingClips.Length);
+        var entry = speakingClips[idx];
+        if (entry == null || entry.clip == null) return false;
+        return PlayClip(entry.clip, -1f, entry.speed <= 0f ? 1f : entry.speed, entry.loop);
+    }
+    #endregion
 
     public void ManualVelocityUpdate(Vector3 worldVelocity, Transform reference)
     {

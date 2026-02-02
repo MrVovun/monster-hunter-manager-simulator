@@ -394,6 +394,10 @@ namespace Febucci.TextAnimatorForUnity
 
         protected virtual void OnEnable() // things might have changed when disabled, e.g. autoSize etc.
         {
+            // Ensure we're initialized (domain reload during play can skip Awake)
+            TryInitializingOnce();
+            if (_wrapper == null) return;
+
             Wrapper.RequiresMeshUpdate = true;
             Animate(0);
         }

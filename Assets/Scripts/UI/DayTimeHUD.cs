@@ -10,6 +10,10 @@ public class DayTimeHUD : MonoBehaviour
     [SerializeField] private TimeManager timeManager;
     [SerializeField] private TMP_Text timeRemainingText;
     [SerializeField] private TMP_Text dayCounterText;
+    [SerializeField] private UnityEngine.UI.Image stateIcon;
+    [SerializeField] private Sprite preBellSprite;
+    [SerializeField] private Sprite activeSprite;
+    [SerializeField] private Sprite eveningSprite;
 
     private void OnEnable()
     {
@@ -18,6 +22,7 @@ public class DayTimeHUD : MonoBehaviour
         {
             timeManager.OnTimeUpdate += HandleTimeUpdate;
             timeManager.OnDayStarted += HandleDayStarted;
+            timeManager.OnDayStateChanged += HandleDayStateChanged;
         }
         RefreshTexts();
     }
@@ -28,6 +33,7 @@ public class DayTimeHUD : MonoBehaviour
         {
             timeManager.OnTimeUpdate -= HandleTimeUpdate;
             timeManager.OnDayStarted -= HandleDayStarted;
+            timeManager.OnDayStateChanged -= HandleDayStateChanged;
         }
     }
 
@@ -38,6 +44,12 @@ public class DayTimeHUD : MonoBehaviour
 
     private void HandleDayStarted(int _)
     {
+        RefreshTexts();
+    }
+
+    private void HandleDayStateChanged(TimeManager.DayState state)
+    {
+        RefreshStateIcon(state);
         RefreshTexts();
     }
 
@@ -64,6 +76,8 @@ public class DayTimeHUD : MonoBehaviour
             // convert 0-based day index to 1-based for display
             dayCounterText.text = $"Day {timeManager.GetCurrentDayIndex() + 1}";
         }
+
+        RefreshStateIcon(timeManager.GetDayState());
     }
 
     private void EnsureTimeManager()
@@ -76,5 +90,23 @@ public class DayTimeHUD : MonoBehaviour
         {
             timeManager = FindObjectOfType<TimeManager>();
         }
+    }
+
+    private void RefreshStateIcon(TimeManager.DayState state)
+    {
+        if (stateIcon == null) return;
+        switch (state)
+        {
+            case TimeManager.DayState.PreBell:
+                stateIcon.sprite = preBellSprite;
+                break;
+            case TimeManager.DayState.Active:
+                stateIcon.sprite = activeSprite;
+                break;
+            case TimeManager.DayState.Evening:
+                stateIcon.sprite = eveningSprite;
+                break;
+        }
+        stateIcon.enabled = stateIcon.sprite != null;
     }
 }

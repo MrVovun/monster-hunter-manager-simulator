@@ -417,7 +417,9 @@ namespace Febucci.TextAnimatorForUnity
         /// </remarks>
         protected virtual void OnEnable()
         {
-            if(!initialized) return;
+            // Ensure wrapper is ready after domain reload / playmode pause
+            InitializeOnce();
+            if(!initialized || _wrapper == null) return;
 
             if (!localSettings.useTypeWriter)
                 return;

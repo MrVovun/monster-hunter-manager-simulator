@@ -15,6 +15,18 @@ public class ClientBell : Interactable
 
     public override void Interact(PlayerInteraction player)
     {
+        var timeManager = GameManager.Instance != null ? GameManager.Instance.GetTimeManager() : null;
+        if (timeManager != null)
+        {
+            var state = timeManager.GetDayState();
+            if (state == TimeManager.DayState.Evening)
+            {
+                Debug.LogWarning("ClientBell: Cannot ring the bell in the evening.");
+                return;
+            }
+            timeManager.StartDayCountdown();
+        }
+
         OnInteractionStart(player);
 
         if (bellAudio != null)

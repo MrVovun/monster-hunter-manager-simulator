@@ -24,6 +24,20 @@ public class ClientSpawner : MonoBehaviour
 
     public bool HasActiveClient => activeClient != null;
 
+    /// <summary>
+    /// Returns the currently spawned client's shared animator (if any).
+    /// Used by systems that want to drive facial/talking animations during dialogue.
+    /// </summary>
+    public SharedCharacterAnimator GetActiveAnimator()
+    {
+        return animatorController;
+    }
+
+    public NavMeshAgent GetActiveClientAgent()
+    {
+        return clientAgent;
+    }
+
     public void SpawnClientForCase(InvestigationCase investigationCase)
     {
         if (investigationCase == null) return;

@@ -30,7 +30,7 @@ MonoBehaviour:
   - requiredReputation: 1
     requiredReputationPoints: 0
     orderLimit: 4
-    hunterLimit: 4
+    hunterLimit: 5
   - requiredReputation: 2
     requiredReputationPoints: 130
     orderLimit: 7

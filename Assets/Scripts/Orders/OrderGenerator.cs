@@ -5,6 +5,7 @@ public class OrderGenerator : MonoBehaviour
 {
     [Header("Difficulty Table")]
     [SerializeField] private DifficultyTable difficultyTable;
+    [SerializeField] private bool debugLogging = false;
 
     [Header("Monsters")]
     [SerializeField] private MonsterLibrary monsterLibrary;
@@ -131,6 +132,7 @@ public class OrderGenerator : MonoBehaviour
 
     private IList<MonsterData> GetMonsterPool(int? difficultyValue)
     {
+        int reputation = GameManager.Instance != null ? GameManager.Instance.GetReputation() : 0;
         if (monsterLibrary == null)
         {
             var config = GameManager.Instance != null ? GameManager.Instance.GetGameConfig() : null;
@@ -157,14 +159,24 @@ public class OrderGenerator : MonoBehaviour
 
         if (source == null) return null;
 
-        var filtered = FilterByReputation(source);
-        return difficultyValue.HasValue ? FilterByDifficulty(filtered, difficultyValue.Value) : filtered;
+        var filtered = FilterByReputation(source, reputation);
+        var final = difficultyValue.HasValue ? FilterByDifficulty(filtered, difficultyValue.Value) : filtered;
+
+        if (debugLogging)
+        {
+            int sourceCount = source != null ? source.Count : 0;
+            int repCount = filtered != null ? filtered.Count : 0;
+            int finalCount = final != null ? final.Count : 0;
+            string diffLabel = difficultyValue.HasValue ? difficultyValue.Value.ToString() : "any";
+            Debug.Log($"[OrderGenerator] Pool rep={reputation} diff={diffLabel} source={sourceCount} repFiltered={repCount} final={finalCount}", this);
+        }
+
+        return final;
     }
 
-    private IList<MonsterData> FilterByReputation(IList<MonsterData> monsters)
+    private IList<MonsterData> FilterByReputation(IList<MonsterData> monsters, int reputation)
     {
         if (monsters == null) return null;
-        int reputation = GameManager.Instance != null ? GameManager.Instance.GetReputation() : 0;
         List<MonsterData> filtered = new List<MonsterData>();
         foreach (var monster in monsters)
         {
