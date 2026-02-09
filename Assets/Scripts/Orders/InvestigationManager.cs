@@ -19,6 +19,9 @@ public class InvestigationManager : MonoBehaviour
     [SerializeField] private FirstPersonController playerController;
     [SerializeField] private Camera dialogueCamera;
     [SerializeField] private float cameraTransitionDuration = 0.5f;
+    [Header("VFX")]
+    [SerializeField] private GameObject thinkingVfxPrefab;
+    [SerializeField] private Vector3 thinkingVfxOffset = new Vector3(0f, 1.7f, 0f);
 
     private readonly Dictionary<string, InvestigationQuestion> questionLookup = new Dictionary<string, InvestigationQuestion>();
     private Vector3 dialogueCameraHomePosition;
@@ -43,6 +46,7 @@ public class InvestigationManager : MonoBehaviour
     private const int TalkingSpeakBase = 1;
     private const int ActionIdleValue = 0;
     private const int ActionThinkingValue = 4;
+    private GameObject activeThinkingVfx;
     public InvestigationCase CurrentCase { get; private set; }
     public Order CurrentOrder { get; private set; }
     public event Action OnCaseUpdated;
@@ -342,6 +346,8 @@ public class InvestigationManager : MonoBehaviour
             agent.isStopped = true;
             agent.velocity = Vector3.zero;
         }
+
+        SetThinkingVfxActive(true);
     }
 
     public void PlayClientSpeakingAnimation()
@@ -364,6 +370,8 @@ public class InvestigationManager : MonoBehaviour
             agent.isStopped = true;
             agent.velocity = Vector3.zero;
         }
+
+        SetThinkingVfxActive(false);
     }
 
     public void StopClientTalkingAnimation()
@@ -381,6 +389,8 @@ public class InvestigationManager : MonoBehaviour
         {
             agent.isStopped = false;
         }
+
+        SetThinkingVfxActive(false);
     }
 
     private void InitializeInvestigation(Order order, ClientProfile overrideProfile)
@@ -983,5 +993,39 @@ public class InvestigationManager : MonoBehaviour
         if (playerInteraction != null) return playerInteraction;
         playerInteraction = FindObjectOfType<PlayerInteraction>();
         return playerInteraction;
+    }
+
+    private void SetThinkingVfxActive(bool value)
+    {
+        if (thinkingVfxPrefab == null) return;
+
+        if (value)
+        {
+            if (activeThinkingVfx == null)
+            {
+                Transform anchor = null;
+                var anim = GetActiveClientAnimator();
+                if (anim != null) anchor = anim.transform;
+                if (anchor == null)
+                {
+                    var agent = GetActiveClientAgent();
+                    if (agent != null) anchor = agent.transform;
+                }
+
+                if (anchor == null) return;
+
+                activeThinkingVfx = Instantiate(thinkingVfxPrefab, anchor);
+                activeThinkingVfx.transform.localPosition = thinkingVfxOffset;
+                activeThinkingVfx.transform.localRotation = Quaternion.identity;
+            }
+            activeThinkingVfx.SetActive(true);
+        }
+        else
+        {
+            if (activeThinkingVfx != null)
+            {
+                activeThinkingVfx.SetActive(false);
+            }
+        }
     }
 }

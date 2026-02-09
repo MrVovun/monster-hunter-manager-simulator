@@ -29237,6 +29237,8 @@ MonoBehaviour:
   playerController: {fileID: 764345583}
   dialogueCamera: {fileID: 962342676}
   cameraTransitionDuration: 1
+  thinkingVfxPrefab: {fileID: 172654, guid: d99c8456d28dde44fa44a87e0bfbef3b, type: 3}
+  thinkingVfxOffset: {x: 0.311, y: 1.828, z: 0}
 --- !u!4 &1372397463
 Transform:
   m_ObjectHideFlags: 0
