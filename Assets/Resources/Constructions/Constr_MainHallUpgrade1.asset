@@ -13,12 +13,16 @@ MonoBehaviour:
   m_Name: Constr_MainHallUpgrade1
   m_EditorClassIdentifier: Assembly-CSharp::GuildConstructionDefinition
   constructionId: Constr_MainHallUpgrade1
-  displayName: Main Hall Upgrade (1)
-  description: 
+  displayName: Main Hall Upgrade
+  description: Main Hall is the bread and butter of any guild. Here you can access
+    the war table, accept orders and hire new hunters. Healthy hunters awaiting for
+    orders idle here. It is decorated with a trophy wall, showcasing all the monsters
+    the guild slain.
   previewImage: {fileID: 0}
   builtPreviewImage: {fileID: 0}
   planOverlay: {fileID: 21300000, guid: 82bdd90ee982e14418135de88784efff, type: 3}
-  goldCost: 0
+  goldCost: 500
   requiredReputation: 3
   prerequisite: {fileID: 11400000, guid: ced3e1246a3430e48af4afb09f4aba0d, type: 2}
   startsBuilt: 0
+  hunterCapacityIncrease: 0
