@@ -465,7 +465,7 @@ public class OrderDetailPanel : MonoBehaviour
     {
         if (successTelemetryText == null) return;
         var party = partyFormation != null ? partyFormation.GetParty() : null;
-        var lines = MissionOutcomeCalculator.BuildSuccessTelemetryLines(order, party);
+        var lines = MissionOutcomeCalculator.BuildPreviewSuccessTelemetryLines(order, party);
         successTelemetryText.text = lines != null && lines.Count > 0
             ? "Modifiers:\n" + string.Join("\n", lines)
             : "Modifiers:\nNo active success modifiers.";

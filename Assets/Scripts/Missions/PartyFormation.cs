@@ -77,9 +77,8 @@ public class PartyFormation : MonoBehaviour
     public float CalculateSuccessChance()
     {
         if (currentOrder == null || currentParty.Count == 0) return 0f;
-        
-        Mission mission = new Mission(currentOrder, currentParty);
-        return mission.CalculateSuccessChance();
+
+        return MissionOutcomeCalculator.EvaluatePreview(currentOrder, currentParty).SuccessChancePercent;
     }
     
     public string GetRiskLevel()

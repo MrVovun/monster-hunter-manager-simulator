@@ -8,6 +8,16 @@ public static class MissionOutcomeCalculator
 
     public static List<string> BuildSuccessTelemetryLines(Order order, List<Hunter> party)
     {
+        return BuildSuccessTelemetryLines(order, party, GetTruthMonster(order), CollectMonsterTraits(order));
+    }
+
+    public static List<string> BuildPreviewSuccessTelemetryLines(Order order, List<Hunter> party)
+    {
+        return BuildSuccessTelemetryLines(order, party, GetPreviewMonster(order), CollectPreviewMonsterTraits(order));
+    }
+
+    private static List<string> BuildSuccessTelemetryLines(Order order, List<Hunter> party, MonsterData monsterForConditions, List<MonsterTrait> monsterTraits)
+    {
         var lines = new List<string>();
         if (order == null)
         {
@@ -23,7 +33,6 @@ public static class MissionOutcomeCalculator
 
         int partySize = party.Count;
         var counteredTraits = BuildCounteredTraitSet(party);
-        var monsterTraits = CollectMonsterTraits(order);
         foreach (var monsterTrait in monsterTraits)
         {
             if (monsterTrait == null) continue;
@@ -73,7 +82,7 @@ public static class MissionOutcomeCalculator
                 foreach (var effect in trait.bonusEffects)
                 {
                     if (effect == null) continue;
-                    if (!DoesConditionPassPreview(effect.condition, order.monsterData, partySize)) continue;
+                    if (!DoesConditionPassPreview(effect.condition, monsterForConditions, partySize)) continue;
 
                     string hunterName = !string.IsNullOrWhiteSpace(hunter.name) ? hunter.name : "Hunter";
                     string traitName = !string.IsNullOrWhiteSpace(trait.displayName) ? trait.displayName : "Trait";
@@ -113,6 +122,16 @@ public static class MissionOutcomeCalculator
 
     public static MissionOutcomeResult Evaluate(Order order, List<Hunter> party, MissionOutcomeConfig? configOverride = null)
     {
+        return Evaluate(order, party, configOverride, GetTruthMonster(order), CollectMonsterTraits(order));
+    }
+
+    public static MissionOutcomeResult EvaluatePreview(Order order, List<Hunter> party, MissionOutcomeConfig? configOverride = null)
+    {
+        return Evaluate(order, party, configOverride, GetPreviewMonster(order), CollectPreviewMonsterTraits(order));
+    }
+
+    private static MissionOutcomeResult Evaluate(Order order, List<Hunter> party, MissionOutcomeConfig? configOverride, MonsterData monsterForConditions, List<MonsterTrait> monsterTraits)
+    {
         var config = ResolveConfig(configOverride);
         var result = new MissionOutcomeResult();
         result.RequiredPower = Mathf.Max(1f, order != null ? order.difficulty : 1f);
@@ -145,16 +164,15 @@ public static class MissionOutcomeCalculator
         float missionTimeMultiplier = 1f;
 
         var counteredTraits = BuildCounteredTraitSet(party);
-        var monsterTraits = CollectMonsterTraits(order);
         foreach (var monsterTrait in monsterTraits)
         {
             if (monsterTrait == null) continue;
             if (IsCountered(monsterTrait, counteredTraits)) continue;
-            ApplyMonsterEffects(monsterTrait, order, ref requiredMultiplier, ref partyMultiplier, ref injuryChance, ref deathChance, ref guaranteeInjury, ref allowDeathWithoutInjury, ref capSuccessLimit, ref missionTimeMultiplier);
+            ApplyMonsterEffects(monsterTrait, monsterForConditions, ref requiredMultiplier, ref partyMultiplier, ref injuryChance, ref deathChance, ref guaranteeInjury, ref allowDeathWithoutInjury, ref capSuccessLimit, ref missionTimeMultiplier);
         }
 
         // Apply hunter-driven mission effects
-        ApplyHunterMissionEffects(order, party, ref requiredMultiplier, ref partyMultiplier, ref injuryChance, ref deathChance, ref guaranteeInjury, ref allowDeathWithoutInjury, ref capSuccessLimit, ref missionTimeMultiplier);
+        ApplyHunterMissionEffects(monsterForConditions, party, ref requiredMultiplier, ref partyMultiplier, ref injuryChance, ref deathChance, ref guaranteeInjury, ref allowDeathWithoutInjury, ref capSuccessLimit, ref missionTimeMultiplier);
 
         result.RequiredPower = Mathf.Max(1f, result.RequiredPower * Mathf.Max(0.01f, requiredMultiplier));
         result.PartyPower = Mathf.Max(0f, result.PartyPower * Mathf.Max(0f, partyMultiplier));
@@ -162,7 +180,7 @@ public static class MissionOutcomeCalculator
         float ratio = result.RequiredPower <= 0f ? MaxSuccessChance : (result.PartyPower / result.RequiredPower) * 100f;
         float baseSuccess = Mathf.Clamp(ratio, 0f, MaxSuccessChance);
 
-        var aggregate = AggregateHunterBonuses(order?.monsterData, party);
+        var aggregate = AggregateHunterBonuses(monsterForConditions, party);
         missionTimeMultiplier *= Mathf.Clamp(1f - (aggregate.missionTimeReductionPercent / 100f), 0.01f, 1f);
         float successChance = Mathf.Clamp(baseSuccess + aggregate.successChanceBonus, 0f, MaxSuccessChance);
         successChance = Mathf.Clamp(successChance, 0f, capSuccessLimit);
@@ -206,6 +224,40 @@ public static class MissionOutcomeCalculator
             list.AddRange(caseData.truthTraits);
         }
         return list;
+    }
+
+    private static List<MonsterTrait> CollectPreviewMonsterTraits(Order order)
+    {
+        var list = new List<MonsterTrait>();
+        if (order == null) return list;
+
+        var caseData = order.investigationCase;
+        if (caseData == null || caseData.truthTraits == null || caseData.confirmedTraitIds == null || caseData.confirmedTraitIds.Count == 0)
+        {
+            return list;
+        }
+
+        foreach (var trait in caseData.truthTraits)
+        {
+            if (trait == null || string.IsNullOrEmpty(trait.traitId)) continue;
+            if (caseData.confirmedTraitIds.Exists(id => string.Equals(id, trait.traitId, StringComparison.OrdinalIgnoreCase)))
+            {
+                list.Add(trait);
+            }
+        }
+
+        return list;
+    }
+
+    private static MonsterData GetTruthMonster(Order order)
+    {
+        return order != null ? order.monsterData : null;
+    }
+
+    private static MonsterData GetPreviewMonster(Order order)
+    {
+        if (order == null) return null;
+        return order.declaredMonster != null ? order.declaredMonster : order.monsterData;
     }
 
     private static HashSet<string> BuildCounteredTraitSet(List<Hunter> party)
@@ -265,16 +317,16 @@ public static class MissionOutcomeCalculator
         return false;
     }
 
-    private static void ApplyMonsterEffects(MonsterTrait trait, Order order, ref float requiredMultiplier, ref float partyMultiplier, ref float injuryChance, ref float deathChance, ref bool guaranteeInjury, ref bool allowDeathWithoutInjury, ref float capSuccessLimit, ref float missionTimeMultiplier)
+    private static void ApplyMonsterEffects(MonsterTrait trait, MonsterData monsterForConditions, ref float requiredMultiplier, ref float partyMultiplier, ref float injuryChance, ref float deathChance, ref bool guaranteeInjury, ref bool allowDeathWithoutInjury, ref float capSuccessLimit, ref float missionTimeMultiplier)
     {
         if (trait == null || trait.missionEffects == null) return;
 
         foreach (var effect in trait.missionEffects)
         {
             if (effect == null) continue;
-            if (effect.targetMonster != null && order != null)
+            if (effect.targetMonster != null)
             {
-                if (order.monsterData != effect.targetMonster) continue;
+                if (monsterForConditions != effect.targetMonster) continue;
             }
             float value = effect.value;
             switch (effect.effectType)
@@ -316,7 +368,7 @@ public static class MissionOutcomeCalculator
         deathChance = Mathf.Clamp01(deathChance);
     }
 
-    private static void ApplyHunterMissionEffects(Order order, List<Hunter> party, ref float requiredMultiplier, ref float partyMultiplier, ref float injuryChance, ref float deathChance, ref bool guaranteeInjury, ref bool allowDeathWithoutInjury, ref float capSuccessLimit, ref float missionTimeMultiplier)
+    private static void ApplyHunterMissionEffects(MonsterData monsterForConditions, List<Hunter> party, ref float requiredMultiplier, ref float partyMultiplier, ref float injuryChance, ref float deathChance, ref bool guaranteeInjury, ref bool allowDeathWithoutInjury, ref float capSuccessLimit, ref float missionTimeMultiplier)
     {
         if (party == null) return;
         foreach (var hunter in party)
@@ -329,7 +381,7 @@ public static class MissionOutcomeCalculator
                 foreach (var effect in trait.missionEffects)
                 {
                     if (effect == null) continue;
-                    if (effect.targetMonster != null && order != null && order.monsterData != effect.targetMonster) continue;
+                    if (effect.targetMonster != null && monsterForConditions != effect.targetMonster) continue;
                     float value = effect.value;
                     switch (effect.effectType)
                     {

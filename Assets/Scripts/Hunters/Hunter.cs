@@ -179,6 +179,9 @@ public class Hunter : MonoBehaviour
         }
         else if (newState == HunterState.Dead)
         {
+            isStandingUp = false;
+            standUpTimer = 0f;
+            isDepartingForMission = false;
             isWalkingToInfirmary = false;
             infirmaryTarget = null;
             infirmaryArrivalCallback = null;
@@ -194,10 +197,7 @@ public class Hunter : MonoBehaviour
             standUpCompletedAction = null;
             sharedAnimator?.StopClipPlayback();
             ReleaseSeat();
-            if (navAgent != null)
-            {
-                navAgent.enabled = false;
-            }
+            CompleteDeparture();
         }
     }
 
