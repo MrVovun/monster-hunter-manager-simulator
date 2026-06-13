@@ -17,7 +17,9 @@ MonoBehaviour:
   description: In the briefing room, the guild's manager can assemble their hunters
     for a briefing. A briefing will boost the morale of the hunters, increasing their
     succes chance on the mission for the day.
-  planOverlay: {fileID: 0}
+  previewImage: {fileID: 0}
+  builtPreviewImage: {fileID: 0}
+  planOverlay: {fileID: 21300000, guid: 85982d0a8f090a0458c594e5d10d757a, type: 3}
   goldCost: 0
   requiredReputation: 1
   prerequisite: {fileID: 0}

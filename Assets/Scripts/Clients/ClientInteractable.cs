@@ -30,6 +30,20 @@ public class ClientInteractable : Interactable
         interactionDisabled = false;
     }
 
+    public void SetInteractionEnabled(bool enabled)
+    {
+        interactionDisabled = !enabled;
+        if (!enabled)
+        {
+            ReleasePlayerLock();
+        }
+    }
+
+    public override bool IsInteractionAvailable()
+    {
+        return base.IsInteractionAvailable() && !interactionDisabled;
+    }
+
     public override void Interact(PlayerInteraction player)
     {
         if (interactionDisabled) return;
@@ -79,7 +93,6 @@ public class ClientInteractable : Interactable
 
     public void DisableInteraction()
     {
-        interactionDisabled = true;
-        ReleasePlayerLock();
+        SetInteractionEnabled(false);
     }
 }

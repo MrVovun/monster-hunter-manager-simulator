@@ -24,6 +24,7 @@ public class GuildConstructionManager : MonoBehaviour
     [SerializeField] private AudioSource audioSource;
 
     public event Action OnStateChanged;
+    public event Action<GuildConstructionDefinition> OnConstructionBuilt;
 
     private readonly Dictionary<string, GuildConstructionDefinition> definitionLookup = new Dictionary<string, GuildConstructionDefinition>(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, List<GuildConstructionInstance>> instanceLookup = new Dictionary<string, List<GuildConstructionInstance>>(StringComparer.OrdinalIgnoreCase);
@@ -56,10 +57,7 @@ public class GuildConstructionManager : MonoBehaviour
 
         foreach (var def in gameConfig.guildConstructions)
         {
-            if (def == null || string.IsNullOrEmpty(def.ConstructionId)) continue;
-            if (definitionLookup.ContainsKey(def.ConstructionId)) continue;
-            definitionLookup.Add(def.ConstructionId, def);
-            orderedDefinitions.Add(def);
+            RegisterDefinition(def);
         }
     }
 
@@ -70,14 +68,21 @@ public class GuildConstructionManager : MonoBehaviour
         {
             constructionInstances = new List<GuildConstructionInstance>();
         }
-        if (constructionInstances.Count == 0)
+
+        var discovered = FindObjectsOfType<GuildConstructionInstance>(true);
+        foreach (var instance in discovered)
         {
-            var discovered = FindObjectsOfType<GuildConstructionInstance>(true);
-            constructionInstances.AddRange(discovered);
+            if (instance != null && !constructionInstances.Contains(instance))
+            {
+                constructionInstances.Add(instance);
+            }
         }
+
         constructionInstances.RemoveAll(i => i == null || i.Definition == null || string.IsNullOrEmpty(i.Definition.ConstructionId));
         foreach (var instance in constructionInstances)
         {
+            RegisterDefinition(instance.Definition);
+
             var id = instance.Definition.ConstructionId;
             if (!instanceLookup.TryGetValue(id, out var list))
             {
@@ -86,6 +91,15 @@ public class GuildConstructionManager : MonoBehaviour
             }
             list.Add(instance);
         }
+    }
+
+    private void RegisterDefinition(GuildConstructionDefinition definition)
+    {
+        if (definition == null || string.IsNullOrEmpty(definition.ConstructionId)) return;
+        if (definitionLookup.ContainsKey(definition.ConstructionId)) return;
+
+        definitionLookup.Add(definition.ConstructionId, definition);
+        orderedDefinitions.Add(definition);
     }
 
     private void LoadState()
@@ -218,11 +232,23 @@ public class GuildConstructionManager : MonoBehaviour
         return builtIds.Contains(definition.ConstructionId);
     }
 
+    public int GetBuiltHunterCapacityIncrease()
+    {
+        int total = 0;
+        foreach (var def in orderedDefinitions)
+        {
+            if (def == null || !IsBuilt(def)) continue;
+            total += Mathf.Max(0, def.hunterCapacityIncrease);
+        }
+        return total;
+    }
+
     public ConstructionStatus GetStatus(GuildConstructionDefinition definition)
     {
         if (definition == null) return ConstructionStatus.Unavailable;
         if (IsBuilt(definition)) return ConstructionStatus.Built;
         if (!HasRequiredReputation(definition)) return ConstructionStatus.Unavailable;
+        if (!HasRequiredGold(definition)) return ConstructionStatus.Unavailable;
         return ConstructionStatus.Available;
     }
 
@@ -231,6 +257,35 @@ public class GuildConstructionManager : MonoBehaviour
         if (definition == null) return false;
         int reputation = reputationManager != null ? reputationManager.GetReputation() : 0;
         return reputation >= definition.requiredReputation;
+    }
+
+    public bool HasRequiredGold(GuildConstructionDefinition definition)
+    {
+        if (definition == null) return false;
+        if (definition.goldCost <= 0) return true;
+        return goldManager != null && goldManager.GetGold() >= definition.goldCost;
+    }
+
+    public string GetUnavailableReason(GuildConstructionDefinition definition)
+    {
+        if (definition == null) return string.Empty;
+        if (!MeetsVisibilityPrerequisite(definition))
+        {
+            return definition.prerequisite != null
+                ? $"Requires {definition.prerequisite.displayName}"
+                : "Requires prerequisite construction";
+        }
+        if (!HasRequiredReputation(definition))
+        {
+            int reputation = reputationManager != null ? reputationManager.GetReputation() : 0;
+            return $"Requires reputation {definition.requiredReputation} (current {reputation})";
+        }
+        if (!HasRequiredGold(definition))
+        {
+            int gold = goldManager != null ? goldManager.GetGold() : 0;
+            return $"Requires {definition.goldCost} gold (current {gold})";
+        }
+        return string.Empty;
     }
 
     public bool TryBuild(GuildConstructionDefinition definition)
@@ -253,6 +308,12 @@ public class GuildConstructionManager : MonoBehaviour
         SaveState();
         PlayBuildSfx();
         OnStateChanged?.Invoke();
+        OnConstructionBuilt?.Invoke(definition);
+
+        var config = GameManager.Instance != null ? GameManager.Instance.GetGameConfig() : null;
+        var tm = GameManager.Instance != null ? GameManager.Instance.GetTimeManager() : null;
+        float cost = config != null ? config.actionTimeSettings.buildSeconds : 0f;
+        tm?.AdvanceTime(cost);
         return true;
     }
 

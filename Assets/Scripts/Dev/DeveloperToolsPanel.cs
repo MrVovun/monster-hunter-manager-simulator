@@ -21,6 +21,7 @@ public class DeveloperToolsPanel : MonoBehaviour
     private GoldManager goldManager;
     private ReputationManager reputationManager;
     private InvestigationManager investigationManager;
+    private NotificationManager notificationManager;
     private MonsterSlainTracker slainTracker;
     private MonsterLibrary monsterLibrary;
 
@@ -91,6 +92,7 @@ public class DeveloperToolsPanel : MonoBehaviour
             reputationManager = gm.GetReputationManager();
             investigationManager = gm.GetInvestigationManager();
             constructionManager = gm.GetConstructionManager();
+            notificationManager = gm.GetNotificationManager();
             monsterLibrary = gm.GetGameConfig() != null ? gm.GetGameConfig().monsterLibrary : null;
         }
 
@@ -200,13 +202,18 @@ public class DeveloperToolsPanel : MonoBehaviour
 
         if (reputationManager != null)
         {
-        GUILayout.Label($"Reputation: {reputationManager.GetReputation():0.##} (Points: {reputationManager.GetReputationPointsPrecise():0.##})");
+            GUILayout.Label($"Reputation: {reputationManager.GetReputation():0.##} (Points: {reputationManager.GetReputationPointsPrecise():0.##})");
+            GUILayout.Label(reputationManager.GetProgressText());
             GUILayout.BeginHorizontal();
-        if (GUILayout.Button("+5 pts")) reputationManager.AddReputationPoints(5f);
-        if (GUILayout.Button("+25 pts")) reputationManager.AddReputationPoints(25f);
-        if (GUILayout.Button("-5 pts")) reputationManager.AddReputationPoints(-5f);
-        if (GUILayout.Button("-25 pts")) reputationManager.AddReputationPoints(-25f);
+            if (GUILayout.Button("+5 pts")) reputationManager.AddReputationPoints(5f);
+            if (GUILayout.Button("+25 pts")) reputationManager.AddReputationPoints(25f);
+            if (GUILayout.Button("-5 pts")) reputationManager.AddReputationPoints(-5f);
+            if (GUILayout.Button("-25 pts")) reputationManager.AddReputationPoints(-25f);
             GUILayout.EndHorizontal();
+            if (GUILayout.Button("Reset Reputation To Default"))
+            {
+                reputationManager.ResetToDefault();
+            }
         }
         else
         {
@@ -229,6 +236,28 @@ public class DeveloperToolsPanel : MonoBehaviour
                 else
                 {
                     Debug.LogWarning("DeveloperTools: ConstructionManager not found.");
+                }
+            }
+        }
+
+        using (new GUILayout.HorizontalScope())
+        {
+            if (GUILayout.Button("Clear Notification History"))
+            {
+                if (notificationManager == null)
+                {
+                    notificationManager = GameManager.Instance != null
+                        ? GameManager.Instance.GetNotificationManager()
+                        : FindObjectOfType<NotificationManager>();
+                }
+
+                if (notificationManager != null)
+                {
+                    notificationManager.ClearHistory();
+                }
+                else
+                {
+                    Debug.LogWarning("DeveloperTools: NotificationManager not found.");
                 }
             }
         }

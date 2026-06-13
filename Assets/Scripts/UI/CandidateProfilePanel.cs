@@ -75,6 +75,7 @@ public class CandidateProfilePanel : MonoBehaviour
             hireButton.onClick.RemoveAllListeners();
             hireButton.onClick.AddListener(OnHirePressed);
             hireButton.interactable = canAct;
+            RefreshButtonVisual(hireButton);
         }
 
         if (declineButton != null)
@@ -82,6 +83,7 @@ public class CandidateProfilePanel : MonoBehaviour
             declineButton.onClick.RemoveAllListeners();
             declineButton.onClick.AddListener(OnDeclinePressed);
             declineButton.interactable = canAct;
+            RefreshButtonVisual(declineButton);
         }
 
         if (closeButton != null)
@@ -101,6 +103,16 @@ public class CandidateProfilePanel : MonoBehaviour
     {
         if (activeCandidate == null) return;
         recruitmentManager?.DeclineCandidate(activeCandidate);
+    }
+
+    private void RefreshButtonVisual(Button button)
+    {
+        if (button == null) return;
+        var visualFeedback = button.GetComponent<UIButtonVisualFeedback>();
+        if (visualFeedback != null)
+        {
+            visualFeedback.RefreshVisualState(true);
+        }
     }
 
     private void ApplyCursorState(bool panelActive)

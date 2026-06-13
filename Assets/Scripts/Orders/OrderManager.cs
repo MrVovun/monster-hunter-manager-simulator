@@ -18,13 +18,34 @@ public class OrderManager : MonoBehaviour
     private TimeManager timeManager;
 
     public System.Action<MissionReport> OnMissionResolved;
+    public event System.Action<Order> OnOrderAccepted;
+    public event System.Action<Order> OnOrderReferred;
+    public event System.Action<Order, List<Hunter>> OnMissionStarted;
     public event System.Action OnOrdersChanged;
 
     public void Initialize(OrderGenerator generator, MissionResolver resolver, TimeManager timeMgr)
     {
         orderGenerator = generator != null ? generator : FindObjectOfType<OrderGenerator>();
         missionResolver = resolver != null ? resolver : FindObjectOfType<MissionResolver>();
+
+        if (timeManager != null)
+        {
+            timeManager.OnDayStateChanged -= HandleDayStateChanged;
+        }
+
         timeManager = timeMgr != null ? timeMgr : FindObjectOfType<TimeManager>();
+        if (timeManager != null)
+        {
+            timeManager.OnDayStateChanged += HandleDayStateChanged;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (timeManager != null)
+        {
+            timeManager.OnDayStateChanged -= HandleDayStateChanged;
+        }
     }
 
     public Order GenerateAndOfferOrder()
@@ -48,6 +69,7 @@ public class OrderManager : MonoBehaviour
 
         order.state = OrderState.Accepted;
         NotifyOrdersChanged();
+        OnOrderAccepted?.Invoke(order);
         return true;
     }
 
@@ -75,6 +97,7 @@ public class OrderManager : MonoBehaviour
         }
         
         NotifyOrdersChanged();
+        OnOrderReferred?.Invoke(order);
     }
 
     public bool StartMission(Order order, List<Hunter> party)
@@ -82,6 +105,8 @@ public class OrderManager : MonoBehaviour
         if (order == null || party == null || party.Count == 0) return false;
         if (order.state != OrderState.Accepted) return false;
         if (party.Count < order.minPartySize || party.Count > order.maxPartySize) return false;
+        var tm = GameManager.Instance != null ? GameManager.Instance.GetTimeManager() : null;
+        if (tm != null && (tm.GetDayState() == TimeManager.DayState.Evening || tm.GetDayState() == TimeManager.DayState.PreBell)) return false;
 
         order.assignedHunters.Clear();
         order.assignedHunters.AddRange(party);
@@ -105,6 +130,11 @@ public class OrderManager : MonoBehaviour
         StartMissionTimer(order);
         NotifyOrdersChanged();
         NotifyHunterRosterChanged();
+        OnMissionStarted?.Invoke(order, new List<Hunter>(party));
+
+        var config = GameManager.Instance != null ? GameManager.Instance.GetGameConfig() : null;
+        float cost = config != null ? config.actionTimeSettings.sendPartySeconds : 0f;
+        tm?.AdvanceTime(cost);
         return true;
     }
 
@@ -172,6 +202,20 @@ public class OrderManager : MonoBehaviour
         NotifyHunterRosterChanged();
     }
 
+    private void HandleDayStateChanged(TimeManager.DayState state)
+    {
+        if (state != TimeManager.DayState.Evening) return;
+
+        var inProgressOrders = activeOrders
+            .Where(order => order != null && order.state == OrderState.InProgress)
+            .ToList();
+
+        foreach (var order in inProgressOrders)
+        {
+            ResolveOrder(order);
+        }
+    }
+
     private void CleanupMissionTimer(Order order)
     {
         if (order?.missionTimer != null && timeManager != null)
@@ -206,6 +250,11 @@ public class OrderManager : MonoBehaviour
     public List<Order> GetActiveOrders()
     {
         return activeOrders.Where(o => o != null && o.IsActive()).ToList();
+    }
+
+    public bool HasInProgressOrders()
+    {
+        return activeOrders.Any(order => order != null && order.state == OrderState.InProgress);
     }
 
     public void ClearNonInProgressOrders()

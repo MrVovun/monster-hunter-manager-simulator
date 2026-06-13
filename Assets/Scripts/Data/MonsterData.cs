@@ -19,6 +19,12 @@ public class MonsterData : ScriptableObject
     public int requiredReputation = 0;
     [Tooltip("Minimum mission difficulty required for this monster to appear in an order.")]
     public int minimumDifficulty = 0;
+    [Tooltip("Mission difficulty where this monster is most likely to appear. Defaults to Minimum Difficulty when left at 0.")]
+    public int preferredDifficulty = 0;
+    [Tooltip("How far from Preferred Difficulty this monster remains common. Higher values keep it in rotation longer.")]
+    public float difficultyFalloff = 40f;
+    [Tooltip("Shape of the preferred difficulty curve. Higher values make the preference sharper.")]
+    [Range(0.25f, 4f)] public float difficultyFalloffPower = 2f;
 
     [Header("Traits / Counters")]
     [Tooltip("Pool of traits that this monster can roll during truth generation.")]
@@ -65,8 +71,29 @@ public class MonsterData : ScriptableObject
         }
 
         minimumDifficulty = Mathf.Max(0, minimumDifficulty);
+        if (preferredDifficulty <= 0)
+        {
+            preferredDifficulty = minimumDifficulty;
+        }
+        preferredDifficulty = Mathf.Max(minimumDifficulty, preferredDifficulty);
+        difficultyFalloff = Mathf.Max(1f, difficultyFalloff);
+        difficultyFalloffPower = Mathf.Max(0.25f, difficultyFalloffPower);
         traitCountRange.x = Mathf.Max(0, traitCountRange.x);
         traitCountRange.y = Mathf.Max(traitCountRange.x, traitCountRange.y);
+    }
+
+    public float GetDifficultySelectionMultiplier(int difficultyValue)
+    {
+        if (difficultyValue < minimumDifficulty)
+        {
+            return 0f;
+        }
+
+        int preferred = preferredDifficulty > 0 ? preferredDifficulty : minimumDifficulty;
+        float distance = Mathf.Abs(difficultyValue - preferred);
+        float normalizedDistance = distance / Mathf.Max(1f, difficultyFalloff);
+        float curve = Mathf.Pow(normalizedDistance, Mathf.Max(0.25f, difficultyFalloffPower));
+        return 1f / (1f + curve);
     }
 
 #if UNITY_EDITOR

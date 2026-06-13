@@ -1,10 +1,12 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class HuntersTab : MonoBehaviour
 {
     [SerializeField] private Transform listParent;
     [SerializeField] private HunterRosterItem hunterRosterItemPrefab;
+    [SerializeField] private Button levelUpButton;
 
     [Header("Details Panel")]
     [SerializeField] private HunterDetailsPanel detailsPanel;
@@ -47,6 +49,8 @@ public class HuntersTab : MonoBehaviour
         {
             detailsPanel?.Clear();
         }
+
+        UpdateLevelUpButtonState(hunters);
     }
 
     public void PayAndLevelUpAffordable()
@@ -77,11 +81,52 @@ public class HuntersTab : MonoBehaviour
         {
             detailsPanel?.Clear();
         }
+        UpdateLevelUpButtonState();
     }
 
     public void ClearSelection()
     {
         selectedHunter = null;
         detailsPanel?.Clear();
+        UpdateLevelUpButtonState();
+    }
+
+    private void UpdateLevelUpButtonState(List<Hunter> hunters = null)
+    {
+        if (levelUpButton == null) return;
+
+        HunterManager manager = GameManager.Instance != null ? GameManager.Instance.GetHunterManager() : null;
+        GoldManager gold = GameManager.Instance != null ? GameManager.Instance.GetGoldManager() : null;
+        if (manager == null || gold == null)
+        {
+            SetLevelUpButtonInteractable(false);
+            return;
+        }
+
+        if (hunters == null)
+        {
+            hunters = manager.GetAllHunters();
+        }
+
+        bool canLevelAny = false;
+        foreach (var hunter in hunters)
+        {
+            if (hunter == null || !hunter.CanLevelUp()) continue;
+            if (gold.GetGold() < hunter.GetLevelUpCost()) continue;
+            canLevelAny = true;
+            break;
+        }
+
+        SetLevelUpButtonInteractable(canLevelAny);
+    }
+
+    private void SetLevelUpButtonInteractable(bool value)
+    {
+        levelUpButton.interactable = value;
+        var visualFeedback = levelUpButton.GetComponent<UIButtonVisualFeedback>();
+        if (visualFeedback != null)
+        {
+            visualFeedback.RefreshVisualState(true);
+        }
     }
 }

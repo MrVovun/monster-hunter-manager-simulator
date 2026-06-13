@@ -18,27 +18,7 @@ public class HunterLevelSystem : MonoBehaviour
     
     public void AddXP(int amount)
     {
-        currentXP += amount;
-        
-        // Check for level ups
-        while (CanLevelUp())
-        {
-            int xpNeeded = GetXPForNextLevel();
-            if (xpNeeded == int.MaxValue)
-            {
-                currentXP = Mathf.Min(currentXP, xpNeeded);
-                break;
-            }
-            if (currentXP >= xpNeeded)
-            {
-                currentXP -= xpNeeded;
-                currentLevel++;
-            }
-            else
-            {
-                break;
-            }
-        }
+        currentXP = Mathf.Max(0, currentXP + amount);
     }
     
     public bool CanLevelUp()

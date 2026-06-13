@@ -24,6 +24,11 @@ public class PlayerInteraction : MonoBehaviour
         }
     }
 
+    private void OnDisable()
+    {
+        InteractionPromptUI.Instance?.HidePrompt();
+    }
+
     private void Update()
     {
         UpdateFocus();
@@ -59,7 +64,7 @@ public class PlayerInteraction : MonoBehaviour
         if (Physics.Raycast(ray, out RaycastHit hit, interactionRange, interactionMask, QueryTriggerInteraction.Collide))
         {
             Interactable interactable = hit.collider.GetComponentInParent<Interactable>();
-            if (interactable != null && interactable.isActiveAndEnabled)
+            if (interactable != null && interactable.IsInteractionAvailable())
             {
                 if (interactable != currentInteractable)
                 {
@@ -93,7 +98,16 @@ public class PlayerInteraction : MonoBehaviour
         }
         if (currentInteractable != null)
         {
-            InteractionPromptUI.Instance.ShowPrompt(currentInteractable.GetInteractionPrompt());
+            if (currentInteractable.IsInteractionAvailable())
+            {
+                InteractionPromptUI.Instance.ShowPrompt(currentInteractable.GetInteractionPrompt());
+            }
+            else
+            {
+                currentInteractable.OnPlayerExit();
+                currentInteractable = null;
+                InteractionPromptUI.Instance.HidePrompt();
+            }
         }
         else
         {

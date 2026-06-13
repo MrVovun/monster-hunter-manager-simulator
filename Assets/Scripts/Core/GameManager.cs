@@ -15,6 +15,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TimeManager timeManager;
     [SerializeField] private InvestigationManager investigationManager;
     [SerializeField] private GuildConstructionManager constructionManager;
+    [SerializeField] private NotificationManager notificationManager;
+    [SerializeField] private GraveyardManager graveyardManager;
     [SerializeField] private GameConfig gameConfig;
 
     [Header("Starting Values")]
@@ -49,6 +51,8 @@ public class GameManager : MonoBehaviour
         if (timeManager == null) timeManager = FindObjectOfType<TimeManager>();
         if (investigationManager == null) investigationManager = FindObjectOfType<InvestigationManager>();
         if (constructionManager == null) constructionManager = FindObjectOfType<GuildConstructionManager>();
+        if (notificationManager == null) notificationManager = FindObjectOfType<NotificationManager>();
+        if (graveyardManager == null) graveyardManager = FindObjectOfType<GraveyardManager>();
         if (gameConfig == null) gameConfig = Resources.Load<GameConfig>("GameConfig");
 
         // Create basics if missing so the scene can run
@@ -57,6 +61,7 @@ public class GameManager : MonoBehaviour
         if (orderManager == null) orderManager = gameObject.AddComponent<OrderManager>();
         if (orderGenerator == null) orderGenerator = gameObject.AddComponent<OrderGenerator>();
         if (missionResolver == null) missionResolver = gameObject.AddComponent<MissionResolver>();
+        if (notificationManager == null) notificationManager = gameObject.AddComponent<NotificationManager>();
     }
 
     private void InitializeManagers()
@@ -95,10 +100,8 @@ public class GameManager : MonoBehaviour
 
     public void HandleEndOfDaySleep()
     {
-        // Clear non-in-progress orders
-        orderManager?.ClearNonInProgressOrders();
-
-        // Advance day
+        // Accepted orders persist across days. In-progress missions are resolved
+        // automatically when the workday enters evening.
         timeManager?.AdvanceToNextDay();
     }
 
@@ -109,8 +112,17 @@ public class GameManager : MonoBehaviour
     public TimeManager GetTimeManager() => timeManager;
     public InvestigationManager GetInvestigationManager() => investigationManager;
     public GuildConstructionManager GetConstructionManager() => constructionManager;
+    public NotificationManager GetNotificationManager() => notificationManager;
     public OrderGenerator GetOrderGenerator() => orderGenerator;
     public GameConfig GetGameConfig() => gameConfig;
+    public GraveyardManager GetGraveyardManager()
+    {
+        if (graveyardManager == null)
+        {
+            graveyardManager = FindObjectOfType<GraveyardManager>();
+        }
+        return graveyardManager;
+    }
 
     public int GetReputation()
     {

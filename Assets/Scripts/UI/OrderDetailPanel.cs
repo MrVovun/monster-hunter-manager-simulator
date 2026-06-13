@@ -19,6 +19,7 @@ public class OrderDetailPanel : MonoBehaviour
     [SerializeField] private TMP_Text rewardGoldText;
     [SerializeField] private TMP_Text rewardXPText;
     [SerializeField] private TMP_Text missionTimeText;
+    [SerializeField] private TMP_Text successTelemetryText;
     [SerializeField] private TraitTooltipPanel traitTooltipPanel;
     [Header("Revealed Traits")]
     [SerializeField] private Transform revealedTraitsParent;
@@ -140,6 +141,8 @@ public class OrderDetailPanel : MonoBehaviour
             var riskLabel = partyFormation.GetRiskLevel();
             partyInfoText.text = $"Party: {partyFormation.GetPartySize()}/{partyFormation.GetMaxPartySize()}  Success: {chance:0}% ({riskLabel})";
         }
+
+        UpdateSuccessTelemetry(order);
 
         UpdateTimerText();
     }
@@ -389,6 +392,7 @@ public class OrderDetailPanel : MonoBehaviour
         if (rewardXPText != null) rewardXPText.text = "-";
         if (missionTimeText != null) missionTimeText.text = "-";
         if (partyInfoText != null) partyInfoText.text = string.Empty;
+        if (successTelemetryText != null) successTelemetryText.text = string.Empty;
         if (timerText != null) timerText.text = string.Empty;
         ClearRevealedTraitItems();
         UpdateMonsterPortrait(null);
@@ -455,6 +459,16 @@ public class OrderDetailPanel : MonoBehaviour
             item.transform.SetParent(revealedTraitsParent, false);
             spawnedTraitItems.Add(item);
         }
+    }
+
+    private void UpdateSuccessTelemetry(Order order)
+    {
+        if (successTelemetryText == null) return;
+        var party = partyFormation != null ? partyFormation.GetParty() : null;
+        var lines = MissionOutcomeCalculator.BuildSuccessTelemetryLines(order, party);
+        successTelemetryText.text = lines != null && lines.Count > 0
+            ? "Modifiers:\n" + string.Join("\n", lines)
+            : "Modifiers:\nNo active success modifiers.";
     }
 
     private void ClearRevealedTraitItems()

@@ -27,15 +27,16 @@ public class BedInteractable : Interactable
 
         if (orderManager != null)
         {
-            var active = orderManager.GetActiveOrders();
-            if (active != null && active.Count > 0)
+            if (orderManager.HasInProgressOrders())
             {
                 Debug.LogWarning("Bed: Cannot sleep while orders are still in progress.");
                 return;
             }
         }
 
+        OnInteractionStart(player);
         EndDayAndStartNext();
+        OnInteractionEnd(player);
     }
 
     private void EndDayAndStartNext()

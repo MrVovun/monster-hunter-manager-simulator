@@ -253,9 +253,29 @@ public static class MonsterFamilyImporter
             monster.description = desc;
             changed = true;
         }
+        int oldMinimumDifficulty = monster.minimumDifficulty;
         if (row.TryGetValue("Min diff", out var minDiffStr) && int.TryParse(minDiffStr, out var minDiff) && monster.minimumDifficulty != minDiff)
         {
             monster.minimumDifficulty = Mathf.Max(0, minDiff);
+            if (monster.preferredDifficulty <= 0 || monster.preferredDifficulty == oldMinimumDifficulty)
+            {
+                monster.preferredDifficulty = monster.minimumDifficulty;
+            }
+            changed = true;
+        }
+        if (TryGetInt(row, "Preferred diff", out var preferredDiff) && monster.preferredDifficulty != preferredDiff)
+        {
+            monster.preferredDifficulty = Mathf.Max(monster.minimumDifficulty, preferredDiff);
+            changed = true;
+        }
+        if (TryGetFloat(row, "Difficulty falloff", out var falloff) && !Mathf.Approximately(monster.difficultyFalloff, falloff))
+        {
+            monster.difficultyFalloff = Mathf.Max(1f, falloff);
+            changed = true;
+        }
+        if (TryGetFloat(row, "Difficulty falloff power", out var falloffPower) && !Mathf.Approximately(monster.difficultyFalloffPower, falloffPower))
+        {
+            monster.difficultyFalloffPower = Mathf.Clamp(falloffPower, 0.25f, 4f);
             changed = true;
         }
         if (row.TryGetValue("Rep req", out var repStr) && int.TryParse(repStr, out var rep) && monster.requiredReputation != rep)
@@ -293,6 +313,24 @@ public static class MonsterFamilyImporter
             Debug.Log($"[MonsterFamilyImporter] Applied row '{matchedKey ?? "?"}' -> Monster '{monster.displayName}' (id={monster.monsterId}) Tags: {string.Join(", ", tagSummary)}");
         }
         return changed;
+    }
+
+    private static bool TryGetInt(Dictionary<string, string> row, string key, out int value)
+    {
+        value = 0;
+        return row != null &&
+               row.TryGetValue(key, out var raw) &&
+               !string.IsNullOrWhiteSpace(raw) &&
+               int.TryParse(raw, out value);
+    }
+
+    private static bool TryGetFloat(Dictionary<string, string> row, string key, out float value)
+    {
+        value = 0f;
+        return row != null &&
+               row.TryGetValue(key, out var raw) &&
+               !string.IsNullOrWhiteSpace(raw) &&
+               float.TryParse(raw, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out value);
     }
 
     private static EvidenceTagLibrary evidenceTagLibrary;

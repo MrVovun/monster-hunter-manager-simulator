@@ -81,6 +81,8 @@ public class HunterRecruitmentManager : MonoBehaviour
     [SerializeField] private float upkeepPriorityWeight = 1f;
 
     public event Action OnStateChanged;
+    public event Action<RecruitmentCandidate> OnCandidateArrived;
+    public event Action<string> OnCampaignEnded;
 
     private readonly List<RecruitmentCandidate> candidateQueue = new List<RecruitmentCandidate>();
     private readonly Dictionary<Transform, RecruitmentCandidate> occupiedSpots = new Dictionary<Transform, RecruitmentCandidate>();
@@ -100,6 +102,7 @@ public class HunterRecruitmentManager : MonoBehaviour
     private Quaternion candidateCameraHomeRotation;
     private bool candidateCameraCached;
     private Coroutine candidateCameraRoutine;
+    private TimeManager timeManager;
 
     private void Awake()
     {
@@ -127,6 +130,10 @@ public class HunterRecruitmentManager : MonoBehaviour
             arrivalInterval = hunterConfig.GetArrivalIntervalSeconds();
             maxQueueSize = hunterConfig.GetMaxCandidateQueueSize();
         }
+        if (GameManager.Instance != null)
+        {
+            timeManager = GameManager.Instance.GetTimeManager();
+        }
         if (candidateProfilePanel != null)
         {
             candidateProfilePanel.Initialize(this);
@@ -142,10 +149,15 @@ public class HunterRecruitmentManager : MonoBehaviour
 
     private void Update()
     {
+        if (timeManager != null && timeManager.IsActionBasedTime())
+        {
+            // Driven by time manager events
+            return;
+        }
         if (!campaignActive) return;
         if (hunterManager != null && hunterManager.IsAtHunterLimit())
         {
-            StopCampaign();
+            StopCampaign("Hunter limit reached");
             return;
         }
         float delta = Time.deltaTime;
@@ -156,7 +168,49 @@ public class HunterRecruitmentManager : MonoBehaviour
             HandleArrivals(delta);
             if (campaignTimeRemaining <= 0f)
             {
-                StopCampaign();
+                StopCampaign("Campaign time elapsed");
+            }
+        }
+    }
+
+    private void OnEnable()
+    {
+        if (timeManager == null && GameManager.Instance != null)
+        {
+            timeManager = GameManager.Instance.GetTimeManager();
+        }
+        if (timeManager != null)
+        {
+            timeManager.OnTimeUpdate += HandleTimeAdvanced;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (timeManager != null)
+        {
+            timeManager.OnTimeUpdate -= HandleTimeAdvanced;
+        }
+    }
+
+    private void HandleTimeAdvanced(float deltaSeconds)
+    {
+        if (!campaignActive) return;
+        if (hunterManager != null && hunterManager.IsAtHunterLimit())
+        {
+            StopCampaign("Hunter limit reached");
+            return;
+        }
+
+        if (deltaSeconds <= 0f) return;
+        if (campaignTimeRemaining > 0f)
+        {
+            campaignTimeRemaining = Mathf.Max(0f, campaignTimeRemaining - deltaSeconds);
+            HandleBurn(deltaSeconds);
+            HandleArrivals(deltaSeconds);
+            if (campaignTimeRemaining <= 0f)
+            {
+                StopCampaign("Campaign time elapsed");
             }
         }
     }
@@ -170,7 +224,7 @@ public class HunterRecruitmentManager : MonoBehaviour
 
         if (!goldManager.SpendGold(burnInt))
         {
-            StopCampaign();
+            StopCampaign("Insufficient gold");
             return;
         }
 
@@ -233,6 +287,7 @@ public class HunterRecruitmentManager : MonoBehaviour
         seenThisCampaign.Add(selected.hunterId);
         candidateQueue.Add(entry);
         TrySpawnCandidate(entry);
+        OnCandidateArrived?.Invoke(entry);
         return true;
     }
 
@@ -352,6 +407,7 @@ public class HunterRecruitmentManager : MonoBehaviour
             interactable = instance.gameObject.AddComponent<HunterInteractable>();
         }
         interactable.Initialize(this, candidate, candidateInteractionCamera);
+        interactable.SetInteractionEnabled(false);
 
         return true;
     }
@@ -484,7 +540,7 @@ public class HunterRecruitmentManager : MonoBehaviour
     {
         if (campaignActive)
         {
-            StopCampaign();
+            StopCampaign(reason: null, notify: false);
         }
 
         if (hunterManager != null && hunterManager.IsAtHunterLimit())
@@ -521,16 +577,31 @@ public class HunterRecruitmentManager : MonoBehaviour
 
         SaveState();
         OnStateChanged?.Invoke();
+
+        var config = GameManager.Instance != null ? GameManager.Instance.GetGameConfig() : null;
+        var tm = GameManager.Instance != null ? GameManager.Instance.GetTimeManager() : null;
+        float cost = config != null ? config.actionTimeSettings.postAdSeconds : 0f;
+        tm?.AdvanceTime(cost);
     }
 
     public void StopCampaign()
     {
+        StopCampaign(reason: null, notify: true);
+    }
+
+    public void StopCampaign(string reason, bool notify = true)
+    {
+        bool wasActive = campaignActive;
         campaignActive = false;
         campaignTimeRemaining = 0f;
         burnAccumulator = 0f;
         campaignCost = 0f;
         SaveState();
         OnStateChanged?.Invoke();
+        if (wasActive && notify)
+        {
+            OnCampaignEnded?.Invoke(reason);
+        }
     }
 
     public void HireCandidate(RecruitmentCandidate candidate)
@@ -556,6 +627,11 @@ public class HunterRecruitmentManager : MonoBehaviour
         {
             candidate.status = CandidateStatus.Pending;
         }
+
+        var config = GameManager.Instance != null ? GameManager.Instance.GetGameConfig() : null;
+        var tm = GameManager.Instance != null ? GameManager.Instance.GetTimeManager() : null;
+        float cost = config != null ? config.actionTimeSettings.hireOrDeclineSeconds : 0f;
+        tm?.AdvanceTime(cost);
     }
 
     public void DeclineCandidate(RecruitmentCandidate candidate)
@@ -574,6 +650,11 @@ public class HunterRecruitmentManager : MonoBehaviour
         }
 
         OnStateChanged?.Invoke();
+
+        var config = GameManager.Instance != null ? GameManager.Instance.GetGameConfig() : null;
+        var tm = GameManager.Instance != null ? GameManager.Instance.GetTimeManager() : null;
+        float cost = config != null ? config.actionTimeSettings.hireOrDeclineSeconds : 0f;
+        tm?.AdvanceTime(cost);
     }
 
     public bool ShowCandidateProfile(Hunter hunterInstance, Action onClosed, bool onlyIfPending = true)
@@ -583,6 +664,11 @@ public class HunterRecruitmentManager : MonoBehaviour
         if (candidate == null) return false;
         if (onlyIfPending && candidate.status != CandidateStatus.Pending) return false;
         candidateProfilePanel.ShowCandidate(candidate, onClosed);
+
+        var config = GameManager.Instance != null ? GameManager.Instance.GetGameConfig() : null;
+        var tm = GameManager.Instance != null ? GameManager.Instance.GetTimeManager() : null;
+        float cost = config != null ? config.actionTimeSettings.reviewCandidateSeconds : 0f;
+        tm?.AdvanceTime(cost);
         return true;
     }
 

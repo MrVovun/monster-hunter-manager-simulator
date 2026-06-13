@@ -15,8 +15,10 @@ MonoBehaviour:
   constructionId: Constr_KitchenUpgrade1
   displayName: Kitchen Upgrade (1)
   description: 
+  previewImage: {fileID: 0}
+  builtPreviewImage: {fileID: 0}
   planOverlay: {fileID: 0}
   goldCost: 0
-  requiredReputation: 4
-  prerequisite: {fileID: 0}
+  requiredReputation: 3
+  prerequisite: {fileID: 11400000, guid: ced3e1246a3430e48af4afb09f4aba0d, type: 2}
   startsBuilt: 0

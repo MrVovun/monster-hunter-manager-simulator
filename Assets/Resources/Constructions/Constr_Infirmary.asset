@@ -16,7 +16,9 @@ MonoBehaviour:
   displayName: Infirmary
   description: Infirmary allows to automate the injury healing - hunters will visit
     it on their own and be releaved from their injuries.
-  planOverlay: {fileID: 0}
+  previewImage: {fileID: 0}
+  builtPreviewImage: {fileID: 0}
+  planOverlay: {fileID: 21300000, guid: d703113c2a8f95a408985043298f57b3, type: 3}
   goldCost: 150
   requiredReputation: 1
   prerequisite: {fileID: 0}

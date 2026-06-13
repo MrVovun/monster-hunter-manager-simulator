@@ -72,6 +72,14 @@ public class ClientCharacter : MonoBehaviour
         }
     }
 
+    public void SetInteractionEnabled(bool enabled)
+    {
+        if (interactable != null)
+        {
+            interactable.SetInteractionEnabled(enabled);
+        }
+    }
+
     public void Cleanup()
     {
         if (visualInstance != null)

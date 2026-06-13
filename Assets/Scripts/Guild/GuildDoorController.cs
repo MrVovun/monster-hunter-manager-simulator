@@ -120,6 +120,13 @@ public class GuildDoorController : MonoBehaviour
         PlayOpenAnimation();
     }
 
+    public void OpenForRoute()
+    {
+        if (isOpen) return;
+        isOpen = true;
+        PlayOpenAnimation();
+    }
+
     public void CloseDoor()
     {
         if (!isOpen) return;

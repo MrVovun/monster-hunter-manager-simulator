@@ -16,8 +16,10 @@ public class InvestigationDialogueUI : MonoBehaviour
     [SerializeField] private TypewriterComponent responseTypewriter;
     [SerializeField] private TMP_Text responseFallbackText;
     [SerializeField] private GameObject questionItemPrefab;
+    [SerializeField] private Color previouslyAskedQuestionColor = new Color(0.55f, 0.55f, 0.55f, 1f);
 
     private readonly List<QuestionEntry> questionEntries = new List<QuestionEntry>();
+    private readonly HashSet<string> askedQuestionIds = new HashSet<string>();
     private InvestigationManager currentManager;
     private InvestigationCase currentCase;
     private System.Action onClose;
@@ -72,6 +74,7 @@ public class InvestigationDialogueUI : MonoBehaviour
         currentCase = caseData;
         currentManager = manager;
         onClose = closeCallback;
+        askedQuestionIds.Clear();
 
         RefreshQuestions();
         HookButtons();
@@ -156,9 +159,11 @@ public class InvestigationDialogueUI : MonoBehaviour
 
             if (button != null)
             {
+                EnsureButtonVisualFeedback(button);
                 var capturedQuestion = question;
                 button.onClick.AddListener(() => HandleQuestionClicked(capturedQuestion));
                 button.interactable = !waitingForResponse;
+                ApplyQuestionVisualState(button, question);
             }
 
             questionEntries.Add(new QuestionEntry
@@ -177,6 +182,17 @@ public class InvestigationDialogueUI : MonoBehaviour
             return;
         }
 
+        InteractionFeedbackManager.PlayUIClick();
+        MarkQuestionAsked(question);
+
+        // Advance action-based time for asking a question
+        var tm = GameManager.Instance != null ? GameManager.Instance.GetTimeManager() : null;
+        if (tm != null)
+        {
+            float duration = currentManager.GetQuestionDuration(question);
+            tm.AdvanceTime(duration);
+        }
+
         if (responseRoutine != null)
         {
             StopCoroutine(responseRoutine);
@@ -189,15 +205,22 @@ public class InvestigationDialogueUI : MonoBehaviour
     {
         waitingForResponse = true;
         SetQuestionsInteractable(false);
+        var managerAtStart = currentManager;
 
-        float waitTime = Mathf.Max(0f, currentManager.GetQuestionDuration(question));
+        float waitTime = Mathf.Max(0f, managerAtStart.GetQuestionDuration(question));
         if (waitTime > 0f)
         {
-            currentManager?.PlayClientThinkingAnimation();
+            managerAtStart.PlayClientThinkingAnimation();
             yield return new WaitForSecondsRealtime(waitTime);
         }
 
-        string response = currentManager.ResolveQuestion(question);
+        string response = managerAtStart.ResolveQuestion(question);
+        if (currentManager != managerAtStart)
+        {
+            responseRoutine = null;
+            yield break;
+        }
+
         lastQuestion = question;
         lastResponse = response;
         if (string.IsNullOrWhiteSpace(response))
@@ -252,13 +275,13 @@ public class InvestigationDialogueUI : MonoBehaviour
 
     public void Close(bool invokeCallback = true)
     {
-        SetActive(false);
-        ReleaseCursor();
         if (responseRoutine != null)
         {
             StopCoroutine(responseRoutine);
             responseRoutine = null;
         }
+        SetActive(false);
+        ReleaseCursor();
         waitingForResponse = false;
         awaitingTypewriterCompletion = false;
         if (responseTypewriter != null)
@@ -276,6 +299,7 @@ public class InvestigationDialogueUI : MonoBehaviour
         currentCase = null;
         lastQuestion = null;
         lastResponse = null;
+        askedQuestionIds.Clear();
     }
 
     public void ReopenWithResponse(string text)
@@ -369,6 +393,7 @@ public class InvestigationDialogueUI : MonoBehaviour
             if (entry?.button != null)
             {
                 entry.button.interactable = value;
+                ApplyQuestionVisualState(entry.button, entry.question);
             }
         }
 
@@ -407,5 +432,54 @@ public class InvestigationDialogueUI : MonoBehaviour
         public GameObject root;
         public Button button;
         public InvestigationQuestion question;
+    }
+
+    private void MarkQuestionAsked(InvestigationQuestion question)
+    {
+        if (question == null || string.IsNullOrEmpty(question.questionId)) return;
+        askedQuestionIds.Add(question.questionId);
+    }
+
+    private void ApplyQuestionVisualState(Button button, InvestigationQuestion question)
+    {
+        if (button == null || question == null || string.IsNullOrEmpty(question.questionId)) return;
+        if (!askedQuestionIds.Contains(question.questionId)) return;
+
+        Graphic target = button.targetGraphic != null ? button.targetGraphic : button.GetComponent<Graphic>();
+        if (target == null) return;
+
+        Color color = previouslyAskedQuestionColor;
+        color.a = target.color.a;
+        target.color = color;
+
+        ColorBlock colors = button.colors;
+        colors.normalColor = color;
+        button.colors = colors;
+
+        var visualFeedback = button.GetComponent<UIButtonVisualFeedback>();
+        if (visualFeedback != null)
+        {
+            visualFeedback.SetNormalColor(color, true);
+        }
+    }
+
+    private void EnsureButtonVisualFeedback(Button button)
+    {
+        if (button == null) return;
+        var visualFeedback = button.GetComponent<UIButtonVisualFeedback>();
+        if (visualFeedback == null)
+        {
+            visualFeedback = button.gameObject.AddComponent<UIButtonVisualFeedback>();
+        }
+
+        visualFeedback.Configure(
+            colorEnabled: true,
+            scaleEnabled: true,
+            hover: new Color(0.82f, 0.82f, 0.82f, 1f),
+            pressedState: new Color(0.65f, 0.65f, 0.65f, 1f),
+            disabled: new Color(0.45f, 0.45f, 0.45f, 0.7f),
+            hoverScaleValue: 1.01f,
+            pressedScaleValue: 0.99f,
+            duration: 0.08f);
     }
 }

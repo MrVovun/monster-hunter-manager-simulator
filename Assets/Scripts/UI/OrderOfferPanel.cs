@@ -18,6 +18,7 @@ public class OrderOfferPanel : MonoBehaviour
     [SerializeField] private TMP_Text rewardGoldText;
     [SerializeField] private TMP_Text rewardXPText;
     [SerializeField] private TMP_Text partySizeText;
+    [SerializeField] private TMP_Text successTelemetryText;
     [SerializeField] private TraitTooltipPanel traitTooltipPanel;
     [Header("Revealed Traits")]
     [SerializeField] private Transform revealedTraitsParent;
@@ -32,7 +33,6 @@ public class OrderOfferPanel : MonoBehaviour
     [SerializeField] private Button referButton;
     [Header("Monster Visuals")]
     [SerializeField] private Image declaredMonsterPortrait;
-    [SerializeField] [Range(0.1f, 1f)] private float disabledButtonAlpha = 0.4f;
 
     private Order currentOrder;
     private InvestigationManager activeInvestigation;
@@ -184,6 +184,7 @@ public class OrderOfferPanel : MonoBehaviour
             partySizeText.text = $"{currentOrder.minPartySize}-{currentOrder.maxPartySize}";
         }
 
+        UpdateSuccessTelemetryHint();
 
         UpdateRevealedTraitsUI();
     }
@@ -254,6 +255,11 @@ public class OrderOfferPanel : MonoBehaviour
                 return;
             }
         }
+        var config = GameManager.Instance != null ? GameManager.Instance.GetGameConfig() : null;
+        var tm = GameManager.Instance != null ? GameManager.Instance.GetTimeManager() : null;
+        float cost = config != null ? config.actionTimeSettings.acceptOrderSeconds : 0f;
+        tm?.AdvanceTime(cost);
+
         Hide();
     }
 
@@ -456,10 +462,33 @@ public class OrderOfferPanel : MonoBehaviour
         button.interactable = enabled;
 
         CanvasGroup group = button.GetComponent<CanvasGroup>();
-        if (group == null)
+        if (group != null)
         {
-            group = button.gameObject.AddComponent<CanvasGroup>();
+            group.alpha = 1f;
         }
-        group.alpha = enabled ? 1f : Mathf.Clamp01(disabledButtonAlpha);
+
+        var visualFeedback = button.GetComponent<UIButtonVisualFeedback>();
+        if (visualFeedback != null)
+        {
+            visualFeedback.RefreshVisualState(true);
+        }
+    }
+
+    private void UpdateSuccessTelemetryHint()
+    {
+        if (successTelemetryText == null) return;
+        if (currentOrder == null)
+        {
+            successTelemetryText.text = string.Empty;
+            return;
+        }
+
+        if (currentOrder.declaredMonster == null)
+        {
+            successTelemetryText.text = "Modifiers: declare a monster first.";
+            return;
+        }
+
+        successTelemetryText.text = "Modifiers: final success bonuses are shown in Orders tab after assigning party.";
     }
 }

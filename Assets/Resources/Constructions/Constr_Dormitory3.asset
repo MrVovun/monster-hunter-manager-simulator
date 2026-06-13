@@ -17,8 +17,11 @@ MonoBehaviour:
   description: Dormitory is used for hunters to sleep if they stay in the guild.
     This is also where they rest if injuried, until the Infirmary is built or if
     it is occupied.
-  planOverlay: {fileID: 0}
+  previewImage: {fileID: 0}
+  builtPreviewImage: {fileID: 0}
+  planOverlay: {fileID: 21300000, guid: abf304cf9ad7d9149956b918e3092e9e, type: 3}
   goldCost: 150
   requiredReputation: 3
-  prerequisite: {fileID: 0}
+  prerequisite: {fileID: 11400000, guid: 8576192cce8b49348b679d38df7a1ce1, type: 2}
   startsBuilt: 0
+  hunterCapacityIncrease: 5

@@ -15,6 +15,14 @@ public class ClientBell : Interactable
 
     public override void Interact(PlayerInteraction player)
     {
+        var manager = ResolveInvestigationManager();
+        var generator = ResolveOrderGenerator();
+        if (manager != null && manager.HasActiveClientInvestigation())
+        {
+            Debug.LogWarning("ClientBell: Cannot call another client while a client is already active.");
+            return;
+        }
+
         var timeManager = GameManager.Instance != null ? GameManager.Instance.GetTimeManager() : null;
         if (timeManager != null)
         {
@@ -34,8 +42,6 @@ public class ClientBell : Interactable
             bellAudio.Play();
         }
 
-        var manager = ResolveInvestigationManager();
-        var generator = ResolveOrderGenerator();
         if (manager == null || generator == null)
         {
             Debug.LogWarning("ClientBell: Missing InvestigationManager or OrderGenerator reference.");
@@ -52,6 +58,13 @@ public class ClientBell : Interactable
         }
 
         manager.StartInvestigation(newOrder);
+
+        // Advance action-based time for ringing the bell
+        var config = GameManager.Instance != null ? GameManager.Instance.GetGameConfig() : null;
+        var timeCost = config != null ? config.actionTimeSettings.ringBellSeconds : 0f;
+        var tm2 = GameManager.Instance != null ? GameManager.Instance.GetTimeManager() : null;
+        tm2?.AdvanceTime(timeCost);
+
         OnInteractionEnd(player);
     }
 

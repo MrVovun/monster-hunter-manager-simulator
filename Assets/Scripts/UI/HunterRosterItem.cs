@@ -118,6 +118,14 @@ public class HunterRosterItem : MonoBehaviour, IBeginDragHandler, IDragHandler, 
             {
                 statusText.text = "On Mission";
             }
+            else if (state == HunterState.Healing)
+            {
+                statusText.text = "Healing";
+            }
+            else if (state == HunterState.Sleeping)
+            {
+                statusText.text = "Sleeping";
+            }
             else if (assigned)
             {
                 statusText.text = "In Party";
@@ -142,6 +150,7 @@ public class HunterRosterItem : MonoBehaviour, IBeginDragHandler, IDragHandler, 
     {
         if (!draggable || hunter == null) return;
 
+        InteractionFeedbackManager.PlayUIDragStart();
         isDragging = true;
         originalParent = transform.parent;
         originalSiblingIndex = transform.GetSiblingIndex();

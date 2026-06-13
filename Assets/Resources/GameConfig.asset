@@ -24,6 +24,13 @@ MonoBehaviour:
   guildConstructions:
   - {fileID: 11400000, guid: 3e1a403cae5200a479c982b8cd59bc08, type: 2}
   - {fileID: 11400000, guid: ced3e1246a3430e48af4afb09f4aba0d, type: 2}
+  - {fileID: 11400000, guid: 50ce4c3e4f2e2d646a28ce4c8ada819f, type: 2}
+  - {fileID: 11400000, guid: b866afe4753eb8346adcd45ae23aee44, type: 2}
+  - {fileID: 11400000, guid: 8576192cce8b49348b679d38df7a1ce1, type: 2}
+  - {fileID: 11400000, guid: 6dc6afc191de65942928d63cb818394f, type: 2}
+  - {fileID: 11400000, guid: dc1f1ffd7d28e824c839c3c71f0894b5, type: 2}
+  - {fileID: 11400000, guid: aac5ed4f873f76f438333dd9ac279aff, type: 2}
+  - {fileID: 11400000, guid: 65edd25a5944e774ebeeecc1bfe38f77, type: 2}
   dayLengthSeconds: 600
   allowInvestigationPauseToggle: 1
   orderLimitByReputation:
@@ -53,6 +60,18 @@ MonoBehaviour:
     hunterLimit: 24
   baseInjuryChance: 0.5
   baseDeathChance: 0.25
+  actionTimeSettings:
+    ringBellSeconds: 5
+    questionSeconds: 5
+    acceptOrderSeconds: 5
+    sendPartySeconds: 5
+    treatWoundsBonusSeconds: 0
+    levelUpSeconds: 5
+    postAdSeconds: 10
+    reviewCandidateSeconds: 5
+    hireOrDeclineSeconds: 5
+    buildSeconds: 10
+    passTimeStepSeconds: 60
   traitCountChances:
   - traitCount: 0
     weight: 0.5

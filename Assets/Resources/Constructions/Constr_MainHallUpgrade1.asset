@@ -15,7 +15,9 @@ MonoBehaviour:
   constructionId: Constr_MainHallUpgrade1
   displayName: Main Hall Upgrade (1)
   description: 
-  planOverlay: {fileID: 0}
+  previewImage: {fileID: 0}
+  builtPreviewImage: {fileID: 0}
+  planOverlay: {fileID: 21300000, guid: 82bdd90ee982e14418135de88784efff, type: 3}
   goldCost: 0
   requiredReputation: 3
   prerequisite: {fileID: 11400000, guid: ced3e1246a3430e48af4afb09f4aba0d, type: 2}

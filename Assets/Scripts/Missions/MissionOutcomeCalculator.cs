@@ -6,6 +6,111 @@ public static class MissionOutcomeCalculator
 {
     public const float MaxSuccessChance = 200f;
 
+    public static List<string> BuildSuccessTelemetryLines(Order order, List<Hunter> party)
+    {
+        var lines = new List<string>();
+        if (order == null)
+        {
+            lines.Add("No order selected.");
+            return lines;
+        }
+
+        if (party == null || party.Count == 0)
+        {
+            lines.Add("No hunters assigned.");
+            return lines;
+        }
+
+        int partySize = party.Count;
+        var counteredTraits = BuildCounteredTraitSet(party);
+        var monsterTraits = CollectMonsterTraits(order);
+        foreach (var monsterTrait in monsterTraits)
+        {
+            if (monsterTrait == null) continue;
+            if (IsCountered(monsterTrait, counteredTraits))
+            {
+                string name = string.IsNullOrWhiteSpace(monsterTrait.displayName) ? "Monster trait" : monsterTrait.displayName;
+                lines.Add($"Countered: {name}");
+            }
+        }
+
+        float successBonusTotal = 0f;
+        float minSuccessTotal = 0f;
+
+        foreach (var hunter in party)
+        {
+            var data = hunter?.Data;
+            float briefingBonus = BriefingRoomManager.GetActiveDailyBonus(hunter);
+            if (Mathf.Abs(briefingBonus) > 0.01f)
+            {
+                string hunterName = hunter != null && !string.IsNullOrWhiteSpace(hunter.name) ? hunter.name : "Hunter";
+                successBonusTotal += briefingBonus;
+                lines.Add($"{hunterName} - Briefing plan: {(briefingBonus >= 0f ? "+" : string.Empty)}{briefingBonus:0.#}% success");
+            }
+
+            KitchenRecipe kitchenRecipe = KitchenManager.GetActiveRecipe(hunter);
+            if (kitchenRecipe != null && Mathf.Abs(kitchenRecipe.successChanceBonusPercent) > 0.01f)
+            {
+                string hunterName = hunter != null && !string.IsNullOrWhiteSpace(hunter.name) ? hunter.name : "Hunter";
+                successBonusTotal += kitchenRecipe.successChanceBonusPercent;
+                lines.Add($"{hunterName} - Ate {kitchenRecipe.GetDisplayName()}: {(kitchenRecipe.successChanceBonusPercent >= 0f ? "+" : string.Empty)}{kitchenRecipe.successChanceBonusPercent:0.#}% success");
+            }
+
+            float missedSleepPenalty = DormitoryManager.GetActiveMissedSleepPenaltyPercent(hunter);
+            if (missedSleepPenalty > 0.01f)
+            {
+                string hunterName = hunter != null && !string.IsNullOrWhiteSpace(hunter.name) ? hunter.name : "Hunter";
+                successBonusTotal -= missedSleepPenalty;
+                lines.Add($"{hunterName} - Missed sleep: -{missedSleepPenalty:0.#}% success");
+            }
+
+            if (data == null || data.traits == null) continue;
+
+            foreach (var trait in data.traits)
+            {
+                if (trait == null || trait.bonusEffects == null) continue;
+
+                foreach (var effect in trait.bonusEffects)
+                {
+                    if (effect == null) continue;
+                    if (!DoesConditionPassPreview(effect.condition, order.monsterData, partySize)) continue;
+
+                    string hunterName = !string.IsNullOrWhiteSpace(hunter.name) ? hunter.name : "Hunter";
+                    string traitName = !string.IsNullOrWhiteSpace(trait.displayName) ? trait.displayName : "Trait";
+                    string suffix = BuildConditionSuffix(effect.condition);
+
+                    switch (effect.bonusType)
+                    {
+                        case HunterTrait.BonusEffectType.AddSuccessChancePercent:
+                            successBonusTotal += effect.value;
+                            lines.Add($"{hunterName} - {traitName}: {(effect.value >= 0f ? "+" : string.Empty)}{effect.value:0.#}% success{suffix}");
+                            break;
+                        case HunterTrait.BonusEffectType.MinSuccessPercent:
+                            minSuccessTotal = Mathf.Max(minSuccessTotal, effect.value);
+                            lines.Add($"{hunterName} - {traitName}: minimum success {effect.value:0.#}%{suffix}");
+                            break;
+                    }
+                }
+            }
+        }
+
+        if (Mathf.Abs(successBonusTotal) > 0.01f)
+        {
+            lines.Add($"Total flat success bonus: {(successBonusTotal >= 0f ? "+" : string.Empty)}{successBonusTotal:0.#}%");
+        }
+        if (minSuccessTotal > 0f)
+        {
+            lines.Add($"Minimum success floor: {minSuccessTotal:0.#}%");
+        }
+
+        if (lines.Count == 0)
+        {
+            lines.Add("No active success modifiers.");
+        }
+
+        return lines;
+    }
+
     public static MissionOutcomeResult Evaluate(Order order, List<Hunter> party, MissionOutcomeConfig? configOverride = null)
     {
         var config = ResolveConfig(configOverride);
@@ -58,14 +163,15 @@ public static class MissionOutcomeCalculator
         float baseSuccess = Mathf.Clamp(ratio, 0f, MaxSuccessChance);
 
         var aggregate = AggregateHunterBonuses(order?.monsterData, party);
+        missionTimeMultiplier *= Mathf.Clamp(1f - (aggregate.missionTimeReductionPercent / 100f), 0.01f, 1f);
         float successChance = Mathf.Clamp(baseSuccess + aggregate.successChanceBonus, 0f, MaxSuccessChance);
         successChance = Mathf.Clamp(successChance, 0f, capSuccessLimit);
         successChance = Mathf.Max(successChance, aggregate.minSuccessPercent);
         result.SuccessChancePercent = successChance;
         result.MissionTimeMultiplier = Mathf.Max(0.01f, missionTimeMultiplier);
 
-        injuryChance = Mathf.Clamp01(injuryChance * aggregate.injuryChanceMultiplier);
-        deathChance = Mathf.Clamp01(deathChance * aggregate.deathChanceMultiplier);
+        injuryChance = Mathf.Clamp01(injuryChance * aggregate.injuryChanceMultiplier * Mathf.Clamp01(1f - (aggregate.woundChanceReductionPercent / 100f)));
+        deathChance = Mathf.Clamp01(deathChance * aggregate.deathChanceMultiplier * Mathf.Clamp01(1f - (aggregate.deathChanceReductionPercent / 100f)));
 
         result.FinalInjuryChance = injuryChance;
         result.FinalDeathChance = deathChance;
@@ -110,6 +216,14 @@ public static class MissionOutcomeCalculator
         foreach (var hunter in party)
         {
             var data = hunter?.Data;
+            foreach (var kitchenCounter in KitchenManager.GetActiveCounteredTraitKeys(hunter))
+            {
+                if (!string.IsNullOrWhiteSpace(kitchenCounter))
+                {
+                    countered.Add(kitchenCounter);
+                }
+            }
+
             if (data == null || data.traits == null) continue;
             foreach (var trait in data.traits)
             {
@@ -268,6 +382,24 @@ public static class MissionOutcomeCalculator
 
         foreach (var hunter in party)
         {
+            float briefingBonus = BriefingRoomManager.GetActiveDailyBonus(hunter);
+            if (Mathf.Abs(briefingBonus) > 0.01f)
+            {
+                aggregate.successChanceBonus += briefingBonus;
+            }
+
+            KitchenRecipe kitchenRecipe = KitchenManager.GetActiveRecipe(hunter);
+            if (kitchenRecipe != null)
+            {
+                aggregate.successChanceBonus += kitchenRecipe.successChanceBonusPercent;
+            }
+
+            float missedSleepPenalty = DormitoryManager.GetActiveMissedSleepPenaltyPercent(hunter);
+            if (missedSleepPenalty > 0.01f)
+            {
+                aggregate.successChanceBonus -= missedSleepPenalty;
+            }
+
             var data = hunter?.Data;
             if (data == null || data.traits == null) continue;
 
@@ -321,17 +453,31 @@ public static class MissionOutcomeCalculator
             }
         }
 
+        var kitchenAggregate = KitchenManager.GetActiveBuffAggregate(party);
+        aggregate.woundChanceReductionPercent = kitchenAggregate.woundChanceReductionPercent;
+        aggregate.deathChanceReductionPercent = kitchenAggregate.deathChanceReductionPercent;
+        aggregate.missionTimeReductionPercent = kitchenAggregate.missionTimeReductionPercent;
         aggregate.successChanceBonus = Mathf.Clamp(aggregate.successChanceBonus, -MaxSuccessChance, MaxSuccessChance);
         return aggregate;
     }
 
     public static bool DoesConditionPass(HunterTrait.BonusCondition condition, MonsterData monster, int partySize)
     {
+        return DoesConditionPassInternal(condition, monster, partySize, rollProc: true);
+    }
+
+    private static bool DoesConditionPassPreview(HunterTrait.BonusCondition condition, MonsterData monster, int partySize)
+    {
+        return DoesConditionPassInternal(condition, monster, partySize, rollProc: false);
+    }
+
+    private static bool DoesConditionPassInternal(HunterTrait.BonusCondition condition, MonsterData monster, int partySize, bool rollProc)
+    {
         if (condition == null) return true;
 
         float proc = condition.procChancePercent;
         if (proc <= 0f) proc = 100f; // treat unset as always apply
-        if (proc < 100f)
+        if (rollProc && proc < 100f)
         {
             float roll = UnityEngine.Random.Range(0f, 100f);
             if (roll > Mathf.Max(0f, proc))
@@ -375,6 +521,16 @@ public static class MissionOutcomeCalculator
         return true;
     }
 
+    private static string BuildConditionSuffix(HunterTrait.BonusCondition condition)
+    {
+        if (condition == null) return string.Empty;
+        if (condition.procChancePercent > 0f && condition.procChancePercent < 100f)
+        {
+            return $" ({condition.procChancePercent:0.#}% chance)";
+        }
+        return string.Empty;
+    }
+
     private struct HunterBonusAggregate
     {
         public float successChanceBonus;
@@ -384,6 +540,9 @@ public static class MissionOutcomeCalculator
         public bool preventDeath;
         public float additionalSuccessXp;
         public float minSuccessPercent;
+        public float woundChanceReductionPercent;
+        public float deathChanceReductionPercent;
+        public float missionTimeReductionPercent;
 
         public static HunterBonusAggregate CreateDefault()
         {
@@ -395,7 +554,10 @@ public static class MissionOutcomeCalculator
                 preventInjury = false,
                 preventDeath = false,
                 additionalSuccessXp = 0f,
-                minSuccessPercent = 0f
+                minSuccessPercent = 0f,
+                woundChanceReductionPercent = 0f,
+                deathChanceReductionPercent = 0f,
+                missionTimeReductionPercent = 0f
             };
         }
     }

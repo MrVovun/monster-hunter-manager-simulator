@@ -5,6 +5,7 @@ public class GoldManager : MonoBehaviour
     private int currentGold;
     
     public event System.Action<int> OnGoldChanged;
+    public event System.Action<int, int> OnSpendFailed;
     
     public void Initialize(int startingGold)
     {
@@ -32,6 +33,8 @@ public class GoldManager : MonoBehaviour
             NotifyGoldChanged();
             return true;
         }
+
+        OnSpendFailed?.Invoke(amount, currentGold);
         return false;
     }
 

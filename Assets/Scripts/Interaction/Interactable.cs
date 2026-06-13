@@ -8,6 +8,7 @@ public abstract class Interactable : MonoBehaviour
     [SerializeField] protected bool locksPlayer = false;
     [SerializeField] protected bool useCustomCamera = false;
     [SerializeField] protected string interactionPrompt = "[E] Interact";
+    [SerializeField] private bool playInteractionFeedback = true;
     private static Action pendingLockRelease;
 
     [Header("Camera Settings")]
@@ -34,6 +35,11 @@ public abstract class Interactable : MonoBehaviour
     {
         return interactionPrompt;
     }
+
+    public virtual bool IsInteractionAvailable()
+    {
+        return isActiveAndEnabled;
+    }
     
     public virtual void OnPlayerEnter()
     {
@@ -49,6 +55,11 @@ public abstract class Interactable : MonoBehaviour
     
     protected virtual void OnInteractionStart(PlayerInteraction player)
     {
+        if (playInteractionFeedback)
+        {
+            InteractionFeedbackManager.PlayInteraction(transform.position);
+        }
+
         if (locksPlayer)
         {
             FirstPersonController controller = player.GetFirstPersonController();

@@ -6,10 +6,20 @@ using UnityEngine;
 /// </summary>
 public class HunterSeat : MonoBehaviour
 {
+    public enum SeatUsage
+    {
+        GuildHall,
+        BriefingRoom
+    }
+
+    [SerializeField] private SeatUsage seatUsage = SeatUsage.GuildHall;
+    [SerializeField] private string seatId;
     [SerializeField] private Transform seatAnchor;
     [SerializeField] private Transform approachPoint;
+    [SerializeField] private Transform plateSpawnPoint;
 
     private Hunter occupant;
+    private KitchenDirtyPlate dirtyPlate;
 
     /// <summary>World position a hunter should walk toward.</summary>
     public Vector3 ApproachPosition => (approachPoint != null ? approachPoint : Anchor).position;
@@ -17,7 +27,13 @@ public class HunterSeat : MonoBehaviour
     /// <summary>Transform used to align hunter position/rotation when seated.</summary>
     public Transform Anchor => seatAnchor != null ? seatAnchor : transform;
 
+    public SeatUsage Usage => seatUsage;
+    public bool CanUseForGuildHall => seatUsage == SeatUsage.GuildHall;
+    public bool CanUseForBriefing => seatUsage == SeatUsage.BriefingRoom;
     public bool IsOccupied => occupant != null;
+    public bool HasDirtyPlate => dirtyPlate != null;
+    public Transform PlateSpawnPoint => plateSpawnPoint != null ? plateSpawnPoint : Anchor;
+    public string SeatId => string.IsNullOrWhiteSpace(seatId) ? name : seatId;
 
     public bool TryAssign(Hunter hunter)
     {
@@ -33,6 +49,19 @@ public class HunterSeat : MonoBehaviour
         if (occupant == hunter)
         {
             occupant = null;
+        }
+    }
+
+    public void SetDirtyPlate(KitchenDirtyPlate plate)
+    {
+        dirtyPlate = plate;
+    }
+
+    public void ClearDirtyPlate(KitchenDirtyPlate plate)
+    {
+        if (dirtyPlate == plate)
+        {
+            dirtyPlate = null;
         }
     }
 }

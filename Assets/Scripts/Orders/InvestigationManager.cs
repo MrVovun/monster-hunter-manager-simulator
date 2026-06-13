@@ -51,6 +51,17 @@ public class InvestigationManager : MonoBehaviour
     public Order CurrentOrder { get; private set; }
     public event Action OnCaseUpdated;
 
+    public bool HasActiveClientInvestigation()
+    {
+        if (hunterDialogueActive) return false;
+        if (CurrentCase != null || CurrentOrder != null) return true;
+        if (clientSpawner == null)
+        {
+            clientSpawner = FindObjectOfType<ClientSpawner>();
+        }
+        return clientSpawner != null && clientSpawner.HasActiveClient;
+    }
+
     private void Awake()
     {
         ApplyConfigDefaults();
@@ -542,6 +553,15 @@ public class InvestigationManager : MonoBehaviour
 
     public void BeginInvestigationUI(InvestigationCase investigationCase, System.Action onClose)
     {
+        if (!hunterDialogueActive && investigationCase != CurrentCase)
+        {
+            Debug.LogWarning(
+                "InvestigationManager: Refusing to open a client dialogue for a stale investigation case.",
+                this);
+            onClose?.Invoke();
+            return;
+        }
+
         if (dialogueUI == null)
         {
             dialogueUI = FindObjectOfType<InvestigationDialogueUI>(true);
@@ -599,9 +619,9 @@ public class InvestigationManager : MonoBehaviour
             ? hunter.Data.greeting
             : "...";
 
-        // Create a dummy case to satisfy UI
-        CurrentCase = new InvestigationCase();
-        CurrentOrder = null;
+        // Hunter dialogue uses its own temporary UI context. Keep any active client
+        // investigation intact so returning to that client still has its order.
+        InvestigationCase hunterDialogueCase = new InvestigationCase();
         if (overrideCamera != null)
         {
             dialogueCamera = overrideCamera;
@@ -635,7 +655,7 @@ public class InvestigationManager : MonoBehaviour
         }
         if (dialogueUI != null)
         {
-            dialogueUI.Show(CurrentCase, this, HandleHunterDialogueClosed);
+            dialogueUI.Show(hunterDialogueCase, this, HandleHunterDialogueClosed);
         }
         else
         {

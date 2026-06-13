@@ -22,9 +22,7 @@ public class HunterInteractable : Interactable
     private bool navWasStopped;
     private bool navPaused;
     private Quaternion originalHunterRotation;
-    private bool healPending;
-    private string pendingHealLine;
-    private float pendingHealDuration;
+    private bool interactionDisabled;
 
     private void Reset()
     {
@@ -43,13 +41,44 @@ public class HunterInteractable : Interactable
         useCustomCamera = false;
     }
 
+    public void SetInteractionEnabled(bool enabled)
+    {
+        interactionDisabled = !enabled;
+        if (!enabled)
+        {
+            ReleaseInteraction();
+        }
+    }
+
     public void Initialize(Hunter hunter)
     {
         ownerHunter = hunter;
     }
 
+    public override bool IsInteractionAvailable()
+    {
+        if (!base.IsInteractionAvailable() || interactionDisabled || awaitingRelease)
+        {
+            return false;
+        }
+
+        if (ownerHunter == null)
+        {
+            ownerHunter = GetComponent<Hunter>();
+        }
+
+        if (ownerHunter == null)
+        {
+            return true;
+        }
+
+        var state = ownerHunter.GetState();
+        return state != HunterState.OnMission && state != HunterState.Dead && state != HunterState.Healing && state != HunterState.Sleeping;
+    }
+
     public override void Interact(PlayerInteraction player)
     {
+        if (interactionDisabled) return;
         if (awaitingRelease) return;
 
         ResolveManagers();
@@ -63,7 +92,8 @@ public class HunterInteractable : Interactable
             return;
         }
 
-        if (ownerHunter.GetState() == HunterState.OnMission || ownerHunter.GetState() == HunterState.Dead)
+        var state = ownerHunter.GetState();
+        if (state == HunterState.OnMission || state == HunterState.Dead || state == HunterState.Healing || state == HunterState.Sleeping)
         {
             return;
         }
@@ -119,18 +149,6 @@ public class HunterInteractable : Interactable
             }
         }
 
-        // Heal entry
-        bool canHeal = interactionState != null && interactionState.IsWounded && !interactionState.IsHealing;
-        InvestigationQuestion healQuestion = null;
-        if (canHeal)
-        {
-            healQuestion = ScriptableObject.CreateInstance<InvestigationQuestion>();
-            healQuestion.questionId = "heal";
-            healQuestion.promptText = "Heal wounds";
-            answers[healQuestion.questionId] = hunterData != null ? hunterData.healLine : "Hold still while we patch you up.";
-            questionList.Add(healQuestion);
-        }
-
         // Goodbye entry
         var goodbye = ScriptableObject.CreateInstance<InvestigationQuestion>();
         goodbye.questionId = "goodbye";
@@ -158,83 +176,15 @@ public class HunterInteractable : Interactable
     private void HandleQuestionSelected(InvestigationQuestion question)
     {
         if (question == null) return;
-        if (question.questionId == "heal")
-        {
-            PrepareHeal();
-        }
-        else if (question.questionId == "goodbye")
+        if (question.questionId == "goodbye")
         {
             investigationManager?.CompleteInvestigation();
         }
     }
 
-    private void PrepareHeal()
-    {
-        if (interactionState == null) return;
-        float duration = GetHealDuration();
-        pendingHealDuration = duration;
-        pendingHealLine = ownerHunter != null && ownerHunter.Data != null && !string.IsNullOrWhiteSpace(ownerHunter.Data.healLine)
-            ? ownerHunter.Data.healLine
-            : "Hold still while we patch you up.";
-        healPending = true;
-    }
-
     private void HandleResponseFinished(InvestigationQuestion question, string responseText)
     {
-        if (question == null) return;
-        if (question.questionId == "heal" && healPending)
-        {
-            StartCoroutine(HealRoutine());
-        }
-    }
-
-    private System.Collections.IEnumerator HealRoutine()
-    {
-        healPending = false;
-        interactionState?.StartHealing(pendingHealDuration);
-        SetHealVfxActive(true);
-        investigationManager?.HideDialoguePanel();
-        float wait = Mathf.Max(0f, pendingHealDuration);
-        float elapsed = 0f;
-        while (elapsed < wait)
-        {
-            elapsed += Time.deltaTime;
-            yield return null;
-        }
-        SetHealVfxActive(false);
-        interactionState?.SetWounded(false);
-        if (investigationManager != null)
-        {
-            investigationManager.RemoveHunterQuestion("heal");
-        }
-        if (investigationManager != null)
-        {
-            investigationManager.ShowDialogueResponse(pendingHealLine, refreshQuestions: true);
-        }
-    }
-
-    private float GetHealDuration()
-    {
-        float duration = 10f;
-        var config = GameManager.Instance != null ? GameManager.Instance.GetGameConfig() : null;
-        if (config != null)
-        {
-            duration = Mathf.Max(0.5f, config.hunterHealDurationSeconds);
-        }
-        // Trait modifier: fast healer halves time
-        var data = ownerHunter != null ? ownerHunter.Data : null;
-        if (data != null && data.traits != null)
-        {
-            foreach (var trait in data.traits)
-            {
-                if (trait != null && string.Equals(trait.traitId, "fast_healer", System.StringComparison.OrdinalIgnoreCase))
-                {
-                    duration *= 0.5f;
-                    break;
-                }
-            }
-        }
-        return duration;
+        // Reserved for dialogue-specific follow-up actions.
     }
 
     private void ReleaseInteraction()
@@ -331,7 +281,7 @@ public class HunterInteractable : Interactable
         cam.transform.rotation = Quaternion.LookRotation(dir, Vector3.up);
     }
 
-    private void SetHealVfxActive(bool value)
+    public void SetHealVfxActive(bool value)
     {
         if (healVfx != null)
         {

@@ -108,19 +108,35 @@ public class OrderGenerator : MonoBehaviour
             return null;
         }
 
-        int totalWeight = 0;
-        foreach (var m in pool) totalWeight += Mathf.Max(1, m.weight);
-        int roll = Random.Range(0, totalWeight);
-        int cumulative = 0;
+        float totalWeight = 0f;
         foreach (var m in pool)
         {
-            cumulative += Mathf.Max(1, m.weight);
+            totalWeight += GetMonsterSelectionWeight(m, difficultyValue);
+        }
+
+        if (totalWeight <= 0f)
+        {
+            return null;
+        }
+
+        float roll = Random.Range(0f, totalWeight);
+        float cumulative = 0f;
+        foreach (var m in pool)
+        {
+            cumulative += GetMonsterSelectionWeight(m, difficultyValue);
             if (roll < cumulative)
             {
                 return m;
             }
         }
         return pool[pool.Count - 1];
+    }
+
+    private float GetMonsterSelectionWeight(MonsterData monster, int difficultyValue)
+    {
+        if (monster == null) return 0f;
+        float baseWeight = Mathf.Max(1, monster.weight);
+        return baseWeight * monster.GetDifficultySelectionMultiplier(difficultyValue);
     }
 
     private MonsterData PickMonsterIgnoringDifficulty()

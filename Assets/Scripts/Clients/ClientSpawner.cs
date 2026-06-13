@@ -19,10 +19,12 @@ public class ClientSpawner : MonoBehaviour
     private NavMeshAgent clientAgent;
     private SharedCharacterAnimator animatorController;
     private InvestigationManager investigationManager;
+    private InvestigationCase activeCase;
     private Coroutine arrivalRoutine;
     private Coroutine departureRoutine;
 
     public bool HasActiveClient => activeClient != null;
+    public event Action<InvestigationCase> OnClientArrived;
 
     /// <summary>
     /// Returns the currently spawned client's shared animator (if any).
@@ -51,6 +53,7 @@ public class ClientSpawner : MonoBehaviour
         }
 
         activeProfile = investigationCase.clientProfile;
+        activeCase = investigationCase;
         GameObject prefab = activeProfile != null ? activeProfile.GetNextVisualPrefab() : null;
         if (prefab == null)
         {
@@ -70,6 +73,7 @@ public class ClientSpawner : MonoBehaviour
         activeClient = Instantiate(clientPrefab, spawnPos, spawnRot);
         activeClient.SetVisualPrefab(prefab);
         activeClient.AssignInvestigation(investigationManager, investigationCase);
+        activeClient.SetInteractionEnabled(false);
         clientAgent = activeClient.Agent;
         animatorController = activeClient.AnimatorController;
 
@@ -125,6 +129,8 @@ public class ClientSpawner : MonoBehaviour
         }
 
         animatorController?.SetMoving(false);
+        activeClient?.SetInteractionEnabled(true);
+        OnClientArrived?.Invoke(activeCase);
         arrivalRoutine = null;
     }
 
@@ -151,6 +157,7 @@ public class ClientSpawner : MonoBehaviour
         clientAgent = null;
         animatorController = null;
         activeProfile = null;
+        activeCase = null;
     }
 
     public void DismissCurrentClient(Action onComplete = null)

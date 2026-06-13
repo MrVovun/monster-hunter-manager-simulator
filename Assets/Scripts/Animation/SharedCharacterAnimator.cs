@@ -26,6 +26,7 @@ public class SharedCharacterAnimator : MonoBehaviour
     [SerializeField] private AnimationClip thinkingClip;
     [SerializeField] private float thinkingClipSpeed = 1f;
     [SerializeField] private bool thinkingClipLoop = false;
+    [SerializeField] private Vector3 thinkingClipLocalRotationOffset;
 
     [System.Serializable]
     public class ClipEntry
@@ -33,9 +34,18 @@ public class SharedCharacterAnimator : MonoBehaviour
         public AnimationClip clip;
         public float speed = 1f;
         public bool loop = false;
+        [Tooltip("Optional Avatar Mask. When assigned, the clip is layered over the current animator so only masked bones are affected.")]
+        public AvatarMask avatarMask;
+        [Tooltip("Optional local Euler rotation applied to the visual while this clip plays. Use Y = 180 if the clip faces backwards.")]
+        public Vector3 localRotationOffset;
     }
 
     [SerializeField] private ClipEntry[] speakingClips;
+
+    [Header("Rest Clip Playback")]
+    [SerializeField] private ClipEntry layDownClip;
+    [SerializeField] private ClipEntry sleepLoopClip;
+    [SerializeField] private ClipEntry getUpClip;
 
     [Header("Dependencies")]
     [SerializeField] private Animator animator;
@@ -58,6 +68,10 @@ public class SharedCharacterAnimator : MonoBehaviour
 
     // Playable-driven clip playback
     private UnityEngine.Playables.PlayableGraph dialogueGraph;
+    private Transform clipRotationTarget;
+    private Quaternion clipRotationOriginalLocalRotation;
+    private bool hasClipRotationOverride;
+    private int clipPlaybackVersion;
 
     public bool AutoUpdateVelocity
     {
@@ -87,12 +101,12 @@ public class SharedCharacterAnimator : MonoBehaviour
 
     private void OnDisable()
     {
-        StopDialogueClip();
+        StopClipPlayback();
     }
 
     private void OnDestroy()
     {
-        StopDialogueClip();
+        StopClipPlayback();
     }
 
     private void Update()
@@ -113,6 +127,7 @@ public class SharedCharacterAnimator : MonoBehaviour
             Debug.LogWarning($"SharedCharacterAnimator on '{name}' received a null Animator reference.", this);
             return;
         }
+        EnsureAnimationEventReceiver();
         CacheParameters();
         InitializeBaseLayer();
     }
@@ -125,6 +140,7 @@ public class SharedCharacterAnimator : MonoBehaviour
     private void CacheParameters()
     {
         if (animator == null || parameterCacheBuilt) return;
+        EnsureAnimationEventReceiver();
 
         hasMoving = HasParameter(movingBoolParameter, AnimatorControllerParameterType.Bool);
         hasTalking = HasParameter(talkingIntParameter, AnimatorControllerParameterType.Int);
@@ -137,6 +153,15 @@ public class SharedCharacterAnimator : MonoBehaviour
         hasAction = HasParameter(actionIntParameter, AnimatorControllerParameterType.Int);
 
         parameterCacheBuilt = true;
+    }
+
+    private void EnsureAnimationEventReceiver()
+    {
+        if (animator == null) return;
+        if (animator.GetComponent<CharacterAnimationEventReceiver>() == null)
+        {
+            animator.gameObject.AddComponent<CharacterAnimationEventReceiver>();
+        }
     }
 
     private bool HasParameter(string name, AnimatorControllerParameterType type)
@@ -253,18 +278,22 @@ public class SharedCharacterAnimator : MonoBehaviour
     /// Crossfades to a named state if provided. Returns true if a play was issued.
     /// </summary>
     #region Clip Playback
-    private void StopDialogueClip()
+    public void StopClipPlayback()
     {
+        clipPlaybackVersion++;
         if (dialogueGraph.IsValid())
         {
             dialogueGraph.Destroy();
         }
+        RestoreClipRotation();
     }
 
-    private bool PlayClip(AnimationClip clip, float duration = -1f, float speedOverride = 1f, bool loop = false)
+    private bool PlayClip(AnimationClip clip, float duration = -1f, float speedOverride = 1f, bool loop = false, System.Action onComplete = null, Vector3? localRotationOffset = null, AvatarMask avatarMask = null)
     {
         if (clip == null || animator == null) return false;
-        StopDialogueClip();
+        StopClipPlayback();
+        int playbackVersion = ++clipPlaybackVersion;
+        ApplyClipRotation(localRotationOffset ?? Vector3.zero);
 
         dialogueGraph = PlayableGraph.Create($"DialogueClipGraph_{name}");
         var output = AnimationPlayableOutput.Create(dialogueGraph, "DialogueOutput", animator);
@@ -279,25 +308,75 @@ public class SharedCharacterAnimator : MonoBehaviour
         playable.SetTime(0);
         playable.SetSpeed(baseSpeed * Mathf.Max(0.01f, speedOverride));
 
-        output.SetSourcePlayable(playable);
+        if (avatarMask != null && animator.runtimeAnimatorController != null)
+        {
+            var controllerPlayable = AnimatorControllerPlayable.Create(dialogueGraph, animator.runtimeAnimatorController);
+            var mixer = AnimationLayerMixerPlayable.Create(dialogueGraph, 2);
+            dialogueGraph.Connect(controllerPlayable, 0, mixer, 0);
+            dialogueGraph.Connect(playable, 0, mixer, 1);
+            mixer.SetInputWeight(0, 1f);
+            mixer.SetInputWeight(1, 1f);
+            mixer.SetLayerMaskFromAvatarMask(1, avatarMask);
+            output.SetSourcePlayable(mixer);
+        }
+        else
+        {
+            output.SetSourcePlayable(playable);
+        }
+
         dialogueGraph.Play();
         if (!loop)
         {
-            StartCoroutine(StopDialogueClipAfter(targetDuration / Mathf.Max(0.01f, (float)playable.GetSpeed())));
+            StartCoroutine(StopClipAfter(targetDuration / Mathf.Max(0.01f, (float)playable.GetSpeed()), playbackVersion, onComplete));
         }
         return true;
     }
 
-    private System.Collections.IEnumerator StopDialogueClipAfter(float seconds)
+    private bool PlayClipEntry(ClipEntry entry, System.Action onComplete = null)
+    {
+        if (entry == null || entry.clip == null) return false;
+        return PlayClip(entry.clip, -1f, entry.speed <= 0f ? 1f : entry.speed, entry.loop, onComplete, entry.localRotationOffset, entry.avatarMask);
+    }
+
+    private System.Collections.IEnumerator StopClipAfter(float seconds, int playbackVersion, System.Action onComplete)
     {
         yield return new WaitForSeconds(seconds);
-        StopDialogueClip();
+        if (playbackVersion != clipPlaybackVersion) yield break;
+
+        StopClipPlayback();
+        onComplete?.Invoke();
+    }
+
+    private void ApplyClipRotation(Vector3 localRotationOffset)
+    {
+        RestoreClipRotation();
+        if (animator == null) return;
+        if (localRotationOffset.sqrMagnitude <= 0.0001f) return;
+
+        clipRotationTarget = animator.transform;
+        clipRotationOriginalLocalRotation = clipRotationTarget.localRotation;
+        clipRotationTarget.localRotation = clipRotationOriginalLocalRotation * Quaternion.Euler(localRotationOffset);
+        hasClipRotationOverride = true;
+    }
+
+    private void RestoreClipRotation()
+    {
+        if (!hasClipRotationOverride || clipRotationTarget == null)
+        {
+            hasClipRotationOverride = false;
+            clipRotationTarget = null;
+            return;
+        }
+
+        clipRotationTarget.localRotation = clipRotationOriginalLocalRotation;
+        hasClipRotationOverride = false;
+        clipRotationTarget = null;
     }
 
     public bool PlayThinkingClip(float duration = -1f)
     {
         if (!useClipPlayback) return false;
-        return PlayClip(thinkingClip, duration, thinkingClipSpeed, thinkingClipLoop);
+        return PlayClip(thinkingClip, duration, thinkingClipSpeed, thinkingClipLoop, null, thinkingClipLocalRotationOffset);
     }
 
     public bool PlayRandomSpeakingClip()
@@ -305,8 +384,31 @@ public class SharedCharacterAnimator : MonoBehaviour
         if (!useClipPlayback || speakingClips == null || speakingClips.Length == 0) return false;
         int idx = Random.Range(0, speakingClips.Length);
         var entry = speakingClips[idx];
-        if (entry == null || entry.clip == null) return false;
-        return PlayClip(entry.clip, -1f, entry.speed <= 0f ? 1f : entry.speed, entry.loop);
+        return PlayClipEntry(entry);
+    }
+
+    public bool PlayCustomClip(ClipEntry entry, System.Action onComplete = null)
+    {
+        if (!useClipPlayback) return false;
+        return PlayClipEntry(entry, onComplete);
+    }
+
+    public bool PlayLayDownClip(System.Action onComplete = null)
+    {
+        if (!useClipPlayback) return false;
+        return PlayClipEntry(layDownClip, onComplete);
+    }
+
+    public bool PlaySleepLoopClip()
+    {
+        if (!useClipPlayback) return false;
+        return PlayClipEntry(sleepLoopClip);
+    }
+
+    public bool PlayGetUpClip(System.Action onComplete = null)
+    {
+        if (!useClipPlayback) return false;
+        return PlayClipEntry(getUpClip, onComplete);
     }
     #endregion
 
@@ -343,4 +445,14 @@ public class SharedCharacterAnimator : MonoBehaviour
         if (hasVelocityX) animator.SetFloat(velocityXParameter, normX);
         if (hasVelocityZ) animator.SetFloat(velocityZParameter, normZ);
     }
+}
+
+public class CharacterAnimationEventReceiver : MonoBehaviour
+{
+    public void Hit() { }
+    public void Shoot() { }
+    public void FootL() { }
+    public void FootR() { }
+    public void Footstep() { }
+    public void Land() { }
 }

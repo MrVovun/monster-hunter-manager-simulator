@@ -6,6 +6,7 @@ public class EconomyTab : MonoBehaviour
 {
     [SerializeField] private TMP_Text goldText;
     [SerializeField] private TMP_Text reputationText;
+    [SerializeField] private TMP_Text reputationProgressText;
     [SerializeField] private TMP_Text upkeepText;
 
     public void Refresh()
@@ -22,6 +23,11 @@ public class EconomyTab : MonoBehaviour
         if (reputationText != null && rep != null)
         {
             reputationText.text = $"Reputation: {rep.GetReputation()}";
+        }
+
+        if (reputationProgressText != null && rep != null)
+        {
+            reputationProgressText.text = rep.GetProgressText();
         }
 
         if (upkeepText != null && hunters != null)

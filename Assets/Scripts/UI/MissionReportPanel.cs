@@ -20,6 +20,7 @@ public class MissionReportPanel : MonoBehaviour
     [SerializeField] private Image declaredMonsterPortrait;
     [SerializeField] private TMP_Text trueMonsterText;
     [SerializeField] private Image trueMonsterPortrait;
+    [SerializeField] private TMP_Text mismatchNoticeText;
     [Header("Traits")]
     [SerializeField] private Transform traitsParent;
     [SerializeField] private GameObject traitItemPrefab;
@@ -44,7 +45,9 @@ public class MissionReportPanel : MonoBehaviour
     private bool movementLocked;
     private FirstPersonController cachedController;
     private PlayerInteraction cachedInteraction;
-    private bool interactionWasEnabled;
+    private InvestigationManager cachedInvestigationManager;
+    private GraveyardManager cachedGraveyardManager;
+    private bool interactionDisabledByPanel;
     private readonly Queue<MissionReport> pendingReports = new Queue<MissionReport>();
     private MissionReport currentReport;
     private bool isVisible;
@@ -64,7 +67,7 @@ public class MissionReportPanel : MonoBehaviour
             RestoreCursor();
             cursorUnlockedForPanel = false;
         }
-        if (movementLocked)
+        if (movementLocked || interactionDisabledByPanel)
         {
             UnlockPlayer();
         }
@@ -104,10 +107,8 @@ public class MissionReportPanel : MonoBehaviour
         if (report == null) return;
 
         pendingReports.Enqueue(report);
-        if (!isVisible && !IsBlockedByOtherUI())
-        {
-            TryShowNextPending();
-        }
+        // Mission resolution can happen inside another UI's button callback. Let that
+        // UI finish closing before this report takes ownership of the player controls.
     }
 
     public void ShowReport(MissionReport report)
@@ -115,11 +116,12 @@ public class MissionReportPanel : MonoBehaviour
         if (report == null) return;
 
         currentReport = report;
+        WireCloseButton();
+        ShowVisuals(true);
         RememberCursor();
         UnlockCursor();
         cursorUnlockedForPanel = true;
         LockPlayer();
-        ShowVisuals(true);
 
         ClearTraitItems();
         ClearPartyItems();
@@ -147,6 +149,12 @@ public class MissionReportPanel : MonoBehaviour
             rewardsXPText.text = $"XP: {totalXp}";
         }
 
+        if (mismatchNoticeText != null)
+        {
+            mismatchNoticeText.text = string.Empty;
+            mismatchNoticeText.gameObject.SetActive(false);
+        }
+
         UpdateOrderDetails(report.order);
         UpdateTraits(report.order);
         UpdateParty(report.hunterResults);
@@ -154,6 +162,7 @@ public class MissionReportPanel : MonoBehaviour
 
     public void Close()
     {
+        ResolveGraveyardManager()?.HandleMissionReportClosed(currentReport);
         ShowVisuals(false);
         if (cursorUnlockedForPanel)
         {
@@ -186,8 +195,9 @@ public class MissionReportPanel : MonoBehaviour
     private void WireCloseButton()
     {
         if (closeButton == null) return;
-        closeButton.onClick.RemoveAllListeners();
+        closeButton.onClick.RemoveListener(Close);
         closeButton.onClick.AddListener(Close);
+        closeButton.interactable = true;
     }
 
     private void UpdateOrderDetails(Order order)
@@ -223,6 +233,27 @@ public class MissionReportPanel : MonoBehaviour
             trueMonsterPortrait.sprite = order.monsterData != null ? order.monsterData.portrait : null;
             trueMonsterPortrait.enabled = trueMonsterPortrait.sprite != null;
         }
+
+        UpdateMismatchNotice(order);
+    }
+
+    private void UpdateMismatchNotice(Order order)
+    {
+        if (mismatchNoticeText == null) return;
+
+        bool hasDeclared = order != null && order.declaredMonster != null;
+        bool hasTrue = order != null && order.monsterData != null;
+        bool mismatch = hasDeclared && hasTrue && order.declaredMonster != order.monsterData;
+
+        if (mismatch)
+        {
+            mismatchNoticeText.text = "Hunters report: wrong monster was identified for this contract.";
+            mismatchNoticeText.gameObject.SetActive(true);
+            return;
+        }
+
+        mismatchNoticeText.text = string.Empty;
+        mismatchNoticeText.gameObject.SetActive(false);
     }
 
     private void UpdateTraits(Order order)
@@ -308,9 +339,57 @@ public class MissionReportPanel : MonoBehaviour
             if (label != null)
             {
                 string status = result.died ? "Dead" : result.injured ? "Wounded" : "Healthy";
-                label.text = $"{result.hunter.name} - {status}";
+                label.text = BuildHunterResultText(result, status);
             }
         }
+    }
+
+    private string BuildHunterResultText(MissionReport.HunterResult result, string status)
+    {
+        if (result == null || result.hunter == null)
+        {
+            return status;
+        }
+
+        StringBuilder builder = new StringBuilder();
+        builder.Append(result.hunter.name);
+        builder.Append(" - ");
+        builder.Append(status);
+
+        if (result.xpGained > 0)
+        {
+            builder.Append(" - +");
+            builder.Append(result.xpGained);
+            builder.Append(" XP");
+        }
+
+        if (result.died)
+        {
+            return builder.ToString();
+        }
+
+        if (result.leveledUp)
+        {
+            builder.Append(" - Level Up!");
+            return builder.ToString();
+        }
+
+        if (result.hunter.CanLevelUp())
+        {
+            builder.Append(" - Ready to level up");
+            return builder.ToString();
+        }
+
+        int xpNeeded = result.hunter.GetXPToNextLevel();
+        if (xpNeeded != int.MaxValue)
+        {
+            int remaining = Mathf.Max(0, xpNeeded - result.hunter.GetXP());
+            builder.Append(" - ");
+            builder.Append(remaining);
+            builder.Append(" XP to level up");
+        }
+
+        return builder.ToString();
     }
 
     private void ClearTraitItems()
@@ -347,8 +426,14 @@ public class MissionReportPanel : MonoBehaviour
 
     private void LateUpdate()
     {
+        if (isVisible)
+        {
+            EnsureModalState();
+            return;
+        }
+
         // In case a blocking UI just closed, try to show pending reports.
-        if (!isVisible && pendingReports.Count > 0)
+        if (pendingReports.Count > 0)
         {
             TryShowNextPending();
         }
@@ -366,6 +451,12 @@ public class MissionReportPanel : MonoBehaviour
 
     private bool IsBlockedByOtherUI()
     {
+        var investigationManager = ResolveInvestigationManager();
+        if (investigationManager != null && investigationManager.IsHunterDialogueActive)
+        {
+            return true;
+        }
+
         if (blockWhileActive != null)
         {
             foreach (var go in blockWhileActive)
@@ -382,7 +473,7 @@ public class MissionReportPanel : MonoBehaviour
     private void LockPlayer()
     {
         var controller = ResolvePlayerController();
-        if (controller != null && !movementLocked)
+        if (controller != null)
         {
             controller.LockMovement();
             movementLocked = true;
@@ -391,29 +482,51 @@ public class MissionReportPanel : MonoBehaviour
         var interaction = ResolvePlayerInteraction();
         if (interaction != null && interaction.enabled)
         {
-            interactionWasEnabled = true;
             interaction.enabled = false;
-        }
-        else
-        {
-            interactionWasEnabled = false;
+            interactionDisabledByPanel = true;
         }
     }
 
     private void UnlockPlayer()
     {
-        if (!movementLocked) return;
-        var controller = ResolvePlayerController();
-        if (controller != null)
+        if (movementLocked)
         {
-            controller.UnlockMovement();
+            var controller = ResolvePlayerController();
+            if (controller != null)
+            {
+                controller.UnlockMovement();
+            }
+            movementLocked = false;
         }
-        movementLocked = false;
 
         var interaction = ResolvePlayerInteraction();
-        if (interaction != null && interactionWasEnabled && !interaction.enabled)
+        if (interaction != null && interactionDisabledByPanel && !interaction.enabled)
         {
             interaction.enabled = true;
+        }
+        interactionDisabledByPanel = false;
+    }
+
+    private void EnsureModalState()
+    {
+        var controller = ResolvePlayerController();
+        if (controller != null && !controller.IsMovementLocked())
+        {
+            controller.LockMovement();
+            movementLocked = true;
+        }
+
+        var interaction = ResolvePlayerInteraction();
+        if (interaction != null && interaction.enabled)
+        {
+            interaction.enabled = false;
+            interactionDisabledByPanel = true;
+        }
+
+        if (Cursor.lockState != CursorLockMode.None || !Cursor.visible)
+        {
+            UnlockCursor();
+            cursorUnlockedForPanel = true;
         }
     }
 
@@ -429,6 +542,24 @@ public class MissionReportPanel : MonoBehaviour
         if (cachedInteraction != null) return cachedInteraction;
         cachedInteraction = FindObjectOfType<PlayerInteraction>();
         return cachedInteraction;
+    }
+
+    private InvestigationManager ResolveInvestigationManager()
+    {
+        if (cachedInvestigationManager != null) return cachedInvestigationManager;
+        cachedInvestigationManager = GameManager.Instance != null
+            ? GameManager.Instance.GetInvestigationManager()
+            : FindObjectOfType<InvestigationManager>();
+        return cachedInvestigationManager;
+    }
+
+    private GraveyardManager ResolveGraveyardManager()
+    {
+        if (cachedGraveyardManager != null) return cachedGraveyardManager;
+        cachedGraveyardManager = GameManager.Instance != null
+            ? GameManager.Instance.GetGraveyardManager()
+            : FindObjectOfType<GraveyardManager>();
+        return cachedGraveyardManager;
     }
 
     private void ShowVisuals(bool visible)

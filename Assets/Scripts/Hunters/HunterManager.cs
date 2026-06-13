@@ -25,13 +25,20 @@ public class HunterManager : MonoBehaviour
     private readonly Dictionary<string, HunterData> hunterLookup = new Dictionary<string, HunterData>();
     private readonly HashSet<string> hiredHunterIds = new HashSet<string>();
     private readonly Dictionary<Hunter, bool> idleAllDayCandidates = new Dictionary<Hunter, bool>();
+    private readonly HashSet<HunterSeat> briefingRoomSeats = new HashSet<HunterSeat>();
     private int nextSeatIndex = 0;
     private bool navMeshChecked = false;
     private bool navMeshAvailable = false;
     
     public event System.Action OnHuntersChanged;
+    public event System.Action<Hunter> OnHunterLeveledUp;
     public void OnDayStarted(int dayIndex)
     {
+        if (dayIndex > 0)
+        {
+            HealWoundedHuntersOvernight(dayIndex);
+        }
+
         ApplyMentorBonuses();
 
         // reset idle tracking for the new day
@@ -40,6 +47,35 @@ public class HunterManager : MonoBehaviour
         {
             if (hunter == null) continue;
             idleAllDayCandidates[hunter] = hunter.GetState() == HunterState.Idle;
+        }
+    }
+
+    private void HealWoundedHuntersOvernight(int dayIndex)
+    {
+        bool changed = false;
+        foreach (var hunter in activeHunters)
+        {
+            if (hunter == null || hunter.GetState() == HunterState.Dead) continue;
+
+            var state = hunter.GetComponent<HunterInteractionState>();
+            if (state == null || (!state.IsWounded && !state.IsHealing)) continue;
+            if (!DormitoryManager.CanHunterRecoverOvernight(hunter, dayIndex)) continue;
+
+            state.CompleteHealing();
+            var interactable = hunter.GetComponent<HunterInteractable>();
+            interactable?.SetHealVfxActive(false);
+
+            if (hunter.GetState() == HunterState.Healing)
+            {
+                hunter.FinishInfirmaryTreatment();
+            }
+
+            changed = true;
+        }
+
+        if (changed)
+        {
+            NotifyHuntersChanged();
         }
     }
     
@@ -57,7 +93,7 @@ public class HunterManager : MonoBehaviour
             }
         }
         
-        // Find idle seats
+        SanitizeIdleSeats();
         if (hunterSeats.Count == 0)
         {
             FindIdleSeats();
@@ -75,13 +111,66 @@ public class HunterManager : MonoBehaviour
     
     private void FindIdleSeats()
     {
+        RefreshBriefingSeatCache();
         hunterSeats.Clear();
         HunterSeat[] seats = FindObjectsOfType<HunterSeat>(true);
-        hunterSeats.AddRange(seats);
+        foreach (var seat in seats)
+        {
+            if (IsValidIdleSeat(seat))
+            {
+                hunterSeats.Add(seat);
+            }
+        }
         
         if (hunterSeats.Count == 0)
         {
-            Debug.LogWarning("HunterManager: No HunterSeat components found in the scene. Hunters will remain standing.");
+            Debug.LogWarning("HunterManager: No guild hall HunterSeat components found in the scene. Hunters will remain standing.");
+        }
+    }
+
+    private void SanitizeIdleSeats()
+    {
+        RefreshBriefingSeatCache();
+        if (hunterSeats == null)
+        {
+            hunterSeats = new List<HunterSeat>();
+            return;
+        }
+
+        hunterSeats = hunterSeats.Where(IsValidIdleSeat).ToList();
+        if (nextSeatIndex >= hunterSeats.Count)
+        {
+            nextSeatIndex = 0;
+        }
+    }
+
+    private bool IsValidIdleSeat(HunterSeat seat)
+    {
+        if (seat == null || !seat.CanUseForGuildHall) return false;
+        return !IsBriefingRoomChair(seat);
+    }
+
+    private bool IsBriefingRoomChair(HunterSeat seat)
+    {
+        return seat != null && briefingRoomSeats.Contains(seat);
+    }
+
+    private void RefreshBriefingSeatCache()
+    {
+        briefingRoomSeats.Clear();
+        var briefingRooms = FindObjectsOfType<BriefingRoomManager>(true);
+        foreach (var room in briefingRooms)
+        {
+            if (room == null) continue;
+            var seats = room.GetBriefingChairs();
+            if (seats == null) continue;
+            foreach (var seat in seats)
+            {
+                if (seat != null)
+                {
+                    briefingRoomSeats.Add(seat);
+                }
+            }
         }
     }
     
@@ -271,7 +360,7 @@ public class HunterManager : MonoBehaviour
         {
             int index = (nextSeatIndex + i) % hunterSeats.Count;
             HunterSeat seat = hunterSeats[index];
-            if (seat != null && !seat.IsOccupied)
+            if (IsValidIdleSeat(seat) && !seat.IsOccupied)
             {
                 nextSeatIndex = (index + 1) % hunterSeats.Count;
                 return seat;
@@ -354,6 +443,11 @@ public class HunterManager : MonoBehaviour
         if (leveled)
         {
             NotifyHuntersChanged();
+            OnHunterLeveledUp?.Invoke(hunter);
+            var config = GameManager.Instance != null ? GameManager.Instance.GetGameConfig() : null;
+            var tm = GameManager.Instance != null ? GameManager.Instance.GetTimeManager() : null;
+            float timeCost = config != null ? config.actionTimeSettings.levelUpSeconds : 0f;
+            tm?.AdvanceTime(timeCost);
         }
         return leveled;
     }
@@ -515,13 +609,16 @@ public class HunterManager : MonoBehaviour
 
     public bool IsAtHunterLimit()
     {
-        var config = GameManager.Instance != null ? GameManager.Instance.GetGameConfig() : null;
-        if (config == null) return false;
-        int rep = GameManager.Instance != null ? GameManager.Instance.GetReputation() : 0;
-        int limit = config.GetHunterLimit(rep);
+        int limit = GetHunterLimit();
         if (limit <= 0) return false;
         int aliveCount = activeHunters.Count(h => h != null && h.GetState() != HunterState.Dead);
         return aliveCount >= limit;
+    }
+
+    public int GetHunterLimit()
+    {
+        var constructionManager = GameManager.Instance != null ? GameManager.Instance.GetConstructionManager() : null;
+        return constructionManager != null ? constructionManager.GetBuiltHunterCapacityIncrease() : 0;
     }
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -538,6 +635,8 @@ public class HunterManager : MonoBehaviour
         hiredHunterIds.Clear();
         nextSeatIndex = 0;
         EnsureInitialHunters();
+        var graveyardManager = GameManager.Instance != null ? GameManager.Instance.GetGraveyardManager() : null;
+        graveyardManager?.RemoveGravesForHunters(GetHiredHunterIds());
         NotifyHuntersChanged();
     }
 #endif

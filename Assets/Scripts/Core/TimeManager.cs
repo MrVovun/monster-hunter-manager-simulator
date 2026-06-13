@@ -6,8 +6,11 @@ public class TimeManager : MonoBehaviour
     public enum DayState { PreBell, Active, Evening }
 
     [Header("Time Settings")]
+    [Tooltip("If true, game time only advances when AdvanceTime is called (action-based).")]
+    [SerializeField] private bool useActionBasedTime = true;
     [SerializeField] private float timeScale = 60f; // 1 real second = 60 game seconds (1 game minute)
     [SerializeField] private bool pauseTime = false;
+    [Tooltip("Length of a day in game seconds (used when action-based) or real seconds (scaled) otherwise.")]
     [SerializeField] private float dayLengthRealSeconds = 600f; // default fallback in case config is missing
     
     private float gameTimeInSeconds = 0f; // Total game time elapsed
@@ -18,10 +21,11 @@ public class TimeManager : MonoBehaviour
     
     public delegate void TimeUpdateDelegate(float gameTimeDelta);
     public event TimeUpdateDelegate OnTimeUpdate;
+    public event TimeUpdateDelegate OnTimeAdvanced; // fires only when time actually advanced
     public event System.Action<int> OnDayStarted; // Fires with day index (0-based)
     public event System.Action<DayState> OnDayStateChanged;
 
-    private float DayLengthGameSeconds => Mathf.Max(1f, dayLengthRealSeconds * timeScale);
+    private float DayLengthGameSeconds => useActionBasedTime ? Mathf.Max(1f, dayLengthRealSeconds) : Mathf.Max(1f, dayLengthRealSeconds * timeScale);
 
     private void Start()
     {
@@ -40,45 +44,67 @@ public class TimeManager : MonoBehaviour
     
     private void Update()
     {
+        if (useActionBasedTime) return;
         if (pauseTime) return;
         
         float realDeltaTime = Time.deltaTime;
         float gameDeltaTime = realDeltaTime * timeScale;
-        
+        StepTime(gameDeltaTime);
+    }
+
+    /// <summary>
+    /// Advances game time by the given amount of game seconds (action-based mode).
+    /// Does nothing if still in PreBell or already in Evening.
+    /// </summary>
+    public void AdvanceTime(float gameSeconds)
+    {
+        if (!useActionBasedTime) return;
+        StepTime(gameSeconds);
+    }
+
+    private void StepTime(float gameDeltaTime)
+    {
+        if (gameDeltaTime <= 0f) return;
+        if (pauseTime) return;
+
+        // In pre-bell, time shouldn't move
+        if (dayState == DayState.PreBell || dayState == DayState.Evening)
+        {
+            return;
+        }
+
         gameTimeInSeconds += gameDeltaTime;
 
-        bool allowTimers = dayState != DayState.PreBell;
-        
-        if (allowTimers)
+        // Update all active timers
+        for (int i = activeTimers.Count - 1; i >= 0; i--)
         {
-            // Update all active timers
-            for (int i = activeTimers.Count - 1; i >= 0; i--)
+            if (activeTimers[i] != null)
             {
-                if (activeTimers[i] != null)
+                var timer = activeTimers[i];
+                timer.Update(gameDeltaTime);
+                
+                if (timer.IsExpired())
                 {
-                    var timer = activeTimers[i];
-                    timer.Update(gameDeltaTime);
-                    
-                    if (timer.IsExpired())
-                    {
-                        // Remove first to avoid re-entrancy double-removal
-                        activeTimers.RemoveAt(i);
-                        timer.OnExpired?.Invoke();
-                    }
-                }
-            }
-
-            if (dayState == DayState.Active)
-            {
-                remainingDayGameSeconds = Mathf.Max(0f, remainingDayGameSeconds - gameDeltaTime);
-                if (remainingDayGameSeconds <= 0f)
-                {
-                    SetDayState(DayState.Evening);
+                    // Remove first to avoid re-entrancy double-removal
+                    activeTimers.RemoveAt(i);
+                    timer.OnExpired?.Invoke();
                 }
             }
         }
-        
-        OnTimeUpdate?.Invoke(gameDeltaTime);
+
+        float appliedTime = gameDeltaTime;
+        if (dayState == DayState.Active)
+        {
+            appliedTime = Mathf.Min(gameDeltaTime, remainingDayGameSeconds);
+            remainingDayGameSeconds = Mathf.Max(0f, remainingDayGameSeconds - appliedTime);
+            if (remainingDayGameSeconds <= 0f)
+            {
+                SetDayState(DayState.Evening);
+            }
+        }
+
+        OnTimeAdvanced?.Invoke(appliedTime);
+        OnTimeUpdate?.Invoke(appliedTime);
     }
     
     public void RegisterTimer(MissionTimer timer)
@@ -172,6 +198,7 @@ public class TimeManager : MonoBehaviour
     }
 
     public DayState GetDayState() => dayState;
+    public bool IsActionBasedTime() => useActionBasedTime;
 
     public void StartDayCountdown()
     {

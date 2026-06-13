@@ -76,8 +76,10 @@ public class BestiaryUI : MonoBehaviour
         contextCase = context;
         if (selectButton != null)
         {
+            EnsureButtonVisualFeedback(selectButton);
             selectButton.gameObject.SetActive(selectionEnabled);
             selectButton.interactable = selectionEnabled && currentSelection != null;
+            RefreshButtonVisual(selectButton);
         }
 
         if (orderManager == null && GameManager.Instance != null)
@@ -149,7 +151,13 @@ public class BestiaryUI : MonoBehaviour
                 var entry = Instantiate(monsterListItemPrefab, monsterListParent);
                 spawnedEntries.Add(entry);
                 ConfigureMonsterListEntry(entry, monster);
-                EnsureButton(entry)?.onClick.AddListener(() => ShowDetails(monster));
+                Button entryButton = EnsureButton(entry);
+                EnsureButtonVisualFeedback(entryButton);
+                entryButton?.onClick.AddListener(() =>
+                {
+                    InteractionFeedbackManager.PlayUIClick();
+                    ShowDetails(monster);
+                });
                 if (firstSelectable == null)
                 {
                     firstSelectable = monster;
@@ -194,6 +202,7 @@ public class BestiaryUI : MonoBehaviour
         if (selectButton != null)
         {
             selectButton.interactable = selectionEnabled && monster != null;
+            RefreshButtonVisual(selectButton);
         }
 
         if (monster == null)
@@ -266,8 +275,39 @@ public class BestiaryUI : MonoBehaviour
     private void HandleSelectPressed()
     {
         if (!selectionEnabled || currentSelection == null) return;
+        InteractionFeedbackManager.PlayUIClick();
         onSelection?.Invoke(currentSelection);
         Hide();
+    }
+
+    private void RefreshButtonVisual(Button button)
+    {
+        if (button == null) return;
+        var visualFeedback = button.GetComponent<UIButtonVisualFeedback>();
+        if (visualFeedback != null)
+        {
+            visualFeedback.RefreshVisualState(true);
+        }
+    }
+
+    private void EnsureButtonVisualFeedback(Button button)
+    {
+        if (button == null) return;
+        var visualFeedback = button.GetComponent<UIButtonVisualFeedback>();
+        if (visualFeedback == null)
+        {
+            visualFeedback = button.gameObject.AddComponent<UIButtonVisualFeedback>();
+        }
+
+        visualFeedback.Configure(
+            colorEnabled: true,
+            scaleEnabled: true,
+            hover: new Color(0.82f, 0.82f, 0.82f, 1f),
+            pressedState: new Color(0.65f, 0.65f, 0.65f, 1f),
+            disabled: new Color(0.45f, 0.45f, 0.45f, 0.7f),
+            hoverScaleValue: 1.01f,
+            pressedScaleValue: 0.99f,
+            duration: 0.08f);
     }
 
     private void SetActive(bool value)

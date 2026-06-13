@@ -91,7 +91,12 @@ public class OrderPartySlot : MonoBehaviour, IDropHandler, IPointerClickHandler
     public bool TryAssignHunter(Hunter hunter)
     {
         if (owner == null || hunter == null) return false;
-        return owner.TryAssignHunterToSlot(slotIndex, hunter);
+        bool assigned = owner.TryAssignHunterToSlot(slotIndex, hunter);
+        if (assigned)
+        {
+            InteractionFeedbackManager.PlayUIClick();
+        }
+        return assigned;
     }
 
     public void OnPointerClick(PointerEventData eventData)
@@ -100,6 +105,7 @@ public class OrderPartySlot : MonoBehaviour, IDropHandler, IPointerClickHandler
 
         if (eventData.button == PointerEventData.InputButton.Right && assignedHunter != null)
         {
+            InteractionFeedbackManager.PlayUIClick(eventData.position, transform);
             owner.RemoveHunterFromSlot(slotIndex);
         }
     }

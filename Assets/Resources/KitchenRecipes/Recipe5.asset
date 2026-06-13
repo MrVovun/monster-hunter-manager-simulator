@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a27aa36a18428046b4ab7cacbc16e48, type: 3}
+  m_Name: Recipe5
+  m_EditorClassIdentifier: Assembly-CSharp::KitchenRecipe
+  recipeId: 628c54f3ee54409dae8cedc7ed322016
+  displayName: Mig Bac
+  description: Counters one random trait for all missions for the day.
+  icon: {fileID: 0}
+  potPrefab: {fileID: 1997563708281803670, guid: f08dc8f9ba725cc4aa9bb8843523fc15, type: 3}
+  successChanceBonusPercent: 0
+  woundChanceReductionPercent: 0
+  deathChanceReductionPercent: 0
+  missionTimeReductionPercent: 0
+  counterOneRandomMonsterTrait: 1
+  counterTraitPool:
+  - {fileID: 11400000, guid: 1baf58fa8f43050499b86fd6d8886381, type: 2}
+  - {fileID: 11400000, guid: 31ab73eb407b39846811d46d64ddf238, type: 2}
+  - {fileID: 11400000, guid: 6af8b3bbb8f5f8d4fbdb3a6057fd4b86, type: 2}
+  - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
+  - {fileID: 11400000, guid: 02041b403a87b234ba630b13fd996c0f, type: 2}
+  - {fileID: 11400000, guid: f149ed5426264cb4db6fac2830e77841, type: 2}

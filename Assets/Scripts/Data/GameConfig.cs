@@ -18,7 +18,7 @@ public class GameConfig : ScriptableObject
 
     [Header("Time")]
     [Tooltip("Length of an in-game day in real-time seconds.")]
-    public float dayLengthSeconds = 600f;
+    public float dayLengthSeconds = 36000f;
 
     [Tooltip("If true, investigation UI pauses global time (accessibility/testing).")]
     public bool allowInvestigationPauseToggle = true;
@@ -29,6 +29,9 @@ public class GameConfig : ScriptableObject
     [Header("Mission Balance")]
     [Range(0f, 1f)] public float baseInjuryChance = 0.2f;
     [Range(0f, 1f)] public float baseDeathChance = 0.05f;
+
+    [Header("Action Time Costs (seconds)")]
+    public ActionTimeSettings actionTimeSettings = new ActionTimeSettings();
     [Header("Monster Trait Generation")]
     public List<TraitCountChance> traitCountChances = new List<TraitCountChance>
     {
@@ -44,22 +47,6 @@ public class GameConfig : ScriptableObject
 
     public int GetOrderLimit(int reputation) => 0;
 
-    public int GetHunterLimit(int reputation)
-    {
-        int limit = 0;
-        foreach (var tier in orderLimitByReputation)
-        {
-            if (reputation >= tier.requiredReputation)
-            {
-                if (tier.hunterLimit > 0)
-                {
-                    limit = Mathf.Max(limit, tier.hunterLimit);
-                }
-            }
-        }
-        return limit;
-    }
-
     [Serializable]
     public class OrderLimitTier
     {
@@ -67,8 +54,6 @@ public class GameConfig : ScriptableObject
         [Tooltip("Reputation points required to reach this reputation level.")]
         public int requiredReputationPoints;
         public int orderLimit = 3;
-        [Tooltip("Maximum hunters allowed at this reputation tier. 0 or less = no limit.")]
-        public int hunterLimit = 0;
     }
 
     [Serializable]
@@ -76,6 +61,41 @@ public class GameConfig : ScriptableObject
     {
         public int traitCount = 1;
         public float weight = 1f;
+    }
+
+    [Serializable]
+    public class ActionTimeSettings
+    {
+        [Tooltip("Ringing the bell to call a client.")]
+        public float ringBellSeconds = 5f;
+        [Tooltip("Asking any question in a dialogue (investigation or hunter).")]
+        public float questionSeconds = 5f;
+        [Tooltip("Accepting an order.")]
+        public float acceptOrderSeconds = 5f;
+        [Tooltip("Dispatching a party (not counting mission duration).")]
+        public float sendPartySeconds = 5f;
+        [Tooltip("Treating hunter wounds. Uses the heal duration plus this bonus if set > 0.")]
+        public float treatWoundsBonusSeconds = 0f;
+        [Tooltip("Leveling up a hunter.")]
+        public float levelUpSeconds = 5f;
+        [Tooltip("Posting a hiring ad.")]
+        public float postAdSeconds = 10f;
+        [Tooltip("Reviewing a candidate / opening their profile.")]
+        public float reviewCandidateSeconds = 5f;
+        [Tooltip("Hiring or declining a candidate.")]
+        public float hireOrDeclineSeconds = 5f;
+        [Tooltip("Building or upgrading a construction.")]
+        public float buildSeconds = 10f;
+        [Tooltip("Choosing a kitchen recipe for the day.")]
+        public float chooseKitchenRecipeSeconds = 10f;
+        [Tooltip("Cleaning one dirty plate left by a hunter after eating.")]
+        public float cleanKitchenPlateSeconds = 3f;
+        [Tooltip("Changing sheets on a dirty dormitory bed.")]
+        public float cleanDormitoryBedSeconds = 3f;
+        [Tooltip("Changing sheets on a stale or unusable dormitory bed.")]
+        public float cleanStaleDormitoryBedSeconds = 6f;
+        [Tooltip("Pass time amount per tap in the pass-time UI.")]
+        public float passTimeStepSeconds = 60f;
     }
 
     public int RollTraitCount(int min, int max)

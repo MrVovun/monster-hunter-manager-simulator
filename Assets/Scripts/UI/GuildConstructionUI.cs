@@ -17,6 +17,7 @@ public class GuildConstructionUI : MonoBehaviour
     [SerializeField] private Color availableColor = new Color(0.2f, 0.8f, 0.2f, 1f);
     [SerializeField] private Color unavailableColor = new Color(0.8f, 0.2f, 0.2f, 1f);
     [SerializeField] private Color builtColor = new Color(0.6f, 0.6f, 0.6f, 1f);
+    [SerializeField] private Color selectedColor = new Color(1f, 0.85f, 0.35f, 1f);
 
     [Header("Details")]
     [SerializeField] private TMP_Text titleText;
@@ -24,10 +25,22 @@ public class GuildConstructionUI : MonoBehaviour
     [SerializeField] private TMP_Text goldRequirementText;
     [SerializeField] private TMP_Text reputationRequirementText;
     [SerializeField] private TMP_Text statusText;
+    [SerializeField] private GameObject previewRoot;
+    [SerializeField] private Image previewImage;
 
     [Header("Plan View")]
     [SerializeField] private Image planBaseImage;
     [SerializeField] private Image overlayTemplate;
+    [Range(0f, 1f)]
+    [SerializeField] private float selectedOverlayAlpha = 0.85f;
+    [Range(0f, 1f)]
+    [SerializeField] private float builtOverlayAlpha = 0.42f;
+    [Range(0f, 1f)]
+    [SerializeField] private float availableOverlayAlpha = 0.28f;
+    [Range(0f, 1f)]
+    [SerializeField] private float unavailableOverlayAlpha = 0.14f;
+    [SerializeField] private bool showAvailableOverlays = true;
+    [SerializeField] private bool showUnavailableOverlays = true;
 
     private GuildConstructionManager manager;
     private readonly List<GuildConstructionListItem> spawnedItems = new List<GuildConstructionListItem>();
@@ -110,7 +123,7 @@ public class GuildConstructionUI : MonoBehaviour
             var item = Instantiate(listItemPrefab, listParent);
             item.Initialize(def, HandleItemSelected);
             var status = manager.GetStatus(def);
-            item.SetStatusColors(GetColorForStatus(status));
+            item.SetStatus(status, GetColorForStatus(status));
             item.SetSelected(def == selectedDefinition);
             spawnedItems.Add(item);
         }
@@ -151,6 +164,7 @@ public class GuildConstructionUI : MonoBehaviour
             if (reputationRequirementText != null) reputationRequirementText.text = string.Empty;
             if (statusText != null) statusText.text = string.Empty;
             if (buildButton != null) buildButton.interactable = false;
+            UpdatePreview(null, false);
             return;
         }
 
@@ -162,7 +176,7 @@ public class GuildConstructionUI : MonoBehaviour
         var status = manager.GetStatus(selectedDefinition);
         if (statusText != null)
         {
-            statusText.text = status.ToString();
+            statusText.text = GetStatusLabel(selectedDefinition, status);
             statusText.color = GetColorForStatus(status);
         }
 
@@ -170,6 +184,8 @@ public class GuildConstructionUI : MonoBehaviour
         {
             buildButton.interactable = status == GuildConstructionManager.ConstructionStatus.Available;
         }
+
+        UpdatePreview(selectedDefinition, status == GuildConstructionManager.ConstructionStatus.Built);
     }
 
     private void UpdateOverlayVisuals()
@@ -184,20 +200,48 @@ public class GuildConstructionUI : MonoBehaviour
 
             bool built = manager.IsBuilt(def);
             bool isSelected = def == selectedDefinition;
+            var status = manager.GetStatus(def);
             if (built)
             {
-                overlay.color = builtColor;
+                overlay.color = WithAlpha(isSelected ? selectedColor : builtColor, isSelected ? selectedOverlayAlpha : builtOverlayAlpha);
                 overlay.gameObject.SetActive(true);
             }
             else if (isSelected)
             {
-                overlay.color = GetColorForStatus(manager.GetStatus(def));
+                overlay.color = WithAlpha(selectedColor, selectedOverlayAlpha);
+                overlay.gameObject.SetActive(true);
+            }
+            else if (status == GuildConstructionManager.ConstructionStatus.Available && showAvailableOverlays)
+            {
+                overlay.color = WithAlpha(availableColor, availableOverlayAlpha);
+                overlay.gameObject.SetActive(true);
+            }
+            else if (status == GuildConstructionManager.ConstructionStatus.Unavailable && showUnavailableOverlays)
+            {
+                overlay.color = WithAlpha(unavailableColor, unavailableOverlayAlpha);
                 overlay.gameObject.SetActive(true);
             }
             else
             {
                 overlay.gameObject.SetActive(false);
             }
+        }
+    }
+
+    private void UpdatePreview(GuildConstructionDefinition definition, bool built)
+    {
+        if (previewImage == null)
+        {
+            if (previewRoot != null) previewRoot.SetActive(false);
+            return;
+        }
+
+        Sprite sprite = definition != null ? definition.GetPreviewSprite(built) : null;
+        previewImage.sprite = sprite;
+        previewImage.enabled = sprite != null;
+        if (previewRoot != null)
+        {
+            previewRoot.SetActive(sprite != null);
         }
     }
 
@@ -261,6 +305,26 @@ public class GuildConstructionUI : MonoBehaviour
             default:
                 return builtColor;
         }
+    }
+
+    private string GetStatusLabel(GuildConstructionDefinition definition, GuildConstructionManager.ConstructionStatus status)
+    {
+        switch (status)
+        {
+            case GuildConstructionManager.ConstructionStatus.Available:
+                return "Available";
+            case GuildConstructionManager.ConstructionStatus.Built:
+                return "Built";
+            default:
+                string reason = manager != null ? manager.GetUnavailableReason(definition) : string.Empty;
+                return string.IsNullOrWhiteSpace(reason) ? "Locked" : $"Locked - {reason}";
+        }
+    }
+
+    private static Color WithAlpha(Color color, float alpha)
+    {
+        color.a = Mathf.Clamp01(alpha);
+        return color;
     }
 
     private void CaptureCursor()

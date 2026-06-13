@@ -11,6 +11,7 @@ public class HunterCandidateController : MonoBehaviour
     private HunterRecruitmentManager.RecruitmentCandidate candidate;
     private Transform waitSpot;
     private Transform exitPoint;
+    private HunterInteractable interactable;
     private bool leaving;
 
     public void Initialize(
@@ -25,6 +26,11 @@ public class HunterCandidateController : MonoBehaviour
         this.waitSpot = waitSpot;
         this.exitPoint = exitPoint;
         agent = GetComponent<NavMeshAgent>();
+        interactable = GetComponentInChildren<HunterInteractable>();
+        if (interactable != null)
+        {
+            interactable.SetInteractionEnabled(false);
+        }
 
         if (spawnPoint != null)
         {
@@ -51,6 +57,10 @@ public class HunterCandidateController : MonoBehaviour
         {
             recruitmentManager?.HandleCandidateExited(candidate);
             return;
+        }
+        if (interactable != null)
+        {
+            interactable.SetInteractionEnabled(false);
         }
         SetDestination(exitPoint.position);
     }
@@ -87,6 +97,14 @@ public class HunterCandidateController : MonoBehaviour
             agent.isStopped = true;
             transform.position = waitSpot.position;
             transform.rotation = waitSpot.rotation;
+            if (interactable == null)
+            {
+                interactable = GetComponentInChildren<HunterInteractable>();
+            }
+            if (interactable != null)
+            {
+                interactable.SetInteractionEnabled(true);
+            }
         }
         else if (leaving && (exitPoint == null || agent.remainingDistance <= arrivalThreshold))
         {

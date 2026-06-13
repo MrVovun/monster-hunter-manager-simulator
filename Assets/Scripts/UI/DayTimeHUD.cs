@@ -10,10 +10,14 @@ public class DayTimeHUD : MonoBehaviour
     [SerializeField] private TimeManager timeManager;
     [SerializeField] private TMP_Text timeRemainingText;
     [SerializeField] private TMP_Text dayCounterText;
+    [SerializeField] private TMP_Text reputationText;
+    [SerializeField] private TMP_Text reputationProgressText;
     [SerializeField] private UnityEngine.UI.Image stateIcon;
     [SerializeField] private Sprite preBellSprite;
     [SerializeField] private Sprite activeSprite;
     [SerializeField] private Sprite eveningSprite;
+
+    private ReputationManager reputationManager;
 
     private void OnEnable()
     {
@@ -24,6 +28,13 @@ public class DayTimeHUD : MonoBehaviour
             timeManager.OnDayStarted += HandleDayStarted;
             timeManager.OnDayStateChanged += HandleDayStateChanged;
         }
+
+        EnsureReputationManager();
+        if (reputationManager != null)
+        {
+            reputationManager.OnReputationChanged += HandleReputationChanged;
+        }
+
         RefreshTexts();
     }
 
@@ -34,6 +45,11 @@ public class DayTimeHUD : MonoBehaviour
             timeManager.OnTimeUpdate -= HandleTimeUpdate;
             timeManager.OnDayStarted -= HandleDayStarted;
             timeManager.OnDayStateChanged -= HandleDayStateChanged;
+        }
+
+        if (reputationManager != null)
+        {
+            reputationManager.OnReputationChanged -= HandleReputationChanged;
         }
     }
 
@@ -51,6 +67,11 @@ public class DayTimeHUD : MonoBehaviour
     {
         RefreshStateIcon(state);
         RefreshTexts();
+    }
+
+    private void HandleReputationChanged(float _)
+    {
+        RefreshReputationTexts();
     }
 
     private void RefreshTexts()
@@ -78,6 +99,23 @@ public class DayTimeHUD : MonoBehaviour
         }
 
         RefreshStateIcon(timeManager.GetDayState());
+        RefreshReputationTexts();
+    }
+
+    private void RefreshReputationTexts()
+    {
+        EnsureReputationManager();
+        if (reputationManager == null) return;
+
+        if (reputationText != null)
+        {
+            reputationText.text = $"Reputation {reputationManager.GetReputation()}";
+        }
+
+        if (reputationProgressText != null)
+        {
+            reputationProgressText.text = reputationManager.GetProgressText();
+        }
     }
 
     private void EnsureTimeManager()
@@ -89,6 +127,14 @@ public class DayTimeHUD : MonoBehaviour
         if (timeManager == null)
         {
             timeManager = FindObjectOfType<TimeManager>();
+        }
+    }
+
+    private void EnsureReputationManager()
+    {
+        if (reputationManager == null && GameManager.Instance != null)
+        {
+            reputationManager = GameManager.Instance.GetReputationManager();
         }
     }
 
