@@ -22,6 +22,11 @@ public class MissionResolver : MonoBehaviour
         bool guaranteedSuccess = successChance >= 100f;
         float successRollThreshold = Mathf.Clamp(successChance, 0f, 100f);
         report.success = guaranteedSuccess || Random.Range(0f, 100f) < successRollThreshold;
+        HashSet<Hunter> forcedWoundedHunters = new HashSet<Hunter>();
+        if (!report.success)
+        {
+            report.success = TryApplyFailureRescue(order, party, forcedWoundedHunters);
+        }
         
         // Calculate rewards
         if (report.success)
@@ -63,20 +68,20 @@ public class MissionResolver : MonoBehaviour
             
             bool injuryPrevented = successPreventsInjury || outcome.InjuryPreventionActive;
             bool shouldRollInjury = !guaranteedInjury && !injuryPrevented;
-            bool hunterInjured = guaranteedInjury;
+            bool hunterInjured = guaranteedInjury || forcedWoundedHunters.Contains(hunter);
 
             float injuryRisk = baseInjuryRisk;
             float deathRisk = baseDeathRisk;
 
-            if (shouldRollInjury)
+            if (shouldRollInjury && !hunterInjured)
             {
-                hunterInjured = Random.value < injuryRisk;
+                hunterInjured = RollNegativeChance(injuryRisk, HasRerollNegativeRolls(hunter));
             }
 
             bool deathPrevented = successPreventsDeath || outcome.DeathPreventionActive;
             bool requiresInjuryForDeath = !outcome.AllowDeathWithoutInjury;
             bool canDie = !deathPrevented && (!requiresInjuryForDeath || hunterInjured);
-            bool hunterDied = canDie && (Random.value < deathRisk);
+            bool hunterDied = canDie && RollNegativeChance(deathRisk, HasRerollNegativeRolls(hunter));
 
             result.died = hunterDied;
             if (hunterDied)
@@ -136,6 +141,8 @@ public class MissionResolver : MonoBehaviour
     {
         if (party == null) return;
         int partySize = party.Count;
+        List<MonsterTrait> monsterTraits = order != null && order.investigationCase != null ? order.investigationCase.truthTraits : null;
+
         foreach (var hunter in party)
         {
             var data = hunter?.Data;
@@ -149,8 +156,19 @@ public class MissionResolver : MonoBehaviour
                     if (effect.bonusType != HunterTrait.BonusEffectType.RewardMultiplier &&
                         effect.bonusType != HunterTrait.BonusEffectType.RewardFlat) continue;
 
-                    if (!MissionOutcomeCalculator.DoesConditionPass(effect.condition, order.monsterData, partySize))
+                    MonsterData monster = order != null ? order.monsterData : null;
+                    if (!MissionOutcomeCalculator.DoesConditionPassWithoutProc(effect.condition, monster, partySize, hunter, party, order, monsterTraits))
+                    {
                         continue;
+                    }
+
+                    bool conditionPassed = MissionOutcomeCalculator.DoesConditionPass(effect.condition, monster, partySize, hunter, party, order, monsterTraits);
+                    if (!conditionPassed && HasRerollNegativeRolls(hunter))
+                    {
+                        conditionPassed = MissionOutcomeCalculator.DoesConditionPass(effect.condition, monster, partySize, hunter, party, order, monsterTraits);
+                    }
+
+                    if (!conditionPassed) continue;
 
                     if (effect.bonusType == HunterTrait.BonusEffectType.RewardMultiplier)
                     {
@@ -207,5 +225,69 @@ public class MissionResolver : MonoBehaviour
         {
             guardian.hunter.SetState(HunterState.Dead);
         }
+    }
+
+    private bool TryApplyFailureRescue(Order order, List<Hunter> party, HashSet<Hunter> forcedWoundedHunters)
+    {
+        if (order == null || party == null || forcedWoundedHunters == null) return false;
+        int partySize = party.Count;
+        List<MonsterTrait> monsterTraits = order.investigationCase != null ? order.investigationCase.truthTraits : null;
+
+        foreach (var hunter in party)
+        {
+            var data = hunter?.Data;
+            if (data == null || data.traits == null) continue;
+
+            foreach (var trait in data.traits)
+            {
+                if (trait == null || trait.bonusEffects == null) continue;
+                foreach (var effect in trait.bonusEffects)
+                {
+                    if (effect == null || effect.bonusType != HunterTrait.BonusEffectType.FailureRescueSuccessChancePercent) continue;
+                    if (!MissionOutcomeCalculator.DoesConditionPass(effect.condition, order.monsterData, partySize, hunter, party, order, monsterTraits)) continue;
+
+                    float chance = Mathf.Clamp(effect.value, 0f, 100f);
+                    if (Random.Range(0f, 100f) <= chance)
+                    {
+                        forcedWoundedHunters.Add(hunter);
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private static bool RollNegativeChance(float chance01, bool rerollOnce)
+    {
+        chance01 = Mathf.Clamp01(chance01);
+        float roll = Random.value;
+        if (rerollOnce)
+        {
+            roll = Mathf.Max(roll, Random.value);
+        }
+
+        return roll < chance01;
+    }
+
+    private static bool HasRerollNegativeRolls(Hunter hunter)
+    {
+        var data = hunter?.Data;
+        if (data == null || data.traits == null) return false;
+
+        foreach (var trait in data.traits)
+        {
+            if (trait == null || trait.bonusEffects == null) continue;
+            foreach (var effect in trait.bonusEffects)
+            {
+                if (effect != null && effect.bonusType == HunterTrait.BonusEffectType.RerollNegativeRolls)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

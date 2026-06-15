@@ -16,29 +16,35 @@ MonoBehaviour:
   displayName: Dragon Sense
   description: Automatically disables Flying trait for enemies with Wings.
   icon: {fileID: 21300000, guid: d2841752ec71edb4eba89709389abf25, type: 3}
-  bonusEffects:
-  - bonusType: 0
-    value: 0
-    stacking: 0
+  bonusEffects: []
+  missionEffects: []
+  counters: []
+  conditionalCounters:
+  - counteredTrait: {fileID: 11400000, guid: 6af8b3bbb8f5f8d4fbdb3a6057fd4b86, type: 2}
     condition:
       requiredMonsterTagCategory: winged
       requiredMonsterTagValue: twoWings
       targetMonster: {fileID: 0}
       minPartySize: 0
       maxPartySize: 0
-      procChancePercent: 0
+      procChancePercent: 100
       requiresSoloParty: 0
-  - bonusType: 0
-    value: 0
-    stacking: 0
+      requiredMonsterTrait: {fileID: 0}
+      requiredMonsterTraitId: 
+      minMissionDurationSeconds: 0
+      maxMissionDurationSeconds: 0
+      requiresWeakestInParty: 0
+  - counteredTrait: {fileID: 11400000, guid: 6af8b3bbb8f5f8d4fbdb3a6057fd4b86, type: 2}
     condition:
       requiredMonsterTagCategory: winged
       requiredMonsterTagValue: fourWings
       targetMonster: {fileID: 0}
       minPartySize: 0
       maxPartySize: 0
-      procChancePercent: 0
+      procChancePercent: 100
       requiresSoloParty: 0
-  missionEffects: []
-  counters:
-  - {fileID: 11400000, guid: 6af8b3bbb8f5f8d4fbdb3a6057fd4b86, type: 2}
+      requiredMonsterTrait: {fileID: 0}
+      requiredMonsterTraitId: 
+      minMissionDurationSeconds: 0
+      maxMissionDurationSeconds: 0
+      requiresWeakestInParty: 0

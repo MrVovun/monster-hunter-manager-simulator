@@ -5,6 +5,14 @@ using UnityEngine.AI;
 
 public class HunterManager : MonoBehaviour
 {
+    [System.Serializable]
+    public class HunterSaveState
+    {
+        public string hunterId;
+        public int level;
+        public int xp;
+    }
+
     [Header("Hunter Database")]
     [SerializeField] private List<HunterData> allHunterData = new List<HunterData>();
     [SerializeField] private List<HunterData> initialHunters = new List<HunterData>();
@@ -24,6 +32,7 @@ public class HunterManager : MonoBehaviour
     private readonly List<Hunter> activeHunters = new List<Hunter>();
     private readonly Dictionary<string, HunterData> hunterLookup = new Dictionary<string, HunterData>();
     private readonly HashSet<string> hiredHunterIds = new HashSet<string>();
+    private readonly Dictionary<string, HunterSaveState> hunterSaveStates = new Dictionary<string, HunterSaveState>();
     private readonly Dictionary<Hunter, bool> idleAllDayCandidates = new Dictionary<Hunter, bool>();
     private readonly HashSet<HunterSeat> briefingRoomSeats = new HashSet<HunterSeat>();
     private int nextSeatIndex = 0;
@@ -288,6 +297,7 @@ public class HunterManager : MonoBehaviour
         }
 
         hunter.Initialize(data);
+        ApplySavedHunterState(hunter);
         hunterObj.name = data.hunterName;
         return hunter;
     }
@@ -311,6 +321,7 @@ public class HunterManager : MonoBehaviour
         if (hiredHunterIds.Contains(data.hunterId)) return false;
 
         hiredHunterIds.Add(data.hunterId);
+        ApplySavedHunterState(candidate);
         if (!activeHunters.Contains(candidate))
         {
             activeHunters.Add(candidate);
@@ -391,9 +402,32 @@ public class HunterManager : MonoBehaviour
         {
             activeHunters.Remove(hunter);
             idleAllDayCandidates.Remove(hunter);
+            hunter.ReleaseCurrentSeat();
             Destroy(hunter.gameObject);
             NotifyHuntersChanged();
         }
+    }
+
+    public bool CanFireHunter(Hunter hunter)
+    {
+        if (hunter == null || hunter.Data == null) return false;
+        HunterState state = hunter.GetState();
+        return state == HunterState.Idle;
+    }
+
+    public bool FireHunter(Hunter hunter)
+    {
+        if (!CanFireHunter(hunter)) return false;
+
+        CaptureHunterState(hunter);
+        string hunterId = hunter.Data.hunterId;
+        if (!string.IsNullOrEmpty(hunterId))
+        {
+            hiredHunterIds.Remove(hunterId);
+        }
+
+        RemoveHunter(hunter);
+        return true;
     }
     
     public void OnReputationChanged(float newReputation)
@@ -442,6 +476,7 @@ public class HunterManager : MonoBehaviour
         bool leveled = hunter.LevelUp();
         if (leveled)
         {
+            CaptureHunterState(hunter);
             NotifyHuntersChanged();
             OnHunterLeveledUp?.Invoke(hunter);
             var config = GameManager.Instance != null ? GameManager.Instance.GetGameConfig() : null;
@@ -522,12 +557,11 @@ public class HunterManager : MonoBehaviour
             return false;
         }
 
-        hiredHunterIds.Add(data.hunterId);
         var hunter = SpawnHunter(data);
-        if (hunter != null)
-        {
-            idleAllDayCandidates[hunter] = hunter.GetState() == HunterState.Idle;
-        }
+        if (hunter == null) return false;
+
+        hiredHunterIds.Add(data.hunterId);
+        idleAllDayCandidates[hunter] = hunter.GetState() == HunterState.Idle;
         return true;
     }
 
@@ -539,14 +573,68 @@ public class HunterManager : MonoBehaviour
             if (string.IsNullOrEmpty(id) || hiredHunterIds.Contains(id)) continue;
             if (!hunterLookup.TryGetValue(id, out var data) || data == null) continue;
             if (IsAtHunterLimit()) break;
+            var hunter = SpawnHunter(data);
+            if (hunter == null) continue;
             hiredHunterIds.Add(id);
-            SpawnHunter(data);
         }
     }
 
     public List<string> GetHiredHunterIds()
     {
         return new List<string>(hiredHunterIds);
+    }
+
+    public void LoadHunterSaveStates(IEnumerable<HunterSaveState> states)
+    {
+        hunterSaveStates.Clear();
+        if (states == null) return;
+
+        foreach (var state in states)
+        {
+            if (state == null || string.IsNullOrEmpty(state.hunterId)) continue;
+            hunterSaveStates[state.hunterId] = new HunterSaveState
+            {
+                hunterId = state.hunterId,
+                level = Mathf.Max(1, state.level),
+                xp = Mathf.Max(0, state.xp)
+            };
+        }
+    }
+
+    public List<HunterSaveState> GetHunterSaveStates()
+    {
+        foreach (var hunter in activeHunters)
+        {
+            CaptureHunterState(hunter);
+        }
+
+        return hunterSaveStates.Values
+            .Where(state => state != null && !string.IsNullOrEmpty(state.hunterId))
+            .Select(state => new HunterSaveState
+            {
+                hunterId = state.hunterId,
+                level = state.level,
+                xp = state.xp
+            })
+            .ToList();
+    }
+
+    private void CaptureHunterState(Hunter hunter)
+    {
+        if (hunter == null || hunter.Data == null || string.IsNullOrEmpty(hunter.Data.hunterId)) return;
+        hunterSaveStates[hunter.Data.hunterId] = new HunterSaveState
+        {
+            hunterId = hunter.Data.hunterId,
+            level = Mathf.Max(1, hunter.GetLevel()),
+            xp = Mathf.Max(0, hunter.GetXP())
+        };
+    }
+
+    private void ApplySavedHunterState(Hunter hunter)
+    {
+        if (hunter == null || hunter.Data == null || string.IsNullOrEmpty(hunter.Data.hunterId)) return;
+        if (!hunterSaveStates.TryGetValue(hunter.Data.hunterId, out var state) || state == null) return;
+        hunter.DebugSetLevelAndXP(state.level, state.xp);
     }
 
     private void ApplyMentorBonuses()
@@ -621,6 +709,34 @@ public class HunterManager : MonoBehaviour
         return constructionManager != null ? constructionManager.GetBuiltHunterCapacityIncrease() : 0;
     }
 
+    public float GetRecruitmentRarityWeightMultiplier(GlobalHunterConfig.RarityType rarity)
+    {
+        if (rarity == GlobalHunterConfig.RarityType.Common) return 1f;
+
+        float multiplier = 1f;
+        foreach (var hunter in activeHunters)
+        {
+            if (hunter == null) continue;
+            HunterState state = hunter.GetState();
+            if (state == HunterState.Dead || state == HunterState.OnMission || state == HunterState.Candidate) continue;
+
+            var data = hunter.Data;
+            if (data == null || data.traits == null) continue;
+            foreach (var trait in data.traits)
+            {
+                if (trait == null || trait.bonusEffects == null) continue;
+                foreach (var effect in trait.bonusEffects)
+                {
+                    if (effect == null || effect.bonusType != HunterTrait.BonusEffectType.RecruitmentRarityWeightMultiplier) continue;
+                    if (!MissionOutcomeCalculator.DoesConditionPass(effect.condition, null, 1)) continue;
+                    multiplier *= effect.value <= 0f ? 1f : effect.value;
+                }
+            }
+        }
+
+        return Mathf.Max(0.01f, multiplier);
+    }
+
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
     public void DebugResetRoster()
     {
@@ -633,6 +749,7 @@ public class HunterManager : MonoBehaviour
         }
         activeHunters.Clear();
         hiredHunterIds.Clear();
+        hunterSaveStates.Clear();
         nextSeatIndex = 0;
         EnsureInitialHunters();
         var graveyardManager = GameManager.Instance != null ? GameManager.Instance.GetGraveyardManager() : null;

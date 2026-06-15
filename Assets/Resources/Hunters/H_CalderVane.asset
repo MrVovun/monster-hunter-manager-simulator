@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 155ec2172406e054ca92e4ea9b6cbd3a, type: 3}
+  m_Name: H_CalderVane
+  m_EditorClassIdentifier: Assembly-CSharp::HunterData
+  hunterName: Calder Vane
+  hunterId: df7623d0e939465484ad83a99aea99e7
+  rarity: 0
+  bio: A gifted student of mage academy who was exiled for recognizing his own potential...
+    and posing as too much of a danger.
+  basePower: 28
+  powerPerLevel: 2
+  traits:
+  - {fileID: 11400000, guid: e2890249537226b4fbe5995dbb3528d6, type: 2}
+  dailyUpkeepCost: 64
+  startingLevel: 1
+  startingXP: 0
+  levelXPTable: []
+  minReputation: 2
+  portrait: {fileID: 0}
+  visualPrefab: {fileID: 1141520575075298, guid: 6872d86ea329f4b4b8d06e6ea824c4ec, type: 3}
+  greeting: 
+  healLine: 
+  goodbyeLine: 
+  dialogueQuestions: []

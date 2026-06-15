@@ -5,15 +5,16 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Hunter Trait", menuName = "Guild Manager/Hunter Trait")]
 public class HunterTrait : ScriptableObject
 {
-[Header("Identifiers")]
-[Tooltip("Optional trait ID used to counter specific monster traits.")]
-public string traitId;
-[Tooltip("Display name shown in UI.")]
-public string displayName;
-[TextArea(2, 4)]
-public string description;
-[Header("Visuals")]
-public Sprite icon;
+    [Header("Identifiers")]
+    [Tooltip("Optional trait ID used to counter specific monster traits.")]
+    public string traitId;
+    [Tooltip("Display name shown in UI.")]
+    public string displayName;
+    [TextArea(2, 4)]
+    public string description;
+
+    [Header("Visuals")]
+    public Sprite icon;
 
     [Header("Bonus Effects")]
     public List<BonusEffect> bonusEffects = new List<BonusEffect>();
@@ -24,6 +25,8 @@ public Sprite icon;
     [Header("Counters")]
     [Tooltip("Monster traits this hunter trait counters (e.g., FireDamage, Flying).")]
     public List<MonsterTrait> counters = new List<MonsterTrait>();
+    [Tooltip("Monster traits this hunter trait counters only when the condition passes.")]
+    public List<ConditionalCounter> conditionalCounters = new List<ConditionalCounter>();
 
     private void OnEnable()
     {
@@ -71,7 +74,13 @@ public Sprite icon;
         RewardMultiplier = 8,
         RewardFlat = 9,
         GuardianSacrifice = 10,
-        MentorGrantXP = 11
+        MentorGrantXP = 11,
+        MissionTimeMultiplier = 12,
+        FailureRescueSuccessChancePercent = 13,
+        RerollNegativeRolls = 14,
+        RecruitmentRarityWeightMultiplier = 15,
+        MaxLevelBonus = 16,
+        XpRequirementMultiplier = 17
     }
 
     public enum TraitStackingMode
@@ -97,5 +106,22 @@ public Sprite icon;
         public float procChancePercent = 100f;
         [Tooltip("When enabled, this effect only applies if exactly one hunter is assigned.")]
         public bool requiresSoloParty = false;
+        [Tooltip("Optional monster trait that must be present on the order.")]
+        public MonsterTrait requiredMonsterTrait;
+        [Tooltip("Optional monster trait ID/display name that must be present on the order.")]
+        public string requiredMonsterTraitId;
+        [Tooltip("Optional minimum mission duration in seconds.")]
+        public float minMissionDurationSeconds = 0f;
+        [Tooltip("Optional maximum mission duration in seconds (0 = no max).")]
+        public float maxMissionDurationSeconds = 0f;
+        [Tooltip("When enabled, this effect only applies if this hunter has the lowest power in the party. Ties count.")]
+        public bool requiresWeakestInParty = false;
+    }
+
+    [Serializable]
+    public class ConditionalCounter
+    {
+        public MonsterTrait counteredTrait;
+        public BonusCondition condition = new BonusCondition();
     }
 }

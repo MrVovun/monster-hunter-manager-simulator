@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 155ec2172406e054ca92e4ea9b6cbd3a, type: 3}
+  m_Name: H_BramGoodbarrel
+  m_EditorClassIdentifier: Assembly-CSharp::HunterData
+  hunterName: Bram Goodbarrel
+  hunterId: 15b70878c7464452a3dbed65dccb7284
+  rarity: 0
+  bio: Bram is a sexist, but only when it's applied to monsters. In his worldview,
+    monsters shouldn't be allowed to be beautiful, so he's willing to exterminate
+    all of them.
+  basePower: 28
+  powerPerLevel: 2
+  traits:
+  - {fileID: 11400000, guid: eb2201f61acba2443aea852625688b84, type: 2}
+  - {fileID: 11400000, guid: 34a66b83ac8c20746a10aebbbdbeaa7e, type: 2}
+  dailyUpkeepCost: 64
+  startingLevel: 1
+  startingXP: 0
+  levelXPTable: []
+  minReputation: 2
+  portrait: {fileID: 0}
+  visualPrefab: {fileID: 1615356946489238, guid: 8805364c00c6ce947a40c218a4beca69, type: 3}
+  greeting: 
+  healLine: 
+  goodbyeLine: 
+  dialogueQuestions: []

@@ -703,6 +703,11 @@ public class Hunter : MonoBehaviour
         }
     }
 
+    public void ReleaseCurrentSeat()
+    {
+        ReleaseSeat();
+    }
+
     private void BeginStandUpSequence(System.Action onCompleted = null)
     {
         isStandingUp = true;

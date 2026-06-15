@@ -24,6 +24,7 @@ public class HunterLevelSystem : MonoBehaviour
     public bool CanLevelUp()
     {
         if (hunterData == null) return false;
+        if (currentLevel >= GetMaxLevel()) return false;
         int xpNeeded = GetXPForNextLevel();
         return currentXP >= xpNeeded;
     }
@@ -31,8 +32,17 @@ public class HunterLevelSystem : MonoBehaviour
     public int GetXPForNextLevel()
     {
         if (hunterData == null) return int.MaxValue;
+        if (currentLevel >= GetMaxLevel()) return int.MaxValue;
+
         int xpRequirement = hunterData.GetXPRequirementForNextLevel(currentLevel);
-        return xpRequirement > 0 ? xpRequirement : int.MaxValue;
+        if (xpRequirement <= 0)
+        {
+            xpRequirement = hunterData.GetLastDefinedXPRequirement();
+        }
+
+        if (xpRequirement <= 0) return int.MaxValue;
+        float multiplier = GetXpRequirementMultiplier();
+        return Mathf.Max(1, Mathf.RoundToInt(xpRequirement * multiplier));
     }
     
     public bool LevelUp()
@@ -79,6 +89,54 @@ public class HunterLevelSystem : MonoBehaviour
         // Cost scales with level: base cost * level
         int baseCost = 100;
         return baseCost * currentLevel;
+    }
+
+    private int GetMaxLevel()
+    {
+        if (hunterData == null) return currentLevel;
+        int maxLevel = hunterData.GetMaxDefinedLevel();
+        maxLevel += Mathf.Max(0, Mathf.RoundToInt(GetTraitEffectTotal(HunterTrait.BonusEffectType.MaxLevelBonus)));
+        return Mathf.Max(hunterData.startingLevel, maxLevel);
+    }
+
+    private float GetXpRequirementMultiplier()
+    {
+        float multiplier = 1f;
+        var traits = hunterData != null ? hunterData.traits : null;
+        if (traits == null) return multiplier;
+
+        foreach (var trait in traits)
+        {
+            if (trait == null || trait.bonusEffects == null) continue;
+            foreach (var effect in trait.bonusEffects)
+            {
+                if (effect == null || effect.bonusType != HunterTrait.BonusEffectType.XpRequirementMultiplier) continue;
+                multiplier *= effect.value <= 0f ? 1f : effect.value;
+            }
+        }
+
+        return Mathf.Max(0.01f, multiplier);
+    }
+
+    private float GetTraitEffectTotal(HunterTrait.BonusEffectType effectType)
+    {
+        float total = 0f;
+        var traits = hunterData != null ? hunterData.traits : null;
+        if (traits == null) return total;
+
+        foreach (var trait in traits)
+        {
+            if (trait == null || trait.bonusEffects == null) continue;
+            foreach (var effect in trait.bonusEffects)
+            {
+                if (effect != null && effect.bonusType == effectType)
+                {
+                    total += effect.value;
+                }
+            }
+        }
+
+        return total;
     }
 
     public void DebugSetLevelAndXP(int level, int xp)

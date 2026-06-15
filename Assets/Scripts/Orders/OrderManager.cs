@@ -138,6 +138,24 @@ public class OrderManager : MonoBehaviour
         return true;
     }
 
+    public bool CanCancelOrder(Order order)
+    {
+        return order != null && order.state == OrderState.Accepted;
+    }
+
+    public bool CancelOrder(Order order)
+    {
+        if (!CanCancelOrder(order)) return false;
+
+        CleanupTimers(order);
+        activeOrders.Remove(order);
+        order.assignedHunters.Clear();
+        order.state = OrderState.Canceled;
+        NotifyOrdersChanged();
+        NotifyHunterRosterChanged();
+        return true;
+    }
+
     private void StartMissionTimer(Order order)
     {
         if (timeManager == null || order == null || order.missionDuration <= 0f) return;

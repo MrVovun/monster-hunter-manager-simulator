@@ -86,8 +86,6 @@ public class HunterRosterItem : MonoBehaviour, IBeginDragHandler, IDragHandler, 
 
         bool assigned = ownerTab != null && IsAssigned();
         bool selectable = ownerTab != null && IsSelectable();
-        HunterState state = hunter.GetState();
-        bool alive = state != HunterState.Dead;
 
         draggable = !displayOnly && selectable && !assigned;
 
@@ -106,38 +104,8 @@ public class HunterRosterItem : MonoBehaviour, IBeginDragHandler, IDragHandler, 
 
         if (statusText != null)
         {
-            if (displayOnly)
-            {
-                statusText.text = string.Empty;
-            }
-            else if (!alive)
-            {
-                statusText.text = "Dead";
-            }
-            else if (state == HunterState.OnMission)
-            {
-                statusText.text = "On Mission";
-            }
-            else if (state == HunterState.Healing)
-            {
-                statusText.text = "Healing";
-            }
-            else if (state == HunterState.Sleeping)
-            {
-                statusText.text = "Sleeping";
-            }
-            else if (assigned)
-            {
-                statusText.text = "In Party";
-            }
-            else if (!selectable)
-            {
-                statusText.text = "Unavailable";
-            }
-            else
-            {
-                statusText.text = string.Empty;
-            }
+            bool statusSelectable = displayOnly || selectable;
+            statusText.text = HunterStatusFormatter.GetStatus(hunter, assigned, statusSelectable);
         }
     }
 
@@ -252,5 +220,41 @@ public class HunterRosterItem : MonoBehaviour, IBeginDragHandler, IDragHandler, 
     public bool ShouldSortLast()
     {
         return IsAssigned() || !IsSelectable();
+    }
+}
+
+public static class HunterStatusFormatter
+{
+    public static string GetStatus(Hunter hunter, bool assignedToParty = false, bool selectableForOrder = true)
+    {
+        if (hunter == null) return string.Empty;
+
+        HunterState state = hunter.GetState();
+        if (state == HunterState.Dead) return "Dead";
+        if (assignedToParty) return HasWound(hunter) ? "In Party - Wounded" : "In Party";
+
+        switch (state)
+        {
+            case HunterState.OnMission:
+                return "On Mission";
+            case HunterState.Candidate:
+                return "Candidate";
+            case HunterState.Healing:
+                return "Healing";
+            case HunterState.Sleeping:
+                return "Sleeping";
+            case HunterState.Idle:
+                if (HasWound(hunter)) return selectableForOrder ? "Wounded" : "Wounded - Unavailable";
+                return selectableForOrder ? "Ready" : "Unavailable";
+            default:
+                return state.ToString();
+        }
+    }
+
+    private static bool HasWound(Hunter hunter)
+    {
+        if (hunter == null) return false;
+        var interactionState = hunter.GetComponent<HunterInteractionState>();
+        return interactionState != null && interactionState.IsWounded;
     }
 }

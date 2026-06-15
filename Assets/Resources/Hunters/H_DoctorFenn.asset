@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 155ec2172406e054ca92e4ea9b6cbd3a, type: 3}
+  m_Name: H_DoctorFenn
+  m_EditorClassIdentifier: Assembly-CSharp::HunterData
+  hunterName: "\u201CDoctor\u201D Fenn"
+  hunterId: db70c40de9ed448683797bf50839d955
+  rarity: 1
+  bio: Fenn learnt that he can use the milk of female satyrs to heal wounds. Now
+    he's dedicated to research them, and eventually create a farm of satyr milk production
+    to become the reachest pharmacist in the kingdom.
+  basePower: 28
+  powerPerLevel: 2
+  traits:
+  - {fileID: 11400000, guid: fdd2df4b3ea1feb4085e8aa9c1d3c677, type: 2}
+  - {fileID: 11400000, guid: 71918f6b12b0efc41a68a0b3815581a9, type: 2}
+  dailyUpkeepCost: 64
+  startingLevel: 1
+  startingXP: 0
+  levelXPTable: []
+  minReputation: 0
+  portrait: {fileID: 0}
+  visualPrefab: {fileID: 1612966763532290, guid: 61beaaba65d672a47a6d778315bf0209, type: 3}
+  greeting: 
+  healLine: 
+  goodbyeLine: 
+  dialogueQuestions: []

@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 155ec2172406e054ca92e4ea9b6cbd3a, type: 3}
+  m_Name: H_MournSingerLira
+  m_EditorClassIdentifier: Assembly-CSharp::HunterData
+  hunterName: Mourn-Singer Lira
+  hunterId: 818cfb4b08094df1a8553d7825b433ae
+  rarity: 2
+  bio: A bard who stopped singing after hearing a banshee. Now she hunts them in
+    silence.
+  basePower: 28
+  powerPerLevel: 2
+  traits:
+  - {fileID: 11400000, guid: 5ff60ebde3a94eb4ba5da19f4029ead8, type: 2}
+  - {fileID: 11400000, guid: 1dc5657bd3a2a6f4cb5fccd45d04a6dd, type: 2}
+  - {fileID: 11400000, guid: 80b4af46fb6c3b449a62937d3f714d88, type: 2}
+  dailyUpkeepCost: 64
+  startingLevel: 1
+  startingXP: 0
+  levelXPTable: []
+  minReputation: 2
+  portrait: {fileID: 0}
+  visualPrefab: {fileID: 1245949954226516, guid: e44149ec07f70404493093a3a70cda1f, type: 3}
+  greeting: 
+  healLine: 
+  goodbyeLine: 
+  dialogueQuestions: []

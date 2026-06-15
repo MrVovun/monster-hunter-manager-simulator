@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9b5851c07143164599583754e0f3c84, type: 3}
+  m_Name: HT_TalentScout
+  m_EditorClassIdentifier: Assembly-CSharp::HunterTrait
+  traitId: a29f64ce30254c8e8366cd8fc2c3e620
+  displayName: Talent Scout
+  description: While this hunter is in the guild, the chances of rarer hunter appearing
+    from the ad are increased.
+  icon: {fileID: 0}
+  bonusEffects:
+  - bonusType: 15
+    value: 1.25
+    stacking: 0
+    condition:
+      requiredMonsterTagCategory: 
+      requiredMonsterTagValue: 
+      targetMonster: {fileID: 0}
+      minPartySize: 0
+      maxPartySize: 0
+      procChancePercent: 0
+      requiresSoloParty: 0
+      requiredMonsterTrait: {fileID: 0}
+      requiredMonsterTraitId: 
+      minMissionDurationSeconds: 0
+      maxMissionDurationSeconds: 0
+      requiresWeakestInParty: 0
+  missionEffects: []
+  counters: []
+  conditionalCounters: []

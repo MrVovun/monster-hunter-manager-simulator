@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9b5851c07143164599583754e0f3c84, type: 3}
+  m_Name: HT_LastStand
+  m_EditorClassIdentifier: Assembly-CSharp::HunterTrait
+  traitId: aad8d5d2914a45ed95b2fe3f8f796686
+  displayName: Last Stand
+  description: If mission would fail, small chance it succeeds instead, but this
+    hunter is guaranteed wounded.
+  icon: {fileID: 21300000, guid: cd93270e7133c4b458fd6f774f4b12a8, type: 3}
+  bonusEffects:
+  - bonusType: 13
+    value: 10
+    stacking: 1
+    condition:
+      requiredMonsterTagCategory: 
+      requiredMonsterTagValue: 
+      targetMonster: {fileID: 0}
+      minPartySize: 0
+      maxPartySize: 0
+      procChancePercent: 0
+      requiresSoloParty: 0
+      requiredMonsterTrait: {fileID: 0}
+      requiredMonsterTraitId: 
+      minMissionDurationSeconds: 0
+      maxMissionDurationSeconds: 0
+      requiresWeakestInParty: 0
+  missionEffects: []
+  counters: []
+  conditionalCounters: []

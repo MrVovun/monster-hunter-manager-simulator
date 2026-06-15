@@ -10,7 +10,8 @@ public enum OrderState
     InProgress,   // Party assigned, mission timer running
     Completed,    // Resolved successfully
     Failed,       // Resolved unsuccessfully
-    Expired       // Not sent before PrepTimeLimit
+    Expired,      // Not sent before PrepTimeLimit
+    Canceled      // Canceled by the player before the party was sent
 }
 
 [System.Serializable]

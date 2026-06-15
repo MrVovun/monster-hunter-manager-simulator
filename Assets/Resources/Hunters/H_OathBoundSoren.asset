@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 155ec2172406e054ca92e4ea9b6cbd3a, type: 3}
+  m_Name: H_OathBoundSoren
+  m_EditorClassIdentifier: Assembly-CSharp::HunterData
+  hunterName: Oath-Bound Soren
+  hunterId: ce05feee17e94cc3906e9bfcba54f5a1
+  rarity: 3
+  bio: A righteous paladin who swore an oath to protect the weak and fight the undead
+    tyranny. He's classy. He knows it.
+  basePower: 28
+  powerPerLevel: 2
+  traits:
+  - {fileID: 11400000, guid: f22ae9b54a4822b45a63b7cd1024e28d, type: 2}
+  - {fileID: 11400000, guid: 7b92d6da974c4684b983dfb219873a0c, type: 2}
+  - {fileID: 11400000, guid: ac73fc08c14afac4f90a4ceb62fdac07, type: 2}
+  dailyUpkeepCost: 64
+  startingLevel: 1
+  startingXP: 0
+  levelXPTable: []
+  minReputation: 2
+  portrait: {fileID: 0}
+  visualPrefab: {fileID: 1866232271259778, guid: 3d8ce890c770cf34b89991cd996a1dea, type: 3}
+  greeting: 
+  healLine: 
+  goodbyeLine: 
+  dialogueQuestions: []

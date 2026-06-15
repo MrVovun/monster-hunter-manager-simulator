@@ -32,6 +32,7 @@ public class HunterTraitEditor : Editor
         DrawProperty("missionEffects");
         DrawBonusEffects();
         DrawProperty("counters");
+        DrawConditionalCounters();
     }
 
     private void DrawProperty(string propertyName)
@@ -68,6 +69,28 @@ public class HunterTraitEditor : Editor
         }
     }
 
+    private void DrawConditionalCounters()
+    {
+        var listProp = serializedObject.FindProperty("conditionalCounters");
+        if (listProp == null)
+        {
+            return;
+        }
+
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Conditional Counters", EditorStyles.boldLabel);
+        EditorGUILayout.PropertyField(listProp.FindPropertyRelative("Array.size"));
+
+        for (int i = 0; i < listProp.arraySize; i++)
+        {
+            var element = listProp.GetArrayElementAtIndex(i);
+            EditorGUILayout.BeginVertical(GUI.skin.box);
+            EditorGUILayout.PropertyField(element.FindPropertyRelative("counteredTrait"));
+            DrawCondition(element.FindPropertyRelative("condition"));
+            EditorGUILayout.EndVertical();
+        }
+    }
+
     private void DrawCondition(SerializedProperty conditionProp)
     {
         if (conditionProp == null)
@@ -88,13 +111,23 @@ public class HunterTraitEditor : Editor
         var valProp = conditionProp.FindPropertyRelative("requiredMonsterTagValue");
         var soloProp = conditionProp.FindPropertyRelative("requiresSoloParty");
         var targetMonsterProp = conditionProp.FindPropertyRelative("targetMonster");
+        var requiredMonsterTraitProp = conditionProp.FindPropertyRelative("requiredMonsterTrait");
+        var requiredMonsterTraitIdProp = conditionProp.FindPropertyRelative("requiredMonsterTraitId");
         var minPartyProp = conditionProp.FindPropertyRelative("minPartySize");
         var maxPartyProp = conditionProp.FindPropertyRelative("maxPartySize");
         var procChanceProp = conditionProp.FindPropertyRelative("procChancePercent");
+        var minMissionDurationProp = conditionProp.FindPropertyRelative("minMissionDurationSeconds");
+        var maxMissionDurationProp = conditionProp.FindPropertyRelative("maxMissionDurationSeconds");
+        var weakestInPartyProp = conditionProp.FindPropertyRelative("requiresWeakestInParty");
 
+        EditorGUILayout.LabelField("Condition", EditorStyles.boldLabel);
         EditorGUILayout.PropertyField(targetMonsterProp);
+        EditorGUILayout.PropertyField(requiredMonsterTraitProp);
+        EditorGUILayout.PropertyField(requiredMonsterTraitIdProp);
         EditorGUILayout.PropertyField(minPartyProp);
         EditorGUILayout.PropertyField(maxPartyProp);
+        EditorGUILayout.PropertyField(minMissionDurationProp);
+        EditorGUILayout.PropertyField(maxMissionDurationProp);
         EditorGUILayout.Slider(procChanceProp, 0f, 100f, new GUIContent("Proc Chance (%)"));
 
         int currentCatIndex = Mathf.Max(0, System.Array.IndexOf(categoryNames, catProp.stringValue));
@@ -119,6 +152,7 @@ public class HunterTraitEditor : Editor
         }
 
         EditorGUILayout.PropertyField(soloProp);
+        EditorGUILayout.PropertyField(weakestInPartyProp);
     }
 
     private void LoadTagLibrary()

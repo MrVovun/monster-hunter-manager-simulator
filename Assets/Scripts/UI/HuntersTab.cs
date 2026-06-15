@@ -7,6 +7,7 @@ public class HuntersTab : MonoBehaviour
     [SerializeField] private Transform listParent;
     [SerializeField] private HunterRosterItem hunterRosterItemPrefab;
     [SerializeField] private Button levelUpButton;
+    [SerializeField] private Button fireButton;
 
     [Header("Details Panel")]
     [SerializeField] private HunterDetailsPanel detailsPanel;
@@ -14,6 +15,12 @@ public class HuntersTab : MonoBehaviour
     private Hunter selectedHunter;
     private void Awake()
     {
+        if (fireButton != null)
+        {
+            fireButton.onClick.RemoveListener(FireSelectedHunter);
+            fireButton.onClick.AddListener(FireSelectedHunter);
+        }
+
         ClearSelection();
     }
 
@@ -50,24 +57,34 @@ public class HuntersTab : MonoBehaviour
             detailsPanel?.Clear();
         }
 
-        UpdateLevelUpButtonState(hunters);
+        UpdateActionButtonStates();
     }
 
     public void PayAndLevelUpAffordable()
     {
         HunterManager manager = GameManager.Instance != null ? GameManager.Instance.GetHunterManager() : null;
         GoldManager gold = GameManager.Instance != null ? GameManager.Instance.GetGoldManager() : null;
-        if (manager == null || gold == null) return;
+        if (manager == null || gold == null || selectedHunter == null) return;
 
-        foreach (var hunter in manager.GetAllHunters())
-        {
-            if (hunter != null && hunter.CanLevelUp())
-            {
-                manager.TryPayLevelUp(hunter, gold);
-            }
-        }
+        manager.TryPayLevelUp(selectedHunter, gold);
 
         Refresh();
+    }
+
+    public void FireSelectedHunter()
+    {
+        HunterManager manager = GameManager.Instance != null ? GameManager.Instance.GetHunterManager() : null;
+        if (manager == null || selectedHunter == null) return;
+
+        if (manager.FireHunter(selectedHunter))
+        {
+            selectedHunter = null;
+            Refresh();
+        }
+        else
+        {
+            UpdateActionButtonStates();
+        }
     }
 
     private void HandleHunterSelected(Hunter hunter)
@@ -81,49 +98,61 @@ public class HuntersTab : MonoBehaviour
         {
             detailsPanel?.Clear();
         }
-        UpdateLevelUpButtonState();
+        UpdateActionButtonStates();
     }
 
     public void ClearSelection()
     {
         selectedHunter = null;
         detailsPanel?.Clear();
-        UpdateLevelUpButtonState();
+        UpdateActionButtonStates();
     }
 
-    private void UpdateLevelUpButtonState(List<Hunter> hunters = null)
+    private void UpdateActionButtonStates()
+    {
+        UpdateLevelUpButtonState();
+        UpdateFireButtonState();
+    }
+
+    private void UpdateLevelUpButtonState()
     {
         if (levelUpButton == null) return;
 
         HunterManager manager = GameManager.Instance != null ? GameManager.Instance.GetHunterManager() : null;
         GoldManager gold = GameManager.Instance != null ? GameManager.Instance.GetGoldManager() : null;
-        if (manager == null || gold == null)
+        if (manager == null || gold == null || selectedHunter == null)
         {
             SetLevelUpButtonInteractable(false);
             return;
         }
 
-        if (hunters == null)
-        {
-            hunters = manager.GetAllHunters();
-        }
+        bool canLevelSelected = selectedHunter.CanLevelUp() && gold.GetGold() >= selectedHunter.GetLevelUpCost();
+        SetLevelUpButtonInteractable(canLevelSelected);
+    }
 
-        bool canLevelAny = false;
-        foreach (var hunter in hunters)
-        {
-            if (hunter == null || !hunter.CanLevelUp()) continue;
-            if (gold.GetGold() < hunter.GetLevelUpCost()) continue;
-            canLevelAny = true;
-            break;
-        }
+    private void UpdateFireButtonState()
+    {
+        if (fireButton == null) return;
 
-        SetLevelUpButtonInteractable(canLevelAny);
+        HunterManager manager = GameManager.Instance != null ? GameManager.Instance.GetHunterManager() : null;
+        bool canFire = manager != null && selectedHunter != null && manager.CanFireHunter(selectedHunter);
+        SetFireButtonInteractable(canFire);
     }
 
     private void SetLevelUpButtonInteractable(bool value)
     {
         levelUpButton.interactable = value;
         var visualFeedback = levelUpButton.GetComponent<UIButtonVisualFeedback>();
+        if (visualFeedback != null)
+        {
+            visualFeedback.RefreshVisualState(true);
+        }
+    }
+
+    private void SetFireButtonInteractable(bool value)
+    {
+        fireButton.interactable = value;
+        var visualFeedback = fireButton.GetComponent<UIButtonVisualFeedback>();
         if (visualFeedback != null)
         {
             visualFeedback.RefreshVisualState(true);

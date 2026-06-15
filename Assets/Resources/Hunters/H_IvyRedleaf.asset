@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 155ec2172406e054ca92e4ea9b6cbd3a, type: 3}
+  m_Name: H_IvyRedleaf
+  m_EditorClassIdentifier: Assembly-CSharp::HunterData
+  hunterName: Ivy Redleaf
+  hunterId: 1dd11a79550940a09c6fa3ffab2d6ce3
+  rarity: 2
+  bio: Ivy lost her sibling to a harpy raid when they were crossing the mountains
+    to find a shelter. Ivy survived, only driven by hatred and thirst for revenge.
+  basePower: 28
+  powerPerLevel: 2
+  traits:
+  - {fileID: 11400000, guid: 2659e8d4d076c184991a442585b3eb68, type: 2}
+  - {fileID: 11400000, guid: 3943eb4fcb96f70459caccc60963e30d, type: 2}
+  - {fileID: 11400000, guid: 7a4a9d52dbe224b43bfe071392f20705, type: 2}
+  dailyUpkeepCost: 64
+  startingLevel: 1
+  startingXP: 0
+  levelXPTable: []
+  minReputation: 0
+  portrait: {fileID: 0}
+  visualPrefab: {fileID: 1316546980992214, guid: 44c3e772b3810d54cac3073e976c2e3d, type: 3}
+  greeting: 
+  healLine: 
+  goodbyeLine: 
+  dialogueQuestions: []

@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 155ec2172406e054ca92e4ea9b6cbd3a, type: 3}
+  m_Name: H_GerantPell
+  m_EditorClassIdentifier: Assembly-CSharp::HunterData
+  hunterName: Gerant Pell
+  hunterId: 9d869b382ee94b698517a5c00dbded62
+  rarity: 1
+  bio: Former military medic, who tried to escape the horrors of losing his comrades
+    on the battlefield, only to return to the only thing he knows how to do.
+  basePower: 27
+  powerPerLevel: 2
+  traits:
+  - {fileID: 11400000, guid: fdd2df4b3ea1feb4085e8aa9c1d3c677, type: 2}
+  - {fileID: 11400000, guid: ecd60212501adcd4b9b0bdf02aa8f380, type: 2}
+  dailyUpkeepCost: 64
+  startingLevel: 1
+  startingXP: 0
+  levelXPTable: []
+  minReputation: 2
+  portrait: {fileID: 0}
+  visualPrefab: {fileID: 1306647779856116, guid: 7fe017a28b24eea45b8a5b2bc72e7fd9, type: 3}
+  greeting: 
+  healLine: 
+  goodbyeLine: 
+  dialogueQuestions: []

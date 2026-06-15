@@ -32,7 +32,7 @@ public static class MissionOutcomeCalculator
         }
 
         int partySize = party.Count;
-        var counteredTraits = BuildCounteredTraitSet(party);
+        var counteredTraits = BuildCounteredTraitSet(party, order, monsterForConditions, monsterTraits);
         foreach (var monsterTrait in monsterTraits)
         {
             if (monsterTrait == null) continue;
@@ -82,7 +82,7 @@ public static class MissionOutcomeCalculator
                 foreach (var effect in trait.bonusEffects)
                 {
                     if (effect == null) continue;
-                    if (!DoesConditionPassPreview(effect.condition, monsterForConditions, partySize)) continue;
+                    if (!DoesConditionPassPreview(effect.condition, monsterForConditions, partySize, hunter, party, order, monsterTraits)) continue;
 
                     string hunterName = !string.IsNullOrWhiteSpace(hunter.name) ? hunter.name : "Hunter";
                     string traitName = !string.IsNullOrWhiteSpace(trait.displayName) ? trait.displayName : "Trait";
@@ -97,6 +97,9 @@ public static class MissionOutcomeCalculator
                         case HunterTrait.BonusEffectType.MinSuccessPercent:
                             minSuccessTotal = Mathf.Max(minSuccessTotal, effect.value);
                             lines.Add($"{hunterName} - {traitName}: minimum success {effect.value:0.#}%{suffix}");
+                            break;
+                        case HunterTrait.BonusEffectType.MissionTimeMultiplier:
+                            lines.Add($"{hunterName} - {traitName}: x{(effect.value <= 0f ? 1f : effect.value):0.##} mission time{suffix}");
                             break;
                     }
                 }
@@ -163,7 +166,7 @@ public static class MissionOutcomeCalculator
         float capSuccessLimit = MaxSuccessChance;
         float missionTimeMultiplier = 1f;
 
-        var counteredTraits = BuildCounteredTraitSet(party);
+        var counteredTraits = BuildCounteredTraitSet(party, order, monsterForConditions, monsterTraits);
         foreach (var monsterTrait in monsterTraits)
         {
             if (monsterTrait == null) continue;
@@ -180,8 +183,9 @@ public static class MissionOutcomeCalculator
         float ratio = result.RequiredPower <= 0f ? MaxSuccessChance : (result.PartyPower / result.RequiredPower) * 100f;
         float baseSuccess = Mathf.Clamp(ratio, 0f, MaxSuccessChance);
 
-        var aggregate = AggregateHunterBonuses(monsterForConditions, party);
+        var aggregate = AggregateHunterBonuses(order, monsterForConditions, monsterTraits, party);
         missionTimeMultiplier *= Mathf.Clamp(1f - (aggregate.missionTimeReductionPercent / 100f), 0.01f, 1f);
+        missionTimeMultiplier *= Mathf.Max(0.01f, aggregate.missionTimeMultiplier);
         float successChance = Mathf.Clamp(baseSuccess + aggregate.successChanceBonus, 0f, MaxSuccessChance);
         successChance = Mathf.Clamp(successChance, 0f, capSuccessLimit);
         successChance = Mathf.Max(successChance, aggregate.minSuccessPercent);
@@ -260,11 +264,12 @@ public static class MissionOutcomeCalculator
         return order.declaredMonster != null ? order.declaredMonster : order.monsterData;
     }
 
-    private static HashSet<string> BuildCounteredTraitSet(List<Hunter> party)
+    private static HashSet<string> BuildCounteredTraitSet(List<Hunter> party, Order order, MonsterData monsterForConditions, List<MonsterTrait> monsterTraits)
     {
         var countered = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         if (party == null) return countered;
 
+        int partySize = party.Count;
         foreach (var hunter in party)
         {
             var data = hunter?.Data;
@@ -279,17 +284,36 @@ public static class MissionOutcomeCalculator
             if (data == null || data.traits == null) continue;
             foreach (var trait in data.traits)
             {
-                if (trait == null || trait.counters == null) continue;
-                foreach (var counter in trait.counters)
+                if (trait == null) continue;
+                if (trait.counters != null)
                 {
-                    if (counter == null) continue;
-                    if (!string.IsNullOrEmpty(counter.traitId))
+                    foreach (var counter in trait.counters)
                     {
-                        countered.Add(counter.traitId);
+                        if (counter == null) continue;
+                        if (!string.IsNullOrEmpty(counter.traitId))
+                        {
+                            countered.Add(counter.traitId);
+                        }
+                        if (!string.IsNullOrEmpty(counter.displayName))
+                        {
+                            countered.Add(counter.displayName);
+                        }
                     }
-                    if (!string.IsNullOrEmpty(counter.displayName))
+                }
+
+                if (trait.conditionalCounters == null) continue;
+                foreach (var conditionalCounter in trait.conditionalCounters)
+                {
+                    if (conditionalCounter == null || conditionalCounter.counteredTrait == null) continue;
+                    if (!DoesConditionPass(conditionalCounter.condition, monsterForConditions, partySize, hunter, party, order, monsterTraits)) continue;
+
+                    if (!string.IsNullOrEmpty(conditionalCounter.counteredTrait.traitId))
                     {
-                        countered.Add(counter.displayName);
+                        countered.Add(conditionalCounter.counteredTrait.traitId);
+                    }
+                    if (!string.IsNullOrEmpty(conditionalCounter.counteredTrait.displayName))
+                    {
+                        countered.Add(conditionalCounter.counteredTrait.displayName);
                     }
                 }
             }
@@ -424,7 +448,7 @@ public static class MissionOutcomeCalculator
         }
     }
 
-    private static HunterBonusAggregate AggregateHunterBonuses(MonsterData monster, List<Hunter> party)
+    private static HunterBonusAggregate AggregateHunterBonuses(Order order, MonsterData monster, List<MonsterTrait> monsterTraits, List<Hunter> party)
     {
         var aggregate = HunterBonusAggregate.CreateDefault();
         if (party == null) return aggregate;
@@ -463,7 +487,7 @@ public static class MissionOutcomeCalculator
                 foreach (var effect in trait.bonusEffects)
                 {
                     if (effect == null) continue;
-                    if (!DoesConditionPass(effect.condition, monster, partySize)) continue;
+                    if (!DoesConditionPass(effect.condition, monster, partySize, hunter, party, order, monsterTraits)) continue;
 
                     bool applyEffect = effect.stacking == HunterTrait.TraitStackingMode.Additive || appliedSingles.Add(effect);
                     if (!applyEffect) continue;
@@ -491,6 +515,9 @@ public static class MissionOutcomeCalculator
                         case HunterTrait.BonusEffectType.MinSuccessPercent:
                             aggregate.minSuccessPercent = Mathf.Max(aggregate.minSuccessPercent, effect.value);
                             break;
+                        case HunterTrait.BonusEffectType.MissionTimeMultiplier:
+                            aggregate.missionTimeMultiplier *= effect.value <= 0f ? 1f : effect.value;
+                            break;
                         case HunterTrait.BonusEffectType.UpkeepCostMultiplier:
                             // handled elsewhere
                             break;
@@ -498,6 +525,11 @@ public static class MissionOutcomeCalculator
                         case HunterTrait.BonusEffectType.RewardFlat:
                         case HunterTrait.BonusEffectType.GuardianSacrifice:
                         case HunterTrait.BonusEffectType.MentorGrantXP:
+                        case HunterTrait.BonusEffectType.FailureRescueSuccessChancePercent:
+                        case HunterTrait.BonusEffectType.RerollNegativeRolls:
+                        case HunterTrait.BonusEffectType.RecruitmentRarityWeightMultiplier:
+                        case HunterTrait.BonusEffectType.MaxLevelBonus:
+                        case HunterTrait.BonusEffectType.XpRequirementMultiplier:
                             // handled in MissionResolver / upkeep hooks
                             break;
                     }
@@ -515,15 +547,30 @@ public static class MissionOutcomeCalculator
 
     public static bool DoesConditionPass(HunterTrait.BonusCondition condition, MonsterData monster, int partySize)
     {
-        return DoesConditionPassInternal(condition, monster, partySize, rollProc: true);
+        return DoesConditionPass(condition, monster, partySize, null, null, null, null);
     }
 
-    private static bool DoesConditionPassPreview(HunterTrait.BonusCondition condition, MonsterData monster, int partySize)
+    public static bool DoesConditionPass(HunterTrait.BonusCondition condition, MonsterData monster, int partySize, Hunter hunter, List<Hunter> party, Order order, List<MonsterTrait> monsterTraits)
     {
-        return DoesConditionPassInternal(condition, monster, partySize, rollProc: false);
+        return DoesConditionPassInternal(condition, monster, partySize, hunter, party, order, monsterTraits, rollProc: true);
     }
 
-    private static bool DoesConditionPassInternal(HunterTrait.BonusCondition condition, MonsterData monster, int partySize, bool rollProc)
+    public static bool DoesConditionPassWithoutProc(HunterTrait.BonusCondition condition, MonsterData monster, int partySize)
+    {
+        return DoesConditionPassInternal(condition, monster, partySize, null, null, null, null, rollProc: false);
+    }
+
+    public static bool DoesConditionPassWithoutProc(HunterTrait.BonusCondition condition, MonsterData monster, int partySize, Hunter hunter, List<Hunter> party, Order order, List<MonsterTrait> monsterTraits)
+    {
+        return DoesConditionPassInternal(condition, monster, partySize, hunter, party, order, monsterTraits, rollProc: false);
+    }
+
+    private static bool DoesConditionPassPreview(HunterTrait.BonusCondition condition, MonsterData monster, int partySize, Hunter hunter, List<Hunter> party, Order order, List<MonsterTrait> monsterTraits)
+    {
+        return DoesConditionPassInternal(condition, monster, partySize, hunter, party, order, monsterTraits, rollProc: false);
+    }
+
+    private static bool DoesConditionPassInternal(HunterTrait.BonusCondition condition, MonsterData monster, int partySize, Hunter hunter, List<Hunter> party, Order order, List<MonsterTrait> monsterTraits, bool rollProc)
     {
         if (condition == null) return true;
 
@@ -570,6 +617,82 @@ public static class MissionOutcomeCalculator
             return false;
         }
 
+        if (condition.requiredMonsterTrait != null && !MonsterTraitsContain(monsterTraits, condition.requiredMonsterTrait))
+        {
+            return false;
+        }
+
+        if (!string.IsNullOrWhiteSpace(condition.requiredMonsterTraitId) && !MonsterTraitsContain(monsterTraits, condition.requiredMonsterTraitId))
+        {
+            return false;
+        }
+
+        if (condition.minMissionDurationSeconds > 0f)
+        {
+            if (order == null || order.missionDuration < condition.minMissionDurationSeconds)
+            {
+                return false;
+            }
+        }
+
+        if (condition.maxMissionDurationSeconds > 0f)
+        {
+            if (order == null || order.missionDuration > condition.maxMissionDurationSeconds)
+            {
+                return false;
+            }
+        }
+
+        if (condition.requiresWeakestInParty && !IsWeakestInParty(hunter, party))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private static bool MonsterTraitsContain(List<MonsterTrait> monsterTraits, MonsterTrait requiredTrait)
+    {
+        if (requiredTrait == null || monsterTraits == null) return false;
+        foreach (var trait in monsterTraits)
+        {
+            if (trait == null) continue;
+            if (trait == requiredTrait) return true;
+            if (!string.IsNullOrEmpty(requiredTrait.traitId) && string.Equals(trait.traitId, requiredTrait.traitId, StringComparison.OrdinalIgnoreCase)) return true;
+            if (!string.IsNullOrEmpty(requiredTrait.displayName) && string.Equals(trait.displayName, requiredTrait.displayName, StringComparison.OrdinalIgnoreCase)) return true;
+        }
+        return false;
+    }
+
+    private static bool MonsterTraitsContain(List<MonsterTrait> monsterTraits, string requiredTraitId)
+    {
+        if (string.IsNullOrWhiteSpace(requiredTraitId) || monsterTraits == null) return false;
+        foreach (var trait in monsterTraits)
+        {
+            if (trait == null) continue;
+            if (!string.IsNullOrEmpty(trait.traitId) && string.Equals(trait.traitId, requiredTraitId, StringComparison.OrdinalIgnoreCase)) return true;
+            if (!string.IsNullOrEmpty(trait.displayName) && string.Equals(trait.displayName, requiredTraitId, StringComparison.OrdinalIgnoreCase)) return true;
+        }
+        return false;
+    }
+
+    private static bool IsWeakestInParty(Hunter hunter, List<Hunter> party)
+    {
+        if (hunter == null || party == null || party.Count == 0) return false;
+        var hunterStats = hunter.GetStats();
+        if (hunterStats == null) return false;
+
+        float hunterPower = hunterStats.GetTotalPower();
+        foreach (var partyHunter in party)
+        {
+            if (partyHunter == null) continue;
+            var stats = partyHunter.GetStats();
+            if (stats == null) continue;
+            if (stats.GetTotalPower() < hunterPower)
+            {
+                return false;
+            }
+        }
         return true;
     }
 
@@ -595,6 +718,7 @@ public static class MissionOutcomeCalculator
         public float woundChanceReductionPercent;
         public float deathChanceReductionPercent;
         public float missionTimeReductionPercent;
+        public float missionTimeMultiplier;
 
         public static HunterBonusAggregate CreateDefault()
         {
@@ -609,7 +733,8 @@ public static class MissionOutcomeCalculator
                 minSuccessPercent = 0f,
                 woundChanceReductionPercent = 0f,
                 deathChanceReductionPercent = 0f,
-                missionTimeReductionPercent = 0f
+                missionTimeReductionPercent = 0f,
+                missionTimeMultiplier = 1f
             };
         }
     }

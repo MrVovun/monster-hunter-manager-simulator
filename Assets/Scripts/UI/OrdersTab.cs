@@ -9,6 +9,7 @@ public class OrdersTab : MonoBehaviour
     [SerializeField] private Transform ordersListParent;
     [SerializeField] private GameObject orderItemPrefab;
     [SerializeField] private OrderDetailPanel orderDetailPanel;
+    [SerializeField] private Button cancelOrderButton;
     
     [Header("Hunter Roster")]
     [SerializeField] private Transform hunterRosterParent;
@@ -33,11 +34,19 @@ public class OrdersTab : MonoBehaviour
             orderDetailPanel.OnPartyChanged += HandlePartyChanged;
         }
 
+        if (cancelOrderButton != null)
+        {
+            cancelOrderButton.onClick.RemoveListener(CancelSelectedOrder);
+            cancelOrderButton.onClick.AddListener(CancelSelectedOrder);
+        }
+
         hunterManager = GameManager.Instance != null ? GameManager.Instance.GetHunterManager() : null;
         if (hunterManager != null)
         {
             hunterManager.OnHuntersChanged += HandleHuntersChanged;
         }
+
+        UpdateCancelOrderButtonState();
     }
 
     private void OnDestroy()
@@ -76,6 +85,10 @@ public class OrdersTab : MonoBehaviour
         if (orderManager == null) return;
         
         activeOrders = orderManager.GetActiveOrders();
+        if (selectedOrder != null && !activeOrders.Contains(selectedOrder))
+        {
+            ClearSelection();
+        }
         
         // Create UI items for each order
         foreach (var order in activeOrders)
@@ -106,12 +119,31 @@ public class OrdersTab : MonoBehaviour
             orderDetailPanel.ShowOrder(order);
         }
         RefreshHunterRosterStates();
+        UpdateCancelOrderButtonState();
     }
 
     public void ClearSelection()
     {
         selectedOrder = null;
         orderDetailPanel?.ClearSelection();
+        UpdateCancelOrderButtonState();
+    }
+
+    public void CancelSelectedOrder()
+    {
+        OrderManager orderManager = GameManager.Instance != null ? GameManager.Instance.GetOrderManager() : null;
+        if (orderManager == null || selectedOrder == null) return;
+
+        if (orderManager.CancelOrder(selectedOrder))
+        {
+            selectedOrder = null;
+            Refresh();
+            orderDetailPanel?.ClearSelection();
+        }
+        else
+        {
+            UpdateCancelOrderButtonState();
+        }
     }
     
     public Order GetSelectedOrder()
@@ -215,6 +247,7 @@ public class OrdersTab : MonoBehaviour
     private void HandlePartyChanged()
     {
         RefreshHunterRosterStates();
+        UpdateCancelOrderButtonState();
     }
 
     internal void ForceRosterStateRefresh()
@@ -225,6 +258,20 @@ public class OrdersTab : MonoBehaviour
     public void OnTabDeselected()
     {
         orderDetailPanel?.ClearParty();
+    }
+
+    private void UpdateCancelOrderButtonState()
+    {
+        if (cancelOrderButton == null) return;
+
+        OrderManager orderManager = GameManager.Instance != null ? GameManager.Instance.GetOrderManager() : null;
+        bool canCancel = orderManager != null && orderManager.CanCancelOrder(selectedOrder);
+        cancelOrderButton.interactable = canCancel;
+        var visualFeedback = cancelOrderButton.GetComponent<UIButtonVisualFeedback>();
+        if (visualFeedback != null)
+        {
+            visualFeedback.RefreshVisualState(true);
+        }
     }
 }
 

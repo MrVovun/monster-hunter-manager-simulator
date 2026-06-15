@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 155ec2172406e054ca92e4ea9b6cbd3a, type: 3}
+  m_Name: H_TomaTheHound
+  m_EditorClassIdentifier: Assembly-CSharp::HunterData
+  hunterName: "Toma \u201CThe Hound\u201D"
+  hunterId: ebcfc70f52b74cf3894193c0db9c7d0f
+  rarity: 0
+  bio: Toma rose in a household that was sheltering stray animals. One day, devils
+    swooped by, turning all animals into horrific abberations with their influence.
+    She prefers to avoid danger since then, using her "nose" for different kind of
+    missions.
+  basePower: 28
+  powerPerLevel: 2
+  traits:
+  - {fileID: 11400000, guid: 511dbe9debd927a43892b84a930faa8d, type: 2}
+  - {fileID: 11400000, guid: 0a917734b987d4e4192731283281a771, type: 2}
+  dailyUpkeepCost: 64
+  startingLevel: 1
+  startingXP: 0
+  levelXPTable: []
+  minReputation: 2
+  portrait: {fileID: 0}
+  visualPrefab: {fileID: 1098732935288108, guid: 545cae571c417cb44877bc4535a92ba8, type: 3}
+  greeting: 
+  healLine: 
+  goodbyeLine: 
+  dialogueQuestions: []

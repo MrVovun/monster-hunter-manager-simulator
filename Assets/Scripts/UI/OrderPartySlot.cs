@@ -8,6 +8,7 @@ public class OrderPartySlot : MonoBehaviour, IDropHandler, IPointerClickHandler
     [SerializeField] private TMP_Text slotLabel;
     [SerializeField] private Image portraitImage;
     [SerializeField] private TMP_Text nameText;
+    [SerializeField] private TMP_Text statusText;
     [SerializeField] private GameObject highlightObject;
     [SerializeField] private Sprite emptyPortraitSprite;
     [SerializeField] private Color emptyTextColor = new Color(1f, 1f, 1f, 0.4f);
@@ -64,6 +65,13 @@ public class OrderPartySlot : MonoBehaviour, IDropHandler, IPointerClickHandler
                 portraitImage.sprite = portrait != null ? portrait : emptyPortraitSprite;
                 portraitImage.color = Color.white;
             }
+        }
+
+        if (statusText != null)
+        {
+            statusText.text = hunter != null
+                ? HunterStatusFormatter.GetStatus(hunter, assignedToParty: true)
+                : string.Empty;
         }
 
         if (highlightObject != null)

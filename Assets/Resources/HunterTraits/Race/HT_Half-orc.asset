@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9b5851c07143164599583754e0f3c84, type: 3}
+  m_Name: HT_Half-orc
+  m_EditorClassIdentifier: Assembly-CSharp::HunterTrait
+  traitId: 36fa8c84d08045019c62b4448bf47d99
+  displayName: Half-orc
+  description: Half-orcs are strong just like their pure-blooded ancestors. Assigned
+    order's success chance cannot drop below 50%.
+  icon: {fileID: 21300000, guid: 068a0f5b7f8ae9c42b6373e76c82a7df, type: 3}
+  bonusEffects:
+  - bonusType: 6
+    value: 50
+    stacking: 1
+    condition:
+      requiredMonsterTagCategory: 
+      requiredMonsterTagValue: 
+      targetMonster: {fileID: 0}
+      minPartySize: 0
+      maxPartySize: 0
+      procChancePercent: 100
+      requiresSoloParty: 0
+      requiredMonsterTrait: {fileID: 0}
+      requiredMonsterTraitId: 
+      minMissionDurationSeconds: 0
+      maxMissionDurationSeconds: 0
+      requiresWeakestInParty: 0
+  missionEffects: []
+  counters: []
+  conditionalCounters: []

@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 155ec2172406e054ca92e4ea9b6cbd3a, type: 3}
+  m_Name: H_RukhantheExiled
+  m_EditorClassIdentifier: Assembly-CSharp::HunterData
+  hunterName: Rukhan the Exiled
+  hunterId: cc3823d9bdff4c43a8040e1d1d197fe0
+  rarity: 2
+  bio: A half-orc, exiled from his own tribe, because he was too weak by their standarts.
+    Still immensily strong compared to regular human.
+  basePower: 28
+  powerPerLevel: 2
+  traits:
+  - {fileID: 11400000, guid: f22ae9b54a4822b45a63b7cd1024e28d, type: 2}
+  - {fileID: 11400000, guid: 0a847b7601546674db8f5a1dc67712b2, type: 2}
+  - {fileID: 11400000, guid: bb201a65befe5014683b574feff7c0df, type: 2}
+  dailyUpkeepCost: 64
+  startingLevel: 1
+  startingXP: 0
+  levelXPTable: []
+  minReputation: 2
+  portrait: {fileID: 0}
+  visualPrefab: {fileID: 1717762771245900, guid: 507997f746de7ed4f93ddbab1e920d6a, type: 3}
+  greeting: 
+  healLine: 
+  goodbyeLine: 
+  dialogueQuestions: []

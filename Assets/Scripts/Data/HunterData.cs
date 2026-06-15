@@ -90,6 +90,25 @@ public class HunterData : ScriptableObject
         return max;
     }
 
+    public int GetLastDefinedXPRequirement()
+    {
+        int level = startingLevel;
+        int requirement = -1;
+        if (levelXPTable != null)
+        {
+            foreach (var entry in levelXPTable)
+            {
+                if (entry == null) continue;
+                if (entry.level >= level)
+                {
+                    level = entry.level;
+                    requirement = Mathf.Max(1, entry.requiredXP);
+                }
+            }
+        }
+        return requirement;
+    }
+
     private void OnValidate()
     {
         if (string.IsNullOrWhiteSpace(hunterId))

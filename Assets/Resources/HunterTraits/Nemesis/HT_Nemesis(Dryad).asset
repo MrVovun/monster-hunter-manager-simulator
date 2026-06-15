@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9b5851c07143164599583754e0f3c84, type: 3}
+  m_Name: HT_Nemesis(Dryad)
+  m_EditorClassIdentifier: Assembly-CSharp::HunterTrait
+  traitId: 4d7f6179650941869ef8dd614eb6c81d
+  displayName: Nemesis (Dryad)
+  description: This hunter has a nemesis. Provides a free 35% bonus to success chance
+    in orders against Dryads.
+  icon: {fileID: 21300000, guid: 4becec01ffc9aab4e9844ecd608c2cca, type: 3}
+  bonusEffects:
+  - bonusType: 0
+    value: 35
+    stacking: 1
+    condition:
+      requiredMonsterTagCategory: 
+      requiredMonsterTagValue: 
+      targetMonster: {fileID: 11400000, guid: 4cbdcc5b1e42192478c4fb74834a144b, type: 2}
+      minPartySize: 0
+      maxPartySize: 0
+      procChancePercent: 0
+      requiresSoloParty: 0
+      requiredMonsterTrait: {fileID: 0}
+      requiredMonsterTraitId: 
+      minMissionDurationSeconds: 0
+      maxMissionDurationSeconds: 0
+      requiresWeakestInParty: 0
+  missionEffects: []
+  counters: []
+  conditionalCounters: []

@@ -37,6 +37,7 @@ public class HunterRecruitmentManager : MonoBehaviour
         public AdSettingsData adSettings;
         public List<CandidateSaveData> candidates = new List<CandidateSaveData>();
         public List<string> seenCandidateIds = new List<string>();
+        public List<HunterManager.HunterSaveState> hunterSaveStates = new List<HunterManager.HunterSaveState>();
     }
 
     [Serializable]
@@ -300,6 +301,10 @@ public class HunterRecruitmentManager : MonoBehaviour
         if (rarityEntry != null)
         {
             rarityWeight = Mathf.Max(0.01f, rarityEntry.recruitmentWeight);
+        }
+        if (hunterManager != null)
+        {
+            rarityWeight *= hunterManager.GetRecruitmentRarityWeightMultiplier(data.rarity);
         }
 
         float powerScore = 1f;
@@ -714,6 +719,7 @@ public class HunterRecruitmentManager : MonoBehaviour
         RecruitmentSaveData data = new RecruitmentSaveData
         {
             hiredHunterIds = hunterManager != null ? hunterManager.GetHiredHunterIds() : new List<string>(),
+            hunterSaveStates = hunterManager != null ? hunterManager.GetHunterSaveStates() : new List<HunterManager.HunterSaveState>(),
             campaignActive = campaignActive,
             campaignTimeRemaining = campaignTimeRemaining,
             nextArrivalTimer = nextArrivalTimer,
@@ -766,6 +772,7 @@ public class HunterRecruitmentManager : MonoBehaviour
             return;
         }
 
+        hunterManager?.LoadHunterSaveStates(data.hunterSaveStates);
         hunterManager?.LoadHiredHunters(data.hiredHunterIds);
 
         candidateQueue.Clear();
