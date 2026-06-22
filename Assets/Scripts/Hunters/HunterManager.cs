@@ -429,6 +429,59 @@ public class HunterManager : MonoBehaviour
         RemoveHunter(hunter);
         return true;
     }
+
+    public int DismissHuntersUntilUpkeepAtOrBelow(int targetDailyUpkeep)
+    {
+        targetDailyUpkeep = Mathf.Max(0, targetDailyUpkeep);
+        int dismissed = 0;
+
+        while (CalculateDailyUpkeep() > targetDailyUpkeep)
+        {
+            Hunter hunter = FindDebtDismissalCandidate();
+            if (hunter == null) break;
+            DismissHunterForDebt(hunter);
+            dismissed++;
+        }
+
+        return dismissed;
+    }
+
+    private Hunter FindDebtDismissalCandidate()
+    {
+        Hunter best = null;
+        int bestUpkeep = int.MinValue;
+        foreach (var hunter in activeHunters)
+        {
+            if (hunter == null || hunter.Data == null) continue;
+            HunterState state = hunter.GetState();
+            if (state == HunterState.Dead || state == HunterState.OnMission || state == HunterState.Candidate) continue;
+
+            int upkeep = hunter.GetUpkeepCost();
+            if (best == null || upkeep > bestUpkeep)
+            {
+                best = hunter;
+                bestUpkeep = upkeep;
+            }
+        }
+
+        return best;
+    }
+
+    private void DismissHunterForDebt(Hunter hunter)
+    {
+        if (hunter == null || hunter.Data == null) return;
+
+        string hunterName = !string.IsNullOrWhiteSpace(hunter.Data.hunterName) ? hunter.Data.hunterName : hunter.name;
+        CaptureHunterState(hunter);
+        if (!string.IsNullOrEmpty(hunter.Data.hunterId))
+        {
+            hiredHunterIds.Remove(hunter.Data.hunterId);
+        }
+
+        RemoveHunter(hunter);
+        var notificationManager = GameManager.Instance != null ? GameManager.Instance.GetNotificationManager() : null;
+        notificationManager?.Publish("Hunter Left", $"{hunterName} left because the guild could not pay upkeep.", NotificationSeverity.Warning);
+    }
     
     public void OnReputationChanged(float newReputation)
     {
@@ -492,6 +545,41 @@ public class HunterManager : MonoBehaviour
         if (doorEntryPoint != null) return doorEntryPoint;
         if (doorExitPoint != null) return doorExitPoint;
         return null;
+    }
+
+    public Vector3 GetMissionDeparturePosition(Hunter hunter)
+    {
+        Transform entry = GetDoorEntryTransform();
+        if (entry == null)
+        {
+            return hunter != null ? hunter.transform.position : Vector3.zero;
+        }
+
+        int missionIndex = 0;
+        int missionCount = 0;
+        for (int i = 0; i < activeHunters.Count; i++)
+        {
+            Hunter activeHunter = activeHunters[i];
+            if (activeHunter == null || activeHunter.GetState() != HunterState.OnMission) continue;
+            if (activeHunter == hunter)
+            {
+                missionIndex = missionCount;
+            }
+            missionCount++;
+        }
+
+        float spacing = 0.45f;
+        float centeredOffset = missionCount > 1
+            ? (missionIndex - ((missionCount - 1) * 0.5f)) * spacing
+            : 0f;
+        Vector3 basePosition = entry.position;
+        Vector3 offsetPosition = basePosition + entry.right * centeredOffset;
+        if (NavMesh.SamplePosition(offsetPosition, out NavMeshHit hit, 0.75f, NavMesh.AllAreas))
+        {
+            return hit.position;
+        }
+
+        return basePosition;
     }
 
     public Transform GetDoorExitTransform()

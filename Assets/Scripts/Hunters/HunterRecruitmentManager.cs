@@ -104,6 +104,7 @@ public class HunterRecruitmentManager : MonoBehaviour
     private bool candidateCameraCached;
     private Coroutine candidateCameraRoutine;
     private TimeManager timeManager;
+    private TimeManager subscribedTimeManager;
 
     private void Awake()
     {
@@ -135,6 +136,7 @@ public class HunterRecruitmentManager : MonoBehaviour
         {
             timeManager = GameManager.Instance.GetTimeManager();
         }
+        EnsureTimeSubscription();
         if (candidateProfilePanel != null)
         {
             candidateProfilePanel.Initialize(this);
@@ -150,48 +152,42 @@ public class HunterRecruitmentManager : MonoBehaviour
 
     private void Update()
     {
-        if (timeManager != null && timeManager.IsActionBasedTime())
-        {
-            // Driven by time manager events
-            return;
-        }
-        if (!campaignActive) return;
-        if (hunterManager != null && hunterManager.IsAtHunterLimit())
-        {
-            StopCampaign("Hunter limit reached");
-            return;
-        }
-        float delta = Time.deltaTime;
-        if (campaignTimeRemaining > 0f)
-        {
-            campaignTimeRemaining = Mathf.Max(0f, campaignTimeRemaining - delta);
-            HandleBurn(delta);
-            HandleArrivals(delta);
-            if (campaignTimeRemaining <= 0f)
-            {
-                StopCampaign("Campaign time elapsed");
-            }
-        }
+        EnsureTimeSubscription();
     }
 
     private void OnEnable()
+    {
+        EnsureTimeSubscription();
+    }
+
+    private void OnDisable()
+    {
+        if (subscribedTimeManager != null)
+        {
+            subscribedTimeManager.OnTimeAdvanced -= HandleTimeAdvanced;
+            subscribedTimeManager = null;
+        }
+    }
+
+    private void EnsureTimeSubscription()
     {
         if (timeManager == null && GameManager.Instance != null)
         {
             timeManager = GameManager.Instance.GetTimeManager();
         }
-        if (timeManager != null)
-        {
-            timeManager.OnTimeUpdate += HandleTimeAdvanced;
-        }
-    }
 
-    private void OnDisable()
-    {
-        if (timeManager != null)
+        if (timeManager == null || subscribedTimeManager == timeManager)
         {
-            timeManager.OnTimeUpdate -= HandleTimeAdvanced;
+            return;
         }
+
+        if (subscribedTimeManager != null)
+        {
+            subscribedTimeManager.OnTimeAdvanced -= HandleTimeAdvanced;
+        }
+
+        subscribedTimeManager = timeManager;
+        subscribedTimeManager.OnTimeAdvanced += HandleTimeAdvanced;
     }
 
     private void HandleTimeAdvanced(float deltaSeconds)
@@ -543,6 +539,20 @@ public class HunterRecruitmentManager : MonoBehaviour
 
     public void PostAd(AdSettings settings)
     {
+        var gm = GameManager.Instance;
+        var tm = gm != null ? gm.GetTimeManager() : timeManager;
+        if (tm != null && tm.GetDayState() != TimeManager.DayState.Active)
+        {
+            gm?.GetNotificationManager()?.Publish("Hiring Unavailable", "Hiring campaigns can only be started during the workday.", NotificationSeverity.Warning);
+            return;
+        }
+
+        if (gm != null && gm.GetUnpaidUpkeepStreak() >= 2)
+        {
+            gm.GetNotificationManager()?.Publish("Hiring Blocked", "The guild cannot start a hiring campaign while upkeep debt is critical.", NotificationSeverity.Warning);
+            return;
+        }
+
         if (campaignActive)
         {
             StopCampaign(reason: null, notify: false);
@@ -583,8 +593,8 @@ public class HunterRecruitmentManager : MonoBehaviour
         SaveState();
         OnStateChanged?.Invoke();
 
-        var config = GameManager.Instance != null ? GameManager.Instance.GetGameConfig() : null;
-        var tm = GameManager.Instance != null ? GameManager.Instance.GetTimeManager() : null;
+        var config = gm != null ? gm.GetGameConfig() : null;
+        tm = gm != null ? gm.GetTimeManager() : timeManager;
         float cost = config != null ? config.actionTimeSettings.postAdSeconds : 0f;
         tm?.AdvanceTime(cost);
     }

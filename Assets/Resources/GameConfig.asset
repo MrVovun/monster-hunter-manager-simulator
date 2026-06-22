@@ -37,29 +37,29 @@ MonoBehaviour:
   - requiredReputation: 1
     requiredReputationPoints: 0
     orderLimit: 0
-    hunterLimit: 5
   - requiredReputation: 2
     requiredReputationPoints: 130
     orderLimit: 0
-    hunterLimit: 8
   - requiredReputation: 3
     requiredReputationPoints: 609
     orderLimit: 0
-    hunterLimit: 12
   - requiredReputation: 4
     requiredReputationPoints: 2058
     orderLimit: 0
-    hunterLimit: 16
   - requiredReputation: 5
     requiredReputationPoints: 10053
     orderLimit: 0
-    hunterLimit: 20
   - requiredReputation: 6
     requiredReputationPoints: 18477
     orderLimit: 0
-    hunterLimit: 24
   baseInjuryChance: 0.5
   baseDeathChance: 0.25
+  debtSettings:
+    unpaidDay1SuccessPenaltyPercent: 5
+    unpaidDay2SuccessPenaltyPercent: 15
+    unpaidDay1ReputationRankLoss: 1
+    unpaidDay2ReputationRankLoss: 1
+    dismissHuntersUntilUpkeepFitsPreviousIncome: 1
   actionTimeSettings:
     ringBellSeconds: 5
     questionSeconds: 5
@@ -71,7 +71,12 @@ MonoBehaviour:
     reviewCandidateSeconds: 5
     hireOrDeclineSeconds: 5
     buildSeconds: 10
+    chooseKitchenRecipeSeconds: 10
+    cleanKitchenPlateSeconds: 3
+    cleanDormitoryBedSeconds: 3
+    cleanStaleDormitoryBedSeconds: 6
     passTimeStepSeconds: 60
+  dialogueResponseDelaySeconds: 1
   traitCountChances:
   - traitCount: 0
     weight: 0.5

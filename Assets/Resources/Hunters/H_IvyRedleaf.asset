@@ -28,9 +28,9 @@ MonoBehaviour:
   startingXP: 0
   levelXPTable: []
   minReputation: 0
-  portrait: {fileID: 0}
+  portrait: {fileID: 21300000, guid: dd70a2fc81410b04597529ad95b1835c, type: 3}
   visualPrefab: {fileID: 1316546980992214, guid: 44c3e772b3810d54cac3073e976c2e3d, type: 3}
-  greeting: 
+  greeting: 'What was that? Oh. '
   healLine: 
-  goodbyeLine: 
+  goodbyeLine: Take care!
   dialogueQuestions: []

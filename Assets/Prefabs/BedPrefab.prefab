@@ -210,5 +210,5 @@ MonoBehaviour:
   bedId: 
   cleanVisual: {fileID: 1878323629671566348, guid: 6aa1d891720f8ac4e8681286b13e2e5e, type: 3}
   dirtyVisual: {fileID: 4538924896326667470, guid: 95d77867a89378f468a5292de06fcebc, type: 3}
-  staleVisual: {fileID: 0}
-  unusableVisual: {fileID: 0}
+  staleVisual: {fileID: 4538924896326667470, guid: 95d77867a89378f468a5292de06fcebc, type: 3}
+  unusableVisual: {fileID: 4538924896326667470, guid: 95d77867a89378f468a5292de06fcebc, type: 3}

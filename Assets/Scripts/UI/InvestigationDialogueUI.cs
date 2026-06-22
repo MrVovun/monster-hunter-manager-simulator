@@ -189,7 +189,7 @@ public class InvestigationDialogueUI : MonoBehaviour
         var tm = GameManager.Instance != null ? GameManager.Instance.GetTimeManager() : null;
         if (tm != null)
         {
-            float duration = currentManager.GetQuestionDuration(question);
+            float duration = currentManager.GetQuestionActionDuration(question);
             tm.AdvanceTime(duration);
         }
 
@@ -207,7 +207,7 @@ public class InvestigationDialogueUI : MonoBehaviour
         SetQuestionsInteractable(false);
         var managerAtStart = currentManager;
 
-        float waitTime = Mathf.Max(0f, managerAtStart.GetQuestionDuration(question));
+        float waitTime = Mathf.Max(0f, managerAtStart.GetResponseDelaySeconds());
         if (waitTime > 0f)
         {
             managerAtStart.PlayClientThinkingAnimation();

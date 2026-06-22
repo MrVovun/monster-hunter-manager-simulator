@@ -22,6 +22,11 @@ public class GameManager : MonoBehaviour
     [Header("Starting Values")]
     [SerializeField] private int startingGold = 500;
     [SerializeField] private int startingReputation = 0;
+    [SerializeField] private GameObject gameOverScreen;
+
+    private int unpaidUpkeepStreak;
+    private float activeDebtSuccessPenaltyPercent;
+    private bool gameOver;
 
     private void Awake()
     {
@@ -90,13 +95,80 @@ public class GameManager : MonoBehaviour
     private void HandleDayStarted(int dayIndex)
     {
         if (hunterManager == null || goldManager == null) return;
+        int previousDayGrossIncome = goldManager.BeginNewDayAndGetPreviousGrossIncome();
         hunterManager.OnDayStarted(dayIndex);
-        bool paid = hunterManager.PayUpkeep(goldManager);
-        if (!paid)
+
+        int upkeepCost = hunterManager.CalculateDailyUpkeep();
+        bool paid = upkeepCost <= 0 || goldManager.SpendGold(upkeepCost);
+        if (paid)
         {
-            Debug.LogWarning($"Day {dayIndex}: Unable to pay upkeep (gold too low)." );
+            unpaidUpkeepStreak = 0;
+            activeDebtSuccessPenaltyPercent = 0f;
+            return;
         }
+
+        unpaidUpkeepStreak++;
+        int unpaidAmount = Mathf.Max(0, upkeepCost - goldManager.GetGold());
+        goldManager.AddDebt(unpaidAmount);
+        if (goldManager.GetGold() > 0)
+        {
+            goldManager.SpendGold(goldManager.GetGold());
+        }
+
+        ApplyUnpaidUpkeepEffects(unpaidUpkeepStreak, unpaidAmount, previousDayGrossIncome);
     }
+
+    private void ApplyUnpaidUpkeepEffects(int streak, int unpaidAmount, int previousDayGrossIncome)
+    {
+        var debtSettings = gameConfig != null && gameConfig.debtSettings != null
+            ? gameConfig.debtSettings
+            : new GameConfig.DebtSettings();
+
+        if (streak >= 3)
+        {
+            TriggerGameOver("The guild failed to pay upkeep for three consecutive days.");
+            return;
+        }
+
+        bool secondUnpaidDay = streak >= 2;
+        activeDebtSuccessPenaltyPercent = secondUnpaidDay
+            ? Mathf.Max(0f, debtSettings.unpaidDay2SuccessPenaltyPercent)
+            : Mathf.Max(0f, debtSettings.unpaidDay1SuccessPenaltyPercent);
+
+        int reputationRankLoss = secondUnpaidDay
+            ? Mathf.Max(0, debtSettings.unpaidDay2ReputationRankLoss)
+            : Mathf.Max(0, debtSettings.unpaidDay1ReputationRankLoss);
+        int reputationRankAfterLoss = reputationManager != null
+            ? reputationManager.LoseReputationRanks(reputationRankLoss)
+            : 0;
+
+        if (secondUnpaidDay && debtSettings.dismissHuntersUntilUpkeepFitsPreviousIncome)
+        {
+            hunterManager.DismissHuntersUntilUpkeepAtOrBelow(previousDayGrossIncome);
+        }
+
+        notificationManager?.Publish(
+            secondUnpaidDay ? "Upkeep Crisis" : "Unpaid Upkeep",
+            $"Unpaid upkeep became {unpaidAmount} debt. Reputation ranks lost: {reputationRankLoss}. Current rank: {reputationRankAfterLoss}. Mission success penalty: -{activeDebtSuccessPenaltyPercent:0.#}%.",
+            secondUnpaidDay ? NotificationSeverity.Warning : NotificationSeverity.Warning);
+    }
+
+    private void TriggerGameOver(string reason)
+    {
+        if (gameOver) return;
+        gameOver = true;
+        activeDebtSuccessPenaltyPercent = 0f;
+        notificationManager?.Publish("Game Over", reason, NotificationSeverity.Warning);
+        if (gameOverScreen != null)
+        {
+            gameOverScreen.SetActive(true);
+        }
+        Time.timeScale = 0f;
+    }
+
+    public float GetDebtSuccessPenaltyPercent() => activeDebtSuccessPenaltyPercent;
+    public int GetUnpaidUpkeepStreak() => unpaidUpkeepStreak;
+    public bool IsGameOver() => gameOver;
 
     public void HandleEndOfDaySleep()
     {

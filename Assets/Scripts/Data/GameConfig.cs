@@ -30,8 +30,16 @@ public class GameConfig : ScriptableObject
     [Range(0f, 1f)] public float baseInjuryChance = 0.2f;
     [Range(0f, 1f)] public float baseDeathChance = 0.05f;
 
+    [Header("Debt / Unpaid Upkeep")]
+    public DebtSettings debtSettings = new DebtSettings();
+
     [Header("Action Time Costs (seconds)")]
     public ActionTimeSettings actionTimeSettings = new ActionTimeSettings();
+
+    [Header("Dialogue")]
+    [Tooltip("Real-time delay before a dialogue answer starts printing. Client profiles affect action time, not this wait.")]
+    public float dialogueResponseDelaySeconds = 2f;
+
     [Header("Monster Trait Generation")]
     public List<TraitCountChance> traitCountChances = new List<TraitCountChance>
     {
@@ -96,6 +104,21 @@ public class GameConfig : ScriptableObject
         public float cleanStaleDormitoryBedSeconds = 6f;
         [Tooltip("Pass time amount per tap in the pass-time UI.")]
         public float passTimeStepSeconds = 60f;
+    }
+
+    [Serializable]
+    public class DebtSettings
+    {
+        [Tooltip("Flat success chance penalty applied during the first consecutive unpaid day.")]
+        public float unpaidDay1SuccessPenaltyPercent = 5f;
+        [Tooltip("Flat success chance penalty applied during the second consecutive unpaid day.")]
+        public float unpaidDay2SuccessPenaltyPercent = 15f;
+        [Tooltip("Reputation ranks lost on the first consecutive unpaid day.")]
+        public int unpaidDay1ReputationRankLoss = 1;
+        [Tooltip("Reputation ranks lost on the second consecutive unpaid day.")]
+        public int unpaidDay2ReputationRankLoss = 1;
+        [Tooltip("Day 2 dismissals continue until remaining daily upkeep is at or below previous day's gross income.")]
+        public bool dismissHuntersUntilUpkeepFitsPreviousIncome = true;
     }
 
     public int RollTraitCount(int min, int max)

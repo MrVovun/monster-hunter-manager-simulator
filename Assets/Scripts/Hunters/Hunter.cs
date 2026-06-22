@@ -29,10 +29,12 @@ public class Hunter : MonoBehaviour
     [Header("Navigation")]
     [SerializeField] private float doorApproachOffset = 0.8f;
     [SerializeField] private float doorArrivalThreshold = 0.3f;
+    [SerializeField] private float missionDepartureTimeoutSeconds = 8f;
     [SerializeField] private float standUpDuration = 1.3f;
     [SerializeField] private float infirmaryNavMeshSampleRadius = 2f;
     private Transform doorTransform;
     private bool isDepartingForMission;
+    private float missionDepartureTimer;
     private bool isStandingUp;
     private float standUpTimer;
     private System.Action standUpCompletedAction;
@@ -751,7 +753,7 @@ public class Hunter : MonoBehaviour
             return;
         }
 
-        Vector3 target = GetDoorInsidePosition();
+        Vector3 target = GetMissionDeparturePosition();
 
         if (!navAgent.enabled)
         {
@@ -773,6 +775,7 @@ public class Hunter : MonoBehaviour
         }
 
         isDepartingForMission = true;
+        missionDepartureTimer = 0f;
     }
 
     private void ReturnToGuild()
@@ -800,11 +803,13 @@ public class Hunter : MonoBehaviour
         }
 
         isDepartingForMission = false;
+        missionDepartureTimer = 0f;
     }
 
     private void CompleteDeparture()
     {
         isDepartingForMission = false;
+        missionDepartureTimer = 0f;
 
         Vector3 outside = GetDoorOutsidePosition();
         transform.position = outside;
@@ -986,6 +991,17 @@ public class Hunter : MonoBehaviour
         return doorTransform.position - doorTransform.forward * Mathf.Max(0.1f, doorApproachOffset);
     }
 
+    private Vector3 GetMissionDeparturePosition()
+    {
+        CacheHunterManager();
+        if (hunterManager != null)
+        {
+            return hunterManager.GetMissionDeparturePosition(this);
+        }
+
+        return GetDoorInsidePosition();
+    }
+
     private Vector3 GetReturnSpawnPosition()
     {
         CacheHunterManager();
@@ -1132,7 +1148,9 @@ public class Hunter : MonoBehaviour
 
         if (isDepartingForMission && navAgent != null && navAgent.enabled)
         {
-            if (!navAgent.pathPending && navAgent.remainingDistance < doorArrivalThreshold)
+            missionDepartureTimer += Time.deltaTime;
+            if (!navAgent.pathPending && navAgent.remainingDistance < doorArrivalThreshold ||
+                missionDepartureTimer >= Mathf.Max(1f, missionDepartureTimeoutSeconds))
             {
                 CompleteDeparture();
             }

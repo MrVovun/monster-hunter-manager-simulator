@@ -28,9 +28,9 @@ MonoBehaviour:
   startingXP: 0
   levelXPTable: []
   minReputation: 2
-  portrait: {fileID: 0}
+  portrait: {fileID: 21300000, guid: e2ce80241a6c0cd43a158679f3eb12dc, type: 3}
   visualPrefab: {fileID: 1717762771245900, guid: 507997f746de7ed4f93ddbab1e920d6a, type: 3}
-  greeting: 
+  greeting: ...Yeah?
   healLine: 
-  goodbyeLine: 
+  goodbyeLine: Good luck, Rukhan.
   dialogueQuestions: []

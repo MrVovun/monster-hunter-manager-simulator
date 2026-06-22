@@ -12,7 +12,7 @@ public class InvestigationQuestion : ScriptableObject
     [TextArea(2, 3)] public string promptText;
 
     [Header("Timing")]
-    [Tooltip("Base time (seconds) before the answer is revealed. Client response modifiers are added on top.")]
+    [Tooltip("Base action-time cost in seconds for asking this question. Client profile modifiers are added on top.")]
     public float askDurationSeconds = 2f;
 
     [Header("Requirements")]

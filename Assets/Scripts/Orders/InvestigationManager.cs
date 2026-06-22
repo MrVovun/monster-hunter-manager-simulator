@@ -131,6 +131,11 @@ public class InvestigationManager : MonoBehaviour
 
     public float GetQuestionDuration(InvestigationQuestion question)
     {
+        return GetQuestionActionDuration(question);
+    }
+
+    public float GetQuestionActionDuration(InvestigationQuestion question)
+    {
         if (hunterDialogueActive)
         {
             return Mathf.Max(0f, question != null ? question.askDurationSeconds : 0f);
@@ -143,6 +148,12 @@ public class InvestigationManager : MonoBehaviour
         }
 
         return duration;
+    }
+
+    public float GetResponseDelaySeconds()
+    {
+        GameConfig config = GameManager.Instance != null ? GameManager.Instance.GetGameConfig() : null;
+        return Mathf.Max(0f, config != null ? config.dialogueResponseDelaySeconds : 0f);
     }
 
     public string ResolveQuestion(InvestigationQuestion question)

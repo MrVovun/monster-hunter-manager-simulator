@@ -110,6 +110,11 @@ public static class MissionOutcomeCalculator
         {
             lines.Add($"Total flat success bonus: {(successBonusTotal >= 0f ? "+" : string.Empty)}{successBonusTotal:0.#}%");
         }
+        float debtPenalty = GameManager.Instance != null ? GameManager.Instance.GetDebtSuccessPenaltyPercent() : 0f;
+        if (debtPenalty > 0.01f)
+        {
+            lines.Add($"Unpaid upkeep penalty: -{debtPenalty:0.#}% success");
+        }
         if (minSuccessTotal > 0f)
         {
             lines.Add($"Minimum success floor: {minSuccessTotal:0.#}%");
@@ -186,7 +191,7 @@ public static class MissionOutcomeCalculator
         var aggregate = AggregateHunterBonuses(order, monsterForConditions, monsterTraits, party);
         missionTimeMultiplier *= Mathf.Clamp(1f - (aggregate.missionTimeReductionPercent / 100f), 0.01f, 1f);
         missionTimeMultiplier *= Mathf.Max(0.01f, aggregate.missionTimeMultiplier);
-        float successChance = Mathf.Clamp(baseSuccess + aggregate.successChanceBonus, 0f, MaxSuccessChance);
+        float successChance = Mathf.Clamp(baseSuccess + aggregate.successChanceBonus - config.debtSuccessPenaltyPercent, 0f, MaxSuccessChance);
         successChance = Mathf.Clamp(successChance, 0f, capSuccessLimit);
         successChance = Mathf.Max(successChance, aggregate.minSuccessPercent);
         result.SuccessChancePercent = successChance;
@@ -744,11 +749,13 @@ public struct MissionOutcomeConfig
 {
     public float baseInjuryChance;
     public float baseDeathChance;
+    public float debtSuccessPenaltyPercent;
 
     public static MissionOutcomeConfig Default => new MissionOutcomeConfig
     {
         baseInjuryChance = 0.2f,
-        baseDeathChance = 0.05f
+        baseDeathChance = 0.05f,
+        debtSuccessPenaltyPercent = 0f
     };
 
     public static MissionOutcomeConfig FromGameConfig(GameConfig config)
@@ -761,7 +768,8 @@ public struct MissionOutcomeConfig
         return new MissionOutcomeConfig
         {
             baseInjuryChance = Mathf.Clamp01(config.baseInjuryChance),
-            baseDeathChance = Mathf.Clamp01(config.baseDeathChance)
+            baseDeathChance = Mathf.Clamp01(config.baseDeathChance),
+            debtSuccessPenaltyPercent = GameManager.Instance != null ? Mathf.Max(0f, GameManager.Instance.GetDebtSuccessPenaltyPercent()) : 0f
         };
     }
 }

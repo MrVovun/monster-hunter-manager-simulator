@@ -29,6 +29,8 @@
   - Kitchen upgrade tiers with better recipes or more serving capacity.
   - More guild activities around upkeep beyond dirty plates.
   - UI showing who has eaten and who still needs food.
+- Full-game economy:
+  - Add a last-chance debt option, such as a loan, before the guild collapses from consecutive unpaid upkeep.
 
 ## Notification Message Templates
 

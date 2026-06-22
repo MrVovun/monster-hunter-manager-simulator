@@ -104,6 +104,21 @@ public class ReputationManager : MonoBehaviour
         NotifyReputationChanged();
     }
 
+    public int LoseReputationRanks(int ranksToLose)
+    {
+        ranksToLose = Mathf.Max(0, ranksToLose);
+        if (ranksToLose <= 0) return GetReputation();
+
+        int currentLevel = GetReputation();
+        int targetLevel = Mathf.Max(0, currentLevel - ranksToLose);
+        float targetPoints = GetRequiredPointsForLevel(targetLevel);
+
+        currentReputationPoints = Mathf.Min(currentReputationPoints, targetPoints);
+        SaveState();
+        NotifyReputationChanged();
+        return targetLevel;
+    }
+
     public void ResetToDefault()
     {
         currentReputationPoints = defaultReputationPoints;

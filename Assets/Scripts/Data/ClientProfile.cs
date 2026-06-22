@@ -7,7 +7,7 @@ public class ClientProfile : ScriptableObject
 {
     public string profileId;
     public string categoryName;
-    [Tooltip("Additional delay applied to each question asked to this client.")]
+    [Tooltip("Additional action-time cost applied to each question asked to this client. Does not affect real-time answer delay.")]
     public float responseDelaySeconds = 0f;
     [Tooltip("Optional visual prefabs to spawn while this client is present.")]
     public List<GameObject> visualPrefabs = new List<GameObject>();

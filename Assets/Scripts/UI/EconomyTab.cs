@@ -8,6 +8,8 @@ public class EconomyTab : MonoBehaviour
     [SerializeField] private TMP_Text reputationText;
     [SerializeField] private TMP_Text reputationProgressText;
     [SerializeField] private TMP_Text upkeepText;
+    [SerializeField] private TMP_Text debtText;
+    [SerializeField] private TMP_Text previousIncomeText;
 
     public void Refresh()
     {
@@ -33,6 +35,16 @@ public class EconomyTab : MonoBehaviour
         if (upkeepText != null && hunters != null)
         {
             upkeepText.text = $"Upkeep per day: {hunters.CalculateDailyUpkeep()}";
+        }
+
+        if (debtText != null && gold != null)
+        {
+            debtText.text = $"Debt: {gold.GetDebt()}";
+        }
+
+        if (previousIncomeText != null && gold != null)
+        {
+            previousIncomeText.text = $"Previous day income: {gold.GetPreviousDayGrossIncome()}";
         }
     }
 
