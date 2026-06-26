@@ -10,6 +10,10 @@ public class EconomyTab : MonoBehaviour
     [SerializeField] private TMP_Text upkeepText;
     [SerializeField] private TMP_Text debtText;
     [SerializeField] private TMP_Text previousIncomeText;
+    [SerializeField] private TMP_Text upkeepStateText;
+    [SerializeField] private TMP_Text upkeepStatusText;
+    [SerializeField] private TMP_Text missionPenaltyText;
+    [SerializeField] private TMP_Text hiringStatusText;
 
     public void Refresh()
     {
@@ -45,6 +49,36 @@ public class EconomyTab : MonoBehaviour
         if (previousIncomeText != null && gold != null)
         {
             previousIncomeText.text = $"Previous day income: {gold.GetPreviousDayGrossIncome()}";
+        }
+
+        if (upkeepStateText != null)
+        {
+            upkeepStateText.text = GameManager.Instance != null
+                ? $"Upkeep state: {GameManager.Instance.GetUpkeepCrisisLabel()}"
+                : "Upkeep state: -";
+        }
+
+        if (upkeepStatusText != null)
+        {
+            upkeepStatusText.text = GameManager.Instance != null
+                ? GameManager.Instance.GetUpkeepCrisisDescription()
+                : string.Empty;
+        }
+
+        if (missionPenaltyText != null)
+        {
+            float penalty = GameManager.Instance != null ? GameManager.Instance.GetDebtSuccessPenaltyPercent() : 0f;
+            missionPenaltyText.text = penalty > 0.01f
+                ? $"Mission success penalty: -{penalty:0.#}%"
+                : "Mission success penalty: none";
+        }
+
+        if (hiringStatusText != null)
+        {
+            bool blocked = GameManager.Instance != null && GameManager.Instance.IsHiringBlockedByDebt();
+            hiringStatusText.text = blocked
+                ? "Hiring campaigns blocked by upkeep debt"
+                : "Hiring campaigns available during the workday";
         }
     }
 

@@ -41,12 +41,13 @@ public class ClientInteractable : Interactable
 
     public override bool IsInteractionAvailable()
     {
-        return base.IsInteractionAvailable() && !interactionDisabled;
+        return base.IsInteractionAvailable() && !interactionDisabled && !awaitingRelease;
     }
 
     public override void Interact(PlayerInteraction player)
     {
         if (interactionDisabled) return;
+        if (awaitingRelease) return;
 
         if (linkedCase == null || investigationManager == null)
         {

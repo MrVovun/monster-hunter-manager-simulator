@@ -80,6 +80,11 @@ public class GoldManager : MonoBehaviour
     
     public bool SpendGold(int amount)
     {
+        if (amount <= 0)
+        {
+            return true;
+        }
+
         if (currentGold >= amount)
         {
             currentGold -= amount;

@@ -3,6 +3,15 @@ using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
 {
+    public enum UpkeepCrisisState
+    {
+        Stable,
+        Debt,
+        UnpaidDay1,
+        UnpaidDay2,
+        GameOver
+    }
+
     public static GameManager Instance { get; private set; }
 
     [Header("Managers")]
@@ -169,6 +178,53 @@ public class GameManager : MonoBehaviour
     public float GetDebtSuccessPenaltyPercent() => activeDebtSuccessPenaltyPercent;
     public int GetUnpaidUpkeepStreak() => unpaidUpkeepStreak;
     public bool IsGameOver() => gameOver;
+    public int GetTodayUpkeepCost() => hunterManager != null ? hunterManager.CalculateDailyUpkeep() : 0;
+    public int GetCurrentDebt() => goldManager != null ? goldManager.GetDebt() : 0;
+    public bool IsHiringBlockedByDebt() => unpaidUpkeepStreak >= 2;
+
+    public UpkeepCrisisState GetUpkeepCrisisState()
+    {
+        if (gameOver) return UpkeepCrisisState.GameOver;
+        if (unpaidUpkeepStreak >= 2) return UpkeepCrisisState.UnpaidDay2;
+        if (unpaidUpkeepStreak == 1) return UpkeepCrisisState.UnpaidDay1;
+        return GetCurrentDebt() > 0 ? UpkeepCrisisState.Debt : UpkeepCrisisState.Stable;
+    }
+
+    public string GetUpkeepCrisisLabel()
+    {
+        switch (GetUpkeepCrisisState())
+        {
+            case UpkeepCrisisState.Debt:
+                return "Debt";
+            case UpkeepCrisisState.UnpaidDay1:
+                return "Unpaid Day 1";
+            case UpkeepCrisisState.UnpaidDay2:
+                return "Upkeep Crisis";
+            case UpkeepCrisisState.GameOver:
+                return "Game Over";
+            default:
+                return "Stable";
+        }
+    }
+
+    public string GetUpkeepCrisisDescription()
+    {
+        int debt = GetCurrentDebt();
+        int upkeep = GetTodayUpkeepCost();
+        switch (GetUpkeepCrisisState())
+        {
+            case UpkeepCrisisState.Debt:
+                return $"Debt: {debt}. New income pays debt first.";
+            case UpkeepCrisisState.UnpaidDay1:
+                return $"Debt: {debt}. Upkeep unpaid once. Mission success -{activeDebtSuccessPenaltyPercent:0.#}%.";
+            case UpkeepCrisisState.UnpaidDay2:
+                return $"Debt: {debt}. Critical upkeep debt. Hiring campaigns blocked. Mission success -{activeDebtSuccessPenaltyPercent:0.#}%.";
+            case UpkeepCrisisState.GameOver:
+                return "The guild failed to pay upkeep for three consecutive days.";
+            default:
+                return $"Gold needed for next upkeep: {upkeep}.";
+        }
+    }
 
     public void HandleEndOfDaySleep()
     {

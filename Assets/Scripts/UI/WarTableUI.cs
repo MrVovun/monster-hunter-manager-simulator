@@ -179,6 +179,7 @@ public class WarTableUI : MonoBehaviour
         if (goldManager != null)
         {
             goldManager.OnGoldChanged += HandleGoldChanged;
+            goldManager.OnDebtChanged += HandleDebtChanged;
         }
 
         if (reputationManager != null)
@@ -204,6 +205,7 @@ public class WarTableUI : MonoBehaviour
         if (goldManager != null)
         {
             goldManager.OnGoldChanged -= HandleGoldChanged;
+            goldManager.OnDebtChanged -= HandleDebtChanged;
             goldManager = null;
         }
 
@@ -234,6 +236,14 @@ public class WarTableUI : MonoBehaviour
 
     private void HandleGoldChanged(int _)
     {
+        huntersDirty = true;
+        economyDirty = true;
+        hiringDirty = true;
+        TryRefreshDirtyTabsImmediately();
+    }
+
+    private void HandleDebtChanged(int _)
+    {
         economyDirty = true;
         hiringDirty = true;
         TryRefreshDirtyTabsImmediately();
@@ -253,6 +263,7 @@ public class WarTableUI : MonoBehaviour
         huntersDirty = true;
         economyDirty = true;
         statisticsDirty = true;
+        hiringDirty = true;
     }
 
     private void RefreshDirtyTabs()

@@ -49,6 +49,10 @@ public class MonsterData : ScriptableObject
     public GameObject trophyHeadPrefab;
     [Tooltip("Optional scale multiplier for this monster's trophy head.")]
     public float trophyScale = 1f;
+    [Tooltip("Per-monster position tweak after the wall's global head offset is applied.")]
+    public Vector3 trophyPositionOffset = Vector3.zero;
+    [Tooltip("Per-monster rotation tweak for this monster's trophy head.")]
+    public Vector3 trophyRotationOffsetEuler = Vector3.zero;
 
     private void OnEnable()
     {

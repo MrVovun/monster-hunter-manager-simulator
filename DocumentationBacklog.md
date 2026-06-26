@@ -11,6 +11,14 @@
 - Review old/stale serialized config data after field removals or renames, such as old `hunterLimit` entries under `orderLimitByReputation`.
 - Replace deprecated Unity object lookup APIs (`FindObjectOfType`, `FindObjectsOfType`) with the Unity 6 alternatives during a technical cleanup pass.
 - Decide whether class traits with no bonus effects are intentionally descriptive/counter-only, or should be wired with effects.
+- Order UI technical cleanup:
+  - Split `OrderDetailPanel` into smaller view components: order summary, party assignment, revealed/countered traits, modifier telemetry, and action buttons.
+  - Move `OrderListItem` out of `OrdersTab.cs` into its own script once the current list layout settles.
+  - Make `OrderItemPrefab` explicitly structured and wired in the prefab instead of relying on runtime-created text/progress objects.
+  - Replace temporary name-based UI button auto-binding with serialized scene/prefab references.
+  - Audit duplicated order UI between `TestScene` and `TestScene2` so the scenes do not drift.
+  - Rename typoed scene objects such as `PartySlotsCotnainer`.
+  - Continue standardizing `UIButtonVisualFeedback` across all button-like UI elements, including list entries and custom interactables.
 - Future Briefing Room expansions:
   - More drawing result tiers.
   - Different buff types beyond success chance.

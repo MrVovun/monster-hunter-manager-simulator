@@ -498,6 +498,8 @@ public class HunterManager : MonoBehaviour
                 idleAllDayCandidates[hunter] = false;
             }
         }
+
+        NotifyHuntersChanged();
     }
 
     public int CalculateDailyUpkeep()

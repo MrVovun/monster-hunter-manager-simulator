@@ -22,6 +22,9 @@ MonoBehaviour:
     thunderous roar that shakes windows before you ever see them.
   requiredReputation: 5
   minimumDifficulty: 130
+  preferredDifficulty: 130
+  difficultyFalloff: 40
+  difficultyFalloffPower: 2
   possibleTraits:
   - {fileID: 11400000, guid: 6af8b3bbb8f5f8d4fbdb3a6057fd4b86, type: 2}
   - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
@@ -61,4 +64,6 @@ MonoBehaviour:
     responseText: Giant! Biggest beast I saw!
   weight: 1
   trophyHeadPrefab: {fileID: 1636885676774316774, guid: 16126a3aadd193d41a45bb0fb94160cb, type: 3}
-  trophyScale: 0.7
+  trophyScale: 0.5
+  trophyPositionOffset: {x: -0.05, y: 0.2, z: 0.2}
+  trophyRotationOffsetEuler: {x: 30, y: 0, z: 0}

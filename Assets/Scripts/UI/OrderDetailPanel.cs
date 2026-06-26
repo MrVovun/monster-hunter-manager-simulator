@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -25,6 +26,10 @@ public class OrderDetailPanel : MonoBehaviour
     [SerializeField] private Transform revealedTraitsParent;
     [SerializeField] private GameObject traitItemPrefab;
     [SerializeField] private Image traitIconPrototype;
+    [SerializeField] private Color counteredTraitIconColor = new Color(0.45f, 0.45f, 0.45f, 0.55f);
+    [SerializeField] private Color counterSlashColor = new Color(0.95f, 0.05f, 0.03f, 0.95f);
+    [SerializeField] private float counterSlashThickness = 6f;
+    [SerializeField] private float counterSlashDurationSeconds = 0.22f;
     [Header("Monster Visuals")]
     [SerializeField] private Image declaredMonsterPortrait;
 
@@ -34,6 +39,11 @@ public class OrderDetailPanel : MonoBehaviour
     [Header("Party Slots")]
     [SerializeField] private Transform partySlotsParent;
     [SerializeField] private OrderPartySlot partySlotPrefab;
+    [Header("Action Buttons")]
+    [SerializeField] private Button sendPartyButton;
+    [SerializeField] private Button autoFillPartyButton;
+    [SerializeField] private Button clearPartyButton;
+    [SerializeField] private bool autoBindActionButtons = true;
     
     private readonly System.Collections.Generic.List<OrderPartySlot> partySlotInstances =
         new System.Collections.Generic.List<OrderPartySlot>();
@@ -48,9 +58,11 @@ public class OrderDetailPanel : MonoBehaviour
     
     public System.Action OnPartyChanged;
     private readonly List<GameObject> spawnedTraitItems = new List<GameObject>();
+    private readonly HashSet<string> previouslyCounteredTraitKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
     private void Awake()
     {
+        AutoBindActionButtons();
         ClearSelection();
     }
 
@@ -63,6 +75,7 @@ public class OrderDetailPanel : MonoBehaviour
         }
 
         currentOrder = order;
+        previouslyCounteredTraitKeys.Clear();
         if (partyFormation != null)
         {
             partyFormation.Initialize(order);
@@ -104,8 +117,7 @@ public class OrderDetailPanel : MonoBehaviour
             statsText.text =
                 $"Monster: {monsterName}\n" +
                 $"Difficulty: {order.difficulty}\n" +
-                $"Reward: {order.goldReward}g / {order.xpReward}xp\n" +
-                $"Mission: {order.missionDuration:0}s";
+                $"Reward: {order.goldReward}g / {order.xpReward}xp";
         }
 
         if (monsterText != null)
@@ -132,7 +144,7 @@ public class OrderDetailPanel : MonoBehaviour
 
         if (missionTimeText != null)
         {
-            missionTimeText.text = $"{order.missionDuration:0}s";
+            missionTimeText.text = string.Empty;
         }
 
         if (partyInfoText != null && partyFormation != null)
@@ -145,6 +157,7 @@ public class OrderDetailPanel : MonoBehaviour
         UpdateSuccessTelemetry(order);
 
         UpdateTimerText();
+        UpdateActionButtonStates();
     }
 
     public void OnSendParty()
@@ -212,11 +225,12 @@ public class OrderDetailPanel : MonoBehaviour
         {
             if (currentOrder.missionTimer != null)
             {
-                timerLine = $"Mission: {currentOrder.missionTimer.GetFormattedRemainingTime()}";
+                timerLine = "Mission in progress";
             }
         }
 
         timerText.text = timerLine;
+        UpdateActionButtonStates();
     }
 
     public bool TryAssignHunterToSlot(int slotIndex, Hunter hunter)
@@ -381,6 +395,74 @@ public class OrderDetailPanel : MonoBehaviour
         return currentOrder != null && currentOrder.state == OrderState.Accepted;
     }
 
+    private bool CanSendParty()
+    {
+        if (currentOrder == null || partyFormation == null) return false;
+        if (currentOrder.state != OrderState.Accepted) return false;
+
+        int partySize = partyFormation.GetPartySize();
+        if (partySize < currentOrder.minPartySize || partySize > currentOrder.maxPartySize)
+        {
+            return false;
+        }
+
+        TimeManager timeManager = GameManager.Instance != null ? GameManager.Instance.GetTimeManager() : null;
+        if (timeManager != null)
+        {
+            var dayState = timeManager.GetDayState();
+            if (dayState == TimeManager.DayState.PreBell || dayState == TimeManager.DayState.Evening)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private void UpdateActionButtonStates()
+    {
+        SetButtonState(sendPartyButton, CanSendParty());
+        SetButtonState(autoFillPartyButton, CanEditParty());
+        SetButtonState(clearPartyButton, CanEditParty() && partyFormation != null && partyFormation.GetPartySize() > 0);
+    }
+
+    private void SetButtonState(Button button, bool interactable)
+    {
+        if (button == null) return;
+        button.interactable = interactable;
+        var visualFeedback = button.GetComponent<UIButtonVisualFeedback>();
+        if (visualFeedback != null)
+        {
+            visualFeedback.RefreshVisualState(true);
+        }
+    }
+
+    private void AutoBindActionButtons()
+    {
+        if (!autoBindActionButtons) return;
+
+        Transform searchRoot = transform.root != null ? transform.root : transform;
+        if (sendPartyButton == null) sendPartyButton = FindButtonByName(searchRoot, "SendPartyButton");
+        if (autoFillPartyButton == null) autoFillPartyButton = FindButtonByName(searchRoot, "AutofillPartyButton");
+        if (clearPartyButton == null) clearPartyButton = FindButtonByName(searchRoot, "ClearPartyButton");
+    }
+
+    private Button FindButtonByName(Transform root, string objectName)
+    {
+        if (root == null || string.IsNullOrEmpty(objectName)) return null;
+
+        var buttons = root.GetComponentsInChildren<Button>(true);
+        foreach (var candidate in buttons)
+        {
+            if (candidate != null && candidate.gameObject.name == objectName)
+            {
+                return candidate;
+            }
+        }
+
+        return null;
+    }
+
     private void ClearDetails()
     {
         if (titleText != null) titleText.text = "Select an Order";
@@ -390,10 +472,11 @@ public class OrderDetailPanel : MonoBehaviour
         if (difficultyText != null) difficultyText.text = "-";
         if (rewardGoldText != null) rewardGoldText.text = "-";
         if (rewardXPText != null) rewardXPText.text = "-";
-        if (missionTimeText != null) missionTimeText.text = "-";
+        if (missionTimeText != null) missionTimeText.text = string.Empty;
         if (partyInfoText != null) partyInfoText.text = string.Empty;
         if (successTelemetryText != null) successTelemetryText.text = string.Empty;
         if (timerText != null) timerText.text = string.Empty;
+        UpdateActionButtonStates();
         ClearRevealedTraitItems();
         UpdateMonsterPortrait(null);
         ClearPartySlots();
@@ -427,37 +510,37 @@ public class OrderDetailPanel : MonoBehaviour
             return;
         }
 
-        var caseData = currentOrder?.investigationCase;
-        if (caseData == null || caseData.confirmedTraitIds == null || caseData.confirmedTraitIds.Count == 0)
+        var party = partyFormation != null ? partyFormation.GetParty() : null;
+        var traitStates = MissionOutcomeCalculator.BuildPreviewTraitCounterStates(currentOrder, party);
+        if (traitStates == null || traitStates.Count == 0)
         {
             revealedTraitsParent.gameObject.SetActive(false);
-            return;
-        }
-
-        List<MonsterTrait> traits = new List<MonsterTrait>();
-        foreach (var traitId in caseData.confirmedTraitIds)
-        {
-            if (string.IsNullOrEmpty(traitId)) continue;
-            var trait = caseData.truthTraits?.Find(t => t != null && string.Equals(t.traitId, traitId, StringComparison.OrdinalIgnoreCase));
-            if (trait != null)
-            {
-                traits.Add(trait);
-            }
-        }
-
-        if (traits.Count == 0)
-        {
-            revealedTraitsParent.gameObject.SetActive(false);
+            previouslyCounteredTraitKeys.Clear();
             return;
         }
 
         revealedTraitsParent.gameObject.SetActive(true);
-        foreach (var trait in traits)
+        var currentCounteredKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var traitState in traitStates)
         {
-            var item = CreateTraitItem(trait);
+            var trait = traitState.Trait;
+            string traitKey = GetTraitKey(trait);
+            bool animateCounter = traitState.IsCountered && !previouslyCounteredTraitKeys.Contains(traitKey);
+            if (traitState.IsCountered)
+            {
+                currentCounteredKeys.Add(traitKey);
+            }
+
+            var item = CreateTraitItem(trait, traitState.IsCountered, animateCounter);
             if (item == null) continue;
             item.transform.SetParent(revealedTraitsParent, false);
             spawnedTraitItems.Add(item);
+        }
+
+        previouslyCounteredTraitKeys.Clear();
+        foreach (string key in currentCounteredKeys)
+        {
+            previouslyCounteredTraitKeys.Add(key);
         }
     }
 
@@ -492,7 +575,7 @@ public class OrderDetailPanel : MonoBehaviour
         }
     }
 
-    private GameObject CreateTraitItem(MonsterTrait trait)
+    private GameObject CreateTraitItem(MonsterTrait trait, bool isCountered, bool animateCounter)
     {
         GameObject item = traitItemPrefab != null ? Instantiate(traitItemPrefab) : new GameObject("RevealedTrait");
         RectTransform rect = item.GetComponent<RectTransform>();
@@ -515,6 +598,13 @@ public class OrderDetailPanel : MonoBehaviour
             icon.sprite = sprite;
             icon.enabled = sprite != null;
         }
+
+        var counterVisual = item.GetComponent<OrderTraitCounterVisual>();
+        if (counterVisual == null)
+        {
+            counterVisual = item.AddComponent<OrderTraitCounterVisual>();
+        }
+        counterVisual.Apply(icon, isCountered, counteredTraitIconColor, counterSlashColor, counterSlashThickness, counterSlashDurationSeconds, animateCounter);
 
         if (traitTooltipPanel != null)
         {
@@ -561,5 +651,153 @@ public class OrderDetailPanel : MonoBehaviour
         }
 
         return icon;
+    }
+
+    private static string GetTraitKey(MonsterTrait trait)
+    {
+        if (trait == null) return string.Empty;
+        if (!string.IsNullOrEmpty(trait.traitId)) return trait.traitId;
+        if (!string.IsNullOrEmpty(trait.displayName)) return trait.displayName;
+        return trait.GetInstanceID().ToString();
+    }
+}
+
+public class OrderTraitCounterVisual : MonoBehaviour
+{
+    private const string SlashRootName = "CounteredSlash";
+
+    private Image icon;
+    private GameObject slashRoot;
+    private Image slashA;
+    private Image slashB;
+    private Coroutine animationRoutine;
+    private Color defaultIconColor = Color.white;
+    private bool defaultColorCaptured;
+
+    public void Apply(
+        Image traitIcon,
+        bool isCountered,
+        Color counteredIconColor,
+        Color slashColor,
+        float slashThickness,
+        float durationSeconds,
+        bool animate)
+    {
+        icon = traitIcon;
+        if (icon != null && !defaultColorCaptured)
+        {
+            defaultIconColor = icon.color;
+            defaultColorCaptured = true;
+        }
+
+        EnsureSlash(slashColor, slashThickness);
+
+        if (icon != null)
+        {
+            icon.color = isCountered ? counteredIconColor : defaultIconColor;
+        }
+
+        if (slashRoot == null) return;
+
+        if (animationRoutine != null)
+        {
+            StopCoroutine(animationRoutine);
+            animationRoutine = null;
+        }
+
+        slashRoot.SetActive(isCountered);
+        SetSlashScale(isCountered && !animate ? 1f : 0f);
+
+        if (isCountered && animate && durationSeconds > 0f)
+        {
+            animationRoutine = StartCoroutine(AnimateSlash(durationSeconds));
+        }
+    }
+
+    private void EnsureSlash(Color slashColor, float slashThickness)
+    {
+        if (slashRoot == null)
+        {
+            Transform existing = transform.Find(SlashRootName);
+            slashRoot = existing != null ? existing.gameObject : CreateSlashRoot();
+        }
+
+        if (slashA == null || slashB == null)
+        {
+            slashA = FindOrCreateSlashLine("LineA", 45f);
+            slashB = FindOrCreateSlashLine("LineB", -45f);
+        }
+
+        ConfigureLine(slashA, slashColor, slashThickness);
+        ConfigureLine(slashB, slashColor, slashThickness);
+    }
+
+    private GameObject CreateSlashRoot()
+    {
+        var root = new GameObject(SlashRootName, typeof(RectTransform));
+        root.transform.SetParent(transform, false);
+
+        var rect = root.GetComponent<RectTransform>();
+        rect.anchorMin = Vector2.zero;
+        rect.anchorMax = Vector2.one;
+        rect.offsetMin = Vector2.zero;
+        rect.offsetMax = Vector2.zero;
+        rect.localScale = Vector3.one;
+
+        return root;
+    }
+
+    private Image FindOrCreateSlashLine(string lineName, float rotationZ)
+    {
+        Transform existing = slashRoot.transform.Find(lineName);
+        GameObject line = existing != null ? existing.gameObject : new GameObject(lineName, typeof(RectTransform), typeof(Image));
+        line.transform.SetParent(slashRoot.transform, false);
+
+        var rect = line.GetComponent<RectTransform>();
+        rect.anchorMin = new Vector2(0.5f, 0.5f);
+        rect.anchorMax = new Vector2(0.5f, 0.5f);
+        rect.pivot = new Vector2(0.5f, 0.5f);
+        rect.anchoredPosition = Vector2.zero;
+        rect.localRotation = Quaternion.Euler(0f, 0f, rotationZ);
+
+        return line.GetComponent<Image>();
+    }
+
+    private void ConfigureLine(Image line, Color slashColor, float slashThickness)
+    {
+        if (line == null) return;
+
+        line.color = slashColor;
+        line.raycastTarget = false;
+
+        var rect = line.rectTransform;
+        float parentSize = 48f;
+        if (transform is RectTransform parentRect)
+        {
+            parentSize = Mathf.Max(parentRect.rect.width, parentRect.rect.height, parentSize);
+        }
+
+        rect.sizeDelta = new Vector2(parentSize * 1.35f, Mathf.Max(1f, slashThickness));
+    }
+
+    private IEnumerator AnimateSlash(float durationSeconds)
+    {
+        float elapsed = 0f;
+        while (elapsed < durationSeconds)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float t = Mathf.Clamp01(elapsed / durationSeconds);
+            SetSlashScale(Mathf.SmoothStep(0f, 1f, t));
+            yield return null;
+        }
+
+        SetSlashScale(1f);
+        animationRoutine = null;
+    }
+
+    private void SetSlashScale(float scale)
+    {
+        if (slashRoot == null) return;
+        slashRoot.transform.localScale = new Vector3(scale, 1f, 1f);
     }
 }

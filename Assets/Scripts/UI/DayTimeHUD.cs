@@ -10,6 +10,9 @@ public class DayTimeHUD : MonoBehaviour
     [SerializeField] private TimeManager timeManager;
     [SerializeField] private TMP_Text timeRemainingText;
     [SerializeField] private TMP_Text dayCounterText;
+    [SerializeField] private TMP_Text goldText;
+    [SerializeField] private TMP_Text upkeepText;
+    [SerializeField] private TMP_Text debtStatusText;
     [SerializeField] private TMP_Text reputationText;
     [SerializeField] private TMP_Text reputationProgressText;
     [SerializeField] private UnityEngine.UI.Image stateIcon;
@@ -18,6 +21,8 @@ public class DayTimeHUD : MonoBehaviour
     [SerializeField] private Sprite eveningSprite;
 
     private ReputationManager reputationManager;
+    private GoldManager goldManager;
+    private HunterManager hunterManager;
 
     private void OnEnable()
     {
@@ -35,6 +40,18 @@ public class DayTimeHUD : MonoBehaviour
             reputationManager.OnReputationChanged += HandleReputationChanged;
         }
 
+        EnsureEconomyManagers();
+        if (goldManager != null)
+        {
+            goldManager.OnGoldChanged += HandleGoldChanged;
+            goldManager.OnDebtChanged += HandleDebtChanged;
+        }
+
+        if (hunterManager != null)
+        {
+            hunterManager.OnHuntersChanged += HandleHuntersChanged;
+        }
+
         RefreshTexts();
     }
 
@@ -50,6 +67,17 @@ public class DayTimeHUD : MonoBehaviour
         if (reputationManager != null)
         {
             reputationManager.OnReputationChanged -= HandleReputationChanged;
+        }
+
+        if (goldManager != null)
+        {
+            goldManager.OnGoldChanged -= HandleGoldChanged;
+            goldManager.OnDebtChanged -= HandleDebtChanged;
+        }
+
+        if (hunterManager != null)
+        {
+            hunterManager.OnHuntersChanged -= HandleHuntersChanged;
         }
     }
 
@@ -72,6 +100,21 @@ public class DayTimeHUD : MonoBehaviour
     private void HandleReputationChanged(float _)
     {
         RefreshReputationTexts();
+    }
+
+    private void HandleGoldChanged(int _)
+    {
+        RefreshEconomyTexts();
+    }
+
+    private void HandleDebtChanged(int _)
+    {
+        RefreshEconomyTexts();
+    }
+
+    private void HandleHuntersChanged()
+    {
+        RefreshEconomyTexts();
     }
 
     private void RefreshTexts()
@@ -100,6 +143,7 @@ public class DayTimeHUD : MonoBehaviour
 
         RefreshStateIcon(timeManager.GetDayState());
         RefreshReputationTexts();
+        RefreshEconomyTexts();
     }
 
     private void RefreshReputationTexts()
@@ -135,6 +179,44 @@ public class DayTimeHUD : MonoBehaviour
         if (reputationManager == null && GameManager.Instance != null)
         {
             reputationManager = GameManager.Instance.GetReputationManager();
+        }
+    }
+
+    private void EnsureEconomyManagers()
+    {
+        if (GameManager.Instance == null) return;
+
+        if (goldManager == null)
+        {
+            goldManager = GameManager.Instance.GetGoldManager();
+        }
+
+        if (hunterManager == null)
+        {
+            hunterManager = GameManager.Instance.GetHunterManager();
+        }
+    }
+
+    private void RefreshEconomyTexts()
+    {
+        EnsureEconomyManagers();
+
+        if (goldText != null)
+        {
+            goldText.text = goldManager != null ? $"Gold {goldManager.GetGold()}" : "Gold -";
+        }
+
+        if (upkeepText != null)
+        {
+            int upkeep = GameManager.Instance != null ? GameManager.Instance.GetTodayUpkeepCost() : 0;
+            upkeepText.text = $"Upkeep {upkeep}";
+        }
+
+        if (debtStatusText != null)
+        {
+            debtStatusText.text = GameManager.Instance != null
+                ? GameManager.Instance.GetUpkeepCrisisLabel()
+                : string.Empty;
         }
     }
 

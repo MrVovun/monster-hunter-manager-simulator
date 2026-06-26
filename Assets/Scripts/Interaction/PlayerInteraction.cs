@@ -33,6 +33,11 @@ public class PlayerInteraction : MonoBehaviour
     {
         UpdateFocus();
 
+        if (fpsController != null && fpsController.IsMovementLocked())
+        {
+            return;
+        }
+
         if (WasInteractPressed() && currentInteractable != null)
         {
             currentInteractable.Interact(this);

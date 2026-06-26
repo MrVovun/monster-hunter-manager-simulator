@@ -84,3 +84,32 @@ public class TrophyWallConfigEditor : Editor
         return string.IsNullOrWhiteSpace(family) ? string.Empty : family.Trim();
     }
 }
+
+[CustomEditor(typeof(TrophyWallController))]
+public class TrophyWallControllerEditor : Editor
+{
+    public override void OnInspectorGUI()
+    {
+        DrawDefaultInspector();
+
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Designer Tools", EditorStyles.boldLabel);
+        TrophyWallController controller = target as TrophyWallController;
+        EditorGUILayout.HelpBox(
+            "Use Fixed Spacing layout when you want predictable slot spacing from one origin. " +
+            "Enable Preview All Trophies to tune heads/borders before kill counts exist.",
+            MessageType.Info);
+
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("Rebuild Wall"))
+        {
+            controller?.Rebuild();
+        }
+
+        if (GUILayout.Button("Clear Spawned"))
+        {
+            controller?.ClearSpawned();
+        }
+        EditorGUILayout.EndHorizontal();
+    }
+}

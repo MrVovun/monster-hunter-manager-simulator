@@ -16,6 +16,26 @@ public static class MissionOutcomeCalculator
         return BuildSuccessTelemetryLines(order, party, GetPreviewMonster(order), CollectPreviewMonsterTraits(order));
     }
 
+    public static List<MissionTraitCounterPreview> BuildPreviewTraitCounterStates(Order order, List<Hunter> party)
+    {
+        var states = new List<MissionTraitCounterPreview>();
+        if (order == null)
+        {
+            return states;
+        }
+
+        var monster = GetPreviewMonster(order);
+        var monsterTraits = CollectPreviewMonsterTraits(order);
+        var counteredTraits = BuildCounteredTraitSet(party, order, monster, monsterTraits);
+        foreach (var trait in monsterTraits)
+        {
+            if (trait == null) continue;
+            states.Add(new MissionTraitCounterPreview(trait, IsCountered(trait, counteredTraits)));
+        }
+
+        return states;
+    }
+
     private static List<string> BuildSuccessTelemetryLines(Order order, List<Hunter> party, MonsterData monsterForConditions, List<MonsterTrait> monsterTraits)
     {
         var lines = new List<string>();
@@ -791,4 +811,16 @@ public class MissionOutcomeResult
     public float SuccessRollThreshold => Mathf.Min(SuccessChancePercent, 100f);
     public bool InjuryProtectionFromSuccess => SuccessChancePercent > 100f;
     public bool DeathProtectionFromSuccess => SuccessChancePercent >= MissionOutcomeCalculator.MaxSuccessChance;
+}
+
+public readonly struct MissionTraitCounterPreview
+{
+    public MissionTraitCounterPreview(MonsterTrait trait, bool isCountered)
+    {
+        Trait = trait;
+        IsCountered = isCountered;
+    }
+
+    public MonsterTrait Trait { get; }
+    public bool IsCountered { get; }
 }

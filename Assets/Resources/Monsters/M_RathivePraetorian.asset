@@ -23,6 +23,9 @@ MonoBehaviour:
     in formation.
   requiredReputation: 5
   minimumDifficulty: 120
+  preferredDifficulty: 120
+  difficultyFalloff: 40
+  difficultyFalloffPower: 2
   possibleTraits:
   - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
   - {fileID: 11400000, guid: 02041b403a87b234ba630b13fd996c0f, type: 2}
@@ -62,6 +65,8 @@ MonoBehaviour:
   - question: {fileID: 11400000, guid: ac95fca6036908f4e82a3a5014cb5c38, type: 2}
     tagIndex: 5
     responseText: It was slowed by the armor it was wearing!
-  weight: 1
+  weight: 10
   trophyHeadPrefab: {fileID: 14361918902022259, guid: d21c382b2c2b59c44b9fe0e5a271421b, type: 3}
-  trophyScale: 10
+  trophyScale: 1
+  trophyPositionOffset: {x: 0, y: 0, z: 0}
+  trophyRotationOffsetEuler: {x: 0, y: 0, z: 0}

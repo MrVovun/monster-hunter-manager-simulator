@@ -24,6 +24,7 @@ public class DeveloperToolsPanel : MonoBehaviour
     private NotificationManager notificationManager;
     private MonsterSlainTracker slainTracker;
     private MonsterLibrary monsterLibrary;
+    private GraveyardManager graveyardManager;
 
     private Rect windowRect = new Rect(30f, 30f, 420f, 640f);
     private bool visible;
@@ -93,6 +94,7 @@ public class DeveloperToolsPanel : MonoBehaviour
             investigationManager = gm.GetInvestigationManager();
             constructionManager = gm.GetConstructionManager();
             notificationManager = gm.GetNotificationManager();
+            graveyardManager = gm.GetGraveyardManager();
             monsterLibrary = gm.GetGameConfig() != null ? gm.GetGameConfig().monsterLibrary : null;
         }
 
@@ -258,6 +260,28 @@ public class DeveloperToolsPanel : MonoBehaviour
                 else
                 {
                     Debug.LogWarning("DeveloperTools: NotificationManager not found.");
+                }
+            }
+        }
+
+        using (new GUILayout.HorizontalScope())
+        {
+            if (GUILayout.Button("Clear Graveyard"))
+            {
+                if (graveyardManager == null)
+                {
+                    graveyardManager = GameManager.Instance != null
+                        ? GameManager.Instance.GetGraveyardManager()
+                        : FindObjectOfType<GraveyardManager>();
+                }
+
+                if (graveyardManager != null)
+                {
+                    graveyardManager.ClearGraveyard();
+                }
+                else
+                {
+                    Debug.LogWarning("DeveloperTools: GraveyardManager not found.");
                 }
             }
         }

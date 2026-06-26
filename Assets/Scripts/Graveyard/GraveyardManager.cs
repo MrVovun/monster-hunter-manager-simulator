@@ -142,6 +142,19 @@ public class GraveyardManager : MonoBehaviour
         OnGravesChanged?.Invoke();
     }
 
+    public void ClearGraveyard(bool resetMissionCounts = true)
+    {
+        graves.Clear();
+        if (resetMissionCounts)
+        {
+            completedMissionCounts.Clear();
+        }
+
+        Save();
+        Rebuild();
+        OnGravesChanged?.Invoke();
+    }
+
     private void TryAddGrave(Hunter hunter)
     {
         HunterData data = hunter != null ? hunter.Data : null;
