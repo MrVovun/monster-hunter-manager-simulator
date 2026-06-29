@@ -59,6 +59,12 @@ public class ClientInteractable : Interactable
         activePlayer = player;
         awaitingRelease = true;
         investigationManager.BeginInvestigationUI(linkedCase, ReleasePlayerLock);
+        TutorialManager.ReportEvent(TutorialIds.EventClientDialogueOpened);
+    }
+
+    public override string GetTutorialActionId()
+    {
+        return string.IsNullOrWhiteSpace(tutorialActionId) ? TutorialIds.TalkClient : tutorialActionId;
     }
 
     private void ReleasePlayerLock()

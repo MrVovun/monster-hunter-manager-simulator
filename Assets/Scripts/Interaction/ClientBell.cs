@@ -49,7 +49,9 @@ public class ClientBell : Interactable
             return;
         }
 
-        Order newOrder = generator.GenerateRandomOrder();
+        Order newOrder = TutorialManager.TryCreateForcedOrder(out Order forcedOrder)
+            ? forcedOrder
+            : generator.GenerateRandomOrder();
         if (newOrder == null)
         {
             Debug.LogWarning("ClientBell: Failed to generate a new order.");
@@ -58,6 +60,7 @@ public class ClientBell : Interactable
         }
 
         manager.StartInvestigation(newOrder);
+        TutorialManager.ReportEvent(TutorialIds.EventClientBellRung);
 
         // Advance action-based time for ringing the bell
         var config = GameManager.Instance != null ? GameManager.Instance.GetGameConfig() : null;
@@ -66,6 +69,11 @@ public class ClientBell : Interactable
         tm2?.AdvanceTime(timeCost);
 
         OnInteractionEnd(player);
+    }
+
+    public override string GetTutorialActionId()
+    {
+        return string.IsNullOrWhiteSpace(tutorialActionId) ? TutorialIds.RingClientBell : tutorialActionId;
     }
 
     private InvestigationManager ResolveInvestigationManager()

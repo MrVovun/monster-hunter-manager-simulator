@@ -36,6 +36,7 @@ public class PassTimeInteractable : Interactable
 
         OnInteractionStart(player);
         tm.AdvanceTime(Mathf.Max(0f, GetStepAmount()));
+        TutorialManager.ReportEvent(TutorialIds.EventPassTimeConfirmed);
         OnInteractionEnd(player);
     }
 
@@ -55,5 +56,10 @@ public class PassTimeInteractable : Interactable
             return Mathf.Max(0f, config.actionTimeSettings.passTimeStepSeconds);
         }
         return Mathf.Max(0f, stepSeconds);
+    }
+
+    public override string GetTutorialActionId()
+    {
+        return string.IsNullOrWhiteSpace(tutorialActionId) ? TutorialIds.PassTime : tutorialActionId;
     }
 }

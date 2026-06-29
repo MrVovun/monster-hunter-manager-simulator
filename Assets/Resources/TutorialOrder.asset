@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd8a055b7cb14cd599a0e45010264393, type: 3}
+  m_Name: TutorialOrder
+  m_EditorClassIdentifier: Assembly-CSharp::TutorialOrderDefinition
+  monster: {fileID: 11400000, guid: 87a43201a84ee104386a3cd58922e30a, type: 2}
+  orderTitle: Cleaning Up
+  description: '<monster_name>s are still festering in the Guild''s basement. Getting
+    rid of them would be a good choice for the first quest. '
+  difficulty: 5
+  goldReward: 20
+  xpReward: 20
+  reputationPointsReward: 0
+  missionDurationSeconds: 60
+  minPartySize: 1
+  maxPartySize: 3

@@ -162,6 +162,7 @@ public class OrderDetailPanel : MonoBehaviour
 
     public void OnSendParty()
     {
+        if (!TutorialManager.IsActionAllowed(TutorialIds.SendParty)) return;
         if (currentOrder == null || partyFormation == null) return;
 
         List<Hunter> party = partyFormation.GetParty();
@@ -180,6 +181,7 @@ public class OrderDetailPanel : MonoBehaviour
     // Helper: auto-fill with idle hunters up to max party size
     public void AutoFillParty()
     {
+        if (!TutorialManager.IsActionAllowed(TutorialIds.AssignHunter)) return;
         if (partyFormation == null || currentOrder == null || !CanEditParty()) return;
 
         HunterManager hunterManager = GameManager.Instance != null ? GameManager.Instance.GetHunterManager() : null;
@@ -235,6 +237,7 @@ public class OrderDetailPanel : MonoBehaviour
 
     public bool TryAssignHunterToSlot(int slotIndex, Hunter hunter)
     {
+        if (!TutorialManager.IsActionAllowed(TutorialIds.AssignHunter)) return false;
         if (!CanEditParty()) return false;
         if (!IsHunterSelectable(hunter)) return false;
         if (slotIndex < 0 || slotIndex >= slotAssignments.Count) return false;
@@ -253,6 +256,7 @@ public class OrderDetailPanel : MonoBehaviour
         RefreshSlotVisuals();
         UpdateUI();
         NotifyPartyChanged();
+        TutorialManager.ReportEvent(TutorialIds.EventHunterAssignedToOrder);
         return true;
     }
 
@@ -398,6 +402,7 @@ public class OrderDetailPanel : MonoBehaviour
     private bool CanSendParty()
     {
         if (currentOrder == null || partyFormation == null) return false;
+        if (!TutorialManager.IsActionAllowed(TutorialIds.SendParty)) return false;
         if (currentOrder.state != OrderState.Accepted) return false;
 
         int partySize = partyFormation.GetPartySize();
@@ -422,8 +427,8 @@ public class OrderDetailPanel : MonoBehaviour
     private void UpdateActionButtonStates()
     {
         SetButtonState(sendPartyButton, CanSendParty());
-        SetButtonState(autoFillPartyButton, CanEditParty());
-        SetButtonState(clearPartyButton, CanEditParty() && partyFormation != null && partyFormation.GetPartySize() > 0);
+        SetButtonState(autoFillPartyButton, CanEditParty() && TutorialManager.IsActionAllowed(TutorialIds.AssignHunter));
+        SetButtonState(clearPartyButton, CanEditParty() && TutorialManager.IsActionAllowed(TutorialIds.AssignHunter) && partyFormation != null && partyFormation.GetPartySize() > 0);
     }
 
     private void SetButtonState(Button button, bool interactable)

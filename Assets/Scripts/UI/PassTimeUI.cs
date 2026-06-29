@@ -59,6 +59,11 @@ public class PassTimeUI : MonoBehaviour
         timeManager = timeManager != null ? timeManager : (GameManager.Instance != null ? GameManager.Instance.GetTimeManager() : null);
         onClosed = closedCallback;
         float maxAllowed = GetMaxAllowedSeconds();
+        if (TutorialManager.TryGetForcedPassTimeSeconds(out float forcedSeconds))
+        {
+            maxAllowed = Mathf.Min(maxAllowed, forcedSeconds);
+            initialSeconds = forcedSeconds;
+        }
         float defaultSeconds = initialSeconds > 0f ? initialSeconds : GetStep();
         currentSeconds = Mathf.Clamp(defaultSeconds, minSeconds, maxAllowed);
         SetActive(true);
@@ -69,12 +74,14 @@ public class PassTimeUI : MonoBehaviour
 
     public void OnIncrease()
     {
+        if (TutorialManager.TryGetForcedPassTimeSeconds(out _)) return;
         currentSeconds = Mathf.Clamp(currentSeconds + GetStep(), minSeconds, GetMaxAllowedSeconds());
         Refresh();
     }
 
     public void OnDecrease()
     {
+        if (TutorialManager.TryGetForcedPassTimeSeconds(out _)) return;
         currentSeconds = Mathf.Clamp(currentSeconds - GetStep(), minSeconds, GetMaxAllowedSeconds());
         Refresh();
     }
@@ -91,7 +98,12 @@ public class PassTimeUI : MonoBehaviour
             if (state != TimeManager.DayState.PreBell && state != TimeManager.DayState.Evening)
             {
                 float clamped = Mathf.Clamp(currentSeconds, minSeconds, GetMaxAllowedSeconds());
+                if (TutorialManager.TryGetForcedPassTimeSeconds(out float forcedSeconds))
+                {
+                    clamped = Mathf.Min(clamped, forcedSeconds);
+                }
                 timeManager.AdvanceTime(Mathf.Max(0f, clamped));
+                TutorialManager.ReportEvent(TutorialIds.EventPassTimeConfirmed);
             }
         }
         Hide();
@@ -115,6 +127,11 @@ public class PassTimeUI : MonoBehaviour
     private void Refresh()
     {
         float maxAllowed = GetMaxAllowedSeconds();
+        if (TutorialManager.TryGetForcedPassTimeSeconds(out float forcedSeconds))
+        {
+            maxAllowed = Mathf.Min(maxAllowed, forcedSeconds);
+            currentSeconds = forcedSeconds;
+        }
         currentSeconds = Mathf.Clamp(currentSeconds, minSeconds, maxAllowed);
 
         if (amountText != null)

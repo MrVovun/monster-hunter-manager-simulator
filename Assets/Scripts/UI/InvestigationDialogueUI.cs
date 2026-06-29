@@ -92,6 +92,8 @@ public class InvestigationDialogueUI : MonoBehaviour
             viewButton.onClick.RemoveAllListeners();
             viewButton.onClick.AddListener(HandleViewOrder);
             viewButton.gameObject.SetActive(!hunterDialogue);
+            viewButton.interactable = !hunterDialogue && TutorialManager.IsActionAllowed(TutorialIds.SelectMonster);
+            RefreshButtonVisual(viewButton);
         }
 
         if (declineButton != null)
@@ -99,10 +101,13 @@ public class InvestigationDialogueUI : MonoBehaviour
             declineButton.onClick.RemoveAllListeners();
             declineButton.onClick.AddListener(() =>
             {
+                if (!TutorialManager.IsActionAllowed(TutorialIds.DeclineOrder)) return;
                 currentManager?.CompleteInvestigation();
                 Close();
             });
             declineButton.gameObject.SetActive(!hunterDialogue);
+            declineButton.interactable = !hunterDialogue && TutorialManager.IsActionAllowed(TutorialIds.DeclineOrder);
+            RefreshButtonVisual(declineButton);
         }
 
         if (acceptButton != null)
@@ -178,6 +183,10 @@ public class InvestigationDialogueUI : MonoBehaviour
     private void HandleQuestionClicked(InvestigationQuestion question)
     {
         if (waitingForResponse || question == null || currentManager == null)
+        {
+            return;
+        }
+        if (!TutorialManager.IsActionAllowed(TutorialIds.DialogueQuestions))
         {
             return;
         }
@@ -392,15 +401,16 @@ public class InvestigationDialogueUI : MonoBehaviour
         {
             if (entry?.button != null)
             {
-                entry.button.interactable = value;
+                entry.button.interactable = value && TutorialManager.IsActionAllowed(TutorialIds.DialogueQuestions);
                 ApplyQuestionVisualState(entry.button, entry.question);
             }
         }
 
         if (questionsCanvasGroup != null)
         {
-            questionsCanvasGroup.interactable = value;
-            questionsCanvasGroup.blocksRaycasts = value;
+            bool allowed = value && TutorialManager.IsActionAllowed(TutorialIds.DialogueQuestions);
+            questionsCanvasGroup.interactable = allowed;
+            questionsCanvasGroup.blocksRaycasts = allowed;
         }
     }
 
@@ -424,7 +434,25 @@ public class InvestigationDialogueUI : MonoBehaviour
         if (currentManager != null && lastQuestion != null)
         {
             currentManager.HandleResponsePlaybackFinished(lastQuestion, lastResponse);
+            TutorialManager.ReportEvent(TutorialIds.EventClientQuestionAnswered);
+            if (!currentManager.IsHunterDialogueActive && AreAllQuestionsAsked())
+            {
+                TutorialManager.ReportEvent(TutorialIds.EventAllClientQuestionsAsked);
+                HookButtons();
+            }
         }
+    }
+
+    private bool AreAllQuestionsAsked()
+    {
+        foreach (var entry in questionEntries)
+        {
+            string id = entry?.question != null ? entry.question.questionId : null;
+            if (string.IsNullOrEmpty(id)) continue;
+            if (!askedQuestionIds.Contains(id)) return false;
+        }
+
+        return questionEntries.Count > 0;
     }
 
     private class QuestionEntry
@@ -481,5 +509,15 @@ public class InvestigationDialogueUI : MonoBehaviour
             hoverScaleValue: 1.01f,
             pressedScaleValue: 0.99f,
             duration: 0.08f);
+    }
+
+    private void RefreshButtonVisual(Button button)
+    {
+        if (button == null) return;
+        var visualFeedback = button.GetComponent<UIButtonVisualFeedback>();
+        if (visualFeedback != null)
+        {
+            visualFeedback.RefreshVisualState(true);
+        }
     }
 }

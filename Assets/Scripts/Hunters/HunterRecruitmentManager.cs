@@ -94,6 +94,7 @@ public class HunterRecruitmentManager : MonoBehaviour
     private float nextArrivalTimer;
     private float burnAccumulator;
     private float campaignCost;
+    private bool campaignIsFree;
     private int baseFee;
     private int costPerMinute;
     private Vector2 arrivalInterval = new Vector2(45f, 60f);
@@ -214,6 +215,7 @@ public class HunterRecruitmentManager : MonoBehaviour
 
     private void HandleBurn(float deltaTime)
     {
+        if (campaignIsFree) return;
         if (costPerMinute <= 0 || goldManager == null) return;
         burnAccumulator += (costPerMinute / 60f) * deltaTime;
         int burnInt = Mathf.FloorToInt(burnAccumulator);
@@ -539,6 +541,11 @@ public class HunterRecruitmentManager : MonoBehaviour
 
     public void PostAd(AdSettings settings)
     {
+        PostAd(settings, false);
+    }
+
+    public void PostAd(AdSettings settings, bool freeCampaign)
+    {
         var gm = GameManager.Instance;
         var tm = gm != null ? gm.GetTimeManager() : timeManager;
         if (tm != null && tm.GetDayState() != TimeManager.DayState.Active)
@@ -566,7 +573,7 @@ public class HunterRecruitmentManager : MonoBehaviour
 
         ClearAllCandidates();
 
-        if (goldManager != null && baseFee > 0 && !goldManager.SpendGold(baseFee))
+        if (!freeCampaign && goldManager != null && baseFee > 0 && !goldManager.SpendGold(baseFee))
         {
             return;
         }
@@ -581,7 +588,8 @@ public class HunterRecruitmentManager : MonoBehaviour
             : new List<string>();
         campaignActive = true;
         campaignTimeRemaining = durationSeconds;
-        campaignCost = baseFee;
+        campaignCost = freeCampaign ? 0f : baseFee;
+        campaignIsFree = freeCampaign;
         burnAccumulator = 0f;
         candidateQueue.Clear();
         seenThisCampaign.Clear();
@@ -597,6 +605,7 @@ public class HunterRecruitmentManager : MonoBehaviour
         tm = gm != null ? gm.GetTimeManager() : timeManager;
         float cost = config != null ? config.actionTimeSettings.postAdSeconds : 0f;
         tm?.AdvanceTime(cost);
+        TutorialManager.ReportEvent(TutorialIds.EventHiringAdPosted);
     }
 
     public void StopCampaign()
@@ -611,6 +620,7 @@ public class HunterRecruitmentManager : MonoBehaviour
         campaignTimeRemaining = 0f;
         burnAccumulator = 0f;
         campaignCost = 0f;
+        campaignIsFree = false;
         SaveState();
         OnStateChanged?.Invoke();
         if (wasActive && notify)

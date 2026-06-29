@@ -47,6 +47,7 @@ public class BestiaryUI : MonoBehaviour
     private bool selectionEnabled;
     private InvestigationCase contextCase;
     private OrderManager orderManager;
+    private MonsterData forcedSelectionMonster;
     public bool IsVisible => panelRoot != null ? panelRoot.gameObject.activeInHierarchy : gameObject.activeInHierarchy;
     private CursorLockMode previousLockState;
     private bool previousCursorVisible;
@@ -70,6 +71,13 @@ public class BestiaryUI : MonoBehaviour
     public void Show(List<MonsterData> monsters, bool allowSelection, InvestigationCase context, System.Action<MonsterData> selectionCallback, System.Action closedCallback)
     {
         availableMonsters = monsters ?? new List<MonsterData>();
+        forcedSelectionMonster = allowSelection ? TutorialManager.GetForcedMonsterSelection() : null;
+        if (allowSelection && forcedSelectionMonster != null)
+        {
+            availableMonsters = availableMonsters
+                .Where(monster => monster == forcedSelectionMonster)
+                .ToList();
+        }
         selectionEnabled = allowSelection;
         onSelection = selectionCallback;
         onClosed = closedCallback;
@@ -78,7 +86,7 @@ public class BestiaryUI : MonoBehaviour
         {
             EnsureButtonVisualFeedback(selectButton);
             selectButton.gameObject.SetActive(selectionEnabled);
-            selectButton.interactable = selectionEnabled && currentSelection != null;
+            selectButton.interactable = selectionEnabled && currentSelection != null && TutorialManager.IsActionAllowed(TutorialIds.SelectMonster);
             RefreshButtonVisual(selectButton);
         }
 
@@ -108,6 +116,7 @@ public class BestiaryUI : MonoBehaviour
         onSelection = null;
         contextCase = null;
         currentSelection = null;
+        forcedSelectionMonster = null;
     }
 
     private MonsterData BuildList()
@@ -153,8 +162,10 @@ public class BestiaryUI : MonoBehaviour
                 ConfigureMonsterListEntry(entry, monster);
                 Button entryButton = EnsureButton(entry);
                 EnsureButtonVisualFeedback(entryButton);
+                entryButton.interactable = !selectionEnabled || forcedSelectionMonster == null || monster == forcedSelectionMonster;
                 entryButton?.onClick.AddListener(() =>
                 {
+                    if (!entryButton.interactable) return;
                     InteractionFeedbackManager.PlayUIClick();
                     ShowDetails(monster);
                 });
@@ -201,7 +212,7 @@ public class BestiaryUI : MonoBehaviour
         currentSelection = monster;
         if (selectButton != null)
         {
-            selectButton.interactable = selectionEnabled && monster != null;
+            selectButton.interactable = selectionEnabled && monster != null && TutorialManager.IsActionAllowed(TutorialIds.SelectMonster);
             RefreshButtonVisual(selectButton);
         }
 
@@ -275,8 +286,10 @@ public class BestiaryUI : MonoBehaviour
     private void HandleSelectPressed()
     {
         if (!selectionEnabled || currentSelection == null) return;
+        if (!TutorialManager.IsActionAllowed(TutorialIds.SelectMonster)) return;
         InteractionFeedbackManager.PlayUIClick();
         onSelection?.Invoke(currentSelection);
+        TutorialManager.ReportEvent(TutorialIds.EventMonsterSelected);
         Hide();
     }
 

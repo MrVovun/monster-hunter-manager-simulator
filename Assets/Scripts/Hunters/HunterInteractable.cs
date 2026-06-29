@@ -123,6 +123,12 @@ public class HunterInteractable : Interactable
         FacePlayer();
 
         BuildTempCaseAndShowDialogue();
+        TutorialManager.ReportEvent(TutorialIds.EventHunterDialogueOpened);
+    }
+
+    public override string GetTutorialActionId()
+    {
+        return string.IsNullOrWhiteSpace(tutorialActionId) ? TutorialIds.TalkHunter : tutorialActionId;
     }
 
     private void BuildTempCaseAndShowDialogue()
@@ -199,6 +205,7 @@ public class HunterInteractable : Interactable
         ResumeMovementIfNeeded();
         RestoreHunterRotation();
         SetHealVfxActive(false);
+        TutorialManager.ReportEvent(TutorialIds.EventHunterDialogueClosed);
     }
 
     private void ResolveManagers()

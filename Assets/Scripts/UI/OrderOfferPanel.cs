@@ -93,6 +93,7 @@ public class OrderOfferPanel : MonoBehaviour
 
     private void HandleSelectMonsterPressed()
     {
+        if (!TutorialManager.IsActionAllowed(TutorialIds.SelectMonster)) return;
         if (activeInvestigation == null) return;
         activeInvestigation.ShowBestiaryForDeclaration(monster =>
         {
@@ -228,8 +229,10 @@ public class OrderOfferPanel : MonoBehaviour
     {
         bool declarationValid = currentOrder != null && currentOrder.declaredMonster != null;
         bool limitAllowsAccept = declarationValid && CanAcceptAnotherOrder();
-        SetButtonState(acceptButton, limitAllowsAccept);
-        SetButtonState(referButton, declarationValid);
+        SetButtonState(selectMonsterButton, activeInvestigation != null && TutorialManager.IsActionAllowed(TutorialIds.SelectMonster));
+        SetButtonState(acceptButton, limitAllowsAccept && TutorialManager.IsActionAllowed(TutorialIds.AcceptOrder));
+        SetButtonState(referButton, declarationValid && TutorialManager.IsActionAllowed(TutorialIds.ReferOrder));
+        SetButtonState(backButton, TutorialManager.IsActionAllowed(TutorialIds.DeclineOrder));
     }
 
     private OrderManager GetOrderManager()
@@ -239,6 +242,7 @@ public class OrderOfferPanel : MonoBehaviour
 
     public void AcceptOrder()
     {
+        if (!TutorialManager.IsActionAllowed(TutorialIds.AcceptOrder)) return;
         if (currentOrder == null || currentOrder.declaredMonster == null)
         {
             Debug.LogWarning("OrderOfferPanel: Cannot accept without declaring a monster.");
@@ -259,12 +263,14 @@ public class OrderOfferPanel : MonoBehaviour
         var tm = GameManager.Instance != null ? GameManager.Instance.GetTimeManager() : null;
         float cost = config != null ? config.actionTimeSettings.acceptOrderSeconds : 0f;
         tm?.AdvanceTime(cost);
+        TutorialManager.ReportEvent(TutorialIds.EventOrderAccepted);
 
         Hide();
     }
 
     public void DeclineOrder()
     {
+        if (!TutorialManager.IsActionAllowed(TutorialIds.DeclineOrder)) return;
         OrderManager manager = GetOrderManager();
         if (manager != null && currentOrder != null)
         {
@@ -275,6 +281,7 @@ public class OrderOfferPanel : MonoBehaviour
 
     public void ReferOrder()
     {
+        if (!TutorialManager.IsActionAllowed(TutorialIds.ReferOrder)) return;
         if (currentOrder == null || currentOrder.declaredMonster == null)
         {
             Debug.LogWarning("OrderOfferPanel: Cannot refer without declaring a monster.");

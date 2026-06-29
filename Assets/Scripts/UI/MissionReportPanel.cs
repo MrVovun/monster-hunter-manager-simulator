@@ -162,6 +162,7 @@ public class MissionReportPanel : MonoBehaviour
 
     public void Close()
     {
+        if (!TutorialManager.IsActionAllowed(TutorialIds.CloseMissionReport)) return;
         ResolveGraveyardManager()?.HandleMissionReportClosed(currentReport);
         ShowVisuals(false);
         if (cursorUnlockedForPanel)
@@ -171,6 +172,7 @@ public class MissionReportPanel : MonoBehaviour
         }
         UnlockPlayer();
         currentReport = null;
+        TutorialManager.ReportEvent(TutorialIds.EventMissionReportClosed);
         TryShowNextPending();
     }
 
@@ -197,7 +199,7 @@ public class MissionReportPanel : MonoBehaviour
         if (closeButton == null) return;
         closeButton.onClick.RemoveListener(Close);
         closeButton.onClick.AddListener(Close);
-        closeButton.interactable = true;
+        closeButton.interactable = TutorialManager.IsActionAllowed(TutorialIds.CloseMissionReport);
     }
 
     private void UpdateOrderDetails(Order order)

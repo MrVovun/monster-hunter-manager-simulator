@@ -9,6 +9,7 @@ public abstract class Interactable : MonoBehaviour
     [SerializeField] protected bool locksPlayer = false;
     [SerializeField] protected bool useCustomCamera = false;
     [SerializeField] protected string interactionPrompt = "[E] Interact";
+    [SerializeField] protected string tutorialActionId;
     [SerializeField] private bool playInteractionFeedback = true;
     [SerializeField] private bool disableHudDuringInteraction = false;
     [Tooltip("Optional HUD roots to hide during this interaction. If empty, common HUD components are found automatically.")]
@@ -41,9 +42,14 @@ public abstract class Interactable : MonoBehaviour
         return interactionPrompt;
     }
 
+    public virtual string GetTutorialActionId()
+    {
+        return tutorialActionId;
+    }
+
     public virtual bool IsInteractionAvailable()
     {
-        return isActiveAndEnabled;
+        return isActiveAndEnabled && TutorialManager.IsActionAllowed(GetTutorialActionId());
     }
     
     public virtual void OnPlayerEnter()

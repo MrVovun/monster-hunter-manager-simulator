@@ -103,6 +103,12 @@ public class HiringTab : MonoBehaviour
         if (postAdButton != null)
         {
             postAdButton.gameObject.SetActive(!active);
+            postAdButton.interactable = !active && TutorialManager.IsActionAllowed(TutorialIds.PostHiringAd);
+            var visualFeedback = postAdButton.GetComponent<UIButtonVisualFeedback>();
+            if (visualFeedback != null)
+            {
+                visualFeedback.RefreshVisualState(true);
+            }
         }
 
         if (stopAdButton != null)
@@ -114,8 +120,18 @@ public class HiringTab : MonoBehaviour
     public void OnPostAdPressed()
     {
         if (recruitmentManager == null) return;
+        if (!TutorialManager.IsActionAllowed(TutorialIds.PostHiringAd)) return;
 
         float durationSeconds = Mathf.Max(30f, currentDurationMinutes * 60f);
+        bool freeCampaign = false;
+        if (TutorialManager.TryGetForcedHiringAd(out float forcedDurationSeconds, out bool forcedFree))
+        {
+            if (forcedDurationSeconds > 0f)
+            {
+                durationSeconds = forcedDurationSeconds;
+            }
+            freeCampaign = forcedFree;
+        }
 
         var settings = new HunterRecruitmentManager.AdSettings
         {
@@ -125,7 +141,7 @@ public class HiringTab : MonoBehaviour
             prioritizedTraitIds = new List<string>(prioritizedTraits)
         };
 
-        recruitmentManager.PostAd(settings);
+        recruitmentManager.PostAd(settings, freeCampaign);
     }
 
     public void OnStopAdPressed()

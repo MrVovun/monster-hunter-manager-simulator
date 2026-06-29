@@ -131,6 +131,7 @@ public class OrderManager : MonoBehaviour
         NotifyOrdersChanged();
         NotifyHunterRosterChanged();
         OnMissionStarted?.Invoke(order, new List<Hunter>(party));
+        TutorialManager.ReportEvent(TutorialIds.EventMissionStarted);
 
         var config = GameManager.Instance != null ? GameManager.Instance.GetGameConfig() : null;
         float cost = config != null ? config.actionTimeSettings.sendPartySeconds : 0f;

@@ -71,12 +71,14 @@ public class WarTableUI : MonoBehaviour
     
     private void OnEnable()
     {
+        TutorialManager.OnTutorialGateChanged += RefreshTabButtonTutorialGates;
         RememberCursor();
         UnlockCursor();
         SubscribeToDataSources();
         MarkAllTabsDirty();
         RefreshDirtyTabs();
         refreshTimer = refreshIntervalSeconds;
+        TutorialManager.ReportEvent(TutorialIds.EventWarTableOpened);
     }
 
     private void Update()
@@ -93,6 +95,7 @@ public class WarTableUI : MonoBehaviour
 
     private void OnDisable()
     {
+        TutorialManager.OnTutorialGateChanged -= RefreshTabButtonTutorialGates;
         ordersTab?.ClearSelection();
         huntersTab?.ClearSelection();
         UnsubscribeFromDataSources();
@@ -106,6 +109,11 @@ public class WarTableUI : MonoBehaviour
     
     public void SwitchTab(int tabIndex)
     {
+        if (!IsTabAllowed(tabIndex))
+        {
+            return;
+        }
+
         int previousTab = currentTabIndex;
         currentTabIndex = tabIndex;
 
@@ -126,9 +134,11 @@ public class WarTableUI : MonoBehaviour
         {
             case 0:
                 ordersTab?.Refresh();
+                TutorialManager.ReportEvent(TutorialIds.EventOrdersTabOpened);
                 break;
             case 1:
                 huntersTab?.Refresh();
+                TutorialManager.ReportEvent(TutorialIds.EventHuntersTabOpened);
                 break;
             case 2:
                 economyTab?.Refresh();
@@ -138,8 +148,10 @@ public class WarTableUI : MonoBehaviour
                 break;
             case 4:
                 hiringTab?.Refresh();
+                TutorialManager.ReportEvent(TutorialIds.EventHiringTabOpened);
                 break;
         }
+        RefreshTabButtonTutorialGates();
     }
     
     public void RefreshAllTabs()
@@ -296,6 +308,44 @@ public class WarTableUI : MonoBehaviour
         {
             hiringTab?.Refresh();
             hiringDirty = false;
+        }
+    }
+
+    private bool IsTabAllowed(int tabIndex)
+    {
+        return TutorialManager.IsActionAllowed(GetTabActionId(tabIndex));
+    }
+
+    private string GetTabActionId(int tabIndex)
+    {
+        switch (tabIndex)
+        {
+            case 0:
+                return TutorialIds.OrdersTab;
+            case 1:
+                return TutorialIds.HuntersTab;
+            case 4:
+                return TutorialIds.HiringTab;
+            default:
+                return string.Empty;
+        }
+    }
+
+    private void RefreshTabButtonTutorialGates()
+    {
+        SetTabButtonAllowed(ordersTabButton, 0);
+        SetTabButtonAllowed(huntersTabButton, 1);
+        SetTabButtonAllowed(hiringTabButton, 4);
+    }
+
+    private void SetTabButtonAllowed(Button button, int tabIndex)
+    {
+        if (button == null) return;
+        button.interactable = IsTabAllowed(tabIndex);
+        var visualFeedback = button.GetComponent<UIButtonVisualFeedback>();
+        if (visualFeedback != null)
+        {
+            visualFeedback.RefreshVisualState(true);
         }
     }
 

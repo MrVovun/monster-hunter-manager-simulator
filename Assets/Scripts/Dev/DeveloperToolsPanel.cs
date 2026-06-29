@@ -222,6 +222,33 @@ public class DeveloperToolsPanel : MonoBehaviour
             GUILayout.Label("ReputationManager not found.");
         }
 
+        GUILayout.Space(4f);
+        GUILayout.Label("Tutorial", headerStyle);
+        TutorialManager tutorialManager = TutorialManager.Instance;
+        if (tutorialManager != null)
+        {
+            GUILayout.Label(tutorialManager.IsTutorialDisabled() ? "Tutorial disabled" : "Tutorial enabled");
+            using (new GUILayout.HorizontalScope())
+            {
+                if (GUILayout.Button("Reset Tutorial"))
+                {
+                    tutorialManager.ResetTutorialProgress();
+                }
+                if (GUILayout.Button("Disable Tutorial"))
+                {
+                    tutorialManager.SetTutorialDisabled(true);
+                }
+                if (GUILayout.Button("Enable Tutorial"))
+                {
+                    tutorialManager.SetTutorialDisabled(false);
+                }
+            }
+        }
+        else
+        {
+            GUILayout.Label("TutorialManager not found.");
+        }
+
         if (constructionManager == null)
         {
             CacheManagers();

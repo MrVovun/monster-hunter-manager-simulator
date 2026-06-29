@@ -110,6 +110,19 @@ public class TriggerInteraction : Interactable
         ReleasePendingPlayerLock();
     }
 
+    public override string GetTutorialActionId()
+    {
+        if (!string.IsNullOrWhiteSpace(tutorialActionId)) return tutorialActionId;
+
+        string objectName = gameObject.name;
+        if (!string.IsNullOrEmpty(objectName) && objectName.Replace(" ", string.Empty).IndexOf("WarTable", StringComparison.OrdinalIgnoreCase) >= 0)
+        {
+            return TutorialIds.WarTable;
+        }
+
+        return base.GetTutorialActionId();
+    }
+
     private void OnDisable()
     {
         if (orderOfferPanel != null)

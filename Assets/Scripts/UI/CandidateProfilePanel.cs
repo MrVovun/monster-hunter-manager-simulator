@@ -74,7 +74,7 @@ public class CandidateProfilePanel : MonoBehaviour
         {
             hireButton.onClick.RemoveAllListeners();
             hireButton.onClick.AddListener(OnHirePressed);
-            hireButton.interactable = canAct;
+            hireButton.interactable = canAct && TutorialManager.IsActionAllowed(TutorialIds.HireCandidate);
             RefreshButtonVisual(hireButton);
         }
 
@@ -82,7 +82,7 @@ public class CandidateProfilePanel : MonoBehaviour
         {
             declineButton.onClick.RemoveAllListeners();
             declineButton.onClick.AddListener(OnDeclinePressed);
-            declineButton.interactable = canAct;
+            declineButton.interactable = canAct && TutorialManager.IsActionAllowed(TutorialIds.DeclineCandidate);
             RefreshButtonVisual(declineButton);
         }
 
@@ -95,12 +95,14 @@ public class CandidateProfilePanel : MonoBehaviour
 
     private void OnHirePressed()
     {
+        if (!TutorialManager.IsActionAllowed(TutorialIds.HireCandidate)) return;
         if (activeCandidate == null) return;
         recruitmentManager?.HireCandidate(activeCandidate);
     }
 
     private void OnDeclinePressed()
     {
+        if (!TutorialManager.IsActionAllowed(TutorialIds.DeclineCandidate)) return;
         if (activeCandidate == null) return;
         recruitmentManager?.DeclineCandidate(activeCandidate);
     }

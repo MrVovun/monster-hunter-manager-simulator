@@ -131,6 +131,7 @@ public class ClientSpawner : MonoBehaviour
         animatorController?.SetMoving(false);
         activeClient?.SetInteractionEnabled(true);
         OnClientArrived?.Invoke(activeCase);
+        TutorialManager.ReportEvent(TutorialIds.EventClientArrived);
         arrivalRoutine = null;
     }
 
