@@ -1,8 +1,19 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public class TimeManager : MonoBehaviour
 {
+    [Serializable]
+    private class TimeSaveData
+    {
+        public float gameTimeInSeconds;
+        public int currentDayIndex;
+        public float remainingDayGameSeconds;
+        public DayState dayState;
+    }
+
     public enum DayState { PreBell, Active, Evening }
 
     [Header("Time Settings")]
@@ -18,6 +29,8 @@ public class TimeManager : MonoBehaviour
     private int currentDayIndex = 0; // Day 0 at game start
     private float remainingDayGameSeconds;
     private DayState dayState = DayState.PreBell;
+    private string savePath;
+    private bool loadedState;
     
     public delegate void TimeUpdateDelegate(float gameTimeDelta);
     public event TimeUpdateDelegate OnTimeUpdate;
@@ -36,10 +49,21 @@ public class TimeManager : MonoBehaviour
             dayLengthRealSeconds = config.dayLengthSeconds;
         }
 
+        savePath = GameSaveUtility.GetSavePath("time_state.json");
         remainingDayGameSeconds = DayLengthGameSeconds;
+        loadedState = LoadState();
 
-        // Fire day 0 start so systems can run once at beginning
-        OnDayStarted?.Invoke(currentDayIndex);
+        if (!loadedState)
+        {
+            // Fire day 0 start so systems can run once at beginning.
+            OnDayStarted?.Invoke(currentDayIndex);
+            SaveState();
+        }
+        else
+        {
+            OnDayStateChanged?.Invoke(dayState);
+            OnTimeUpdate?.Invoke(0f);
+        }
     }
     
     private void Update()
@@ -105,6 +129,7 @@ public class TimeManager : MonoBehaviour
 
         OnTimeAdvanced?.Invoke(appliedTime);
         OnTimeUpdate?.Invoke(appliedTime);
+        SaveState();
     }
     
     public void RegisterTimer(MissionTimer timer)
@@ -204,11 +229,13 @@ public class TimeManager : MonoBehaviour
     {
         if (dayState != DayState.PreBell) return;
         SetDayState(DayState.Active);
+        SaveState();
     }
 
     public void EnterEvening()
     {
         SetDayState(DayState.Evening);
+        SaveState();
     }
 
     public void AdvanceToNextDay()
@@ -217,6 +244,7 @@ public class TimeManager : MonoBehaviour
         remainingDayGameSeconds = DayLengthGameSeconds;
         SetDayState(DayState.PreBell);
         OnDayStarted?.Invoke(currentDayIndex);
+        SaveState();
     }
 
     private void SetDayState(DayState newState)
@@ -224,6 +252,53 @@ public class TimeManager : MonoBehaviour
         if (dayState == newState) return;
         dayState = newState;
         OnDayStateChanged?.Invoke(dayState);
+        SaveState();
+    }
+
+    private bool LoadState()
+    {
+        if (string.IsNullOrEmpty(savePath) || !File.Exists(savePath)) return false;
+
+        try
+        {
+            string json = File.ReadAllText(savePath);
+            if (string.IsNullOrWhiteSpace(json)) return false;
+
+            TimeSaveData data = JsonUtility.FromJson<TimeSaveData>(json);
+            if (data == null) return false;
+
+            gameTimeInSeconds = Mathf.Max(0f, data.gameTimeInSeconds);
+            currentDayIndex = Mathf.Max(0, data.currentDayIndex);
+            remainingDayGameSeconds = Mathf.Clamp(data.remainingDayGameSeconds, 0f, DayLengthGameSeconds);
+            dayState = data.dayState;
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning($"TimeManager: Failed to load time state. {ex.Message}");
+            return false;
+        }
+    }
+
+    private void SaveState()
+    {
+        if (string.IsNullOrEmpty(savePath)) return;
+
+        try
+        {
+            TimeSaveData data = new TimeSaveData
+            {
+                gameTimeInSeconds = gameTimeInSeconds,
+                currentDayIndex = currentDayIndex,
+                remainingDayGameSeconds = remainingDayGameSeconds,
+                dayState = dayState
+            };
+            File.WriteAllText(savePath, JsonUtility.ToJson(data, true));
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning($"TimeManager: Failed to save time state. {ex.Message}");
+        }
     }
 }
 

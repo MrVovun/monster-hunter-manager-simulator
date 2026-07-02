@@ -1,8 +1,19 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System;
+using System.IO;
 
 public class GameManager : MonoBehaviour
 {
+    [Serializable]
+    private class GameSaveData
+    {
+        public int unpaidUpkeepStreak;
+        public float activeDebtSuccessPenaltyPercent;
+        public bool gameOver;
+        public string gameOverReason;
+    }
+
     public enum UpkeepCrisisState
     {
         Stable,
@@ -13,6 +24,7 @@ public class GameManager : MonoBehaviour
     }
 
     public static GameManager Instance { get; private set; }
+    public event System.Action<string> OnGameOver;
 
     [Header("Managers")]
     [SerializeField] private OrderManager orderManager;
@@ -36,6 +48,8 @@ public class GameManager : MonoBehaviour
     private int unpaidUpkeepStreak;
     private float activeDebtSuccessPenaltyPercent;
     private bool gameOver;
+    private string gameOverReason;
+    private string savePath;
 
     private void Awake()
     {
@@ -47,11 +61,14 @@ public class GameManager : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
+        savePath = GameSaveUtility.GetSavePath("game_state.json");
 
         EnsureManagerRefs();
         InitializeManagers();
         HookManagerEvents();
         HookTimeEvents();
+        LoadState();
+        ApplyLoadedGameOverState();
     }
 
     private void EnsureManagerRefs()
@@ -113,6 +130,7 @@ public class GameManager : MonoBehaviour
         {
             unpaidUpkeepStreak = 0;
             activeDebtSuccessPenaltyPercent = 0f;
+            SaveState();
             return;
         }
 
@@ -125,6 +143,7 @@ public class GameManager : MonoBehaviour
         }
 
         ApplyUnpaidUpkeepEffects(unpaidUpkeepStreak, unpaidAmount, previousDayGrossIncome);
+        SaveState();
     }
 
     private void ApplyUnpaidUpkeepEffects(int streak, int unpaidAmount, int previousDayGrossIncome)
@@ -166,18 +185,22 @@ public class GameManager : MonoBehaviour
     {
         if (gameOver) return;
         gameOver = true;
+        gameOverReason = string.IsNullOrWhiteSpace(reason) ? "The guild has collapsed." : reason;
         activeDebtSuccessPenaltyPercent = 0f;
-        notificationManager?.Publish("Game Over", reason, NotificationSeverity.Warning);
+        notificationManager?.Publish("Game Over", gameOverReason, NotificationSeverity.Warning);
         if (gameOverScreen != null)
         {
             gameOverScreen.SetActive(true);
         }
+        OnGameOver?.Invoke(gameOverReason);
+        SaveState();
         Time.timeScale = 0f;
     }
 
     public float GetDebtSuccessPenaltyPercent() => activeDebtSuccessPenaltyPercent;
     public int GetUnpaidUpkeepStreak() => unpaidUpkeepStreak;
     public bool IsGameOver() => gameOver;
+    public string GetGameOverReason() => gameOverReason;
     public int GetTodayUpkeepCost() => hunterManager != null ? hunterManager.CalculateDailyUpkeep() : 0;
     public int GetCurrentDebt() => goldManager != null ? goldManager.GetDebt() : 0;
     public bool IsHiringBlockedByDebt() => unpaidUpkeepStreak >= 2;
@@ -265,5 +288,72 @@ public class GameManager : MonoBehaviour
     public float GetReputationPointsPrecise()
     {
         return reputationManager != null ? reputationManager.GetReputationPointsPrecise() : 0f;
+    }
+
+    public static void DestroyExistingInstance()
+    {
+        if (Instance == null) return;
+
+        var existing = Instance;
+        Instance = null;
+        Destroy(existing.gameObject);
+    }
+
+    private void ApplyLoadedGameOverState()
+    {
+        if (!gameOver) return;
+
+        activeDebtSuccessPenaltyPercent = 0f;
+        if (gameOverScreen != null)
+        {
+            gameOverScreen.SetActive(true);
+        }
+
+        OnGameOver?.Invoke(gameOverReason);
+        Time.timeScale = 0f;
+    }
+
+    private void LoadState()
+    {
+        if (string.IsNullOrEmpty(savePath) || !File.Exists(savePath)) return;
+
+        try
+        {
+            string json = File.ReadAllText(savePath);
+            if (string.IsNullOrWhiteSpace(json)) return;
+
+            GameSaveData data = JsonUtility.FromJson<GameSaveData>(json);
+            if (data == null) return;
+
+            unpaidUpkeepStreak = Mathf.Max(0, data.unpaidUpkeepStreak);
+            activeDebtSuccessPenaltyPercent = Mathf.Max(0f, data.activeDebtSuccessPenaltyPercent);
+            gameOver = data.gameOver;
+            gameOverReason = data.gameOverReason;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning($"GameManager: Failed to load game state. {ex.Message}");
+        }
+    }
+
+    private void SaveState()
+    {
+        if (string.IsNullOrEmpty(savePath)) return;
+
+        try
+        {
+            GameSaveData data = new GameSaveData
+            {
+                unpaidUpkeepStreak = unpaidUpkeepStreak,
+                activeDebtSuccessPenaltyPercent = activeDebtSuccessPenaltyPercent,
+                gameOver = gameOver,
+                gameOverReason = gameOverReason
+            };
+            File.WriteAllText(savePath, JsonUtility.ToJson(data, true));
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning($"GameManager: Failed to save game state. {ex.Message}");
+        }
     }
 }

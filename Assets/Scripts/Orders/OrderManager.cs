@@ -1,9 +1,44 @@
 using System.Collections.Generic;
+using System;
+using System.IO;
 using System.Linq;
 using UnityEngine;
 
 public class OrderManager : MonoBehaviour
 {
+    [Serializable]
+    private class OrderManagerSaveData
+    {
+        public List<OrderSaveData> activeOrders = new List<OrderSaveData>();
+        public List<MonsterKillCountSaveData> monsterCompletionCounts = new List<MonsterKillCountSaveData>();
+    }
+
+    [Serializable]
+    private class OrderSaveData
+    {
+        public string orderId;
+        public string orderTitle;
+        public string description;
+        public string monsterNamePlaceholder;
+        public string monsterId;
+        public string declaredMonsterId;
+        public int difficulty;
+        public int goldReward;
+        public int xpReward;
+        public float reputationPointsReward;
+        public float missionDuration;
+        public int maxPartySize;
+        public int minPartySize;
+        public OrderState state;
+    }
+
+    [Serializable]
+    private class MonsterKillCountSaveData
+    {
+        public string monsterId;
+        public int count;
+    }
+
     [Header("Runtime Orders")]
     [SerializeField] private List<Order> offeredOrders = new List<Order>();
     [SerializeField] private List<Order> activeOrders = new List<Order>();
@@ -16,6 +51,8 @@ public class OrderManager : MonoBehaviour
     private OrderGenerator orderGenerator;
     private MissionResolver missionResolver;
     private TimeManager timeManager;
+    private GameConfig gameConfig;
+    private string savePath;
 
     public System.Action<MissionReport> OnMissionResolved;
     public event System.Action<Order> OnOrderAccepted;
@@ -27,6 +64,8 @@ public class OrderManager : MonoBehaviour
     {
         orderGenerator = generator != null ? generator : FindObjectOfType<OrderGenerator>();
         missionResolver = resolver != null ? resolver : FindObjectOfType<MissionResolver>();
+        gameConfig = GameManager.Instance != null ? GameManager.Instance.GetGameConfig() : null;
+        savePath = GameSaveUtility.GetSavePath("orders_state.json");
 
         if (timeManager != null)
         {
@@ -38,6 +77,8 @@ public class OrderManager : MonoBehaviour
         {
             timeManager.OnDayStateChanged += HandleDayStateChanged;
         }
+
+        LoadState();
     }
 
     private void OnDestroy()
@@ -54,6 +95,7 @@ public class OrderManager : MonoBehaviour
         newOrder.state = OrderState.Offered;
         offeredOrders.Add(newOrder);
         NotifyOrdersChanged();
+        SaveState();
         return newOrder;
     }
 
@@ -70,6 +112,7 @@ public class OrderManager : MonoBehaviour
         order.state = OrderState.Accepted;
         NotifyOrdersChanged();
         OnOrderAccepted?.Invoke(order);
+        SaveState();
         return true;
     }
 
@@ -80,6 +123,7 @@ public class OrderManager : MonoBehaviour
         CleanupTimers(order);
         order.state = OrderState.Failed;
         NotifyOrdersChanged();
+        SaveState();
     }
 
     public void ReferOrder(Order order)
@@ -98,6 +142,7 @@ public class OrderManager : MonoBehaviour
         
         NotifyOrdersChanged();
         OnOrderReferred?.Invoke(order);
+        SaveState();
     }
 
     public bool StartMission(Order order, List<Hunter> party)
@@ -132,6 +177,7 @@ public class OrderManager : MonoBehaviour
         NotifyHunterRosterChanged();
         OnMissionStarted?.Invoke(order, new List<Hunter>(party));
         TutorialManager.ReportEvent(TutorialIds.EventMissionStarted);
+        SaveState();
 
         var config = GameManager.Instance != null ? GameManager.Instance.GetGameConfig() : null;
         float cost = config != null ? config.actionTimeSettings.sendPartySeconds : 0f;
@@ -154,6 +200,7 @@ public class OrderManager : MonoBehaviour
         order.state = OrderState.Canceled;
         NotifyOrdersChanged();
         NotifyHunterRosterChanged();
+        SaveState();
         return true;
     }
 
@@ -174,6 +221,7 @@ public class OrderManager : MonoBehaviour
         activeOrders.Remove(order);
         order.assignedHunters.Clear();
         NotifyOrdersChanged();
+        SaveState();
     }
 
     public void ResolveOrder(Order order)
@@ -219,6 +267,7 @@ public class OrderManager : MonoBehaviour
         
         NotifyOrdersChanged();
         NotifyHunterRosterChanged();
+        SaveState();
     }
 
     private void HandleDayStateChanged(TimeManager.DayState state)
@@ -314,5 +363,146 @@ public class OrderManager : MonoBehaviour
     {
         if (monster == null) return 0;
         return monsterCompletionCounts.TryGetValue(monster.monsterId, out int value) ? value : 0;
+    }
+
+    private void LoadState()
+    {
+        activeOrders.Clear();
+        offeredOrders.Clear();
+        monsterCompletionCounts.Clear();
+
+        if (string.IsNullOrEmpty(savePath) || !File.Exists(savePath)) return;
+
+        try
+        {
+            string json = File.ReadAllText(savePath);
+            if (string.IsNullOrWhiteSpace(json)) return;
+
+            OrderManagerSaveData data = JsonUtility.FromJson<OrderManagerSaveData>(json);
+            if (data == null) return;
+
+            if (data.monsterCompletionCounts != null)
+            {
+                foreach (var entry in data.monsterCompletionCounts)
+                {
+                    if (entry == null || string.IsNullOrWhiteSpace(entry.monsterId)) continue;
+                    monsterCompletionCounts[entry.monsterId] = Mathf.Max(0, entry.count);
+                }
+            }
+
+            if (data.activeOrders == null) return;
+            foreach (var saved in data.activeOrders)
+            {
+                Order order = RestoreOrder(saved);
+                if (order == null) continue;
+                activeOrders.Add(order);
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning($"OrderManager: Failed to load order state. {ex.Message}");
+        }
+    }
+
+    private void SaveState()
+    {
+        if (string.IsNullOrEmpty(savePath)) return;
+
+        try
+        {
+            OrderManagerSaveData data = new OrderManagerSaveData();
+            foreach (var order in activeOrders)
+            {
+                if (order == null) continue;
+                if (order.state != OrderState.Accepted && order.state != OrderState.InProgress) continue;
+                data.activeOrders.Add(CreateOrderSaveData(order));
+            }
+
+            foreach (var pair in monsterCompletionCounts)
+            {
+                data.monsterCompletionCounts.Add(new MonsterKillCountSaveData
+                {
+                    monsterId = pair.Key,
+                    count = pair.Value
+                });
+            }
+
+            File.WriteAllText(savePath, JsonUtility.ToJson(data, true));
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning($"OrderManager: Failed to save order state. {ex.Message}");
+        }
+    }
+
+    private OrderSaveData CreateOrderSaveData(Order order)
+    {
+        return new OrderSaveData
+        {
+            orderId = order.orderId.ToString("N"),
+            orderTitle = order.orderTitle,
+            description = order.description,
+            monsterNamePlaceholder = order.monsterNamePlaceholder,
+            monsterId = order.monsterData != null ? order.monsterData.monsterId : string.Empty,
+            declaredMonsterId = order.declaredMonster != null ? order.declaredMonster.monsterId : string.Empty,
+            difficulty = order.difficulty,
+            goldReward = order.goldReward,
+            xpReward = order.xpReward,
+            reputationPointsReward = order.reputationPointsReward,
+            missionDuration = order.missionDuration,
+            maxPartySize = order.maxPartySize,
+            minPartySize = order.minPartySize,
+            state = order.state == OrderState.InProgress ? OrderState.Accepted : order.state
+        };
+    }
+
+    private Order RestoreOrder(OrderSaveData saved)
+    {
+        if (saved == null) return null;
+
+        MonsterData monster = FindMonster(saved.monsterId);
+        if (monster == null) return null;
+
+        Order order = new Order
+        {
+            orderTitle = saved.orderTitle,
+            description = saved.description,
+            monsterNamePlaceholder = string.IsNullOrWhiteSpace(saved.monsterNamePlaceholder) ? Order.DefaultMonsterPlaceholder : saved.monsterNamePlaceholder,
+            monsterData = monster,
+            declaredMonster = FindMonster(saved.declaredMonsterId),
+            difficulty = Mathf.Max(1, saved.difficulty),
+            goldReward = Mathf.Max(0, saved.goldReward),
+            xpReward = Mathf.Max(0, saved.xpReward),
+            reputationPointsReward = Mathf.Max(0f, saved.reputationPointsReward),
+            missionDuration = Mathf.Max(1f, saved.missionDuration),
+            maxPartySize = Mathf.Max(1, saved.maxPartySize),
+            minPartySize = Mathf.Max(1, saved.minPartySize),
+            state = saved.state == OrderState.InProgress ? OrderState.Accepted : saved.state
+        };
+
+        if (Guid.TryParse(saved.orderId, out Guid id))
+        {
+            order.orderId = id;
+        }
+
+        return order;
+    }
+
+    private MonsterData FindMonster(string monsterId)
+    {
+        if (string.IsNullOrWhiteSpace(monsterId)) return null;
+        var library = gameConfig != null ? gameConfig.monsterLibrary : null;
+        if (library == null) return null;
+
+        foreach (var monster in library.GetMonsters())
+        {
+            if (monster == null) continue;
+            if (string.Equals(monster.monsterId, monsterId, StringComparison.OrdinalIgnoreCase))
+            {
+                return monster;
+            }
+        }
+
+        return null;
     }
 }
