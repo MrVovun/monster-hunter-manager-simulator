@@ -16,7 +16,7 @@ MonoBehaviour:
   steps:
   - stepId: 0
     speakerName: Tasha
-    speakerMood: 0
+    speakerMood: 1
     text: Hello, Manager! I am Tasha, a Guild Inspector. You can think of me as a
       kingdom-assigned supervisor. I'm gonna help you make the first steps in establishing
       your guild and ensure everything that happens here is legal, politically correct,
@@ -27,7 +27,7 @@ MonoBehaviour:
     customCompletionEvent: 
     requiredEventCount: 0
     allowManualContinue: 1
-    allowedActions: 00000000
+    allowedActions: 13000000
     allowedActionIds: []
     forcedOrder: {fileID: 0}
     forcePassTimeToFirstActiveMissionRemaining: 0
@@ -35,3 +35,266 @@ MonoBehaviour:
     forceHiringAdDuration: 0
     forcedHiringAdDurationSeconds: 0
     forceHiringAdFree: 0
+  - stepId: 1
+    speakerName: Tasha
+    speakerMood: 0
+    text: First of all, let's get familiar with the hunters in your guild. For now,
+      you only have one - Mara Vell. She is your first, but definitely not the last.
+      Approach and talk to her.
+    portraitOverride: {fileID: 0}
+    voiceClip: {fileID: 8300000, guid: f070ffbe82ba714428968ad3ae478703, type: 3}
+    completionEvent: 2
+    customCompletionEvent: 
+    requiredEventCount: 0
+    allowManualContinue: 0
+    allowedActions: 0100000008000000
+    allowedActionIds: []
+    forcedOrder: {fileID: 0}
+    forcePassTimeToFirstActiveMissionRemaining: 0
+    forcedMonsterSelection: {fileID: 0}
+    forceHiringAdDuration: 0
+    forcedHiringAdDurationSeconds: 0
+    forceHiringAdFree: 0
+  - stepId: 2
+    speakerName: Tasha
+    speakerMood: 0
+    text: You can access the full list of your hunters, their stats, traits, status,
+      and how much upkeep you're paying them from the War Table's "Hunters" tab.
+      Additionally, whenever they get enough experience, you can level them up there,
+      increasing their power, as well as their upkeep. Grade rises - the salary rises
+      as well. Fair and square.
+    portraitOverride: {fileID: 0}
+    voiceClip: {fileID: 8300000, guid: fb22a4594c3457644a3a32cbd1879d95, type: 3}
+    completionEvent: 5
+    customCompletionEvent: 
+    requiredEventCount: 0
+    allowManualContinue: 0
+    allowedActions: 0200000004000000
+    allowedActionIds: []
+    forcedOrder: {fileID: 0}
+    forcePassTimeToFirstActiveMissionRemaining: 0
+    forcedMonsterSelection: {fileID: 0}
+    forceHiringAdDuration: 0
+    forcedHiringAdDurationSeconds: 0
+    forceHiringAdFree: 0
+  - stepId: 3
+    speakerName: Tasha
+    speakerMood: 1
+    text: You have hunters, you have a guild - now it's time to receive your first
+      order. Folks from all around will visit your guild and tell you about the problem
+      they have with the monsters. Your job is to determine which monster it is exactly,
+      asking as many questions as you need to narrow your selection. Ring the bell
+      - call for your first client.
+    portraitOverride: {fileID: 0}
+    voiceClip: {fileID: 8300000, guid: ca61d3dbf336c8141a9a4f49e00c7d05, type: 3}
+    completionEvent: 8
+    customCompletionEvent: 
+    requiredEventCount: 0
+    allowManualContinue: 0
+    allowedActions: 06000000
+    allowedActionIds: []
+    forcedOrder: {fileID: 11400000, guid: becfe295d9c8eb846aea7ed2d459d10f, type: 2}
+    forcePassTimeToFirstActiveMissionRemaining: 0
+    forcedMonsterSelection: {fileID: 0}
+    forceHiringAdDuration: 0
+    forcedHiringAdDurationSeconds: 0
+    forceHiringAdFree: 0
+  - stepId: 4
+    speakerName: Tasha
+    speakerMood: 0
+    text: Approach the client and talk to them. Remember that each question asked,
+      as well as other actions in the guild, consumes time. The less time you spend
+      asking, the more orders you can take per day, and the more money you will make
+      to upgrade, hire, and pay your hunters. A truly skilled monster hunter is the
+      one who can determine a monster with just a few questions.
+    portraitOverride: {fileID: 0}
+    voiceClip: {fileID: 8300000, guid: 14bc79a973270c641b5ae1214dddd4cc, type: 3}
+    completionEvent: 11
+    customCompletionEvent: 
+    requiredEventCount: 0
+    allowManualContinue: 0
+    allowedActions: 0700000008000000
+    allowedActionIds: []
+    forcedOrder: {fileID: 0}
+    forcePassTimeToFirstActiveMissionRemaining: 0
+    forcedMonsterSelection: {fileID: 0}
+    forceHiringAdDuration: 0
+    forcedHiringAdDurationSeconds: 0
+    forceHiringAdFree: 0
+  - stepId: 5
+    speakerName: Tasha
+    speakerMood: 0
+    text: Now, when the questions are asked, you need to declare the monster. Press
+      the "View order" button, and then, in the order preview, press the "Choose
+      a monster" button. The bestiary will be revealed, where all the monsters currently
+      disturbing the kingdom appear. Using the clues that you gathered from the questions
+      asked, decide which monster this is.
+    portraitOverride: {fileID: 0}
+    voiceClip: {fileID: 8300000, guid: de83d6356e71eaa4986c8fbac561bea5, type: 3}
+    completionEvent: 12
+    customCompletionEvent: 
+    requiredEventCount: 0
+    allowManualContinue: 0
+    allowedActions: 0800000009000000
+    allowedActionIds: []
+    forcedOrder: {fileID: 0}
+    forcePassTimeToFirstActiveMissionRemaining: 0
+    forcedMonsterSelection: {fileID: 0}
+    forceHiringAdDuration: 0
+    forcedHiringAdDurationSeconds: 0
+    forceHiringAdFree: 0
+  - stepId: 6
+    speakerName: Tasha
+    speakerMood: 0
+    text: After the monster is declared, you can either accept the order and eventually
+      complete it, or refer an order to another guild. Referring only gives you a
+      small fee as a reward, but you aren't risking wounding your hunters. You can
+      also decline the order or return to the questionnaire if you need more information.
+      For now, let's accept this order.
+    portraitOverride: {fileID: 0}
+    voiceClip: {fileID: 8300000, guid: b1f15a81c34bc1547bbbb508fef5cdcb, type: 3}
+    completionEvent: 13
+    customCompletionEvent: 
+    requiredEventCount: 0
+    allowManualContinue: 0
+    allowedActions: 08000000090000000a000000
+    allowedActionIds: []
+    forcedOrder: {fileID: 0}
+    forcePassTimeToFirstActiveMissionRemaining: 0
+    forcedMonsterSelection: {fileID: 0}
+    forceHiringAdDuration: 0
+    forcedHiringAdDurationSeconds: 0
+    forceHiringAdFree: 0
+  - stepId: 7
+    speakerName: Tasha
+    speakerMood: 1
+    text: Order accepted. The client leaves, and you are left with a task waiting
+      for you in the War Table's "Orders" tab. Approach the table, interact with
+      it, open the tab, and see it yourself. You will only get paid when the order
+      is completed - the kingdom's treasury will deal with it.
+    portraitOverride: {fileID: 0}
+    voiceClip: {fileID: 8300000, guid: dfe2d5a9848fc324eb064c255e86af78, type: 3}
+    completionEvent: 3
+    customCompletionEvent: 
+    requiredEventCount: 0
+    allowManualContinue: 0
+    allowedActions: 0200000003000000
+    allowedActionIds: []
+    forcedOrder: {fileID: 0}
+    forcePassTimeToFirstActiveMissionRemaining: 0
+    forcedMonsterSelection: {fileID: 0}
+    forceHiringAdDuration: 0
+    forcedHiringAdDurationSeconds: 0
+    forceHiringAdFree: 0
+  - stepId: 8
+    speakerName: Tasha
+    speakerMood: 0
+    text: Now that the order is in your list, you can send hunters to complete it.
+      All the orders will be stored here, where you can access the information about
+      them. Select the only order we have for now and assign Mara to it by dragging
+      her portrait into an empty party slot or by pressing the "Autofill" button.
+    portraitOverride: {fileID: 0}
+    voiceClip: {fileID: 8300000, guid: daaf9b5ea9c3eb04988e801d84585ac8, type: 3}
+    completionEvent: 14
+    customCompletionEvent: 
+    requiredEventCount: 0
+    allowManualContinue: 0
+    allowedActions: 02000000030000000d000000
+    allowedActionIds: []
+    forcedOrder: {fileID: 0}
+    forcePassTimeToFirstActiveMissionRemaining: 0
+    forcedMonsterSelection: {fileID: 0}
+    forceHiringAdDuration: 0
+    forcedHiringAdDurationSeconds: 0
+    forceHiringAdFree: 0
+  - stepId: 9
+    speakerName: Tasha
+    speakerMood: 0
+    text: Hunter is assigned, and now you can see your chances of completing this
+      order. Remember that the success rate is calculated against the monster you
+      declared - if you were wrong, you might get false information. Click the "Send
+      Party" button to send your party on that order.
+    portraitOverride: {fileID: 0}
+    voiceClip: {fileID: 8300000, guid: 8d6375544ab7a7942828bc690fd809cc, type: 3}
+    completionEvent: 15
+    customCompletionEvent: 
+    requiredEventCount: 0
+    allowManualContinue: 0
+    allowedActions: 02000000030000000d0000000e000000
+    allowedActionIds: []
+    forcedOrder: {fileID: 0}
+    forcePassTimeToFirstActiveMissionRemaining: 0
+    forcedMonsterSelection: {fileID: 0}
+    forceHiringAdDuration: 0
+    forcedHiringAdDurationSeconds: 0
+    forceHiringAdFree: 0
+  - stepId: 10
+    speakerName: Tasha
+    speakerMood: 1
+    text: While the hunters are away, you have spare time to attend to the Guild's
+      needs. In the future, you will have enough routine to fill that free time -
+      clean the floors, change bedsheets, cook meals, chase mimics, and construct
+      new facilities. But before this time came, let's just sit, relax, and wait
+      for your hunters to return.
+    portraitOverride: {fileID: 0}
+    voiceClip: {fileID: 8300000, guid: 6f5c183289033e441a995987bfe44969, type: 3}
+    completionEvent: 16
+    customCompletionEvent: 
+    requiredEventCount: 0
+    allowManualContinue: 0
+    allowedActions: 0f000000
+    allowedActionIds: []
+    forcedOrder: {fileID: 0}
+    forcePassTimeToFirstActiveMissionRemaining: 1
+    forcedMonsterSelection: {fileID: 0}
+    forceHiringAdDuration: 0
+    forcedHiringAdDurationSeconds: 0
+    forceHiringAdFree: 0
+  - stepId: 11
+    speakerName: Tasha
+    speakerMood: 1
+    text: Your party is back, and you can see the Report Panel upon their return.
+      Here you will find out if the assignment ended in success or failure, how much
+      gold and experience you acquired, and whether your declared monster was true
+      or false. This panel is purely informational, so you can close it whenever
+      you want.
+    portraitOverride: {fileID: 0}
+    voiceClip: {fileID: 8300000, guid: 385dd327f4be37b4ea19954c21e6b0f5, type: 3}
+    completionEvent: 17
+    customCompletionEvent: 
+    requiredEventCount: 0
+    allowManualContinue: 0
+    allowedActions: 10000000
+    allowedActionIds: []
+    forcedOrder: {fileID: 0}
+    forcePassTimeToFirstActiveMissionRemaining: 0
+    forcedMonsterSelection: {fileID: 0}
+    forceHiringAdDuration: 0
+    forcedHiringAdDurationSeconds: 0
+    forceHiringAdFree: 0
+  - stepId: 12
+    speakerName: Tasha
+    speakerMood: 1
+    text: 'While Mara handled the first order alone, other orders might not be that
+      easy. You need to hire more hunters to your guild before I let you go on your
+      own. I recommend having at least 3 hunters. Approach the War Table, choose
+      the Hiring tab, and post a recruitment advertisement to hire more hunters.
+      Once they see the ad, they will enter the guild and approach you. Don''t worry,
+      the kingdom will pay for your first ad.
+
+      For now, you are on your own.
+      Keep receiving clients and sending hunters on orders.'
+    portraitOverride: {fileID: 0}
+    voiceClip: {fileID: 8300000, guid: 23b0099b971687b4e8f6684e8100cea1, type: 3}
+    completionEvent: 18
+    customCompletionEvent: 
+    requiredEventCount: 0
+    allowManualContinue: 0
+    allowedActions: 0200000005000000110000001200000013000000
+    allowedActionIds: []
+    forcedOrder: {fileID: 0}
+    forcePassTimeToFirstActiveMissionRemaining: 0
+    forcedMonsterSelection: {fileID: 0}
+    forceHiringAdDuration: 1
+    forcedHiringAdDurationSeconds: 1
+    forceHiringAdFree: 1

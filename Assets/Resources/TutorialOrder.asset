@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TutorialOrderDefinition
   monster: {fileID: 11400000, guid: 87a43201a84ee104386a3cd58922e30a, type: 2}
   orderTitle: Cleaning Up
-  description: '<monster_name>s are still festering in the Guild''s basement. Getting
-    rid of them would be a good choice for the first quest. '
+  description: 'Some <monster_name>s are still festering in the Guild''s basement.
+    Getting rid of them would be a good choice for the first quest. '
   difficulty: 5
   goldReward: 20
   xpReward: 20
@@ -23,3 +23,4 @@ MonoBehaviour:
   missionDurationSeconds: 60
   minPartySize: 1
   maxPartySize: 3
+  suppressRandomTraits: 1

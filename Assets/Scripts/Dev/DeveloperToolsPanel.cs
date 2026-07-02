@@ -47,6 +47,7 @@ public class DeveloperToolsPanel : MonoBehaviour
     private int debugOrderXp = 100;
     private float debugOrderDuration = 120f;
     private float customResponseDelay = -1f;
+    private string tutorialStepInput = "1";
 
     private int selectedTrophyMonsterIndex;
     private int addKillAmount = 1;
@@ -228,6 +229,12 @@ public class DeveloperToolsPanel : MonoBehaviour
         if (tutorialManager != null)
         {
             GUILayout.Label(tutorialManager.IsTutorialDisabled() ? "Tutorial disabled" : "Tutorial enabled");
+            GUILayout.Label($"Current Step: {(tutorialManager.CurrentStepIndex >= 0 ? tutorialManager.CurrentStepIndex + 1 : 0)} / {tutorialManager.StepCount}");
+            if (tutorialManager.CurrentStepIndex >= 0)
+            {
+                GUILayout.Label(tutorialManager.GetStepLabel(tutorialManager.CurrentStepIndex));
+            }
+
             using (new GUILayout.HorizontalScope())
             {
                 if (GUILayout.Button("Reset Tutorial"))
@@ -241,6 +248,35 @@ public class DeveloperToolsPanel : MonoBehaviour
                 if (GUILayout.Button("Enable Tutorial"))
                 {
                     tutorialManager.SetTutorialDisabled(false);
+                }
+            }
+
+            using (new GUILayout.HorizontalScope())
+            {
+                GUILayout.Label("Go To Step", GUILayout.Width(78f));
+                tutorialStepInput = GUILayout.TextField(tutorialStepInput, GUILayout.Width(48f));
+                if (GUILayout.Button("Activate"))
+                {
+                    if (int.TryParse(tutorialStepInput, out int stepNumber))
+                    {
+                        tutorialManager.DebugJumpToStep(stepNumber - 1);
+                    }
+                }
+            }
+
+            using (new GUILayout.HorizontalScope())
+            {
+                if (GUILayout.Button("Previous Step"))
+                {
+                    int target = Mathf.Max(0, tutorialManager.CurrentStepIndex - 1);
+                    tutorialStepInput = (target + 1).ToString();
+                    tutorialManager.DebugJumpToStep(target);
+                }
+                if (GUILayout.Button("Next Step"))
+                {
+                    int target = Mathf.Min(Mathf.Max(0, tutorialManager.StepCount - 1), tutorialManager.CurrentStepIndex + 1);
+                    tutorialStepInput = (target + 1).ToString();
+                    tutorialManager.DebugJumpToStep(target);
                 }
             }
         }

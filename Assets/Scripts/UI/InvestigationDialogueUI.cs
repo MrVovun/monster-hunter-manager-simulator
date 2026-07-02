@@ -75,10 +75,13 @@ public class InvestigationDialogueUI : MonoBehaviour
         currentManager = manager;
         onClose = closeCallback;
         askedQuestionIds.Clear();
+        waitingForResponse = false;
+        awaitingTypewriterCompletion = false;
 
         RefreshQuestions();
         HookButtons();
         PlayResponse(GetClientOpeningLine(), false);
+        SetQuestionsInteractable(true);
         SetActive(true);
         CaptureCursor();
     }
@@ -92,7 +95,7 @@ public class InvestigationDialogueUI : MonoBehaviour
             viewButton.onClick.RemoveAllListeners();
             viewButton.onClick.AddListener(HandleViewOrder);
             viewButton.gameObject.SetActive(!hunterDialogue);
-            viewButton.interactable = !hunterDialogue && TutorialManager.IsActionAllowed(TutorialIds.SelectMonster);
+            viewButton.interactable = !hunterDialogue && CanOpenOrderPanelForTutorial();
             RefreshButtonVisual(viewButton);
         }
 
@@ -126,6 +129,7 @@ public class InvestigationDialogueUI : MonoBehaviour
 
     private void HandleViewOrder()
     {
+        if (!CanOpenOrderPanelForTutorial()) return;
         if (currentManager == null) return;
         ReleaseCursor();
         SetActive(false);
@@ -136,6 +140,13 @@ public class InvestigationDialogueUI : MonoBehaviour
                 Reopen();
             }
         });
+    }
+
+    private bool CanOpenOrderPanelForTutorial()
+    {
+        return TutorialManager.IsActionAllowed(TutorialIds.SelectMonster)
+            || TutorialManager.IsActionAllowed(TutorialIds.AcceptOrder)
+            || TutorialManager.IsActionAllowed(TutorialIds.ReferOrder);
     }
 
     private void RefreshQuestions()
@@ -167,7 +178,7 @@ public class InvestigationDialogueUI : MonoBehaviour
                 EnsureButtonVisualFeedback(button);
                 var capturedQuestion = question;
                 button.onClick.AddListener(() => HandleQuestionClicked(capturedQuestion));
-                button.interactable = !waitingForResponse;
+                button.interactable = false;
                 ApplyQuestionVisualState(button, question);
             }
 
@@ -178,6 +189,8 @@ public class InvestigationDialogueUI : MonoBehaviour
                 question = question
             });
         }
+
+        SetQuestionsInteractable(!waitingForResponse);
     }
 
     private void HandleQuestionClicked(InvestigationQuestion question)

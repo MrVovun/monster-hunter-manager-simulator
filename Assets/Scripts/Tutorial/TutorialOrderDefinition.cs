@@ -13,6 +13,7 @@ public class TutorialOrderDefinition : ScriptableObject
     public float missionDurationSeconds = 60f;
     public int minPartySize = 1;
     public int maxPartySize = 1;
+    public bool suppressRandomTraits = true;
 
     public Order CreateOrder()
     {
@@ -28,6 +29,7 @@ public class TutorialOrderDefinition : ScriptableObject
             missionDuration = Mathf.Max(1f, missionDurationSeconds),
             minPartySize = Mathf.Max(1, minPartySize),
             maxPartySize = Mathf.Max(Mathf.Max(1, minPartySize), maxPartySize),
+            suppressRandomTraits = suppressRandomTraits,
             state = OrderState.Offered
         };
 

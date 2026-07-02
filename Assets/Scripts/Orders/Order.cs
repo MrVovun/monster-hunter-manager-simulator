@@ -26,6 +26,8 @@ public class Order
     public MonsterData declaredMonster;
     [Tooltip("Investigation data collected before accepting the order.")]
     public InvestigationCase investigationCase;
+    [Tooltip("When true, investigation will not roll random monster traits for this order.")]
+    public bool suppressRandomTraits;
     public int difficulty;
     public int goldReward;
     public int xpReward;

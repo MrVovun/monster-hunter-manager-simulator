@@ -9639,7 +9639,7 @@ GameObject:
   - component: {fileID: 260187368}
   - component: {fileID: 260187367}
   m_Layer: 0
-  m_Name: Table
+  m_Name: WarTable
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -16863,8 +16863,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 45, y: 110}
-  m_SizeDelta: {x: 375, y: 642}
+  m_AnchoredPosition: {x: 0, y: 190}
+  m_SizeDelta: {x: 470, y: 804}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &495660542
 MonoBehaviour:
@@ -23489,7 +23489,7 @@ GameObject:
   - component: {fileID: 674380023}
   - component: {fileID: 674380027}
   m_Layer: 0
-  m_Name: Bell
+  m_Name: ClientBell
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -25261,7 +25261,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 45, y: 15}
+  m_AnchoredPosition: {x: 45, y: 115}
   m_SizeDelta: {x: 375, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &726841395
@@ -26485,7 +26485,7 @@ Transform:
   m_GameObject: {fileID: 764345581}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -1, z: -0, w: -0.00000035762784}
-  m_LocalPosition: {x: 0, y: 1, z: 7}
+  m_LocalPosition: {x: -0.0000035762785, y: 1, z: 12}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -37269,7 +37269,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 535, y: 180}
+  m_SizeDelta: {x: 535, y: 280}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1066479562
 MonoBehaviour:
@@ -65954,8 +65954,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -45, y: -110}
-  m_SizeDelta: {x: 555, y: 200}
+  m_AnchoredPosition: {x: -45, y: -60}
+  m_SizeDelta: {x: 555, y: 300}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1992042004
 MonoBehaviour:

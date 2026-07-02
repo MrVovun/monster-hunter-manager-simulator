@@ -28,6 +28,8 @@ public class TutorialManager : MonoBehaviour
             : null;
 
     public bool IsRunning => CurrentStep != null && !IsTutorialDisabled();
+    public int CurrentStepIndex => currentStepIndex;
+    public int StepCount => firstSessionSequence != null && firstSessionSequence.steps != null ? firstSessionSequence.steps.Count : 0;
 
     private void Awake()
     {
@@ -110,6 +112,35 @@ public class TutorialManager : MonoBehaviour
         SetTutorialDisabled(false);
         currentStepIndex = -1;
         TryStartFirstSessionTutorial();
+    }
+
+    public void DebugJumpToStep(int stepIndex)
+    {
+        if (firstSessionSequence == null || firstSessionSequence.steps == null || firstSessionSequence.steps.Count == 0) return;
+
+        disableTutorial = false;
+        PlayerPrefs.SetInt(DisabledKey, 0);
+        currentStepIndex = Mathf.Clamp(stepIndex, 0, firstSessionSequence.steps.Count - 1);
+        currentEventCount = 0;
+        popupUI?.Show(CurrentStep, GetManualContinueBindingLabel());
+        OnTutorialGateChanged?.Invoke();
+    }
+
+    public string GetStepLabel(int stepIndex)
+    {
+        if (firstSessionSequence == null || firstSessionSequence.steps == null) return string.Empty;
+        if (stepIndex < 0 || stepIndex >= firstSessionSequence.steps.Count) return string.Empty;
+
+        TutorialStep step = firstSessionSequence.steps[stepIndex];
+        if (step == null) return $"Step {stepIndex + 1}";
+        if (!string.IsNullOrWhiteSpace(step.stepId)) return step.stepId;
+        if (!string.IsNullOrWhiteSpace(step.text))
+        {
+            string text = step.text.Trim();
+            return text.Length > 42 ? text.Substring(0, 42) + "..." : text;
+        }
+
+        return $"Step {stepIndex + 1}";
     }
 
     public void SetTutorialDisabled(bool disabled)

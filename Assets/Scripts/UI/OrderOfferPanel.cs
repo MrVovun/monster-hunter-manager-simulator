@@ -57,6 +57,8 @@ public class OrderOfferPanel : MonoBehaviour
         RememberCursor();
         UnlockCursor();
         SetRootActive(true);
+        TutorialManager.OnTutorialGateChanged -= HandleTutorialGateChanged;
+        TutorialManager.OnTutorialGateChanged += HandleTutorialGateChanged;
         UpdateUI();
         UpdateDeclaredMonsterUI();
         UpdateActionButtons();
@@ -111,6 +113,7 @@ public class OrderOfferPanel : MonoBehaviour
     public void Hide()
     {
         var savedOrder = currentOrder;
+        TutorialManager.OnTutorialGateChanged -= HandleTutorialGateChanged;
         SetRootActive(false);
         activeInvestigation = null;
         RestoreCursor();
@@ -128,6 +131,13 @@ public class OrderOfferPanel : MonoBehaviour
         onHiddenAction = null;
         onBackAction = null;
         backRequested = false;
+    }
+
+    private void HandleTutorialGateChanged()
+    {
+        if (currentOrder == null) return;
+        UpdateActionButtons();
+        UpdateDeclaredMonsterUI();
     }
 
     private void SetRootActive(bool active)

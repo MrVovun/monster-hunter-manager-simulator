@@ -426,7 +426,9 @@ public class InvestigationManager : MonoBehaviour
 
         CurrentCase = new InvestigationCase();
         CurrentCase.truthMonster = order.monsterData;
-        CurrentCase.truthTraits = GenerateTruthTraits(order.monsterData);
+        CurrentCase.truthTraits = order.suppressRandomTraits
+            ? new List<MonsterTrait>()
+            : GenerateTruthTraits(order.monsterData);
         CurrentCase.clientProfile = overrideProfile != null ? overrideProfile : PickClientProfile();
         order.investigationCase = CurrentCase;
         CurrentOrder = order;
