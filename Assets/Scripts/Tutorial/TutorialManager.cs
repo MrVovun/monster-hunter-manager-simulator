@@ -7,6 +7,8 @@ public class TutorialManager : MonoBehaviour
 {
     private const string DisabledKey = "tutorial.disabled";
     private const string CompletedKeyPrefix = "tutorial.completed.";
+    private const string ProgressStepKeyPrefix = "tutorial.progress.";
+    private const string ProgressEventCountKeySuffix = ".eventCount";
 
     public static TutorialManager Instance { get; private set; }
     public static event Action OnTutorialGateChanged;
@@ -86,6 +88,13 @@ public class TutorialManager : MonoBehaviour
         if (IsTutorialDisabled()) return;
         if (IsSequenceCompleted(firstSessionSequence.sequenceId)) return;
 
+        if (TryLoadProgress())
+        {
+            popupUI?.Show(CurrentStep, GetManualContinueBindingLabel());
+            OnTutorialGateChanged?.Invoke();
+            return;
+        }
+
         currentStepIndex = -1;
         AdvanceStep();
     }
@@ -95,6 +104,7 @@ public class TutorialManager : MonoBehaviour
         if (firstSessionSequence != null)
         {
             PlayerPrefs.SetInt(GetCompletedKey(firstSessionSequence.sequenceId), 1);
+            ClearProgress(firstSessionSequence.sequenceId);
         }
 
         currentStepIndex = -1;
@@ -107,6 +117,7 @@ public class TutorialManager : MonoBehaviour
         if (firstSessionSequence != null)
         {
             PlayerPrefs.DeleteKey(GetCompletedKey(firstSessionSequence.sequenceId));
+            ClearProgress(firstSessionSequence.sequenceId);
         }
 
         SetTutorialDisabled(false);
@@ -122,6 +133,7 @@ public class TutorialManager : MonoBehaviour
         PlayerPrefs.SetInt(DisabledKey, 0);
         currentStepIndex = Mathf.Clamp(stepIndex, 0, firstSessionSequence.steps.Count - 1);
         currentEventCount = 0;
+        SaveProgress();
         popupUI?.Show(CurrentStep, GetManualContinueBindingLabel());
         OnTutorialGateChanged?.Invoke();
     }
@@ -252,6 +264,7 @@ public class TutorialManager : MonoBehaviour
         if (!string.Equals(completionEvent, eventId, StringComparison.OrdinalIgnoreCase)) return;
 
         currentEventCount++;
+        SaveProgress();
         if (currentEventCount >= Mathf.Max(1, step.requiredEventCount))
         {
             AdvanceStep();
@@ -269,6 +282,7 @@ public class TutorialManager : MonoBehaviour
             return;
         }
 
+        SaveProgress();
         popupUI?.Show(CurrentStep, GetManualContinueBindingLabel());
         OnTutorialGateChanged?.Invoke();
     }
@@ -306,6 +320,7 @@ public class TutorialManager : MonoBehaviour
         if (firstSessionSequence != null)
         {
             PlayerPrefs.SetInt(GetCompletedKey(firstSessionSequence.sequenceId), 1);
+            ClearProgress(firstSessionSequence.sequenceId);
         }
 
         currentStepIndex = -1;
@@ -321,5 +336,50 @@ public class TutorialManager : MonoBehaviour
     private static string GetCompletedKey(string sequenceId)
     {
         return CompletedKeyPrefix + (string.IsNullOrWhiteSpace(sequenceId) ? "default" : sequenceId);
+    }
+
+    private bool TryLoadProgress()
+    {
+        if (firstSessionSequence == null || firstSessionSequence.steps == null || firstSessionSequence.steps.Count == 0) return false;
+
+        string stepKey = GetProgressStepKey(firstSessionSequence.sequenceId);
+        if (!PlayerPrefs.HasKey(stepKey)) return false;
+
+        int savedStepIndex = PlayerPrefs.GetInt(stepKey, -1);
+        if (savedStepIndex < 0 || savedStepIndex >= firstSessionSequence.steps.Count)
+        {
+            ClearProgress(firstSessionSequence.sequenceId);
+            return false;
+        }
+
+        currentStepIndex = savedStepIndex;
+        currentEventCount = Mathf.Max(0, PlayerPrefs.GetInt(GetProgressEventCountKey(firstSessionSequence.sequenceId), 0));
+        return CurrentStep != null;
+    }
+
+    private void SaveProgress()
+    {
+        if (firstSessionSequence == null || currentStepIndex < 0) return;
+
+        PlayerPrefs.SetInt(GetProgressStepKey(firstSessionSequence.sequenceId), currentStepIndex);
+        PlayerPrefs.SetInt(GetProgressEventCountKey(firstSessionSequence.sequenceId), Mathf.Max(0, currentEventCount));
+        PlayerPrefs.Save();
+    }
+
+    private static void ClearProgress(string sequenceId)
+    {
+        PlayerPrefs.DeleteKey(GetProgressStepKey(sequenceId));
+        PlayerPrefs.DeleteKey(GetProgressEventCountKey(sequenceId));
+        PlayerPrefs.Save();
+    }
+
+    private static string GetProgressStepKey(string sequenceId)
+    {
+        return ProgressStepKeyPrefix + (string.IsNullOrWhiteSpace(sequenceId) ? "default" : sequenceId) + ".step";
+    }
+
+    private static string GetProgressEventCountKey(string sequenceId)
+    {
+        return ProgressStepKeyPrefix + (string.IsNullOrWhiteSpace(sequenceId) ? "default" : sequenceId) + ProgressEventCountKeySuffix;
     }
 }

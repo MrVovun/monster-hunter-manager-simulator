@@ -24,7 +24,11 @@ public static class GameSaveUtility
         "GuildKitchenState",
         "tutorial.disabled",
         "tutorial.completed.first_session",
+        "tutorial.progress.first_session.step",
+        "tutorial.progress.first_session.eventCount",
         "settings.masterVolume",
+        "settings.musicVolume",
+        "settings.musicMuted",
         "settings.fullscreen",
         "settings.qualityIndex"
     };

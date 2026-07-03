@@ -4,11 +4,21 @@ using UnityEngine.UI;
 
 public class SettingsMenuUI : MonoBehaviour
 {
+    [Header("Audio")]
     [SerializeField] private Slider masterVolumeSlider;
     [SerializeField] private TMP_Text masterVolumeValueText;
+    [SerializeField] private Slider musicVolumeSlider;
+    [SerializeField] private TMP_Text musicVolumeValueText;
+    [SerializeField] private Toggle muteMusicToggle;
+
+    [Header("Display")]
     [SerializeField] private Toggle fullscreenToggle;
     [SerializeField] private TMP_Dropdown qualityDropdown;
+
+    [Header("Tutorial")]
     [SerializeField] private Toggle disableTutorialToggle;
+
+    [Header("UI")]
     [SerializeField] private Button closeButton;
     [SerializeField] private GameObject root;
 
@@ -41,6 +51,21 @@ public class SettingsMenuUI : MonoBehaviour
             if (masterVolumeValueText != null)
             {
                 masterVolumeValueText.text = $"{Mathf.RoundToInt(settings.MasterVolume * 100f)}%";
+            }
+
+            if (musicVolumeSlider != null)
+            {
+                musicVolumeSlider.SetValueWithoutNotify(settings.MusicVolume);
+            }
+
+            if (musicVolumeValueText != null)
+            {
+                musicVolumeValueText.text = $"{Mathf.RoundToInt(settings.MusicVolume * 100f)}%";
+            }
+
+            if (muteMusicToggle != null)
+            {
+                muteMusicToggle.SetIsOnWithoutNotify(settings.MusicMuted);
             }
 
             if (fullscreenToggle != null)
@@ -85,6 +110,18 @@ public class SettingsMenuUI : MonoBehaviour
             masterVolumeSlider.onValueChanged.AddListener(HandleVolumeChanged);
         }
 
+        if (musicVolumeSlider != null)
+        {
+            musicVolumeSlider.onValueChanged.RemoveAllListeners();
+            musicVolumeSlider.onValueChanged.AddListener(HandleMusicVolumeChanged);
+        }
+
+        if (muteMusicToggle != null)
+        {
+            muteMusicToggle.onValueChanged.RemoveAllListeners();
+            muteMusicToggle.onValueChanged.AddListener(HandleMusicMutedChanged);
+        }
+
         if (fullscreenToggle != null)
         {
             fullscreenToggle.onValueChanged.RemoveAllListeners();
@@ -120,6 +157,22 @@ public class SettingsMenuUI : MonoBehaviour
         }
     }
 
+    private void HandleMusicVolumeChanged(float value)
+    {
+        if (refreshing) return;
+        EnsureSettingsManager()?.SetMusicVolume(value);
+        if (musicVolumeValueText != null)
+        {
+            musicVolumeValueText.text = $"{Mathf.RoundToInt(Mathf.Clamp01(value) * 100f)}%";
+        }
+    }
+
+    private void HandleMusicMutedChanged(bool muted)
+    {
+        if (refreshing) return;
+        EnsureSettingsManager()?.SetMusicMuted(muted);
+    }
+
     private void HandleFullscreenChanged(bool value)
     {
         if (refreshing) return;
@@ -145,7 +198,7 @@ public class SettingsMenuUI : MonoBehaviour
             return GameSettingsManager.Instance;
         }
 
-        var existing = FindObjectOfType<GameSettingsManager>();
+        var existing = FindFirstObjectByType<GameSettingsManager>();
         if (existing != null)
         {
             return existing;

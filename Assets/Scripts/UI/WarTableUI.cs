@@ -77,6 +77,7 @@ public class WarTableUI : MonoBehaviour
         SubscribeToDataSources();
         MarkAllTabsDirty();
         RefreshDirtyTabs();
+        RefreshTabButtonTutorialGates();
         refreshTimer = refreshIntervalSeconds;
         TutorialManager.ReportEvent(TutorialIds.EventWarTableOpened);
     }

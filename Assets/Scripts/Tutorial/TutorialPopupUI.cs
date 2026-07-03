@@ -75,6 +75,23 @@ public class TutorialPopupUI : MonoBehaviour
         SetActive(false);
     }
 
+    public void PauseVoice()
+    {
+        if (voiceSource != null && voiceSource.isPlaying)
+        {
+            voiceSource.Pause();
+        }
+    }
+
+    public void ResumeVoice()
+    {
+        bool visible = root != null ? root.activeInHierarchy : gameObject.activeInHierarchy;
+        if (voiceSource != null && voiceSource.clip != null && visible)
+        {
+            voiceSource.UnPause();
+        }
+    }
+
     private void SetActive(bool value)
     {
         if (root != null)
