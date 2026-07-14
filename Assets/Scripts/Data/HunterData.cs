@@ -36,6 +36,8 @@ public class HunterData : ScriptableObject
     [Header("Visual")]
     public Sprite portrait; // For UI display
     public GameObject visualPrefab;
+    [Tooltip("Optional P09 modular preset. When assigned, the hunter uses the preset's base visual prefab and applies its modular parts at spawn time.")]
+    public P09HumanoidPreset p09VisualPreset;
 
     [Header("Dialogue")]
     [TextArea(2, 4)] public string greeting;

@@ -11,6 +11,8 @@ public class ClientProfile : ScriptableObject
     public float responseDelaySeconds = 0f;
     [Tooltip("Optional visual prefabs to spawn while this client is present.")]
     public List<GameObject> visualPrefabs = new List<GameObject>();
+    [Tooltip("Optional P09 modular presets. If any are assigned, the client spawner picks from these before falling back to visual prefabs.")]
+    public List<P09HumanoidPreset> p09VisualPresets = new List<P09HumanoidPreset>();
 
     private void OnEnable()
     {
@@ -35,5 +37,12 @@ public class ClientProfile : ScriptableObject
         if (visualPrefabs == null || visualPrefabs.Count == 0) return null;
         int index = UnityEngine.Random.Range(0, visualPrefabs.Count);
         return visualPrefabs[index];
+    }
+
+    public P09HumanoidPreset GetNextP09VisualPreset()
+    {
+        if (p09VisualPresets == null || p09VisualPresets.Count == 0) return null;
+        int index = UnityEngine.Random.Range(0, p09VisualPresets.Count);
+        return p09VisualPresets[index];
     }
 }

@@ -54,7 +54,8 @@ public class ClientSpawner : MonoBehaviour
 
         activeProfile = investigationCase.clientProfile;
         activeCase = investigationCase;
-        GameObject prefab = activeProfile != null ? activeProfile.GetNextVisualPrefab() : null;
+        P09HumanoidPreset p09Preset = activeProfile != null ? activeProfile.GetNextP09VisualPreset() : null;
+        GameObject prefab = p09Preset != null ? p09Preset.baseVisualPrefab : activeProfile != null ? activeProfile.GetNextVisualPrefab() : null;
         if (prefab == null)
         {
             Debug.LogWarning("ClientSpawner: No visual prefab assigned for client profile.");
@@ -71,7 +72,14 @@ public class ClientSpawner : MonoBehaviour
         Quaternion spawnRot = spawnPoint != null ? spawnPoint.rotation : Quaternion.identity;
 
         activeClient = Instantiate(clientPrefab, spawnPos, spawnRot);
-        activeClient.SetVisualPrefab(prefab);
+        if (p09Preset != null)
+        {
+            activeClient.SetVisualPreset(p09Preset);
+        }
+        else
+        {
+            activeClient.SetVisualPrefab(prefab);
+        }
         activeClient.AssignInvestigation(investigationManager, investigationCase);
         activeClient.SetInteractionEnabled(false);
         clientAgent = activeClient.Agent;

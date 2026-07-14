@@ -37,6 +37,17 @@ public class ClientCharacter : MonoBehaviour
 
     public void SetVisualPrefab(GameObject prefab)
     {
+        SetVisual(prefab, null);
+    }
+
+    public void SetVisualPreset(P09HumanoidPreset preset)
+    {
+        GameObject prefab = preset != null ? preset.baseVisualPrefab : null;
+        SetVisual(prefab, preset);
+    }
+
+    private void SetVisual(GameObject prefab, P09HumanoidPreset p09Preset)
+    {
         if (visualInstance != null)
         {
             Destroy(visualInstance);
@@ -51,7 +62,23 @@ public class ClientCharacter : MonoBehaviour
         visualInstance.transform.localRotation = Quaternion.identity;
         visualInstance.transform.localScale = Vector3.one;
 
-        var animator = visualInstance.GetComponentInChildren<Animator>();
+        Animator animator;
+        if (p09Preset != null)
+        {
+            var applier = visualInstance.GetComponent<P09HumanoidVisualApplier>();
+            if (applier == null)
+            {
+                applier = visualInstance.AddComponent<P09HumanoidVisualApplier>();
+            }
+
+            applier.ApplyPreset(p09Preset);
+            animator = applier.Animator != null ? applier.Animator : visualInstance.GetComponentInChildren<Animator>();
+        }
+        else
+        {
+            animator = visualInstance.GetComponentInChildren<Animator>();
+        }
+
         sharedAnimator.SetAnimatorReference(animator);
         sharedAnimator.SetAnimationSpeed(1f);
     }

@@ -15,6 +15,7 @@ public class Hunter : MonoBehaviour
     [Header("Visuals")]
     [SerializeField] private Transform visualParent;
     private GameObject visualInstance;
+    private Transform p09VisualAnimatorRoot;
 
     [Header("Components")]
     private NavMeshAgent navAgent;
@@ -112,7 +113,7 @@ public class Hunter : MonoBehaviour
 
         // Set name
         gameObject.name = data.hunterName;
-        SetupVisual(data.visualPrefab);
+        SetupVisual(data.visualPrefab, data.p09VisualPreset);
     }
 
     public void SetState(HunterState newState)
@@ -1183,7 +1184,12 @@ public class Hunter : MonoBehaviour
         UpdateAnimationParameters();
     }
 
-    private void SetupVisual(GameObject prefab)
+    private void LateUpdate()
+    {
+        SnapVisualToParent();
+    }
+
+    private void SetupVisual(GameObject prefab, P09HumanoidPreset p09Preset = null)
     {
         if (visualInstance != null)
         {
@@ -1196,30 +1202,83 @@ public class Hunter : MonoBehaviour
                 DestroyImmediate(visualInstance);
             }
             visualInstance = null;
+            p09VisualAnimatorRoot = null;
         }
 
-        if (prefab != null)
+        GameObject prefabToSpawn = p09Preset != null && p09Preset.baseVisualPrefab != null
+            ? p09Preset.baseVisualPrefab
+            : prefab;
+
+        if (prefabToSpawn != null)
         {
             Transform parent = visualParent != null ? visualParent : transform;
-            visualInstance = Instantiate(prefab, parent);
+            visualInstance = Instantiate(prefabToSpawn, parent);
             visualInstance.transform.localPosition = Vector3.zero;
             visualInstance.transform.localRotation = Quaternion.identity;
             visualInstance.transform.localScale = Vector3.one;
-            animator = visualInstance.GetComponentInChildren<Animator>();
+
+            if (p09Preset != null)
+            {
+                var applier = visualInstance.GetComponent<P09HumanoidVisualApplier>();
+                if (applier == null)
+                {
+                    applier = visualInstance.AddComponent<P09HumanoidVisualApplier>();
+                }
+
+                applier.ApplyPreset(p09Preset);
+                animator = applier.Animator != null ? applier.Animator : visualInstance.GetComponentInChildren<Animator>();
+                p09VisualAnimatorRoot = animator != null ? animator.transform : null;
+            }
+            else
+            {
+                animator = visualInstance.GetComponentInChildren<Animator>();
+                p09VisualAnimatorRoot = null;
+            }
         }
         else
         {
             animator = GetComponentInChildren<Animator>();
+            p09VisualAnimatorRoot = null;
         }
 
         if (animator != null)
         {
+            animator.applyRootMotion = false;
             sharedAnimator?.SetAnimatorReference(animator);
             sharedAnimator?.SetAnimationSpeed(1f);
         }
         else
         {
             Debug.LogWarning($"Hunter '{name}' has no Animator assigned after visual setup.", this);
+        }
+    }
+
+    private void SnapVisualToParent()
+    {
+        if (visualInstance == null) return;
+
+        Transform visualTransform = visualInstance.transform;
+        if (visualTransform.localPosition != Vector3.zero)
+        {
+            visualTransform.localPosition = Vector3.zero;
+        }
+
+        if (visualTransform.localRotation != Quaternion.identity)
+        {
+            visualTransform.localRotation = Quaternion.identity;
+        }
+
+        if (p09VisualAnimatorRoot != null && p09VisualAnimatorRoot != visualTransform)
+        {
+            if (p09VisualAnimatorRoot.localPosition != Vector3.zero)
+            {
+                p09VisualAnimatorRoot.localPosition = Vector3.zero;
+            }
+
+            if (p09VisualAnimatorRoot.localRotation != Quaternion.identity)
+            {
+                p09VisualAnimatorRoot.localRotation = Quaternion.identity;
+            }
         }
     }
 
