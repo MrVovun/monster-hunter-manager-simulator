@@ -57,7 +57,7 @@ AssetOrigin:
   serializedVersion: 1
   productId: 63772
   packageName: RPG Character Mecanim Animation Pack
-  packageVersion: 7.2.1
-  assetPath: Assets/ExplosiveLLC/PerfectLookAt/Models/UnityModel/DefaultAvatar.fbm/face
+  packageVersion: 7.2.2
+  assetPath: Assets/_ThirdParty/ExplosiveLLC/PerfectLookAt/Models/UnityModel/DefaultAvatar.fbm/face
     normal.png
-  uploadId: 788702
+  uploadId: 850048

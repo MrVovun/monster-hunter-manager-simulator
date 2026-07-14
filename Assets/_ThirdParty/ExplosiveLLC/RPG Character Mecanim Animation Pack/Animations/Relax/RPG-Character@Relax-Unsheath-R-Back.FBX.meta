@@ -1583,6 +1583,6 @@ AssetOrigin:
   serializedVersion: 1
   productId: 63772
   packageName: RPG Character Mecanim Animation Pack
-  packageVersion: 7.2.1
-  assetPath: Assets/ExplosiveLLC/RPG Character Mecanim Animation Pack/Animations/Relax/RPG-Character@Relax-Unsheath-R-Back.FBX
-  uploadId: 788702
+  packageVersion: 7.2.2
+  assetPath: Assets/_ThirdParty/ExplosiveLLC/RPG Character Mecanim Animation Pack/Animations/Relax/RPG-Character@Relax-Unsheath-R-Back.FBX
+  uploadId: 850048

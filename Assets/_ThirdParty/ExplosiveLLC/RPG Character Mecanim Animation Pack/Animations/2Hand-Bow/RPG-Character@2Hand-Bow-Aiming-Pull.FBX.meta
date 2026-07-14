@@ -745,10 +745,7 @@ ModelImporter:
     rigImportErrors: 
     rigImportWarnings: 
     animationImportErrors: 
-    animationImportWarnings: "\nClip 'Take 001' has import animation warnings that
-      might lower retargeting quality:\nNote: Activate translation DOF on avatar
-      to improve retargeting quality.\n\t'B_Spine' has translation animation that
-      will be discarded.\n\t'B_Spine1' has translation animation that will be discarded.\n"
+    animationImportWarnings: 
     animationRetargetingWarnings: 
     animationDoRetargetingWarnings: 0
     importAnimatedCustomProperties: 0
@@ -783,7 +780,7 @@ ModelImporter:
       keepOriginalPositionXZ: 0
       heightFromFeet: 0
       mirror: 0
-      bodyMask: 00000000010000000100000000000000000000000100000001000000010000000100000000000000000000000100000001000000
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
       events: []
       transformMask: []
@@ -1793,6 +1790,6 @@ AssetOrigin:
   serializedVersion: 1
   productId: 63772
   packageName: RPG Character Mecanim Animation Pack
-  packageVersion: 7.2.1
-  assetPath: Assets/ExplosiveLLC/RPG Character Mecanim Animation Pack/Animations/2Hand-Bow/RPG-Character@2Hand-Bow-Aiming-Pull.FBX
-  uploadId: 788702
+  packageVersion: 7.2.2
+  assetPath: Assets/_ThirdParty/ExplosiveLLC/RPG Character Mecanim Animation Pack/Animations/2Hand-Bow/RPG-Character@2Hand-Bow-Aiming-Pull.FBX
+  uploadId: 850048

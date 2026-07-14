@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 using RPGCharacterAnims.Lookups;
+using RPGCharacterAnims.Extensions;
 
 namespace RPGCharacterAnims
 {
@@ -22,8 +23,7 @@ namespace RPGCharacterAnims
 		{
 			if (targetPosition != null) {
 				targetPosition = rpgCharacterController.target.transform.position;
-				if (IsOutOfRange(transform.position, targetPosition))
-				{ rpgCharacterController.StartAction(HandlerTypes.Navigation, RandomOffset(targetPosition)); }
+				if (IsOutOfRange(transform.position, targetPosition)) { rpgCharacterController.StartAction(HandlerTypes.Navigation, RandomOffset(targetPosition)); }
 			}
 		}
 

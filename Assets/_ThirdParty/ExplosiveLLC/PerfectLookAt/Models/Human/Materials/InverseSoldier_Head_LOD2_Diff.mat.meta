@@ -11,6 +11,6 @@ AssetOrigin:
   serializedVersion: 1
   productId: 63772
   packageName: RPG Character Mecanim Animation Pack
-  packageVersion: 7.2.1
-  assetPath: Assets/ExplosiveLLC/PerfectLookAt/Models/Human/Materials/InverseSoldier_Head_LOD2_Diff.mat
-  uploadId: 788702
+  packageVersion: 7.2.2
+  assetPath: Assets/_ThirdParty/ExplosiveLLC/PerfectLookAt/Models/Human/Materials/InverseSoldier_Head_LOD2_Diff.mat
+  uploadId: 850048
