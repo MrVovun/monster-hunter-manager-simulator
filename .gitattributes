@@ -8,3 +8,4 @@
 *.psd filter=lfs diff=lfs merge=lfs -text
 *.tga filter=lfs diff=lfs merge=lfs -text
 *.wav filter=lfs diff=lfs merge=lfs -text
+Assets/_ThirdParty/P09_Modular_Humanoid/Model_DATA/MagicaCloth_Data/**/*.asset filter=lfs diff=lfs merge=lfs -text
