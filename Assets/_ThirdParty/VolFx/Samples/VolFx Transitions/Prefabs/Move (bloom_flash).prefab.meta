@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 35e29aa9a3f96cf4cb31cdf247b826b0
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 300643
+  packageName: VolFx - VFX Toolkit (Post Processing, Shaders, Timeline Tools)
+  packageVersion: 2.12.2
+  assetPath: Assets/VolFx/Samples/VolFx Transitions/Prefabs/Move (bloom_flash).prefab
+  uploadId: 947366

@@ -14,18 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::P09HumanoidPreset
   baseVisualPrefab: {fileID: 8043014192414592335, guid: e2d7e7277ebc6b944a39ab96f554a1cd, type: 3}
   library: {fileID: 11400000, guid: 02e89468f1d7380488d92fa02b6296b8, type: 2}
-  sexId: 2
+  sexId: 1
   faceTypeId: 3
-  hairStyleId: 3
-  hairColorId: 3
-  skinId: 1
-  eyeColorId: 4
-  facialHairId: 0
+  hairStyleId: 5
+  hairColorId: 5
+  skinId: 2
+  eyeColorId: 5
+  facialHairId: 6
   bustSizeId: 2
   weaponId: 3
-  shieldId: 0
+  shieldId: 1
   headId: 0
-  chestId: 1
-  armId: 0
-  waistId: 1
-  legId: 7
+  chestId: 9
+  armId: 1
+  waistId: 2
+  legId: 9

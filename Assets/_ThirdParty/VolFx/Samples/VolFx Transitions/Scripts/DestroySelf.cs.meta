@@ -1,0 +1,10 @@
+fileFormatVersion: 2
+guid: 002b355bb0f647549721d96e25b9dba7
+timeCreated: 1760699806
+AssetOrigin:
+  serializedVersion: 1
+  productId: 300643
+  packageName: VolFx - VFX Toolkit (Post Processing, Shaders, Timeline Tools)
+  packageVersion: 2.12.2
+  assetPath: Assets/VolFx/Samples/VolFx Transitions/Scripts/DestroySelf.cs
+  uploadId: 947366

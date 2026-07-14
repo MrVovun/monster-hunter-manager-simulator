@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 8cdd160d5ba395d41907d1be9e815fc0
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 300643
+  packageName: VolFx - VFX Toolkit (Post Processing, Shaders, Timeline Tools)
+  packageVersion: 2.12.2
+  assetPath: Assets/VolFx/Samples/VolFx/Shadows (Advanced) (Unity 6 Fix).unity
+  uploadId: 947366

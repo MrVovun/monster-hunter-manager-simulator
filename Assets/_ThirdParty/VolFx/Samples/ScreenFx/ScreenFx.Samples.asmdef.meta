@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 5251951f264f8a04d93bd6371e0588db
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 300643
+  packageName: VolFx - VFX Toolkit (Post Processing, Shaders, Timeline Tools)
+  packageVersion: 2.12.2
+  assetPath: Assets/VolFx/Samples/ScreenFx/ScreenFx.Samples.asmdef
+  uploadId: 947366

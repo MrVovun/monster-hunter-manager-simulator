@@ -1,0 +1,10 @@
+fileFormatVersion: 2
+guid: e44551304e0c491681ea89a86356e976
+timeCreated: 1760546467
+AssetOrigin:
+  serializedVersion: 1
+  productId: 300643
+  packageName: VolFx - VFX Toolkit (Post Processing, Shaders, Timeline Tools)
+  packageVersion: 2.12.2
+  assetPath: Assets/VolFx/Samples/VolFx Transitions/Scripts/SetActiveChildRandom.cs
+  uploadId: 947366

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: b80750a737c95ea43a2cf99ba7c3d6db
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 300643
+  packageName: VolFx - VFX Toolkit (Post Processing, Shaders, Timeline Tools)
+  packageVersion: 2.12.2
+  assetPath: Assets/VolFx/Samples/VolFx Transitions/_Phoenix (Transitions).unity
+  uploadId: 947366

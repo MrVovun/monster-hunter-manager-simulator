@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 40d689c04b5601a4491a20fedc1af65f
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 300643
+  packageName: VolFx - VFX Toolkit (Post Processing, Shaders, Timeline Tools)
+  packageVersion: 2.12.2
+  assetPath: Assets/VolFx/Samples/VolFx/Vols/Samples/Aestetic_Minor_Invert.asset
+  uploadId: 947366

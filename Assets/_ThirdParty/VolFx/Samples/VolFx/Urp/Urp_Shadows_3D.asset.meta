@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 4144eea5041a90b488797c4a295ef37b
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 300643
+  packageName: VolFx - VFX Toolkit (Post Processing, Shaders, Timeline Tools)
+  packageVersion: 2.12.2
+  assetPath: Assets/VolFx/Samples/VolFx/Urp/Urp_Shadows_3D.asset
+  uploadId: 947366

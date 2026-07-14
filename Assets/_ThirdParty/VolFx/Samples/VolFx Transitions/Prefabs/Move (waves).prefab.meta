@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 0c89cf042647b11458c36b949cda1229
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 300643
+  packageName: VolFx - VFX Toolkit (Post Processing, Shaders, Timeline Tools)
+  packageVersion: 2.12.2
+  assetPath: Assets/VolFx/Samples/VolFx Transitions/Prefabs/Move (waves).prefab
+  uploadId: 947366
