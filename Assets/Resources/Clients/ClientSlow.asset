@@ -13,7 +13,9 @@ MonoBehaviour:
   m_Name: ClientSlow
   m_EditorClassIdentifier: Assembly-CSharp::ClientProfile
   profileId: 0331e973916946c79a17ae6abe645268
-  categoryName: clientSlow
+  categoryName: Slow Client
   responseDelaySeconds: 6
   visualPrefabs:
   - {fileID: 1430950555806150, guid: 96b84116ceefa1b40b5e0b8895fc9b38, type: 3}
+  p09VisualPresets:
+  - {fileID: 11400000, guid: 1cf8f09cf6a399842ab0996f7fd41273, type: 2}

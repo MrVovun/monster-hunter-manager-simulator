@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using P09.Modular.Humanoid.Data;
 using UnityEditor;
+using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
 [CustomEditor(typeof(P09HumanoidPreset))]
 public class P09HumanoidPresetEditor : Editor
 {
     private const float IconSize = 48f;
+    private readonly AdvancedDropdownState dropdownState = new AdvancedDropdownState();
 
     public override void OnInspectorGUI()
     {
@@ -142,13 +144,24 @@ public class P09HumanoidPresetEditor : Editor
         }
 
         EditorGUILayout.BeginHorizontal();
-        int newIndex = EditorGUILayout.Popup(label, selectedIndex, options.ToArray());
-        if (newIndex != selectedIndex)
+        Rect fieldRect = EditorGUILayout.GetControlRect();
+        Rect dropdownRect = EditorGUI.PrefixLabel(fieldRect, new GUIContent(label));
+        string selectedLabel = selectedIndex >= 0 && selectedIndex < options.Count ? options[selectedIndex] : $"Missing ID {currentId}";
+        if (EditorGUI.DropdownButton(dropdownRect, new GUIContent(selectedLabel), FocusType.Keyboard))
         {
-            if (newIndex >= 0 && newIndex < optionIds.Count)
+            var picker = new PartPickerDropdown(dropdownState, options, optionIds, selectedIndex, id =>
             {
-                property.intValue = optionIds[newIndex];
-            }
+                serializedObject.Update();
+                SerializedProperty targetProperty = serializedObject.FindProperty(propertyName);
+                if (targetProperty != null)
+                {
+                    targetProperty.intValue = id;
+                }
+
+                ApplyModifiedProperties();
+                Repaint();
+            });
+            picker.Show(dropdownRect);
         }
 
         IEditPartData currentPart = null;
@@ -166,7 +179,11 @@ public class P09HumanoidPresetEditor : Editor
     {
         return type == EditPartType.Weapon ||
                type == EditPartType.Shield ||
-               type == EditPartType.Head;
+               type == EditPartType.Head ||
+               type == EditPartType.Chest ||
+               type == EditPartType.Arm ||
+               type == EditPartType.Waist ||
+               type == EditPartType.Leg;
     }
 
     private static string GetEmptySelectionLabel(EditPartType type)
@@ -176,6 +193,10 @@ public class P09HumanoidPresetEditor : Editor
             EditPartType.Weapon => "0 - None (No Weapon)",
             EditPartType.Shield => "0 - None (No Shield)",
             EditPartType.Head => "0 - None (No Helmet)",
+            EditPartType.Chest => "0 - None (No Chest Armor)",
+            EditPartType.Arm => "0 - None (No Arm Armor)",
+            EditPartType.Waist => "0 - None (No Waist Armor)",
+            EditPartType.Leg => "0 - None (No Leg Armor)",
             _ => "0 - None"
         };
     }
@@ -210,6 +231,58 @@ public class P09HumanoidPresetEditor : Editor
             ColorEditPartData color => color.Icon,
             _ => null
         };
+    }
+
+    private sealed class PartPickerDropdown : AdvancedDropdown
+    {
+        private readonly IReadOnlyList<string> labels;
+        private readonly IReadOnlyList<int> ids;
+        private readonly int selectedIndex;
+        private readonly System.Action<int> onSelected;
+
+        public PartPickerDropdown(
+            AdvancedDropdownState state,
+            IReadOnlyList<string> labels,
+            IReadOnlyList<int> ids,
+            int selectedIndex,
+            System.Action<int> onSelected) : base(state)
+        {
+            this.labels = labels;
+            this.ids = ids;
+            this.selectedIndex = selectedIndex;
+            this.onSelected = onSelected;
+            minimumSize = new Vector2(320f, 360f);
+        }
+
+        protected override AdvancedDropdownItem BuildRoot()
+        {
+            var root = new AdvancedDropdownItem("Select Part");
+            for (int i = 0; i < labels.Count; i++)
+            {
+                string itemLabel = i == selectedIndex ? $"{labels[i]} [selected]" : labels[i];
+                root.AddChild(new PartPickerItem(itemLabel, ids[i]));
+            }
+
+            return root;
+        }
+
+        protected override void ItemSelected(AdvancedDropdownItem item)
+        {
+            if (item is PartPickerItem pickerItem)
+            {
+                onSelected?.Invoke(pickerItem.Id);
+            }
+        }
+    }
+
+    private sealed class PartPickerItem : AdvancedDropdownItem
+    {
+        public int Id { get; }
+
+        public PartPickerItem(string name, int id) : base(name)
+        {
+            Id = id;
+        }
     }
 
     private void DrawValidation(P09HumanoidPreset preset)

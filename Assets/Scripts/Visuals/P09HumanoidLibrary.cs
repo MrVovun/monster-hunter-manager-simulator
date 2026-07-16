@@ -119,7 +119,11 @@ public class P09HumanoidLibrary : ScriptableObject
     {
         return type == EditPartType.Weapon ||
                type == EditPartType.Shield ||
-               type == EditPartType.Head;
+               type == EditPartType.Head ||
+               type == EditPartType.Chest ||
+               type == EditPartType.Arm ||
+               type == EditPartType.Waist ||
+               type == EditPartType.Leg;
     }
 
     private static bool HasMatchingTransform(Transform root, string meshName, int sexId, int hairStyleId)

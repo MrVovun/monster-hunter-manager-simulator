@@ -296,10 +296,11 @@
       "url": "https://packages.unity.com"
     },
     "jp.lilxyzw.liltoon": {
-      "version": "file:C:/Users/mrvov/Downloads/jp.lilxyzw.liltoon-2.3.3",
+      "version": "https://github.com/lilxyzw/lilToon.git?path=Assets/lilToon#2.3.3",
       "depth": 0,
-      "source": "local",
-      "dependencies": {}
+      "source": "git",
+      "dependencies": {},
+      "hash": "6ef0cc43b7d56d27f516ea27717faf08486b2842"
     },
     "com.unity.modules.accessibility": {
       "version": "1.0.0",

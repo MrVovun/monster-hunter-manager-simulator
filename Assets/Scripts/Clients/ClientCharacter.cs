@@ -9,6 +9,7 @@ public class ClientCharacter : MonoBehaviour
     [SerializeField] private ClientInteractable interactable;
 
     private GameObject visualInstance;
+    private Transform p09VisualAnimatorRoot;
 
     public NavMeshAgent Agent => navAgent;
     public SharedCharacterAnimator AnimatorController => sharedAnimator;
@@ -52,6 +53,7 @@ public class ClientCharacter : MonoBehaviour
         {
             Destroy(visualInstance);
             visualInstance = null;
+            p09VisualAnimatorRoot = null;
         }
 
         if (prefab == null) return;
@@ -73,14 +75,55 @@ public class ClientCharacter : MonoBehaviour
 
             applier.ApplyPreset(p09Preset);
             animator = applier.Animator != null ? applier.Animator : visualInstance.GetComponentInChildren<Animator>();
+            p09VisualAnimatorRoot = animator != null ? animator.transform : null;
         }
         else
         {
             animator = visualInstance.GetComponentInChildren<Animator>();
+            p09VisualAnimatorRoot = null;
+        }
+
+        if (animator != null)
+        {
+            animator.applyRootMotion = false;
         }
 
         sharedAnimator.SetAnimatorReference(animator);
         sharedAnimator.SetAnimationSpeed(1f);
+    }
+
+    private void LateUpdate()
+    {
+        SnapVisualToParent();
+    }
+
+    private void SnapVisualToParent()
+    {
+        if (visualInstance == null) return;
+
+        Transform visualTransform = visualInstance.transform;
+        if (visualTransform.localPosition != Vector3.zero)
+        {
+            visualTransform.localPosition = Vector3.zero;
+        }
+
+        if (visualTransform.localRotation != Quaternion.identity)
+        {
+            visualTransform.localRotation = Quaternion.identity;
+        }
+
+        if (p09VisualAnimatorRoot != null && p09VisualAnimatorRoot != visualTransform)
+        {
+            if (p09VisualAnimatorRoot.localPosition != Vector3.zero)
+            {
+                p09VisualAnimatorRoot.localPosition = Vector3.zero;
+            }
+
+            if (p09VisualAnimatorRoot.localRotation != Quaternion.identity)
+            {
+                p09VisualAnimatorRoot.localRotation = Quaternion.identity;
+            }
+        }
     }
 
     public void AssignInvestigation(InvestigationManager manager, InvestigationCase caseData)
@@ -113,6 +156,7 @@ public class ClientCharacter : MonoBehaviour
         {
             Destroy(visualInstance);
             visualInstance = null;
+            p09VisualAnimatorRoot = null;
         }
 
         if (interactable != null)

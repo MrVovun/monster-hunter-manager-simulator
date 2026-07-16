@@ -13,7 +13,9 @@ MonoBehaviour:
   m_Name: ClientFast
   m_EditorClassIdentifier: Assembly-CSharp::ClientProfile
   profileId: 69f6b12694d64266b99121bda5812f63
-  categoryName: clientFast
-  responseDelaySeconds: 3
+  categoryName: Fast Client
+  responseDelaySeconds: 2
   visualPrefabs:
   - {fileID: 1994405316355894, guid: 8bfc15e2e06cb854989642d720d227e9, type: 3}
+  p09VisualPresets:
+  - {fileID: 11400000, guid: 60cc0ee242e9c034ea957342ec0978df, type: 2}

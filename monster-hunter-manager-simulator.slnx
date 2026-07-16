@@ -6,7 +6,6 @@
   <Project Path="MagicaClothV2.csproj" />
   <Project Path="Febucci.TextAnimatorForUnity.TMP.Runtime.csproj" />
   <Project Path="VolFx.csproj" />
-  <Project Path="lilToon.Editor.csproj" />
   <Project Path="VolFx.Transitions.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />
   <Project Path="Febucci.TextAnimator.Demo.Runtime.csproj" />
@@ -20,5 +19,4 @@
   <Project Path="ScreenFx.Editor.csproj" />
   <Project Path="ScreenFx.Samples.csproj" />
   <Project Path="VolFx.Samples.csproj" />
-  <Project Path="lilToon.Editor.External.csproj" />
 </Solution>
