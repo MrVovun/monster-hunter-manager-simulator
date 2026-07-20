@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: VolFx::VolFx.SharpenVol
   active: 0
   m_Impact:
-    m_OverrideState: 0
-    m_Value: 0
+    m_OverrideState: 1
+    m_Value: 0.13
   m_Thikness:
-    m_OverrideState: 0
-    m_Value: 0
+    m_OverrideState: 1
+    m_Value: 1
   m_Value:
-    m_OverrideState: 0
+    m_OverrideState: 1
     m_Value:
       _curve:
         serializedVersion: 2
@@ -30,7 +30,7 @@ MonoBehaviour:
           value: 1
           inSlope: 0
           outSlope: 0
-          tangentMode: 0
+          tangentMode: 34
           weightedMode: 0
           inWeight: 0
           outWeight: 0
@@ -39,7 +39,7 @@ MonoBehaviour:
           value: 1
           inSlope: 0
           outSlope: 0
-          tangentMode: 0
+          tangentMode: 34
           weightedMode: 0
           inWeight: 0
           outWeight: 0
@@ -80,7 +80,7 @@ MonoBehaviour:
       - {r: 1, g: 1, b: 1, a: 1}
       - {r: 1, g: 1, b: 1, a: 1}
   m_Tint:
-    m_OverrideState: 0
+    m_OverrideState: 1
     m_Value: {r: 1, g: 1, b: 1, a: 1}
   m_OffsetX:
     m_OverrideState: 0
@@ -105,28 +105,28 @@ MonoBehaviour:
     m_OverrideState: 1
     m_Value: 1
   m_Gradient:
-    m_OverrideState: 0
+    m_OverrideState: 1
     m_Value:
       _grad:
         serializedVersion: 2
-        key0: {r: 0, g: 0, b: 0, a: 0}
-        key1: {r: 1, g: 1, b: 1, a: 0}
-        key2: {r: 0, g: 0, b: 0, a: 0}
-        key3: {r: 0, g: 0, b: 0, a: 0}
-        key4: {r: 0, g: 0, b: 0, a: 0}
-        key5: {r: 0, g: 0, b: 0, a: 0}
+        key0: {r: 0.08610714, g: 0.1135138, b: 0.14150941, a: 1}
+        key1: {r: 0.26666322, g: 0.24959949, b: 0.6698113, a: 1}
+        key2: {r: 0.37195867, g: 0.3476326, b: 0.7924528, a: 0}
+        key3: {r: 1, g: 0.19895984, b: 0.15566039, a: 0}
+        key4: {r: 1, g: 0.45709425, b: 0, a: 0}
+        key5: {r: 0.9811321, g: 0.75217, b: 0, a: 0}
         key6: {r: 0, g: 0, b: 0, a: 0}
         key7: {r: 0, g: 0, b: 0, a: 0}
         ctime0: 0
-        ctime1: 65535
-        ctime2: 0
-        ctime3: 0
-        ctime4: 0
-        ctime5: 0
+        ctime1: 10601
+        ctime2: 20003
+        ctime3: 33539
+        ctime4: 46865
+        ctime5: 65535
         ctime6: 0
         ctime7: 0
         atime0: 0
-        atime1: 0
+        atime1: 65535
         atime2: 0
         atime3: 0
         atime4: 0
@@ -134,42 +134,42 @@ MonoBehaviour:
         atime6: 0
         atime7: 0
         m_Mode: 0
-        m_ColorSpace: -1
-        m_NumColorKeys: 2
+        m_ColorSpace: 0
+        m_NumColorKeys: 6
         m_NumAlphaKeys: 2
       _pixels:
-      - {r: 0, g: 0, b: 0, a: 0}
-      - {r: 0.032258064, g: 0.032258064, b: 0.032258064, a: 0}
-      - {r: 0.06451613, g: 0.06451613, b: 0.06451613, a: 0}
-      - {r: 0.09677419, g: 0.09677419, b: 0.09677419, a: 0}
-      - {r: 0.12903225, g: 0.12903225, b: 0.12903225, a: 0}
-      - {r: 0.16129032, g: 0.16129032, b: 0.16129032, a: 0}
-      - {r: 0.19354838, g: 0.19354838, b: 0.19354838, a: 0}
-      - {r: 0.22580644, g: 0.22580644, b: 0.22580644, a: 0}
-      - {r: 0.2580645, g: 0.2580645, b: 0.2580645, a: 0}
-      - {r: 0.29032257, g: 0.29032257, b: 0.29032257, a: 0}
-      - {r: 0.32258064, g: 0.32258064, b: 0.32258064, a: 0}
-      - {r: 0.3548387, g: 0.3548387, b: 0.3548387, a: 0}
-      - {r: 0.38709676, g: 0.38709676, b: 0.38709676, a: 0}
-      - {r: 0.41935483, g: 0.41935483, b: 0.41935483, a: 0}
-      - {r: 0.4516129, g: 0.4516129, b: 0.4516129, a: 0}
-      - {r: 0.48387095, g: 0.48387095, b: 0.48387095, a: 0}
-      - {r: 0.516129, g: 0.516129, b: 0.516129, a: 0}
-      - {r: 0.5483871, g: 0.5483871, b: 0.5483871, a: 0}
-      - {r: 0.58064514, g: 0.58064514, b: 0.58064514, a: 0}
-      - {r: 0.61290324, g: 0.61290324, b: 0.61290324, a: 0}
-      - {r: 0.6451613, g: 0.6451613, b: 0.6451613, a: 0}
-      - {r: 0.67741936, g: 0.67741936, b: 0.67741936, a: 0}
-      - {r: 0.7096774, g: 0.7096774, b: 0.7096774, a: 0}
-      - {r: 0.7419355, g: 0.7419355, b: 0.7419355, a: 0}
-      - {r: 0.7741935, g: 0.7741935, b: 0.7741935, a: 0}
-      - {r: 0.8064516, g: 0.8064516, b: 0.8064516, a: 0}
-      - {r: 0.83870965, g: 0.83870965, b: 0.83870965, a: 0}
-      - {r: 0.87096775, g: 0.87096775, b: 0.87096775, a: 0}
-      - {r: 0.9032258, g: 0.9032258, b: 0.9032258, a: 0}
-      - {r: 0.9354839, g: 0.9354839, b: 0.9354839, a: 0}
-      - {r: 0.9677419, g: 0.9677419, b: 0.9677419, a: 0}
-      - {r: 1, g: 1, b: 1, a: 0}
+      - {r: 0.08610714, g: 0.1135138, b: 0.14150941, a: 1}
+      - {r: 0.12211331, g: 0.14065176, b: 0.24686241, a: 1}
+      - {r: 0.15811947, g: 0.16778973, b: 0.3522154, a: 1}
+      - {r: 0.19412565, g: 0.19492769, b: 0.45756844, a: 1}
+      - {r: 0.2301318, g: 0.22206564, b: 0.5629214, a: 1}
+      - {r: 0.266138, g: 0.2492036, b: 0.66827446, a: 1}
+      - {r: 0.28999344, g: 0.2713206, b: 0.6969849, a: 1}
+      - {r: 0.31366906, g: 0.29336327, b: 0.72456074, a: 1}
+      - {r: 0.33734465, g: 0.31540594, b: 0.7521366, a: 1}
+      - {r: 0.36102024, g: 0.3374486, b: 0.7797124, a: 1}
+      - {r: 0.42472798, g: 0.3351408, b: 0.7389482, a: 1}
+      - {r: 0.5228145, g: 0.31192133, b: 0.639495, a: 1}
+      - {r: 0.6209011, g: 0.28870183, b: 0.5400416, a: 1}
+      - {r: 0.7189876, g: 0.26548237, b: 0.4405884, a: 1}
+      - {r: 0.8170742, g: 0.24226284, b: 0.34113505, a: 1}
+      - {r: 0.9151607, g: 0.21904337, b: 0.24168181, a: 1}
+      - {r: 1, g: 0.20449048, b: 0.1523253, a: 1}
+      - {r: 1, g: 0.2454409, b: 0.12763135, a: 1}
+      - {r: 1, g: 0.28639117, b: 0.10293749, a: 1}
+      - {r: 1, g: 0.3273416, b: 0.078243546, a: 1}
+      - {r: 1, g: 0.3682919, b: 0.053549647, a: 1}
+      - {r: 1, g: 0.40924233, b: 0.028855696, a: 1}
+      - {r: 1, g: 0.45019263, b: 0.0041618347, a: 1}
+      - {r: 0.9982236, g: 0.48487502, b: 0, a: 1}
+      - {r: 0.9960872, g: 0.5182869, b: 0, a: 1}
+      - {r: 0.9939507, g: 0.5516988, b: 0, a: 1}
+      - {r: 0.9918143, g: 0.5851106, b: 0, a: 1}
+      - {r: 0.98967785, g: 0.6185225, b: 0, a: 1}
+      - {r: 0.98754144, g: 0.6519344, b: 0, a: 1}
+      - {r: 0.98540497, g: 0.6853463, b: 0, a: 1}
+      - {r: 0.98326856, g: 0.7187581, b: 0, a: 1}
+      - {r: 0.9811321, g: 0.75217, b: 0, a: 1}
   m_Offset:
     m_OverrideState: 0
     m_Value: 0
@@ -177,7 +177,7 @@ MonoBehaviour:
     m_OverrideState: 0
     m_Value: 0
   m_Stretch:
-    m_OverrideState: 0
+    m_OverrideState: 1
     m_Value: 0
   m_Mask:
     m_OverrideState: 0
@@ -269,19 +269,19 @@ MonoBehaviour:
         m_Curve:
         - serializedVersion: 3
           time: 0
-          value: 0
+          value: 1
           inSlope: 0
           outSlope: 0
-          tangentMode: 0
+          tangentMode: 34
           weightedMode: 0
           inWeight: 0
           outWeight: 0
         - serializedVersion: 3
           time: 1
-          value: 0
+          value: 1
           inSlope: 0
           outSlope: 0
-          tangentMode: 0
+          tangentMode: 34
           weightedMode: 0
           inWeight: 0
           outWeight: 0
@@ -289,38 +289,38 @@ MonoBehaviour:
         m_PostInfinity: 2
         m_RotationOrder: 4
       _pixels:
-      - {r: 0, g: 0, b: 0, a: 0}
-      - {r: 0, g: 0, b: 0, a: 0}
-      - {r: 0, g: 0, b: 0, a: 0}
-      - {r: 0, g: 0, b: 0, a: 0}
-      - {r: 0, g: 0, b: 0, a: 0}
-      - {r: 0, g: 0, b: 0, a: 0}
-      - {r: 0, g: 0, b: 0, a: 0}
-      - {r: 0, g: 0, b: 0, a: 0}
-      - {r: 0, g: 0, b: 0, a: 0}
-      - {r: 0, g: 0, b: 0, a: 0}
-      - {r: 0, g: 0, b: 0, a: 0}
-      - {r: 0, g: 0, b: 0, a: 0}
-      - {r: 0, g: 0, b: 0, a: 0}
-      - {r: 0, g: 0, b: 0, a: 0}
-      - {r: 0, g: 0, b: 0, a: 0}
-      - {r: 0, g: 0, b: 0, a: 0}
-      - {r: 0, g: 0, b: 0, a: 0}
-      - {r: 0, g: 0, b: 0, a: 0}
-      - {r: 0, g: 0, b: 0, a: 0}
-      - {r: 0, g: 0, b: 0, a: 0}
-      - {r: 0, g: 0, b: 0, a: 0}
-      - {r: 0, g: 0, b: 0, a: 0}
-      - {r: 0, g: 0, b: 0, a: 0}
-      - {r: 0, g: 0, b: 0, a: 0}
-      - {r: 0, g: 0, b: 0, a: 0}
-      - {r: 0, g: 0, b: 0, a: 0}
-      - {r: 0, g: 0, b: 0, a: 0}
-      - {r: 0, g: 0, b: 0, a: 0}
-      - {r: 0, g: 0, b: 0, a: 0}
-      - {r: 0, g: 0, b: 0, a: 0}
-      - {r: 0, g: 0, b: 0, a: 0}
-      - {r: 0, g: 0, b: 0, a: 0}
+      - {r: 1, g: 1, b: 1, a: 1}
+      - {r: 1, g: 1, b: 1, a: 1}
+      - {r: 1, g: 1, b: 1, a: 1}
+      - {r: 1, g: 1, b: 1, a: 1}
+      - {r: 1, g: 1, b: 1, a: 1}
+      - {r: 1, g: 1, b: 1, a: 1}
+      - {r: 1, g: 1, b: 1, a: 1}
+      - {r: 1, g: 1, b: 1, a: 1}
+      - {r: 1, g: 1, b: 1, a: 1}
+      - {r: 1, g: 1, b: 1, a: 1}
+      - {r: 1, g: 1, b: 1, a: 1}
+      - {r: 1, g: 1, b: 1, a: 1}
+      - {r: 1, g: 1, b: 1, a: 1}
+      - {r: 1, g: 1, b: 1, a: 1}
+      - {r: 1, g: 1, b: 1, a: 1}
+      - {r: 1, g: 1, b: 1, a: 1}
+      - {r: 1, g: 1, b: 1, a: 1}
+      - {r: 1, g: 1, b: 1, a: 1}
+      - {r: 1, g: 1, b: 1, a: 1}
+      - {r: 1, g: 1, b: 1, a: 1}
+      - {r: 1, g: 1, b: 1, a: 1}
+      - {r: 1, g: 1, b: 1, a: 1}
+      - {r: 1, g: 1, b: 1, a: 1}
+      - {r: 1, g: 1, b: 1, a: 1}
+      - {r: 1, g: 1, b: 1, a: 1}
+      - {r: 1, g: 1, b: 1, a: 1}
+      - {r: 1, g: 1, b: 1, a: 1}
+      - {r: 1, g: 1, b: 1, a: 1}
+      - {r: 1, g: 1, b: 1, a: 1}
+      - {r: 1, g: 1, b: 1, a: 1}
+      - {r: 1, g: 1, b: 1, a: 1}
+      - {r: 1, g: 1, b: 1, a: 1}
   m_Brightness:
     m_OverrideState: 0
     m_Value: 0
@@ -388,7 +388,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d94e4d16c32d4354919ca310e9b07591, type: 3}
   m_Name: AdjustmentsVol
   m_EditorClassIdentifier: VolFx::VolFx.AdjustmentsVol
-  active: 0
+  active: 1
   m_Tint:
     m_OverrideState: 0
     m_Value: {r: 1, g: 1, b: 1, a: 1}

@@ -9615,6 +9615,7 @@ MonoBehaviour:
   tutorialActionId: 
   playInteractionFeedback: 1
   disableHudDuringInteraction: 0
+  hideNotificationFeedDuringInteraction: 0
   hudRootsToDisable: []
   customCamera: {fileID: 0}
   worldChalkVisual: {fileID: 242873984}
@@ -10571,6 +10572,7 @@ MonoBehaviour:
   tutorialActionId: 
   playInteractionFeedback: 1
   disableHudDuringInteraction: 0
+  hideNotificationFeedDuringInteraction: 0
   hudRootsToDisable: []
   customCamera: {fileID: 0}
   onTriggered:
@@ -25734,6 +25736,7 @@ MonoBehaviour:
   tutorialActionId: 
   playInteractionFeedback: 0
   disableHudDuringInteraction: 0
+  hideNotificationFeedDuringInteraction: 0
   hudRootsToDisable: []
   customCamera: {fileID: 0}
   bellAudio: {fileID: 93762664}
@@ -35185,6 +35188,7 @@ MonoBehaviour:
   tutorialActionId: 
   playInteractionFeedback: 1
   disableHudDuringInteraction: 0
+  hideNotificationFeedDuringInteraction: 0
   hudRootsToDisable: []
   customCamera: {fileID: 0}
   constructionManager: {fileID: 1519895550}
@@ -36518,6 +36522,7 @@ MonoBehaviour:
   tutorialActionId: 
   playInteractionFeedback: 1
   disableHudDuringInteraction: 0
+  hideNotificationFeedDuringInteraction: 0
   hudRootsToDisable: []
   customCamera: {fileID: 0}
   passTimeUI: {fileID: 1186025237}
@@ -37603,7 +37608,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 89.99875}
+  m_AnchoredPosition: {x: 0, y: 90}
   m_SizeDelta: {x: 1600, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &987253226
@@ -43775,6 +43780,7 @@ MonoBehaviour:
   tutorialActionId: 
   playInteractionFeedback: 1
   disableHudDuringInteraction: 0
+  hideNotificationFeedDuringInteraction: 0
   hudRootsToDisable: []
   customCamera: {fileID: 0}
   briefingRoomManager: {fileID: 358129144}
@@ -46199,6 +46205,7 @@ MonoBehaviour:
   tutorialActionId: 
   playInteractionFeedback: 1
   disableHudDuringInteraction: 1
+  hideNotificationFeedDuringInteraction: 0
   hudRootsToDisable:
   - {fileID: 109241453}
   customCamera: {fileID: 0}
@@ -58685,6 +58692,7 @@ MonoBehaviour:
   tutorialActionId: 
   playInteractionFeedback: 1
   disableHudDuringInteraction: 0
+  hideNotificationFeedDuringInteraction: 0
   hudRootsToDisable: []
   customCamera: {fileID: 0}
 --- !u!65 &1560721439
@@ -77526,6 +77534,7 @@ MonoBehaviour:
   tutorialActionId: 
   playInteractionFeedback: 1
   disableHudDuringInteraction: 0
+  hideNotificationFeedDuringInteraction: 0
   hudRootsToDisable: []
   customCamera: {fileID: 478857638}
   boardRenderer: {fileID: 1093684324}
