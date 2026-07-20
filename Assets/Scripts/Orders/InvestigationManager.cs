@@ -612,7 +612,7 @@ public class InvestigationManager : MonoBehaviour
         CompleteInvestigation();
     }
 
-    public void BeginHunterDialogue(List<InvestigationQuestion> questions, Dictionary<string, string> answers, Hunter hunter, Camera overrideCamera, float transitionDuration, System.Action<InvestigationQuestion> onQuestionSelected, System.Action onClosed, bool useDialogueCamera = true, System.Action<InvestigationQuestion, string> onResponseFinished = null)
+    public void BeginHunterDialogue(List<InvestigationQuestion> questions, Dictionary<string, string> answers, Hunter hunter, Camera overrideCamera, float transitionDuration, System.Action<InvestigationQuestion> onQuestionSelected, System.Action onClosed, bool useDialogueCamera = true, System.Action<InvestigationQuestion, string> onResponseFinished = null, bool keepConfiguredCameraHome = false)
     {
         hunterDialogueActive = true;
         hunterQuestions = questions != null ? new List<InvestigationQuestion>(questions) : new List<InvestigationQuestion>();
@@ -642,7 +642,7 @@ public class InvestigationManager : MonoBehaviour
 
         if (useDialogueCamera)
         {
-            if (currentHunter != null)
+            if (!keepConfiguredCameraHome && currentHunter != null)
             {
                 Vector3 forward = currentHunter.transform.forward;
                 Vector3 targetPos = currentHunter.transform.position - forward * 1.8f + Vector3.up * 1.6f;

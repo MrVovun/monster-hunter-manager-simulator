@@ -11,6 +11,11 @@ public class HunterInteractable : Interactable
     [SerializeField] private bool debugLogs = false;
     [SerializeField] private Vector3 cameraOffset = new Vector3(0f, 1.6f, -1.8f);
     [SerializeField] private Vector3 cameraLookOffset = new Vector3(0f, 1.5f, 0f);
+    [SerializeField] private bool focusDialogueCameraOnFace = true;
+    [SerializeField] private Transform faceFocusOverride;
+    [SerializeField] private float faceCameraDistance = 1.8f;
+    [SerializeField] private float faceCameraHeightOffset = -0.05f;
+    [SerializeField] private Vector3 faceLookOffset = new Vector3(0f, 0.02f, 0f);
     [SerializeField] private GameObject healVfx;
 
     private PlayerInteraction activePlayer;
@@ -166,17 +171,109 @@ public class HunterInteractable : Interactable
         questionList.Add(goodbye);
 
         ConfigureDialogueCameraTarget();
-        investigationManager.BeginHunterDialogue(questionList, answers, ownerHunter, null, cameraTransitionDuration, HandleQuestionSelected, ReleaseInteraction, useDialogueCamera: false, onResponseFinished: HandleResponseFinished);
+        investigationManager.BeginHunterDialogue(questionList, answers, ownerHunter, null, cameraTransitionDuration, HandleQuestionSelected, ReleaseInteraction, useDialogueCamera: true, onResponseFinished: HandleResponseFinished, keepConfiguredCameraHome: true);
     }
 
     private void ConfigureDialogueCameraTarget()
     {
         if (investigationManager == null || ownerHunter == null) return;
         Vector3 forward = ownerHunter.transform.forward;
-        Vector3 targetPos = ownerHunter.transform.position - forward * Mathf.Abs(cameraOffset.z) + Vector3.up * cameraOffset.y;
-        Vector3 lookTarget = ownerHunter.transform.position + Vector3.up * cameraLookOffset.y;
+        Vector3 lookTarget;
+        Vector3 targetPos;
+
+        if (focusDialogueCameraOnFace && TryGetDialogueFacePoint(out Vector3 facePoint))
+        {
+            lookTarget = facePoint + faceLookOffset;
+            targetPos = facePoint - forward * Mathf.Max(0.1f, faceCameraDistance) + Vector3.up * faceCameraHeightOffset;
+        }
+        else
+        {
+            targetPos = ownerHunter.transform.position - forward * Mathf.Abs(cameraOffset.z) + Vector3.up * cameraOffset.y;
+            lookTarget = ownerHunter.transform.position + Vector3.up * cameraLookOffset.y;
+        }
+
         Quaternion targetRot = Quaternion.LookRotation((lookTarget - targetPos).normalized, Vector3.up);
         investigationManager.SetDialogueCameraHome(targetPos, targetRot);
+    }
+
+    private bool TryGetDialogueFacePoint(out Vector3 facePoint)
+    {
+        facePoint = Vector3.zero;
+        if (ownerHunter == null) return false;
+
+        if (faceFocusOverride != null)
+        {
+            facePoint = faceFocusOverride.position;
+            return true;
+        }
+
+        Animator animator = ownerHunter.GetComponentInChildren<Animator>();
+        if (animator != null && animator.isHuman)
+        {
+            Transform head = animator.GetBoneTransform(HumanBodyBones.Head);
+            if (head != null)
+            {
+                facePoint = head.position;
+                return true;
+            }
+        }
+
+        Transform namedHead = FindChildByNamePart(ownerHunter.transform, "head");
+        if (namedHead != null)
+        {
+            facePoint = namedHead.position;
+            return true;
+        }
+
+        if (TryGetRendererBounds(ownerHunter.gameObject, out Bounds bounds))
+        {
+            facePoint = new Vector3(bounds.center.x, bounds.min.y + bounds.size.y * 0.82f, bounds.center.z);
+            return true;
+        }
+
+        return false;
+    }
+
+    private static Transform FindChildByNamePart(Transform root, string namePart)
+    {
+        if (root == null || string.IsNullOrEmpty(namePart)) return null;
+        string lowered = namePart.ToLowerInvariant();
+        foreach (Transform child in root.GetComponentsInChildren<Transform>(true))
+        {
+            if (child == root) continue;
+            if (!child.gameObject.activeInHierarchy) continue;
+            if (child.name.ToLowerInvariant().Contains(lowered))
+            {
+                return child;
+            }
+        }
+
+        return null;
+    }
+
+    private static bool TryGetRendererBounds(GameObject root, out Bounds bounds)
+    {
+        bounds = default;
+        if (root == null) return false;
+
+        Renderer[] renderers = root.GetComponentsInChildren<Renderer>(true);
+        bool hasBounds = false;
+        foreach (Renderer renderer in renderers)
+        {
+            if (renderer == null || !renderer.enabled) continue;
+            if (!renderer.gameObject.activeInHierarchy) continue;
+            if (!hasBounds)
+            {
+                bounds = renderer.bounds;
+                hasBounds = true;
+            }
+            else
+            {
+                bounds.Encapsulate(renderer.bounds);
+            }
+        }
+
+        return hasBounds;
     }
 
     private void HandleQuestionSelected(InvestigationQuestion question)
