@@ -612,7 +612,7 @@ public class InvestigationManager : MonoBehaviour
         CompleteInvestigation();
     }
 
-    public void BeginHunterDialogue(List<InvestigationQuestion> questions, Dictionary<string, string> answers, Hunter hunter, Camera overrideCamera, float transitionDuration, System.Action<InvestigationQuestion> onQuestionSelected, System.Action onClosed, bool useDialogueCamera = true, System.Action<InvestigationQuestion, string> onResponseFinished = null, bool keepConfiguredCameraHome = false)
+    public void BeginHunterDialogue(List<InvestigationQuestion> questions, Dictionary<string, string> answers, Hunter hunter, Camera overrideCamera, float transitionDuration, System.Action<InvestigationQuestion> onQuestionSelected, System.Action onClosed, bool useDialogueCamera = true, System.Action<InvestigationQuestion, string> onResponseFinished = null, bool keepConfiguredCameraHome = false, Camera playerCameraOverride = null)
     {
         hunterDialogueActive = true;
         hunterQuestions = questions != null ? new List<InvestigationQuestion>(questions) : new List<InvestigationQuestion>();
@@ -651,12 +651,12 @@ public class InvestigationManager : MonoBehaviour
                 SetDialogueCameraHome(targetPos, targetRot);
             }
 
-            ToggleDialogueCamera(true, lastPlayerCamera != null ? lastPlayerCamera : (playerInteraction != null ? playerInteraction.GetPlayerCamera() : Camera.main));
+            ToggleDialogueCamera(true, playerCameraOverride != null ? playerCameraOverride : (lastPlayerCamera != null ? lastPlayerCamera : (playerInteraction != null ? playerInteraction.GetPlayerCamera() : Camera.main)));
         }
         else
         {
             // Do not toggle cameras when using player view; just cache the last player camera.
-            var playerCam = lastPlayerCamera != null ? lastPlayerCamera : (playerInteraction != null ? playerInteraction.GetPlayerCamera() : Camera.main);
+            var playerCam = playerCameraOverride != null ? playerCameraOverride : (lastPlayerCamera != null ? lastPlayerCamera : (playerInteraction != null ? playerInteraction.GetPlayerCamera() : Camera.main));
             if (playerCam != null)
             {
                 lastPlayerCamera = playerCam;

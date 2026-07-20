@@ -13,9 +13,13 @@ public class HunterInteractable : Interactable
     [SerializeField] private Vector3 cameraLookOffset = new Vector3(0f, 1.5f, 0f);
     [SerializeField] private bool focusDialogueCameraOnFace = true;
     [SerializeField] private Transform faceFocusOverride;
+    [Tooltip("How far the dialogue camera sits from the face, measured from the player's current side of the hunter.")]
     [SerializeField] private float faceCameraDistance = 1.8f;
+    [Tooltip("Vertical offset from the face point to the dialogue camera. Usually small, because the face is already the target.")]
     [SerializeField] private float faceCameraHeightOffset = -0.05f;
+    [Tooltip("Small target offset applied to the face point the camera looks at.")]
     [SerializeField] private Vector3 faceLookOffset = new Vector3(0f, 0.02f, 0f);
+    [SerializeField] private bool hideNotificationsDuringDialogue = true;
     [SerializeField] private GameObject healVfx;
 
     private PlayerInteraction activePlayer;
@@ -28,6 +32,8 @@ public class HunterInteractable : Interactable
     private bool navPaused;
     private Quaternion originalHunterRotation;
     private bool interactionDisabled;
+
+    protected override bool HideNotificationFeedDuringInteraction => hideNotificationsDuringDialogue || base.HideNotificationFeedDuringInteraction;
 
     private void Reset()
     {
@@ -171,29 +177,56 @@ public class HunterInteractable : Interactable
         questionList.Add(goodbye);
 
         ConfigureDialogueCameraTarget();
-        investigationManager.BeginHunterDialogue(questionList, answers, ownerHunter, null, cameraTransitionDuration, HandleQuestionSelected, ReleaseInteraction, useDialogueCamera: true, onResponseFinished: HandleResponseFinished, keepConfiguredCameraHome: true);
+        Camera playerCamera = activePlayer != null ? activePlayer.GetPlayerCamera() : null;
+        investigationManager.BeginHunterDialogue(questionList, answers, ownerHunter, null, cameraTransitionDuration, HandleQuestionSelected, ReleaseInteraction, useDialogueCamera: true, onResponseFinished: HandleResponseFinished, keepConfiguredCameraHome: true, playerCameraOverride: playerCamera);
     }
 
     private void ConfigureDialogueCameraTarget()
     {
         if (investigationManager == null || ownerHunter == null) return;
-        Vector3 forward = ownerHunter.transform.forward;
         Vector3 lookTarget;
         Vector3 targetPos;
 
         if (focusDialogueCameraOnFace && TryGetDialogueFacePoint(out Vector3 facePoint))
         {
             lookTarget = facePoint + faceLookOffset;
-            targetPos = facePoint - forward * Mathf.Max(0.1f, faceCameraDistance) + Vector3.up * faceCameraHeightOffset;
+            Vector3 cameraDirection = GetDialogueCameraDirectionFromFace(facePoint);
+            targetPos = facePoint + cameraDirection * Mathf.Max(0.1f, faceCameraDistance) + Vector3.up * faceCameraHeightOffset;
         }
         else
         {
+            Vector3 forward = ownerHunter.transform.forward;
             targetPos = ownerHunter.transform.position - forward * Mathf.Abs(cameraOffset.z) + Vector3.up * cameraOffset.y;
             lookTarget = ownerHunter.transform.position + Vector3.up * cameraLookOffset.y;
         }
 
         Quaternion targetRot = Quaternion.LookRotation((lookTarget - targetPos).normalized, Vector3.up);
         investigationManager.SetDialogueCameraHome(targetPos, targetRot);
+    }
+
+    private Vector3 GetDialogueCameraDirectionFromFace(Vector3 facePoint)
+    {
+        Camera playerCamera = activePlayer != null ? activePlayer.GetPlayerCamera() : null;
+        if (playerCamera != null)
+        {
+            Vector3 fromFaceToPlayerCamera = playerCamera.transform.position - facePoint;
+            fromFaceToPlayerCamera.y = 0f;
+            if (fromFaceToPlayerCamera.sqrMagnitude > 0.001f)
+            {
+                return fromFaceToPlayerCamera.normalized;
+            }
+        }
+
+        Vector3 fromFaceToPlayer = activePlayer != null ? activePlayer.transform.position - facePoint : Vector3.zero;
+        fromFaceToPlayer.y = 0f;
+        if (fromFaceToPlayer.sqrMagnitude > 0.001f)
+        {
+            return fromFaceToPlayer.normalized;
+        }
+
+        Vector3 fallback = -ownerHunter.transform.forward;
+        fallback.y = 0f;
+        return fallback.sqrMagnitude > 0.001f ? fallback.normalized : Vector3.back;
     }
 
     private bool TryGetDialogueFacePoint(out Vector3 facePoint)
@@ -370,7 +403,7 @@ public class HunterInteractable : Interactable
         direction.y = 0f;
         if (direction.sqrMagnitude < 0.001f) return;
         Quaternion desired = Quaternion.LookRotation(direction.normalized, Vector3.up);
-        ownerHunter.transform.rotation = Quaternion.RotateTowards(ownerHunter.transform.rotation, desired, 45f);
+        ownerHunter.transform.rotation = desired;
     }
 
     private void AimAtHunter(PlayerInteraction player)
@@ -378,9 +411,19 @@ public class HunterInteractable : Interactable
         if (player == null) return;
         var cam = player.GetPlayerCamera();
         if (cam == null) return;
-        Vector3 target = ownerHunter != null
-            ? ownerHunter.transform.position + Vector3.up * cameraLookOffset.y
-            : cam.transform.position + cam.transform.forward;
+
+        Vector3 target;
+        if (ownerHunter != null && focusDialogueCameraOnFace && TryGetDialogueFacePoint(out Vector3 facePoint))
+        {
+            target = facePoint + faceLookOffset;
+        }
+        else
+        {
+            target = ownerHunter != null
+                ? ownerHunter.transform.position + Vector3.up * cameraLookOffset.y
+                : cam.transform.position + cam.transform.forward;
+        }
+
         Vector3 dir = (target - cam.transform.position).normalized;
         cam.transform.rotation = Quaternion.LookRotation(dir, Vector3.up);
     }

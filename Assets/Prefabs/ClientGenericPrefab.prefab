@@ -150,31 +150,66 @@ MonoBehaviour:
   thinkingClip: {fileID: 7400000, guid: 53226c1f1d73f2449930fff36bee4058, type: 3}
   thinkingClipSpeed: 0.5
   thinkingClipLoop: 0
+  thinkingClipLocalRotationOffset: {x: 0, y: 0, z: 0}
   speakingClips:
   - clip: {fileID: 7400000, guid: 6abdca93cb802f942a14bd4eb225b8f9, type: 3}
     speed: 1
     loop: 0
+    avatarMask: {fileID: 0}
+    localRotationOffset: {x: 0, y: 0, z: 0}
   - clip: {fileID: 7400000, guid: e58d8f49bf7a3b9479537b52fee279fc, type: 3}
     speed: 1
     loop: 0
+    avatarMask: {fileID: 0}
+    localRotationOffset: {x: 0, y: 0, z: 0}
   - clip: {fileID: 7400000, guid: 892ea59a4df0639469eee55f80e5ab2e, type: 3}
     speed: 1
     loop: 0
+    avatarMask: {fileID: 0}
+    localRotationOffset: {x: 0, y: 0, z: 0}
   - clip: {fileID: 7400000, guid: 605805306262a4a4d993bcf3669e68c6, type: 3}
     speed: 1
     loop: 0
+    avatarMask: {fileID: 0}
+    localRotationOffset: {x: 0, y: 0, z: 0}
   - clip: {fileID: 7400000, guid: 18a7ffe9935d2894d8fa3bac93dbc5cf, type: 3}
     speed: 1
     loop: 0
+    avatarMask: {fileID: 0}
+    localRotationOffset: {x: 0, y: 0, z: 0}
   - clip: {fileID: 7400000, guid: 6cde33dab5e9c4845ad5cd073c1c2bf1, type: 3}
     speed: 1
     loop: 0
+    avatarMask: {fileID: 0}
+    localRotationOffset: {x: 0, y: 0, z: 0}
   - clip: {fileID: 7400000, guid: fd7949a4c2cc14b4f93e0bfb888e429b, type: 3}
     speed: 1
     loop: 0
+    avatarMask: {fileID: 0}
+    localRotationOffset: {x: 0, y: 0, z: 0}
   - clip: {fileID: 7400000, guid: 2bf95971e97dfbc43a26d04ad0cbf2a4, type: 3}
     speed: 1
     loop: 0
+    avatarMask: {fileID: 0}
+    localRotationOffset: {x: 0, y: 0, z: 0}
+  layDownClip:
+    clip: {fileID: 0}
+    speed: 1
+    loop: 0
+    avatarMask: {fileID: 0}
+    localRotationOffset: {x: 0, y: 0, z: 0}
+  sleepLoopClip:
+    clip: {fileID: 0}
+    speed: 1
+    loop: 0
+    avatarMask: {fileID: 0}
+    localRotationOffset: {x: 0, y: 0, z: 0}
+  getUpClip:
+    clip: {fileID: 0}
+    speed: 1
+    loop: 0
+    avatarMask: {fileID: 0}
+    localRotationOffset: {x: 0, y: 0, z: 0}
   animator: {fileID: 0}
   navAgent: {fileID: 0}
   autoUpdateVelocity: 1
@@ -194,6 +229,10 @@ MonoBehaviour:
   locksPlayer: 1
   useCustomCamera: 1
   interactionPrompt: '[E] Speak to client'
+  tutorialActionId: 
+  playInteractionFeedback: 1
+  disableHudDuringInteraction: 1
+  hudRootsToDisable: []
   customCamera: {fileID: 0}
   clientCharacter: {fileID: 3773795090765767133}
   dialogueCamera: {fileID: 0}

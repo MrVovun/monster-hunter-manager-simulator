@@ -79,6 +79,7 @@ MonoBehaviour:
   sharedAnimator: {fileID: 0}
   doorApproachOffset: 0.8
   doorArrivalThreshold: 0.3
+  missionDepartureTimeoutSeconds: 8
   standUpDuration: 1.3
   infirmaryNavMeshSampleRadius: 2
 --- !u!114 &5041825582948351353
@@ -186,16 +187,19 @@ MonoBehaviour:
     clip: {fileID: 7400000, guid: b114a6a9e895bd44282faaf61e208e2f, type: 3}
     speed: 1
     loop: 0
+    avatarMask: {fileID: 0}
     localRotationOffset: {x: 0, y: 180, z: 0}
   sleepLoopClip:
     clip: {fileID: 7400000, guid: 220829d0429d0114d893a64d9dcbd853, type: 3}
     speed: 1
     loop: 1
+    avatarMask: {fileID: 0}
     localRotationOffset: {x: 0, y: 180, z: 0}
   getUpClip:
     clip: {fileID: 7400000, guid: ffadc3228096242468477a28c84ae2d0, type: 3}
     speed: 1
     loop: 0
+    avatarMask: {fileID: 0}
     localRotationOffset: {x: 0, y: 180, z: 0}
   animator: {fileID: 0}
   navAgent: {fileID: 0}
@@ -216,15 +220,23 @@ MonoBehaviour:
   locksPlayer: 1
   useCustomCamera: 0
   interactionPrompt: '[E] Speak'
+  tutorialActionId: 
   playInteractionFeedback: 1
+  disableHudDuringInteraction: 1
+  hudRootsToDisable: []
   customCamera: {fileID: 0}
   recruitmentManager: {fileID: 0}
   investigationManager: {fileID: 0}
   dialogueCameraOverride: {fileID: 0}
-  cameraTransitionDuration: 0.5
+  cameraTransitionDuration: 5
   debugLogs: 0
   cameraOffset: {x: 0, y: 0, z: 0}
-  cameraLookOffset: {x: 0, y: 0.9, z: 0}
+  cameraLookOffset: {x: 0, y: 0, z: 0}
+  focusDialogueCameraOnFace: 1
+  faceFocusOverride: {fileID: 0}
+  faceCameraDistance: 2
+  faceCameraHeightOffset: -0.025
+  faceLookOffset: {x: 0, y: 0, z: 0}
   healVfx: {fileID: 1785531118582403841}
 --- !u!1001 &1785531118582289075
 PrefabInstance:

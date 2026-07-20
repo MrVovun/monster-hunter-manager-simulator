@@ -4,11 +4,14 @@ public class ClientInteractable : Interactable
 {
     [SerializeField] private ClientCharacter clientCharacter;
     [SerializeField] private Camera dialogueCamera;
+    [SerializeField] private bool hideNotificationsDuringDialogue = true;
     private InvestigationManager investigationManager;
     private InvestigationCase linkedCase;
     private bool awaitingRelease;
     private PlayerInteraction activePlayer;
     private bool interactionDisabled;
+
+    protected override bool HideNotificationFeedDuringInteraction => hideNotificationsDuringDialogue || base.HideNotificationFeedDuringInteraction;
 
     private void Reset()
     {

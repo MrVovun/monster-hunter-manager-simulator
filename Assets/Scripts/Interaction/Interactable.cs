@@ -11,7 +11,10 @@ public abstract class Interactable : MonoBehaviour
     [SerializeField] protected string interactionPrompt = "[E] Interact";
     [SerializeField] protected string tutorialActionId;
     [SerializeField] private bool playInteractionFeedback = true;
+    [Header("HUD Visibility")]
     [SerializeField] private bool disableHudDuringInteraction = false;
+    [Tooltip("Finds and hides the scene NotificationFeedUI during this interaction. Useful for prefab/spawned interactables that cannot reference scene HUD objects.")]
+    [SerializeField] private bool hideNotificationFeedDuringInteraction = false;
     [Tooltip("Optional HUD roots to hide during this interaction. If empty, common HUD components are found automatically.")]
     [SerializeField] private GameObject[] hudRootsToDisable;
     private static Action pendingLockRelease;
@@ -21,6 +24,8 @@ public abstract class Interactable : MonoBehaviour
     
     protected bool isPlayerInRange = false;
     private readonly List<HudRootState> hiddenHudRoots = new List<HudRootState>();
+
+    protected virtual bool HideNotificationFeedDuringInteraction => hideNotificationFeedDuringInteraction;
     
     public InteractionType GetInteractionType()
     {
@@ -102,7 +107,7 @@ public abstract class Interactable : MonoBehaviour
 
     private void SetHudVisible(bool visible)
     {
-        if (!disableHudDuringInteraction) return;
+        if (!disableHudDuringInteraction && !HideNotificationFeedDuringInteraction) return;
 
         if (!visible)
         {
@@ -143,7 +148,7 @@ public abstract class Interactable : MonoBehaviour
         List<GameObject> roots = new List<GameObject>();
         HashSet<GameObject> seen = new HashSet<GameObject>();
 
-        if (hudRootsToDisable != null)
+        if (disableHudDuringInteraction && hudRootsToDisable != null)
         {
             foreach (var root in hudRootsToDisable)
             {
@@ -151,15 +156,18 @@ public abstract class Interactable : MonoBehaviour
             }
         }
 
-        if (roots.Count > 0)
+        if (disableHudDuringInteraction && roots.Count == 0)
         {
-            return roots;
+            AddComponentRoot(FindObjectOfType<DayTimeHUD>(true), roots, seen);
+            AddComponentRoot(FindObjectOfType<TimeAdvanceFeedback>(true), roots, seen);
+            AddComponentRoot(FindObjectOfType<InteractionPromptUI>(true), roots, seen);
         }
 
-        AddComponentRoot(FindObjectOfType<DayTimeHUD>(true), roots, seen);
-        AddComponentRoot(FindObjectOfType<NotificationFeedUI>(true), roots, seen);
-        AddComponentRoot(FindObjectOfType<TimeAdvanceFeedback>(true), roots, seen);
-        AddComponentRoot(FindObjectOfType<InteractionPromptUI>(true), roots, seen);
+        if (disableHudDuringInteraction || HideNotificationFeedDuringInteraction)
+        {
+            AddComponentRoot(FindObjectOfType<NotificationFeedUI>(true), roots, seen);
+        }
+
         return roots;
     }
 
