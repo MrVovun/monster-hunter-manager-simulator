@@ -48190,7 +48190,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 6
-  m_Spacing: 2
+  m_Spacing: 20
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 0
@@ -53276,74 +53276,7 @@ MonoBehaviour:
   recruitmentManager: {fileID: 0}
   constructionManager: {fileID: 0}
   clientSpawner: {fileID: 0}
-  dayPlanningMessage:
-    severity: 0
-    title: Day {day}
-    body: Planning phase started. Ring the bell when you are ready.
-  workdayStartedMessage:
-    severity: 0
-    title: Workday Started
-    body: Clients are available. Time advances when you perform actions.
-  eveningMessage:
-    severity: 2
-    title: Evening
-    body: No new missions can be sent. Finish what is left and go to bed.
-  missionSuccessMessage:
-    severity: 1
-    title: Mission Success
-    body: '{order}. Gold: {gold}. XP: {xp}. {casualties}'
-  missionFailedMessage:
-    severity: 2
-    title: Mission Failed
-    body: '{order}. Gold: {gold}. XP: {xp}. {casualties}'
-  orderAcceptedMessage:
-    severity: 0
-    title: Order Accepted
-    body: '{order} has been added to the war table.'
-  orderReferredMessage:
-    severity: 1
-    title: Order Referred
-    body: '{order} was referred for a fee.'
-  partySentMessage:
-    severity: 0
-    title: Party Sent
-    body: '{hunter_count} hunter{hunter_plural} left for {order}.'
-  notEnoughGoldMessage:
-    severity: 2
-    title: Not Enough Gold
-    body: Needed {requested_gold} gold, but only {current_gold} is available.
-  hunterLeveledUpMessage:
-    severity: 1
-    title: Hunter Leveled Up
-    body: '{hunter} reached level {level}.'
-  hunterWoundedMessage:
-    severity: 2
-    title: Hunter Wounded
-    body: '{hunter} returned wounded from {order}.'
-  hunterDiedMessage:
-    severity: 2
-    title: Hunter Died
-    body: '{hunter} died on {order}.'
-  hunterTreatedMessage:
-    severity: 1
-    title: Hunter Treated
-    body: '{hunter}''s wounds have been treated.'
-  newClientArrivedMessage:
-    severity: 0
-    title: New Client Arrived
-    body: '{client_label} is waiting in the guild.'
-  candidateArrivedMessage:
-    severity: 0
-    title: Candidate Arrived
-    body: '{candidate} is waiting in the guild.'
-  hiringCampaignEndedMessage:
-    severity: 2
-    title: Hiring Campaign Ended
-    body: The hiring campaign has ended{reason_suffix}.
-  constructionCompletedMessage:
-    severity: 1
-    title: Construction Completed
-    body: '{construction} is now built.'
+  messageLibrary: {fileID: 0}
 --- !u!4 &1429277412
 Transform:
   m_ObjectHideFlags: 0
