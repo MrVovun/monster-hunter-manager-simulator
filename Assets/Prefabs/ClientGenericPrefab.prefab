@@ -231,8 +231,10 @@ MonoBehaviour:
   interactionPrompt: '[E] Speak to client'
   tutorialActionId: 
   playInteractionFeedback: 1
-  disableHudDuringInteraction: 1
+  disableHudDuringInteraction: 0
+  hideNotificationFeedDuringInteraction: 1
   hudRootsToDisable: []
   customCamera: {fileID: 0}
   clientCharacter: {fileID: 3773795090765767133}
   dialogueCamera: {fileID: 0}
+  hideNotificationsDuringDialogue: 1

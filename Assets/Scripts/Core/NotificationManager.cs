@@ -28,23 +28,6 @@ public class NotificationManager : MonoBehaviour
         public List<NotificationEntry> entries = new List<NotificationEntry>();
     }
 
-    [Serializable]
-    private class NotificationMessageTemplate
-    {
-        public NotificationSeverity severity = NotificationSeverity.Info;
-        public string title;
-        [TextArea(1, 3)] public string body;
-
-        public NotificationMessageTemplate() { }
-
-        public NotificationMessageTemplate(NotificationSeverity severity, string title, string body)
-        {
-            this.severity = severity;
-            this.title = title;
-            this.body = body;
-        }
-    }
-
     [Header("Settings")]
     [SerializeField] private int maxHistoryEntries = 50;
     [SerializeField] private bool persistHistory = true;
@@ -62,23 +45,7 @@ public class NotificationManager : MonoBehaviour
     [SerializeField] private ClientSpawner clientSpawner;
 
     [Header("Message Templates")]
-    [SerializeField] private NotificationMessageTemplate dayPlanningMessage = new NotificationMessageTemplate(NotificationSeverity.Info, "Day {day}", "Planning phase started. Ring the bell when you are ready.");
-    [SerializeField] private NotificationMessageTemplate workdayStartedMessage = new NotificationMessageTemplate(NotificationSeverity.Info, "Workday Started", "Clients are available. Time advances when you perform actions.");
-    [SerializeField] private NotificationMessageTemplate eveningMessage = new NotificationMessageTemplate(NotificationSeverity.Warning, "Evening", "No new missions can be sent. Finish what is left and go to bed.");
-    [SerializeField] private NotificationMessageTemplate missionSuccessMessage = new NotificationMessageTemplate(NotificationSeverity.Success, "Mission Success", "{order}. Gold: {gold}. XP: {xp}. {casualties}");
-    [SerializeField] private NotificationMessageTemplate missionFailedMessage = new NotificationMessageTemplate(NotificationSeverity.Warning, "Mission Failed", "{order}. Gold: {gold}. XP: {xp}. {casualties}");
-    [SerializeField] private NotificationMessageTemplate orderAcceptedMessage = new NotificationMessageTemplate(NotificationSeverity.Info, "Order Accepted", "{order} has been added to the war table.");
-    [SerializeField] private NotificationMessageTemplate orderReferredMessage = new NotificationMessageTemplate(NotificationSeverity.Success, "Order Referred", "{order} was referred for a fee.");
-    [SerializeField] private NotificationMessageTemplate partySentMessage = new NotificationMessageTemplate(NotificationSeverity.Info, "Party Sent", "{hunter_count} hunter{hunter_plural} left for {order}.");
-    [SerializeField] private NotificationMessageTemplate notEnoughGoldMessage = new NotificationMessageTemplate(NotificationSeverity.Warning, "Not Enough Gold", "Needed {requested_gold} gold, but only {current_gold} is available.");
-    [SerializeField] private NotificationMessageTemplate hunterLeveledUpMessage = new NotificationMessageTemplate(NotificationSeverity.Success, "Hunter Leveled Up", "{hunter} reached level {level}.");
-    [SerializeField] private NotificationMessageTemplate hunterWoundedMessage = new NotificationMessageTemplate(NotificationSeverity.Warning, "Hunter Wounded", "{hunter} returned wounded from {order}.");
-    [SerializeField] private NotificationMessageTemplate hunterDiedMessage = new NotificationMessageTemplate(NotificationSeverity.Warning, "Hunter Died", "{hunter} died on {order}.");
-    [SerializeField] private NotificationMessageTemplate hunterTreatedMessage = new NotificationMessageTemplate(NotificationSeverity.Success, "Hunter Treated", "{hunter}'s wounds have been treated.");
-    [SerializeField] private NotificationMessageTemplate newClientArrivedMessage = new NotificationMessageTemplate(NotificationSeverity.Info, "New Client Arrived", "{client_label} is waiting in the guild.");
-    [SerializeField] private NotificationMessageTemplate candidateArrivedMessage = new NotificationMessageTemplate(NotificationSeverity.Info, "Candidate Arrived", "{candidate} is waiting in the guild.");
-    [SerializeField] private NotificationMessageTemplate hiringCampaignEndedMessage = new NotificationMessageTemplate(NotificationSeverity.Warning, "Hiring Campaign Ended", "The hiring campaign has ended{reason_suffix}.");
-    [SerializeField] private NotificationMessageTemplate constructionCompletedMessage = new NotificationMessageTemplate(NotificationSeverity.Success, "Construction Completed", "{construction} is now built.");
+    [SerializeField] private NotificationMessageLibrary messageLibrary;
 
     public event Action<NotificationEntry> OnNotificationAdded;
     public event Action OnHistoryCleared;
@@ -93,6 +60,32 @@ public class NotificationManager : MonoBehaviour
     private string lastPublishedBody;
     private NotificationSeverity lastPublishedSeverity;
     private float lastPublishedRealtime;
+    private NotificationMessageLibrary fallbackMessageLibrary;
+
+    private NotificationMessageLibrary Messages
+    {
+        get
+        {
+            if (messageLibrary != null)
+            {
+                return messageLibrary;
+            }
+
+            messageLibrary = Resources.Load<NotificationMessageLibrary>("NotificationMessageLibrary");
+            if (messageLibrary != null)
+            {
+                return messageLibrary;
+            }
+
+            if (fallbackMessageLibrary == null)
+            {
+                fallbackMessageLibrary = ScriptableObject.CreateInstance<NotificationMessageLibrary>();
+                fallbackMessageLibrary.hideFlags = HideFlags.HideAndDontSave;
+            }
+
+            return fallbackMessageLibrary;
+        }
+    }
 
     private void Awake()
     {
@@ -178,7 +171,38 @@ public class NotificationManager : MonoBehaviour
     public void NotifyHunterTreated(Hunter hunter)
     {
         if (hunter == null) return;
-        PublishTemplate(hunterTreatedMessage, Tokens("hunter", GetHunterName(hunter)));
+        PublishTemplate(Messages.hunterTreatedMessage, Tokens("hunter", GetHunterName(hunter)));
+    }
+
+    public void NotifyUnpaidUpkeep(bool crisis, int unpaidAmount, int reputationRankLoss, int reputationRank, float successPenaltyPercent)
+    {
+        PublishTemplate(
+            crisis ? Messages.upkeepCrisisMessage : Messages.unpaidUpkeepMessage,
+            Tokens(
+                "unpaid_amount", unpaidAmount.ToString(),
+                "reputation_rank_loss", reputationRankLoss.ToString(),
+                "reputation_rank", reputationRank.ToString(),
+                "success_penalty", successPenaltyPercent.ToString("0.#")));
+    }
+
+    public void NotifyGameOver(string reason)
+    {
+        PublishTemplate(Messages.gameOverMessage, Tokens("reason", reason ?? string.Empty));
+    }
+
+    public void NotifyHiringUnavailable()
+    {
+        PublishTemplate(Messages.hiringUnavailableMessage);
+    }
+
+    public void NotifyHiringBlocked()
+    {
+        PublishTemplate(Messages.hiringBlockedMessage);
+    }
+
+    public void NotifyHunterLeft(string hunterName)
+    {
+        PublishTemplate(Messages.hunterLeftMessage, Tokens("hunter", string.IsNullOrWhiteSpace(hunterName) ? "Hunter" : hunterName));
     }
 
     private void ResolveReferences()
@@ -317,13 +341,13 @@ public class NotificationManager : MonoBehaviour
         switch (state)
         {
             case TimeManager.DayState.PreBell:
-                PublishTemplate(dayPlanningMessage, Tokens("day", (dayIndex + 1).ToString()));
+                PublishTemplate(Messages.dayPlanningMessage, Tokens("day", (dayIndex + 1).ToString()));
                 break;
             case TimeManager.DayState.Active:
-                PublishTemplate(workdayStartedMessage);
+                PublishTemplate(Messages.workdayStartedMessage);
                 break;
             case TimeManager.DayState.Evening:
-                PublishTemplate(eveningMessage);
+                PublishTemplate(Messages.eveningMessage);
                 break;
         }
     }
@@ -351,7 +375,7 @@ public class NotificationManager : MonoBehaviour
             "dead", dead.ToString(),
             "wounded", wounded.ToString(),
             "casualties", casualtySummary);
-        PublishTemplate(report.success ? missionSuccessMessage : missionFailedMessage, missionTokens);
+        PublishTemplate(report.success ? Messages.missionSuccessMessage : Messages.missionFailedMessage, missionTokens);
 
         foreach (var result in report.hunterResults)
         {
@@ -359,18 +383,18 @@ public class NotificationManager : MonoBehaviour
             string hunterName = GetHunterName(result.hunter);
             if (result.died)
             {
-                PublishTemplate(hunterDiedMessage, Tokens("hunter", hunterName, "order", orderTitle));
+                PublishTemplate(Messages.hunterDiedMessage, Tokens("hunter", hunterName, "order", orderTitle));
                 continue;
             }
 
             if (result.injured)
             {
-                PublishTemplate(hunterWoundedMessage, Tokens("hunter", hunterName, "order", orderTitle));
+                PublishTemplate(Messages.hunterWoundedMessage, Tokens("hunter", hunterName, "order", orderTitle));
             }
 
             if (result.leveledUp)
             {
-                PublishTemplate(hunterLeveledUpMessage, Tokens("hunter", hunterName, "level", result.hunter.GetLevel().ToString()));
+                PublishTemplate(Messages.hunterLeveledUpMessage, Tokens("hunter", hunterName, "level", result.hunter.GetLevel().ToString()));
             }
         }
     }
@@ -378,20 +402,20 @@ public class NotificationManager : MonoBehaviour
     private void HandleOrderAccepted(Order order)
     {
         if (order == null) return;
-        PublishTemplate(orderAcceptedMessage, Tokens("order", GetOrderTitle(order)));
+        PublishTemplate(Messages.orderAcceptedMessage, Tokens("order", GetOrderTitle(order)));
     }
 
     private void HandleOrderReferred(Order order)
     {
         if (order == null) return;
-        PublishTemplate(orderReferredMessage, Tokens("order", GetOrderTitle(order)));
+        PublishTemplate(Messages.orderReferredMessage, Tokens("order", GetOrderTitle(order)));
     }
 
     private void HandleMissionStarted(Order order, List<Hunter> party)
     {
         if (order == null) return;
         int partyCount = party != null ? party.Count : 0;
-        PublishTemplate(partySentMessage, Tokens(
+        PublishTemplate(Messages.partySentMessage, Tokens(
             "hunter_count", partyCount.ToString(),
             "hunter_plural", partyCount == 1 ? string.Empty : "s",
             "order", GetOrderTitle(order)));
@@ -399,7 +423,7 @@ public class NotificationManager : MonoBehaviour
 
     private void HandleGoldSpendFailed(int requestedAmount, int currentGold)
     {
-        PublishTemplate(notEnoughGoldMessage, Tokens(
+        PublishTemplate(Messages.notEnoughGoldMessage, Tokens(
             "requested_gold", requestedAmount.ToString(),
             "current_gold", currentGold.ToString()));
     }
@@ -407,7 +431,7 @@ public class NotificationManager : MonoBehaviour
     private void HandleHunterLeveledUp(Hunter hunter)
     {
         if (hunter == null) return;
-        PublishTemplate(hunterLeveledUpMessage, Tokens(
+        PublishTemplate(Messages.hunterLeveledUpMessage, Tokens(
             "hunter", GetHunterName(hunter),
             "level", hunter.GetLevel().ToString()));
     }
@@ -418,27 +442,27 @@ public class NotificationManager : MonoBehaviour
             ? investigationCase.clientProfile.categoryName
             : null;
         string label = string.IsNullOrWhiteSpace(category) ? "A new client" : $"A {category} client";
-        PublishTemplate(newClientArrivedMessage, Tokens("client_label", label, "client_category", category ?? string.Empty));
+        PublishTemplate(Messages.newClientArrivedMessage, Tokens("client_label", label, "client_category", category ?? string.Empty));
     }
 
     private void HandleCandidateArrived(HunterRecruitmentManager.RecruitmentCandidate candidate)
     {
         if (candidate == null || candidate.hunter == null) return;
         string name = string.IsNullOrWhiteSpace(candidate.hunter.hunterName) ? "A candidate" : candidate.hunter.hunterName;
-        PublishTemplate(candidateArrivedMessage, Tokens("candidate", name));
+        PublishTemplate(Messages.candidateArrivedMessage, Tokens("candidate", name));
     }
 
     private void HandleCampaignEnded(string reason)
     {
         string reasonSuffix = string.IsNullOrWhiteSpace(reason) ? string.Empty : $": {reason}";
-        PublishTemplate(hiringCampaignEndedMessage, Tokens("reason", reason ?? string.Empty, "reason_suffix", reasonSuffix));
+        PublishTemplate(Messages.hiringCampaignEndedMessage, Tokens("reason", reason ?? string.Empty, "reason_suffix", reasonSuffix));
     }
 
     private void HandleConstructionBuilt(GuildConstructionDefinition definition)
     {
         if (definition == null) return;
         string name = string.IsNullOrWhiteSpace(definition.displayName) ? "Construction" : definition.displayName;
-        PublishTemplate(constructionCompletedMessage, Tokens("construction", name));
+        PublishTemplate(Messages.constructionCompletedMessage, Tokens("construction", name));
     }
 
     private string GetOrderTitle(Order order)

@@ -1,0 +1,106 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f37d9cce7f64f4ba4a5a0c63b19b991, type: 3}
+  m_Name: NotificationMessageLibrary
+  m_EditorClassIdentifier: 
+  dayPlanningMessage:
+    severity: 0
+    title: Day {day}
+    body: Planning phase started. Ring the bell when you are ready.
+  workdayStartedMessage:
+    severity: 0
+    title: Workday Started
+    body: Clients are available. Time advances when you perform actions.
+  eveningMessage:
+    severity: 2
+    title: Evening
+    body: No new missions can be sent. Finish what is left and go to bed.
+  missionSuccessMessage:
+    severity: 1
+    title: Mission Success
+    body: '{order}. Gold: {gold}. XP: {xp}. {casualties}'
+  missionFailedMessage:
+    severity: 2
+    title: Mission Failed
+    body: '{order}. Gold: {gold}. XP: {xp}. {casualties}'
+  orderAcceptedMessage:
+    severity: 0
+    title: Order Accepted
+    body: '{order} has been added to the war table.'
+  orderReferredMessage:
+    severity: 1
+    title: Order Referred
+    body: '{order} was referred for a fee.'
+  partySentMessage:
+    severity: 0
+    title: Party Sent
+    body: '{hunter_count} hunter{hunter_plural} left for {order}.'
+  notEnoughGoldMessage:
+    severity: 2
+    title: Not Enough Gold
+    body: Needed {requested_gold} gold, but only {current_gold} is available.
+  unpaidUpkeepMessage:
+    severity: 2
+    title: Unpaid Upkeep
+    body: 'Unpaid upkeep became {unpaid_amount} debt. Reputation ranks lost: {reputation_rank_loss}. Current rank: {reputation_rank}. Mission success penalty: -{success_penalty}%.'
+  upkeepCrisisMessage:
+    severity: 2
+    title: Upkeep Crisis
+    body: 'Unpaid upkeep became {unpaid_amount} debt. Reputation ranks lost: {reputation_rank_loss}. Current rank: {reputation_rank}. Mission success penalty: -{success_penalty}%.'
+  gameOverMessage:
+    severity: 2
+    title: Game Over
+    body: '{reason}'
+  hunterLeveledUpMessage:
+    severity: 1
+    title: Hunter Leveled Up
+    body: '{hunter} reached level {level}.'
+  hunterWoundedMessage:
+    severity: 2
+    title: Hunter Wounded
+    body: '{hunter} returned wounded from {order}.'
+  hunterDiedMessage:
+    severity: 2
+    title: Hunter Died
+    body: '{hunter} died on {order}.'
+  hunterTreatedMessage:
+    severity: 1
+    title: Hunter Treated
+    body: '{hunter}''s wounds have been treated.'
+  hunterLeftMessage:
+    severity: 2
+    title: Hunter Left
+    body: '{hunter} left because the guild could not pay upkeep.'
+  newClientArrivedMessage:
+    severity: 0
+    title: New Client Arrived
+    body: '{client_label} is waiting in the guild.'
+  candidateArrivedMessage:
+    severity: 0
+    title: Candidate Arrived
+    body: '{candidate} is waiting in the guild.'
+  hiringCampaignEndedMessage:
+    severity: 2
+    title: Hiring Campaign Ended
+    body: The hiring campaign has ended{reason_suffix}.
+  hiringUnavailableMessage:
+    severity: 2
+    title: Hiring Unavailable
+    body: Hiring campaigns can only be started during the workday.
+  hiringBlockedMessage:
+    severity: 2
+    title: Hiring Blocked
+    body: The guild cannot start a hiring campaign while upkeep debt is critical.
+  constructionCompletedMessage:
+    severity: 1
+    title: Construction Completed
+    body: '{construction} is now built.'

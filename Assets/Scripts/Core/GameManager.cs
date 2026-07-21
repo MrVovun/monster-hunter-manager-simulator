@@ -175,10 +175,12 @@ public class GameManager : MonoBehaviour
             hunterManager.DismissHuntersUntilUpkeepAtOrBelow(previousDayGrossIncome);
         }
 
-        notificationManager?.Publish(
-            secondUnpaidDay ? "Upkeep Crisis" : "Unpaid Upkeep",
-            $"Unpaid upkeep became {unpaidAmount} debt. Reputation ranks lost: {reputationRankLoss}. Current rank: {reputationRankAfterLoss}. Mission success penalty: -{activeDebtSuccessPenaltyPercent:0.#}%.",
-            secondUnpaidDay ? NotificationSeverity.Warning : NotificationSeverity.Warning);
+        notificationManager?.NotifyUnpaidUpkeep(
+            secondUnpaidDay,
+            unpaidAmount,
+            reputationRankLoss,
+            reputationRankAfterLoss,
+            activeDebtSuccessPenaltyPercent);
     }
 
     private void TriggerGameOver(string reason)
@@ -187,7 +189,7 @@ public class GameManager : MonoBehaviour
         gameOver = true;
         gameOverReason = string.IsNullOrWhiteSpace(reason) ? "The guild has collapsed." : reason;
         activeDebtSuccessPenaltyPercent = 0f;
-        notificationManager?.Publish("Game Over", gameOverReason, NotificationSeverity.Warning);
+        notificationManager?.NotifyGameOver(gameOverReason);
         if (gameOverScreen != null)
         {
             gameOverScreen.SetActive(true);

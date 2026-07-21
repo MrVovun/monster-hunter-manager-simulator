@@ -550,13 +550,13 @@ public class HunterRecruitmentManager : MonoBehaviour
         var tm = gm != null ? gm.GetTimeManager() : timeManager;
         if (tm != null && tm.GetDayState() != TimeManager.DayState.Active)
         {
-            gm?.GetNotificationManager()?.Publish("Hiring Unavailable", "Hiring campaigns can only be started during the workday.", NotificationSeverity.Warning);
+            gm?.GetNotificationManager()?.NotifyHiringUnavailable();
             return;
         }
 
         if (gm != null && gm.GetUnpaidUpkeepStreak() >= 2)
         {
-            gm.GetNotificationManager()?.Publish("Hiring Blocked", "The guild cannot start a hiring campaign while upkeep debt is critical.", NotificationSeverity.Warning);
+            gm.GetNotificationManager()?.NotifyHiringBlocked();
             return;
         }
 

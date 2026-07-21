@@ -480,7 +480,7 @@ public class HunterManager : MonoBehaviour
 
         RemoveHunter(hunter);
         var notificationManager = GameManager.Instance != null ? GameManager.Instance.GetNotificationManager() : null;
-        notificationManager?.Publish("Hunter Left", $"{hunterName} left because the guild could not pay upkeep.", NotificationSeverity.Warning);
+        notificationManager?.NotifyHunterLeft(hunterName);
     }
     
     public void OnReputationChanged(float newReputation)
