@@ -35,6 +35,7 @@ MonoBehaviour:
   minReputation: 1
   portrait: {fileID: 21300000, guid: 704477e15589ce84bbfccf02f04e4f4a, type: 3}
   visualPrefab: {fileID: 1290725874115128, guid: 2d1f3a5f7b4e6374296a6647c4018050, type: 3}
+  p09VisualPreset: {fileID: 11400000, guid: baa6a901c22c67942a53a72af7b1cb02, type: 2}
   greeting: Boss?
   healLine: It's but a scratch.
   goodbyeLine: See ya, Pip.

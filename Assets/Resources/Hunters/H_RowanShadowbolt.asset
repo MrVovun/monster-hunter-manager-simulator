@@ -36,6 +36,7 @@ MonoBehaviour:
   minReputation: 1
   portrait: {fileID: 21300000, guid: 12d624b58966936438cedd297d503ada, type: 3}
   visualPrefab: {fileID: 1782384603142300, guid: 9f9dfe5a685ba9c4e8305f30ad12f1fd, type: 3}
+  p09VisualPreset: {fileID: 11400000, guid: 079cd014fe7a4314a8c5d9dbc23fec02, type: 2}
   greeting: Hm?
   healLine: Those damn pests...
   goodbyeLine: See ya, Rowan.

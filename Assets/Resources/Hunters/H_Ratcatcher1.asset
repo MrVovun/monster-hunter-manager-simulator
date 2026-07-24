@@ -36,6 +36,7 @@ MonoBehaviour:
   minReputation: 1
   portrait: {fileID: 21300000, guid: bd30601fa5b60ff459a39ba6ebbdca7b, type: 3}
   visualPrefab: {fileID: 1782384603142300, guid: 1cd06907882899f42bb30445ed3664b1, type: 3}
+  p09VisualPreset: {fileID: 11400000, guid: 9a91f1af8a339a740a4008d0956e1942, type: 2}
   greeting: Something skittering?
   healLine: M-hm.
   goodbyeLine: M-hm.

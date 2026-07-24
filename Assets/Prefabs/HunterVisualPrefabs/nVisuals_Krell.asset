@@ -10,22 +10,22 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c2b0612586cd6294e8e893407a9fe2c7, type: 3}
-  m_Name: nVisuals_MaraVell
+  m_Name: nVisuals_Krell
   m_EditorClassIdentifier: Assembly-CSharp::P09HumanoidPreset
   baseVisualPrefab: {fileID: 8043014192414592335, guid: e2d7e7277ebc6b944a39ab96f554a1cd, type: 3}
   library: {fileID: 11400000, guid: 02e89468f1d7380488d92fa02b6296b8, type: 2}
-  sexId: 2
+  sexId: 1
   faceTypeId: 3
-  hairStyleId: 3
-  hairColorId: 3
+  hairStyleId: 1
+  hairColorId: 1
   skinId: 1
-  eyeColorId: 4
-  facialHairId: 0
+  eyeColorId: 1
+  facialHairId: 3
   bustSizeId: 2
-  weaponId: 15
+  weaponId: 0
   shieldId: 0
   headId: 0
-  chestId: 1
-  armId: 0
-  waistId: 1
-  legId: 7
+  chestId: 4
+  armId: 4
+  waistId: 0
+  legId: 4

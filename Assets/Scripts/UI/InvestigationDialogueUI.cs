@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,8 +18,17 @@ public class InvestigationDialogueUI : MonoBehaviour
     [SerializeField] private TMP_Text responseFallbackText;
     [SerializeField] private GameObject questionItemPrefab;
     [SerializeField] private Color previouslyAskedQuestionColor = new Color(0.55f, 0.55f, 0.55f, 1f);
+    [Header("Revealed Evidence")]
+    [SerializeField] private GameObject evidencePanel;
+    [SerializeField] private TMP_Text knownTagsText;
+    [SerializeField] private Transform knownTraitsParent;
+    [SerializeField] private TMP_Text knownTraitsFallbackText;
+    [SerializeField] private GameObject traitItemPrefab;
+    [SerializeField] private TraitTooltipPanel traitTooltipPanel;
+    [SerializeField] private Image traitIconPrototype;
 
     private readonly List<QuestionEntry> questionEntries = new List<QuestionEntry>();
+    private readonly List<GameObject> spawnedKnownTraitItems = new List<GameObject>();
     private readonly HashSet<string> askedQuestionIds = new HashSet<string>();
     private InvestigationManager currentManager;
     private InvestigationCase currentCase;
@@ -71,6 +81,7 @@ public class InvestigationDialogueUI : MonoBehaviour
 
     public void Show(InvestigationCase caseData, InvestigationManager manager, System.Action closeCallback)
     {
+        UnsubscribeFromCaseUpdates();
         currentCase = caseData;
         currentManager = manager;
         onClose = closeCallback;
@@ -78,7 +89,9 @@ public class InvestigationDialogueUI : MonoBehaviour
         waitingForResponse = false;
         awaitingTypewriterCompletion = false;
 
+        SubscribeToCaseUpdates();
         RefreshQuestions();
+        RefreshEvidencePanel();
         HookButtons();
         PlayResponse(GetClientOpeningLine(), false);
         SetQuestionsInteractable(true);
@@ -121,6 +134,7 @@ public class InvestigationDialogueUI : MonoBehaviour
 
     private void OnDestroy()
     {
+        UnsubscribeFromCaseUpdates();
         if (responseTypewriter != null)
         {
             responseTypewriter.onTextShowed.RemoveListener(HandleTypewriterCompleted);
@@ -250,6 +264,7 @@ public class InvestigationDialogueUI : MonoBehaviour
             response = "...";
         }
 
+        RefreshEvidencePanel();
         RefreshQuestions();
         SetQuestionsInteractable(false);
         currentManager?.PlayClientSpeakingAnimation();
@@ -291,6 +306,7 @@ public class InvestigationDialogueUI : MonoBehaviour
     public void Reopen()
     {
         RefreshQuestions();
+        RefreshEvidencePanel();
         SetActive(true);
         CaptureCursor();
     }
@@ -312,6 +328,7 @@ public class InvestigationDialogueUI : MonoBehaviour
         }
         SetQuestionsInteractable(true);
         currentManager?.StopClientTalkingAnimation();
+        UnsubscribeFromCaseUpdates();
         if (invokeCallback)
         {
             onClose?.Invoke();
@@ -322,6 +339,11 @@ public class InvestigationDialogueUI : MonoBehaviour
         lastQuestion = null;
         lastResponse = null;
         askedQuestionIds.Clear();
+        ClearKnownTraitItems();
+        if (evidencePanel != null)
+        {
+            evidencePanel.SetActive(false);
+        }
     }
 
     public void ReopenWithResponse(string text)
@@ -355,6 +377,7 @@ public class InvestigationDialogueUI : MonoBehaviour
         {
             RefreshQuestions();
         }
+        RefreshEvidencePanel();
         if (rootPanel != null)
         {
             rootPanel.SetActive(true);
@@ -388,6 +411,253 @@ public class InvestigationDialogueUI : MonoBehaviour
         {
             gameObject.SetActive(value);
         }
+    }
+
+    private void SubscribeToCaseUpdates()
+    {
+        if (currentManager != null)
+        {
+            currentManager.OnCaseUpdated -= RefreshEvidencePanel;
+            currentManager.OnCaseUpdated += RefreshEvidencePanel;
+        }
+    }
+
+    private void UnsubscribeFromCaseUpdates()
+    {
+        if (currentManager != null)
+        {
+            currentManager.OnCaseUpdated -= RefreshEvidencePanel;
+        }
+    }
+
+    private void RefreshEvidencePanel()
+    {
+        bool hunterDialogue = currentManager != null && currentManager.IsHunterDialogueActive;
+        bool hasAnyField = knownTagsText != null || knownTraitsParent != null || knownTraitsFallbackText != null;
+        bool shouldShow = !hunterDialogue && currentCase != null && hasAnyField;
+
+        if (evidencePanel != null)
+        {
+            evidencePanel.SetActive(shouldShow);
+        }
+
+        if (!shouldShow)
+        {
+            if (knownTagsText != null) knownTagsText.text = string.Empty;
+            ClearKnownTraitItems();
+            return;
+        }
+
+        PopulateKnownTags();
+        PopulateKnownTraits();
+    }
+
+    private void PopulateKnownTags()
+    {
+        if (knownTagsText == null) return;
+
+        if (currentCase?.knownTags != null && currentCase.knownTags.Count > 0)
+        {
+            var lines = currentCase.knownTags
+                .Where(tag => tag != null && !string.IsNullOrWhiteSpace(tag.categoryName))
+                .Select(tag => $"{tag.categoryName}: {(!string.IsNullOrWhiteSpace(tag.valueName) ? tag.valueName : "???")}");
+            string text = string.Join("\n", lines);
+            knownTagsText.text = string.IsNullOrWhiteSpace(text) ? "Tags: ???" : text;
+        }
+        else
+        {
+            knownTagsText.text = "Tags: ???";
+        }
+    }
+
+    private void PopulateKnownTraits()
+    {
+        ClearKnownTraitItems();
+
+        if (currentCase == null || currentCase.confirmedTraitIds == null || currentCase.confirmedTraitIds.Count == 0)
+        {
+            if (knownTraitsFallbackText != null)
+            {
+                knownTraitsFallbackText.text = "Traits: ???";
+            }
+            return;
+        }
+
+        List<MonsterTrait> traits = new List<MonsterTrait>();
+        foreach (var traitId in currentCase.confirmedTraitIds)
+        {
+            if (string.IsNullOrEmpty(traitId)) continue;
+            var trait = currentCase.truthTraits?.FirstOrDefault(t => t != null && string.Equals(t.traitId, traitId, System.StringComparison.OrdinalIgnoreCase));
+            if (trait != null)
+            {
+                traits.Add(trait);
+            }
+        }
+
+        if (traits.Count == 0)
+        {
+            if (knownTraitsFallbackText != null)
+            {
+                knownTraitsFallbackText.text = "Traits: ???";
+            }
+            return;
+        }
+
+        if (knownTraitsFallbackText != null)
+        {
+            knownTraitsFallbackText.text = string.Empty;
+        }
+
+        if (knownTraitsParent != null)
+        {
+            knownTraitsParent.gameObject.SetActive(true);
+        }
+
+        foreach (var trait in traits)
+        {
+            GameObject item = CreateTraitItem(trait);
+            if (item == null) continue;
+            item.transform.SetParent(knownTraitsParent, false);
+            spawnedKnownTraitItems.Add(item);
+        }
+    }
+
+    private void ClearKnownTraitItems()
+    {
+        foreach (var item in spawnedKnownTraitItems)
+        {
+            if (item != null)
+            {
+                Destroy(item);
+            }
+        }
+        spawnedKnownTraitItems.Clear();
+
+        if (knownTraitsParent != null)
+        {
+            foreach (Transform child in knownTraitsParent)
+            {
+                Destroy(child.gameObject);
+            }
+            knownTraitsParent.gameObject.SetActive(false);
+        }
+
+        if (knownTraitsFallbackText != null)
+        {
+            knownTraitsFallbackText.text = string.Empty;
+        }
+    }
+
+    private GameObject CreateTraitItem(MonsterTrait trait)
+    {
+        if (knownTraitsParent == null)
+        {
+            return null;
+        }
+
+        GameObject item = traitItemPrefab != null ? Instantiate(traitItemPrefab) : new GameObject("KnownTrait");
+        RectTransform rect = item.GetComponent<RectTransform>();
+        if (rect == null)
+        {
+            rect = item.AddComponent<RectTransform>();
+        }
+
+        TMP_Text text = item.GetComponentInChildren<TMP_Text>();
+        if (text != null)
+        {
+            text.text = string.Empty;
+            text.gameObject.SetActive(false);
+        }
+
+        Image icon = FindOrCreateTraitIcon(item);
+        if (icon != null)
+        {
+            icon.sprite = trait != null ? trait.icon : null;
+            icon.enabled = icon.sprite != null;
+        }
+
+        if (traitTooltipPanel != null)
+        {
+            var tooltip = item.GetComponent<TraitTooltipTrigger>();
+            if (tooltip == null)
+            {
+                tooltip = item.AddComponent<TraitTooltipTrigger>();
+            }
+            tooltip.Initialize(traitTooltipPanel, rect, trait != null ? trait.displayName : "Trait", trait != null ? trait.description : string.Empty);
+        }
+
+        return item;
+    }
+
+    private Image FindOrCreateTraitIcon(GameObject item)
+    {
+        if (item == null) return null;
+
+        Image rootImage = item.GetComponent<Image>();
+        if (rootImage != null && item.GetComponent<Button>() == null)
+        {
+            rootImage.preserveAspect = true;
+            return rootImage;
+        }
+
+        Image icon = null;
+        var images = item.GetComponentsInChildren<Image>(true);
+        foreach (var candidate in images)
+        {
+            if (candidate == null || candidate == rootImage) continue;
+            string imageName = candidate.gameObject.name;
+            if (!string.IsNullOrEmpty(imageName) && imageName.IndexOf("icon", System.StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                icon = candidate;
+                break;
+            }
+        }
+
+        if (icon == null)
+        {
+            foreach (var candidate in images)
+            {
+                if (candidate == null || candidate == rootImage) continue;
+                if (!candidate.gameObject.activeInHierarchy && candidate.GetComponentInParent<CanvasGroup>() == null) continue;
+                string imageName = candidate.gameObject.name;
+                if (!string.IsNullOrEmpty(imageName) && imageName.IndexOf("line", System.StringComparison.OrdinalIgnoreCase) >= 0) continue;
+                if (!string.IsNullOrEmpty(imageName) && imageName.IndexOf("slash", System.StringComparison.OrdinalIgnoreCase) >= 0) continue;
+                icon = candidate;
+                break;
+            }
+        }
+
+        if (icon == null)
+        {
+            foreach (var candidate in images)
+            {
+                if (candidate == null || candidate == rootImage) continue;
+                string imageName = candidate.gameObject.name;
+                if (!string.IsNullOrEmpty(imageName) && imageName.IndexOf("line", System.StringComparison.OrdinalIgnoreCase) >= 0) continue;
+                if (!string.IsNullOrEmpty(imageName) && imageName.IndexOf("slash", System.StringComparison.OrdinalIgnoreCase) >= 0) continue;
+                icon = candidate;
+                break;
+            }
+        }
+
+        if (icon == null && rootImage != null)
+        {
+            icon = rootImage;
+        }
+
+        if (icon == null && traitIconPrototype != null)
+        {
+            icon = Instantiate(traitIconPrototype, item.transform);
+        }
+
+        if (icon == null)
+        {
+            icon = rootImage != null ? rootImage : item.AddComponent<Image>();
+        }
+
+        icon.raycastTarget = traitTooltipPanel != null;
+        icon.preserveAspect = true;
+        return icon;
     }
 
     private void CaptureCursor()

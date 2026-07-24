@@ -36,6 +36,7 @@ MonoBehaviour:
   minReputation: 1
   portrait: {fileID: 21300000, guid: 5cd2708aa839fd74b8f6ecf74d75b9d7, type: 3}
   visualPrefab: {fileID: 1782384603142300, guid: 8d62b4c95adcd33468c7a6c6551ea945, type: 3}
+  p09VisualPreset: {fileID: 11400000, guid: f1d1ff898cfa7a746a7106a91abc1c44, type: 2}
   greeting: Business as usual?
   healLine: I'm not paying for that.
   goodbyeLine: Money talk.
