@@ -17,6 +17,9 @@ public class InvestigationDialogueUI : MonoBehaviour
     [SerializeField] private TypewriterComponent responseTypewriter;
     [SerializeField] private TMP_Text responseFallbackText;
     [SerializeField] private GameObject questionItemPrefab;
+    [SerializeField] private ScrollRect questionsScrollRect;
+    [SerializeField] private bool resetQuestionScrollToTopOnRefresh = true;
+    [SerializeField] private bool numberQuestionReplies = true;
     [SerializeField] private Color previouslyAskedQuestionColor = new Color(0.55f, 0.55f, 0.55f, 1f);
     [Header("Revealed Evidence")]
     [SerializeField] private GameObject evidencePanel;
@@ -39,6 +42,7 @@ public class InvestigationDialogueUI : MonoBehaviour
     private Coroutine responseRoutine;
     private bool waitingForResponse;
     private bool awaitingTypewriterCompletion;
+    private Coroutine resetQuestionsScrollRoutine;
 
     private CanvasGroup questionsCanvasGroup;
 
@@ -59,6 +63,11 @@ public class InvestigationDialogueUI : MonoBehaviour
             if (questionsCanvasGroup == null)
             {
                 questionsCanvasGroup = questionsList.gameObject.AddComponent<CanvasGroup>();
+            }
+
+            if (questionsScrollRect == null)
+            {
+                questionsScrollRect = questionsList.GetComponentInParent<ScrollRect>(true);
             }
         }
     }
@@ -134,6 +143,12 @@ public class InvestigationDialogueUI : MonoBehaviour
 
     private void OnDestroy()
     {
+        if (resetQuestionsScrollRoutine != null)
+        {
+            StopCoroutine(resetQuestionsScrollRoutine);
+            resetQuestionsScrollRoutine = null;
+        }
+
         UnsubscribeFromCaseUpdates();
         if (responseTypewriter != null)
         {
@@ -163,6 +178,12 @@ public class InvestigationDialogueUI : MonoBehaviour
             || TutorialManager.IsActionAllowed(TutorialIds.ReferOrder);
     }
 
+    private string FormatQuestionReplyText(int index, string promptText)
+    {
+        string prompt = string.IsNullOrWhiteSpace(promptText) ? "..." : promptText.Trim();
+        return numberQuestionReplies ? $"{index + 1}. {prompt}" : prompt;
+    }
+
     private void RefreshQuestions()
     {
         foreach (var entry in questionEntries)
@@ -177,14 +198,15 @@ public class InvestigationDialogueUI : MonoBehaviour
         if (questionItemPrefab == null || questionsList == null || currentManager == null) return;
 
         var available = currentManager.GetAvailableQuestions();
-        foreach (var question in available)
+        for (int i = 0; i < available.Count; i++)
         {
+            var question = available[i];
             var entryObj = Instantiate(questionItemPrefab, questionsList);
             var button = entryObj.GetComponentInChildren<Button>();
             var text = entryObj.GetComponentInChildren<TMP_Text>();
             if (text != null)
             {
-                text.text = question.promptText;
+                text.text = FormatQuestionReplyText(i, question.promptText);
             }
 
             if (button != null)
@@ -200,11 +222,58 @@ public class InvestigationDialogueUI : MonoBehaviour
             {
                 root = entryObj,
                 button = button,
+                text = text,
                 question = question
             });
         }
 
         SetQuestionsInteractable(!waitingForResponse);
+        ResetQuestionsScrollToTop();
+    }
+
+    private void ResetQuestionsScrollToTop()
+    {
+        if (!resetQuestionScrollToTopOnRefresh || questionsList == null) return;
+
+        LayoutRebuilder.ForceRebuildLayoutImmediate(questionsList);
+        Canvas.ForceUpdateCanvases();
+        ApplyQuestionsScrollTop();
+
+        if (isActiveAndEnabled)
+        {
+            if (resetQuestionsScrollRoutine != null)
+            {
+                StopCoroutine(resetQuestionsScrollRoutine);
+            }
+
+            resetQuestionsScrollRoutine = StartCoroutine(ResetQuestionsScrollToTopNextFrame());
+        }
+    }
+
+    private IEnumerator ResetQuestionsScrollToTopNextFrame()
+    {
+        yield return null;
+        LayoutRebuilder.ForceRebuildLayoutImmediate(questionsList);
+        Canvas.ForceUpdateCanvases();
+        ApplyQuestionsScrollTop();
+        resetQuestionsScrollRoutine = null;
+    }
+
+    private void ApplyQuestionsScrollTop()
+    {
+        if (questionsScrollRect != null)
+        {
+            if (questionsScrollRect.content == null)
+            {
+                questionsScrollRect.content = questionsList;
+            }
+
+            questionsScrollRect.StopMovement();
+            questionsScrollRect.verticalNormalizedPosition = 1f;
+            return;
+        }
+
+        questionsList.anchoredPosition = new Vector2(questionsList.anchoredPosition.x, 0f);
     }
 
     private void HandleQuestionClicked(InvestigationQuestion question)
@@ -317,6 +386,11 @@ public class InvestigationDialogueUI : MonoBehaviour
         {
             StopCoroutine(responseRoutine);
             responseRoutine = null;
+        }
+        if (resetQuestionsScrollRoutine != null)
+        {
+            StopCoroutine(resetQuestionsScrollRoutine);
+            resetQuestionsScrollRoutine = null;
         }
         SetActive(false);
         ReleaseCursor();
@@ -742,6 +816,7 @@ public class InvestigationDialogueUI : MonoBehaviour
     {
         public GameObject root;
         public Button button;
+        public TMP_Text text;
         public InvestigationQuestion question;
     }
 
@@ -757,11 +832,38 @@ public class InvestigationDialogueUI : MonoBehaviour
         if (!askedQuestionIds.Contains(question.questionId)) return;
 
         Graphic target = button.targetGraphic != null ? button.targetGraphic : button.GetComponent<Graphic>();
+        TMP_Text label = null;
+        foreach (var entry in questionEntries)
+        {
+            if (entry?.button == button)
+            {
+                label = entry.text;
+                break;
+            }
+        }
+
+        if (label == null)
+        {
+            label = button.GetComponentInChildren<TMP_Text>(true);
+        }
+
+        if (target == null && label != null)
+        {
+            target = label;
+        }
+
         if (target == null) return;
 
         Color color = previouslyAskedQuestionColor;
         color.a = target.color.a;
         target.color = color;
+
+        if (label != null && label != target)
+        {
+            Color textColor = previouslyAskedQuestionColor;
+            textColor.a = label.color.a;
+            label.color = textColor;
+        }
 
         ColorBlock colors = button.colors;
         colors.normalColor = color;
