@@ -6,6 +6,7 @@ public class MissionReport
 {
     public Order order;
     public bool success;
+    public float successChancePercent;
     public int goldEarned;
     public float reputationGained;
     

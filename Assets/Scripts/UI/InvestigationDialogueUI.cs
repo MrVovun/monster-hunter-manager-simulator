@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using Febucci.TextAnimatorForUnity;
 
@@ -20,6 +21,7 @@ public class InvestigationDialogueUI : MonoBehaviour
     [SerializeField] private ScrollRect questionsScrollRect;
     [SerializeField] private bool resetQuestionScrollToTopOnRefresh = true;
     [SerializeField] private bool numberQuestionReplies = true;
+    [SerializeField] private bool enableNumberKeyQuestionSelection = true;
     [SerializeField] private Color previouslyAskedQuestionColor = new Color(0.55f, 0.55f, 0.55f, 1f);
     [Header("Revealed Evidence")]
     [SerializeField] private GameObject evidencePanel;
@@ -250,6 +252,11 @@ public class InvestigationDialogueUI : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        HandleQuestionNumberShortcuts();
+    }
+
     private IEnumerator ResetQuestionsScrollToTopNextFrame()
     {
         yield return null;
@@ -304,6 +311,47 @@ public class InvestigationDialogueUI : MonoBehaviour
         }
 
         responseRoutine = StartCoroutine(PlayResponseRoutine(question));
+    }
+
+    private void HandleQuestionNumberShortcuts()
+    {
+        if (!enableNumberKeyQuestionSelection) return;
+        if (!IsDialogueVisible()) return;
+        if (waitingForResponse || currentManager == null) return;
+        if (!TutorialManager.IsActionAllowed(TutorialIds.DialogueQuestions)) return;
+        if (questionsCanvasGroup != null && (!questionsCanvasGroup.interactable || !questionsCanvasGroup.blocksRaycasts)) return;
+
+        int index = GetPressedQuestionNumberIndex();
+        if (index < 0 || index >= questionEntries.Count) return;
+
+        QuestionEntry entry = questionEntries[index];
+        if (entry == null || entry.button == null || !entry.button.interactable) return;
+
+        HandleQuestionClicked(entry.question);
+    }
+
+    private bool IsDialogueVisible()
+    {
+        GameObject root = rootPanel != null ? rootPanel : gameObject;
+        return root != null && root.activeInHierarchy;
+    }
+
+    private int GetPressedQuestionNumberIndex()
+    {
+        Keyboard keyboard = Keyboard.current;
+        if (keyboard == null) return -1;
+
+        if (keyboard.digit1Key.wasPressedThisFrame || keyboard.numpad1Key.wasPressedThisFrame) return 0;
+        if (keyboard.digit2Key.wasPressedThisFrame || keyboard.numpad2Key.wasPressedThisFrame) return 1;
+        if (keyboard.digit3Key.wasPressedThisFrame || keyboard.numpad3Key.wasPressedThisFrame) return 2;
+        if (keyboard.digit4Key.wasPressedThisFrame || keyboard.numpad4Key.wasPressedThisFrame) return 3;
+        if (keyboard.digit5Key.wasPressedThisFrame || keyboard.numpad5Key.wasPressedThisFrame) return 4;
+        if (keyboard.digit6Key.wasPressedThisFrame || keyboard.numpad6Key.wasPressedThisFrame) return 5;
+        if (keyboard.digit7Key.wasPressedThisFrame || keyboard.numpad7Key.wasPressedThisFrame) return 6;
+        if (keyboard.digit8Key.wasPressedThisFrame || keyboard.numpad8Key.wasPressedThisFrame) return 7;
+        if (keyboard.digit9Key.wasPressedThisFrame || keyboard.numpad9Key.wasPressedThisFrame) return 8;
+
+        return -1;
     }
 
     private IEnumerator PlayResponseRoutine(InvestigationQuestion question)

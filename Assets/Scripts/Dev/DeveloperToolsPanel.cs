@@ -25,6 +25,7 @@ public class DeveloperToolsPanel : MonoBehaviour
     private MonsterSlainTracker slainTracker;
     private MonsterLibrary monsterLibrary;
     private GraveyardManager graveyardManager;
+    private MissionBonusChestManager bonusChestManager;
 
     private Rect windowRect = new Rect(30f, 30f, 420f, 640f);
     private bool visible;
@@ -107,6 +108,11 @@ public class DeveloperToolsPanel : MonoBehaviour
         if (slainTracker == null)
         {
             slainTracker = FindObjectOfType<MonsterSlainTracker>();
+        }
+
+        if (bonusChestManager == null)
+        {
+            bonusChestManager = FindObjectOfType<MissionBonusChestManager>();
         }
     }
 
@@ -345,6 +351,37 @@ public class DeveloperToolsPanel : MonoBehaviour
                 else
                 {
                     Debug.LogWarning("DeveloperTools: GraveyardManager not found.");
+                }
+            }
+        }
+
+        GUILayout.Space(4f);
+        GUILayout.Label("Bonus Chests", headerStyle);
+        using (new GUILayout.HorizontalScope())
+        {
+            if (GUILayout.Button("Spawn Chest"))
+            {
+                if (bonusChestManager == null) CacheManagers();
+                if (bonusChestManager != null)
+                {
+                    bonusChestManager.DebugSpawnChest();
+                }
+                else
+                {
+                    Debug.LogWarning("DeveloperTools: MissionBonusChestManager not found.");
+                }
+            }
+
+            if (GUILayout.Button("Spawn Mimic"))
+            {
+                if (bonusChestManager == null) CacheManagers();
+                if (bonusChestManager != null)
+                {
+                    bonusChestManager.DebugSpawnMimic();
+                }
+                else
+                {
+                    Debug.LogWarning("DeveloperTools: MissionBonusChestManager not found.");
                 }
             }
         }

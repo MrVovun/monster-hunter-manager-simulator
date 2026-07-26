@@ -21784,6 +21784,68 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 567943395}
   m_CullTransparentMesh: 1
+--- !u!1 &570038668
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 570038670}
+  - component: {fileID: 570038669}
+  m_Layer: 0
+  m_Name: MissionBonusChestManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &570038669
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 570038668}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d81e75372cfa6974190ddf50cfb9b0f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MissionBonusChestManager
+  requiredSuccessChancePercent: 200
+  mimicChance: 1
+  chestPrefab: {fileID: 652704635636142108, guid: 4b5b102f96614904cb010ca2dc4779f8, type: 3}
+  mimicPrefab: {fileID: 2219292830553907877, guid: 45c66f6bb261fb64988ff9e2dc0a800a, type: 3}
+  spawnPoints:
+  - {fileID: 1472606116}
+  parentToSpawnPoint: 0
+  chestInteractionPrompt: '[E] Open Chest'
+  mimicInteractionPrompt: '[E] Open Chest'
+  mimicInitialState: IdleChest
+  holdMimicInitialStateUntilInteraction: 0
+  chestOpenTrigger: Open
+  mimicScaredTrigger: Scare
+  mimicRunTrigger: Run
+  mimicScaredDelay: 1
+  mimicFleeSeconds: 60
+  mimicFleeDistance: 100
+  mimicFleeSpeed: 5
+--- !u!4 &570038670
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 570038668}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &570479860
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -35004,6 +35066,7 @@ MonoBehaviour:
   questionsScrollRect: {fileID: 0}
   resetQuestionScrollToTopOnRefresh: 1
   numberQuestionReplies: 1
+  enableNumberKeyQuestionSelection: 1
   previouslyAskedQuestionColor: {r: 0.55, g: 0.55, b: 0.55, a: 1}
   evidencePanel: {fileID: 474296341}
   knownTagsText: {fileID: 1961537430}
@@ -56402,6 +56465,37 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1540353884209580157, guid: a3c1c638d746d8145b3777970677a1fe, type: 3}
   m_PrefabInstance: {fileID: 1058228390}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1472606115
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1472606116}
+  m_Layer: 0
+  m_Name: TreasureChestSpawner1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1472606116
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1472606115}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -3, y: 0, z: 10}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &1481651826 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6913878985832321100, guid: f7a06d0c2cc7e0244a3d9a4b7af483d9, type: 3}
@@ -79452,6 +79546,7 @@ SceneRoots:
   - {fileID: 358129145}
   - {fileID: 151035825}
   - {fileID: 1034339775}
+  - {fileID: 570038670}
   - {fileID: 3545287434269247300}
   - {fileID: 1951772915}
   - {fileID: 764345588}
@@ -79487,3 +79582,4 @@ SceneRoots:
   - {fileID: 791587614}
   - {fileID: 1196207271}
   - {fileID: 1951032632}
+  - {fileID: 1472606116}

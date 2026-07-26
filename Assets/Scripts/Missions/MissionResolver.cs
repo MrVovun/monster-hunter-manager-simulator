@@ -19,6 +19,7 @@ public class MissionResolver : MonoBehaviour
         MissionOutcomeConfig config = MissionOutcomeConfig.FromGameConfig(GameManager.Instance != null ? GameManager.Instance.GetGameConfig() : null);
         MissionOutcomeResult outcome = MissionOutcomeCalculator.Evaluate(order, party, config);
         float successChance = outcome.SuccessChancePercent;
+        report.successChancePercent = successChance;
         bool guaranteedSuccess = successChance >= 100f;
         float successRollThreshold = Mathf.Clamp(successChance, 0f, 100f);
         report.success = guaranteedSuccess || Random.Range(0f, 100f) < successRollThreshold;
