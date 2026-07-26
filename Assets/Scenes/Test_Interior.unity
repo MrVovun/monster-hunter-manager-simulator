@@ -93,7 +93,7 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 20201, guid: 0000000000000000f000000000000000, type: 0}
+  m_LightingDataAsset: {fileID: 112000000, guid: 6afbae7ecdb2ca84b89bcced859d9d5c, type: 2}
   m_LightingSettings: {fileID: 0}
 --- !u!196 &4
 NavMeshSettings:
@@ -15602,9 +15602,17 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 149450, guid: 6f894f63c0dede642b94f62fae3c3a72, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 162906, guid: 6f894f63c0dede642b94f62fae3c3a72, type: 3}
       propertyPath: m_Name
       value: CandleLightRed (8)
+      objectReference: {fileID: 0}
+    - target: {fileID: 162906, guid: 6f894f63c0dede642b94f62fae3c3a72, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 412400, guid: 6f894f63c0dede642b94f62fae3c3a72, type: 3}
       propertyPath: m_LocalPosition.x
@@ -164207,6 +164215,10 @@ MonoBehaviour:
   responseTypewriter: {fileID: 1191884014}
   responseFallbackText: {fileID: 1191884012}
   questionItemPrefab: {fileID: 738094513267844231, guid: f8bfcf5072e4e064fb87a9e2047b2a74, type: 3}
+  questionsScrollRect: {fileID: 0}
+  resetQuestionScrollToTopOnRefresh: 1
+  numberQuestionReplies: 1
+  enableNumberKeyQuestionSelection: 1
   previouslyAskedQuestionColor: {r: 0.55, g: 0.55, b: 0.55, a: 1}
   evidencePanel: {fileID: 0}
   knownTagsText: {fileID: 0}
