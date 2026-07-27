@@ -1,4 +1,5 @@
 using TMPro;
+using System.Collections;
 using UnityEngine;
 
 /// <summary>
@@ -19,10 +20,27 @@ public class DayTimeHUD : MonoBehaviour
     [SerializeField] private Sprite preBellSprite;
     [SerializeField] private Sprite activeSprite;
     [SerializeField] private Sprite eveningSprite;
+    [Header("State Icon Rotation")]
+    [SerializeField] private bool rotateStateIconWithDayState = true;
+    [SerializeField] private RectTransform stateIconRotatingRoot;
+    [Tooltip("Z rotation used while planning/pre-bell. 0 keeps the sprite as authored.")]
+    [SerializeField] private float preBellRotationZ = 0f;
+    [Tooltip("Z rotation used during the workday. Negative values rotate clockwise in UI space.")]
+    [SerializeField] private float activeRotationZ = -120f;
+    [Tooltip("Z rotation used in evening. Negative values rotate clockwise in UI space.")]
+    [SerializeField] private float eveningRotationZ = -240f;
+    [SerializeField] private float stateIconRotationDuration = 0.35f;
+    [Header("State Icon Audio")]
+    [SerializeField] private AudioSource stateIconAudioSource;
+    [SerializeField] private AudioClip stateIconRotationClip;
+    [SerializeField] private float stateIconRotationVolume = 1f;
+    [SerializeField] private bool playStateIconSoundOnInitialRefresh = false;
 
     private ReputationManager reputationManager;
     private GoldManager goldManager;
     private HunterManager hunterManager;
+    private Coroutine stateIconRotationRoutine;
+    private bool hasRefreshedStateIcon;
 
     private void OnEnable()
     {
@@ -57,6 +75,12 @@ public class DayTimeHUD : MonoBehaviour
 
     private void OnDisable()
     {
+        if (stateIconRotationRoutine != null)
+        {
+            StopCoroutine(stateIconRotationRoutine);
+            stateIconRotationRoutine = null;
+        }
+
         if (timeManager != null)
         {
             timeManager.OnTimeUpdate -= HandleTimeUpdate;
@@ -153,7 +177,7 @@ public class DayTimeHUD : MonoBehaviour
 
         if (reputationText != null)
         {
-            reputationText.text = $"Reputation {reputationManager.GetReputation()}";
+            reputationText.text = $"{reputationManager.GetReputation()}";
         }
 
         if (reputationProgressText != null)
@@ -203,13 +227,13 @@ public class DayTimeHUD : MonoBehaviour
 
         if (goldText != null)
         {
-            goldText.text = goldManager != null ? $"Gold {goldManager.GetGold()}" : "Gold -";
+            goldText.text = goldManager != null ? $"{goldManager.GetGold()}" : "Gold -";
         }
 
         if (upkeepText != null)
         {
             int upkeep = GameManager.Instance != null ? GameManager.Instance.GetTodayUpkeepCost() : 0;
-            upkeepText.text = $"Upkeep {upkeep}";
+            upkeepText.text = $"{upkeep}";
         }
 
         if (debtStatusText != null)
@@ -223,18 +247,116 @@ public class DayTimeHUD : MonoBehaviour
     private void RefreshStateIcon(TimeManager.DayState state)
     {
         if (stateIcon == null) return;
+
+        Sprite stateSprite = null;
         switch (state)
         {
             case TimeManager.DayState.PreBell:
-                stateIcon.sprite = preBellSprite;
+                stateSprite = preBellSprite;
                 break;
             case TimeManager.DayState.Active:
-                stateIcon.sprite = activeSprite;
+                stateSprite = activeSprite;
                 break;
             case TimeManager.DayState.Evening:
-                stateIcon.sprite = eveningSprite;
+                stateSprite = eveningSprite;
                 break;
         }
+
+        if (stateSprite != null)
+        {
+            stateIcon.sprite = stateSprite;
+        }
+
         stateIcon.enabled = stateIcon.sprite != null;
+
+        if (rotateStateIconWithDayState)
+        {
+            RotateStateIcon(GetStateIconRotationZ(state), Application.isPlaying);
+        }
+
+        PlayStateIconRotationSoundIfNeeded();
+        hasRefreshedStateIcon = true;
+    }
+
+    private void PlayStateIconRotationSoundIfNeeded()
+    {
+        if (!Application.isPlaying) return;
+        if (!hasRefreshedStateIcon && !playStateIconSoundOnInitialRefresh) return;
+        if (stateIconRotationClip == null) return;
+
+        if (stateIconAudioSource != null)
+        {
+            stateIconAudioSource.PlayOneShot(stateIconRotationClip, Mathf.Clamp01(stateIconRotationVolume));
+        }
+        else
+        {
+            AudioSource.PlayClipAtPoint(stateIconRotationClip, Vector3.zero, Mathf.Clamp01(stateIconRotationVolume));
+        }
+    }
+
+    private float GetStateIconRotationZ(TimeManager.DayState state)
+    {
+        switch (state)
+        {
+            case TimeManager.DayState.Active:
+                return activeRotationZ;
+            case TimeManager.DayState.Evening:
+                return eveningRotationZ;
+            default:
+                return preBellRotationZ;
+        }
+    }
+
+    private void RotateStateIcon(float targetZ, bool animate)
+    {
+        RectTransform target = stateIconRotatingRoot != null
+            ? stateIconRotatingRoot
+            : stateIcon != null ? stateIcon.rectTransform : null;
+        if (target == null) return;
+
+        if (stateIconRotationRoutine != null)
+        {
+            StopCoroutine(stateIconRotationRoutine);
+            stateIconRotationRoutine = null;
+        }
+
+        if (!animate || stateIconRotationDuration <= 0f || !isActiveAndEnabled)
+        {
+            SetIconRotation(target, targetZ);
+            return;
+        }
+
+        stateIconRotationRoutine = StartCoroutine(AnimateStateIconRotation(target, targetZ));
+    }
+
+    private IEnumerator AnimateStateIconRotation(RectTransform target, float targetZ)
+    {
+        float startZ = NormalizeAngle(target.localEulerAngles.z);
+        float elapsed = 0f;
+        float duration = Mathf.Max(0.01f, stateIconRotationDuration);
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / duration));
+            float z = Mathf.LerpAngle(startZ, targetZ, t);
+            SetIconRotation(target, z);
+            yield return null;
+        }
+
+        SetIconRotation(target, targetZ);
+        stateIconRotationRoutine = null;
+    }
+
+    private static void SetIconRotation(RectTransform target, float z)
+    {
+        target.localRotation = Quaternion.Euler(0f, 0f, z);
+    }
+
+    private static float NormalizeAngle(float angle)
+    {
+        angle %= 360f;
+        if (angle > 180f) angle -= 360f;
+        return angle;
     }
 }
