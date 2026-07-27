@@ -21,6 +21,13 @@ public class HunterInteractable : Interactable
     [SerializeField] private Vector3 faceLookOffset = new Vector3(0f, 0.02f, 0f);
     [SerializeField] private bool hideNotificationsDuringDialogue = true;
     [SerializeField] private GameObject healVfx;
+    [Header("Card Game")]
+    [SerializeField] private CardGameUI cardGameUI;
+    [SerializeField] private bool injectCardGameDialogueOption = true;
+    [SerializeField] private string cardGameQuestionId = "play_cards";
+    [SerializeField] private string cardGameQuestionText = "You want to play some cards?";
+    [TextArea(2, 4)]
+    [SerializeField] private string cardGameAnswerText = "Sure. Let's play.";
 
     private PlayerInteraction activePlayer;
     private Hunter ownerHunter;
@@ -164,6 +171,15 @@ public class HunterInteractable : Interactable
                 answers[q.questionId] = hq.answerText;
                 questionList.Add(q);
             }
+        }
+
+        if (CanOfferCardGame())
+        {
+            var cards = ScriptableObject.CreateInstance<InvestigationQuestion>();
+            cards.questionId = cardGameQuestionId;
+            cards.promptText = cardGameQuestionText;
+            answers[cards.questionId] = cardGameAnswerText;
+            questionList.Add(cards);
         }
 
         // Goodbye entry
@@ -320,7 +336,44 @@ public class HunterInteractable : Interactable
 
     private void HandleResponseFinished(InvestigationQuestion question, string responseText)
     {
-        // Reserved for dialogue-specific follow-up actions.
+        if (question == null) return;
+        if (!IsCardGameQuestion(question.questionId)) return;
+
+        OpenCardGameAfterDialogueResponse();
+    }
+
+    private bool CanOfferCardGame()
+    {
+        if (!injectCardGameDialogueOption || ownerHunter == null || ownerHunter.GetState() != HunterState.Idle) return false;
+
+        TimeManager timeManager = GameManager.Instance != null ? GameManager.Instance.GetTimeManager() : null;
+        return timeManager != null && timeManager.GetDayState() == TimeManager.DayState.Active;
+    }
+
+    private bool IsCardGameQuestion(string questionId)
+    {
+        return !string.IsNullOrWhiteSpace(questionId) &&
+               string.Equals(questionId, cardGameQuestionId, System.StringComparison.OrdinalIgnoreCase);
+    }
+
+    private void OpenCardGameAfterDialogueResponse()
+    {
+        if (cardGameUI == null)
+        {
+            cardGameUI = FindObjectOfType<CardGameUI>(true);
+        }
+
+        if (cardGameUI == null)
+        {
+            Debug.LogWarning("HunterInteractable: Cannot open card game because no CardGameUI exists in the scene.", this);
+            return;
+        }
+
+        investigationManager?.HideDialoguePanel();
+        cardGameUI.Show(ownerHunter, () =>
+        {
+            investigationManager?.CompleteInvestigation();
+        });
     }
 
     private void ReleaseInteraction()
