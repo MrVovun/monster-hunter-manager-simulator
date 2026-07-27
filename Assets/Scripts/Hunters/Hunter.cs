@@ -16,6 +16,9 @@ public class Hunter : MonoBehaviour
     [SerializeField] private Transform visualParent;
     private GameObject visualInstance;
     private Transform p09VisualAnimatorRoot;
+    private P09HumanoidPreset runtimeP09Preset;
+    private P09HumanoidVisualApplier p09VisualApplier;
+    private int equippedWeaponIdOverride = -1;
 
     [Header("Components")]
     private NavMeshAgent navAgent;
@@ -51,6 +54,7 @@ public class Hunter : MonoBehaviour
     private System.Action<Hunter> kitchenPointArrivalCallback;
     private bool isWalkingToTemporarySeat;
     private System.Action<Hunter> temporarySeatArrivalCallback;
+    private HunterSeat armoryReturnSeat;
 
     private bool baseLayerInitialized = false;
     private HunterStats stats;
@@ -156,7 +160,7 @@ public class Hunter : MonoBehaviour
             temporarySeatArrivalCallback = null;
             standUpCompletedAction = null;
             sharedAnimator?.StopClipPlayback();
-            if (previousState == HunterState.Healing || previousState == HunterState.Sleeping)
+            if (previousState == HunterState.Healing || previousState == HunterState.Sleeping || previousState == HunterState.Armory)
             {
                 PrepareForIndoorNavigation();
             }
@@ -166,7 +170,16 @@ public class Hunter : MonoBehaviour
             }
             isSeated = false;
             playSitEntry = false;
-            RequestSeatAssignment();
+            if (armoryReturnSeat != null)
+            {
+                HunterSeat seat = armoryReturnSeat;
+                armoryReturnSeat = null;
+                WalkToSeat(seat);
+            }
+            else
+            {
+                RequestSeatAssignment();
+            }
         }
         else if (newState == HunterState.Healing)
         {
@@ -178,6 +191,25 @@ public class Hunter : MonoBehaviour
         {
             isSeated = false;
             playSitEntry = false;
+            ReleaseSeat();
+        }
+        else if (newState == HunterState.Armory)
+        {
+            isSeated = false;
+            playSitEntry = false;
+            isDepartingForMission = false;
+            isWalkingToInfirmary = false;
+            infirmaryTarget = null;
+            infirmaryArrivalCallback = null;
+            isWalkingToDormitory = false;
+            dormitoryBedTarget = null;
+            dormitoryArrivalCallback = null;
+            isWalkingToKitchenPoint = false;
+            kitchenPointTarget = null;
+            kitchenPointArrivalCallback = null;
+            isWalkingToTemporarySeat = false;
+            temporarySeatArrivalCallback = null;
+            standUpCompletedAction = null;
             ReleaseSeat();
         }
         else if (newState == HunterState.Dead)
@@ -197,6 +229,7 @@ public class Hunter : MonoBehaviour
             kitchenPointArrivalCallback = null;
             isWalkingToTemporarySeat = false;
             temporarySeatArrivalCallback = null;
+            armoryReturnSeat = null;
             standUpCompletedAction = null;
             sharedAnimator?.StopClipPlayback();
             ReleaseSeat();
@@ -243,7 +276,7 @@ public class Hunter : MonoBehaviour
     public bool WalkToTemporarySeat(HunterSeat seat, System.Action<Hunter> onArrived = null)
     {
         if (seat == null) return false;
-        if (GetState() == HunterState.Dead || GetState() == HunterState.OnMission || GetState() == HunterState.Candidate || GetState() == HunterState.Healing || GetState() == HunterState.Sleeping) return false;
+        if (GetState() == HunterState.Dead || GetState() == HunterState.OnMission || GetState() == HunterState.Candidate || GetState() == HunterState.Healing || GetState() == HunterState.Sleeping || GetState() == HunterState.Armory) return false;
         if (!seat.TryAssign(this)) return false;
 
         temporarySeatArrivalCallback = onArrived;
@@ -316,7 +349,7 @@ public class Hunter : MonoBehaviour
 
     public void ReturnToGuildSeat()
     {
-        if (GetState() == HunterState.Dead || GetState() == HunterState.OnMission || GetState() == HunterState.Candidate) return;
+        if (GetState() == HunterState.Dead || GetState() == HunterState.OnMission || GetState() == HunterState.Candidate || GetState() == HunterState.Armory) return;
 
         if (isSeated)
         {
@@ -354,7 +387,7 @@ public class Hunter : MonoBehaviour
 
     public void PlayBriefingReactionThenReturn(SharedCharacterAnimator.ClipEntry reactionClip, float fallbackDelay)
     {
-        if (GetState() == HunterState.Dead || GetState() == HunterState.OnMission || GetState() == HunterState.Candidate) return;
+        if (GetState() == HunterState.Dead || GetState() == HunterState.OnMission || GetState() == HunterState.Candidate || GetState() == HunterState.Armory) return;
 
         if (isSeated)
         {
@@ -414,10 +447,102 @@ public class Hunter : MonoBehaviour
         return isSeated;
     }
 
+    public bool CanUseArmory()
+    {
+        return GetState() == HunterState.Idle && Data != null && Data.p09VisualPreset != null;
+    }
+
+    public int GetEquippedWeaponId()
+    {
+        if (equippedWeaponIdOverride >= 0) return equippedWeaponIdOverride;
+        return runtimeP09Preset != null ? runtimeP09Preset.weaponId : Data != null && Data.p09VisualPreset != null ? Data.p09VisualPreset.weaponId : 0;
+    }
+
+    public int GetSavedWeaponOverride()
+    {
+        return equippedWeaponIdOverride;
+    }
+
+    public P09HumanoidPreset GetRuntimeP09Preset()
+    {
+        return runtimeP09Preset;
+    }
+
+    public P09HumanoidLibrary GetP09Library()
+    {
+        if (runtimeP09Preset != null && runtimeP09Preset.library != null) return runtimeP09Preset.library;
+        return Data != null && Data.p09VisualPreset != null ? Data.p09VisualPreset.library : null;
+    }
+
+    public void SetEquippedWeaponId(int weaponId)
+    {
+        equippedWeaponIdOverride = Mathf.Max(0, weaponId);
+        ApplyWeaponToRuntimePreset();
+    }
+
+    public bool BeginArmoryDisplay(Transform displayPoint, SharedCharacterAnimator.ClipEntry stanceClip)
+    {
+        if (!CanUseArmory() || displayPoint == null) return false;
+
+        armoryReturnSeat = assignedSeat;
+        SetState(HunterState.Armory);
+
+        transform.SetPositionAndRotation(displayPoint.position, displayPoint.rotation);
+        if (visualInstance != null)
+        {
+            visualInstance.SetActive(true);
+        }
+
+        if (navAgent != null)
+        {
+            if (!navAgent.enabled)
+            {
+                navAgent.enabled = true;
+            }
+
+            if (navAgent.enabled && navAgent.isOnNavMesh)
+            {
+                navAgent.ResetPath();
+                navAgent.isStopped = true;
+            }
+
+            navAgent.enabled = false;
+        }
+
+        sharedAnimator?.SetMoving(false);
+        if (stanceClip != null && stanceClip.clip != null)
+        {
+            sharedAnimator?.PlayCustomClip(stanceClip);
+        }
+
+        return true;
+    }
+
+    public void EndArmoryDisplay()
+    {
+        if (GetState() != HunterState.Armory) return;
+
+        sharedAnimator?.StopClipPlayback();
+        if (navAgent != null)
+        {
+            navAgent.enabled = true;
+            if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, Mathf.Max(0.1f, infirmaryNavMeshSampleRadius), NavMesh.AllAreas))
+            {
+                navAgent.Warp(hit.position);
+            }
+            else if (armoryReturnSeat != null && NavMesh.SamplePosition(armoryReturnSeat.ApproachPosition, out hit, Mathf.Max(0.1f, infirmaryNavMeshSampleRadius), NavMesh.AllAreas))
+            {
+                navAgent.Warp(hit.position);
+            }
+        }
+
+        SetState(HunterState.Idle);
+    }
+
     public bool WalkToKitchenPoint(Transform target, System.Action<Hunter> onArrived)
     {
         if (target == null) return false;
-        if (GetState() == HunterState.Dead || GetState() == HunterState.OnMission || GetState() == HunterState.Candidate || GetState() == HunterState.Healing || GetState() == HunterState.Sleeping) return false;
+        if (GetState() == HunterState.Dead || GetState() == HunterState.OnMission || GetState() == HunterState.Candidate || GetState() == HunterState.Healing || GetState() == HunterState.Sleeping || GetState() == HunterState.Armory) return false;
 
         bool wasSeated = isSeated;
         isSeated = false;
@@ -501,7 +626,7 @@ public class Hunter : MonoBehaviour
     public bool WalkToInfirmary(Transform treatmentPoint, System.Action<Hunter> onArrived)
     {
         if (treatmentPoint == null) return false;
-        if (GetState() == HunterState.Dead || GetState() == HunterState.OnMission) return false;
+        if (GetState() == HunterState.Dead || GetState() == HunterState.OnMission || GetState() == HunterState.Armory) return false;
 
         bool wasSeated = isSeated;
         SetState(HunterState.Healing);
@@ -594,7 +719,7 @@ public class Hunter : MonoBehaviour
     public bool WalkToDormitoryBed(Transform bedPoint, System.Action<Hunter> onArrived)
     {
         if (bedPoint == null) return false;
-        if (GetState() == HunterState.Dead || GetState() == HunterState.OnMission || GetState() == HunterState.Candidate) return false;
+        if (GetState() == HunterState.Dead || GetState() == HunterState.OnMission || GetState() == HunterState.Candidate || GetState() == HunterState.Armory) return false;
 
         bool wasSeated = isSeated;
         SetState(HunterState.Sleeping);
@@ -1203,10 +1328,14 @@ public class Hunter : MonoBehaviour
             }
             visualInstance = null;
             p09VisualAnimatorRoot = null;
+            p09VisualApplier = null;
+            runtimeP09Preset = null;
         }
 
-        GameObject prefabToSpawn = p09Preset != null && p09Preset.baseVisualPrefab != null
-            ? p09Preset.baseVisualPrefab
+        runtimeP09Preset = CreateRuntimePreset(p09Preset);
+
+        GameObject prefabToSpawn = runtimeP09Preset != null && runtimeP09Preset.baseVisualPrefab != null
+            ? runtimeP09Preset.baseVisualPrefab
             : prefab;
 
         if (prefabToSpawn != null)
@@ -1217,7 +1346,7 @@ public class Hunter : MonoBehaviour
             visualInstance.transform.localRotation = Quaternion.identity;
             visualInstance.transform.localScale = Vector3.one;
 
-            if (p09Preset != null)
+            if (runtimeP09Preset != null)
             {
                 var applier = visualInstance.GetComponent<P09HumanoidVisualApplier>();
                 if (applier == null)
@@ -1225,7 +1354,8 @@ public class Hunter : MonoBehaviour
                     applier = visualInstance.AddComponent<P09HumanoidVisualApplier>();
                 }
 
-                applier.ApplyPreset(p09Preset);
+                p09VisualApplier = applier;
+                applier.ApplyPreset(runtimeP09Preset);
                 animator = applier.Animator != null ? applier.Animator : visualInstance.GetComponentInChildren<Animator>();
                 p09VisualAnimatorRoot = animator != null ? animator.transform : null;
             }
@@ -1251,6 +1381,32 @@ public class Hunter : MonoBehaviour
         {
             Debug.LogWarning($"Hunter '{name}' has no Animator assigned after visual setup.", this);
         }
+    }
+
+    private P09HumanoidPreset CreateRuntimePreset(P09HumanoidPreset source)
+    {
+        if (source == null) return null;
+
+        P09HumanoidPreset clone = Instantiate(source);
+        clone.name = $"{source.name}_Runtime";
+        if (equippedWeaponIdOverride >= 0)
+        {
+            clone.weaponId = equippedWeaponIdOverride;
+        }
+        return clone;
+    }
+
+    private void ApplyWeaponToRuntimePreset()
+    {
+        if (runtimeP09Preset == null) return;
+        runtimeP09Preset.weaponId = GetEquippedWeaponId();
+
+        if (p09VisualApplier == null && visualInstance != null)
+        {
+            p09VisualApplier = visualInstance.GetComponent<P09HumanoidVisualApplier>();
+        }
+
+        p09VisualApplier?.ApplyPreset(runtimeP09Preset);
     }
 
     private void SnapVisualToParent()

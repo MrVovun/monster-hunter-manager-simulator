@@ -6,6 +6,21 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "P09 Humanoid Library", menuName = "Guild Manager/Visuals/P09 Humanoid Library")]
 public class P09HumanoidLibrary : ScriptableObject
 {
+    [System.Serializable]
+    public class PartOption
+    {
+        public int id;
+        public string displayName;
+        public Sprite icon;
+
+        public PartOption(int id, string displayName, Sprite icon)
+        {
+            this.id = id;
+            this.displayName = displayName;
+            this.icon = icon;
+        }
+    }
+
     [Header("P09 Data")]
     [Tooltip("Assign the P09 EditPartDataContainer assets here. The runtime applier reads these to find meshes/materials by selected ids.")]
     public List<EditPartDataContainer> editPartDataContainers = new List<EditPartDataContainer>();
@@ -39,6 +54,28 @@ public class P09HumanoidLibrary : ScriptableObject
     public WeaponGroupData GetWeaponGroupData(int weaponGroupId)
     {
         return weaponGroupData?.FirstOrDefault(d => d != null && d.WeaponGroupId == weaponGroupId);
+    }
+
+    public List<PartOption> GetWeaponOptions(int sexId, bool includeNone = true)
+    {
+        List<PartOption> options = new List<PartOption>();
+        if (includeNone)
+        {
+            options.Add(new PartOption(0, "None", null));
+        }
+
+        List<IEditPartData> dataList = GetPartDataList(EditPartType.Weapon, sexId);
+        if (dataList == null) return options;
+
+        foreach (var data in dataList
+                     .Where(d => d != null && d.ContentId != 0)
+                     .OrderBy(d => d.ContentId))
+        {
+            Sprite icon = data is WeaponEditPartData weapon ? weapon.Icon : null;
+            options.Add(new PartOption(data.ContentId, data.DisplayName, icon));
+        }
+
+        return options;
     }
 
     public RuntimeAnimatorController GetAnimatorController(int sexId)

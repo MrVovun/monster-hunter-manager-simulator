@@ -15,7 +15,8 @@ public static class GameSaveUtility
         "graveyard_state.json",
         "monster_kill_counts.json",
         "notifications_history.json",
-        "recruitment_state.json"
+        "recruitment_state.json",
+        "hunter_equipment_state.json"
     };
 
     private static readonly string[] PlayerPrefKeys =

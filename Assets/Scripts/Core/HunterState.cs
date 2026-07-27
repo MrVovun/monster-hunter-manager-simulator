@@ -5,5 +5,6 @@ public enum HunterState
     Dead,       // No longer usable, recorded in statistics
     Candidate,  // Visiting the guild as a recruit candidate
     Healing,    // Walking to or resting in the infirmary
-    Sleeping    // Resting in the dormitory between days
+    Sleeping,   // Resting in the dormitory between days
+    Armory      // Temporarily posed in the armory equipment view
 }

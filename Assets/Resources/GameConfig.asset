@@ -31,6 +31,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: dc1f1ffd7d28e824c839c3c71f0894b5, type: 2}
   - {fileID: 11400000, guid: aac5ed4f873f76f438333dd9ac279aff, type: 2}
   - {fileID: 11400000, guid: 65edd25a5944e774ebeeecc1bfe38f77, type: 2}
+  - {fileID: 11400000, guid: bf875698bd3ba6d40b6d716c6cdbe1bd, type: 2}
   dayLengthSeconds: 600
   allowInvestigationPauseToggle: 1
   orderLimitByReputation:

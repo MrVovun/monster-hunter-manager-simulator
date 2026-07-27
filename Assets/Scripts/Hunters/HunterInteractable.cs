@@ -84,7 +84,7 @@ public class HunterInteractable : Interactable
         }
 
         var state = ownerHunter.GetState();
-        return state != HunterState.OnMission && state != HunterState.Dead && state != HunterState.Healing && state != HunterState.Sleeping;
+        return state != HunterState.OnMission && state != HunterState.Dead && state != HunterState.Healing && state != HunterState.Sleeping && state != HunterState.Armory;
     }
 
     public override void Interact(PlayerInteraction player)
@@ -104,7 +104,7 @@ public class HunterInteractable : Interactable
         }
 
         var state = ownerHunter.GetState();
-        if (state == HunterState.OnMission || state == HunterState.Dead || state == HunterState.Healing || state == HunterState.Sleeping)
+        if (state == HunterState.OnMission || state == HunterState.Dead || state == HunterState.Healing || state == HunterState.Sleeping || state == HunterState.Armory)
         {
             return;
         }

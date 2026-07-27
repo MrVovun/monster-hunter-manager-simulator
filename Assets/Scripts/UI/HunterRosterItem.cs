@@ -243,6 +243,8 @@ public static class HunterStatusFormatter
                 return "Healing";
             case HunterState.Sleeping:
                 return "Sleeping";
+            case HunterState.Armory:
+                return "In Armory";
             case HunterState.Idle:
                 if (HasWound(hunter)) return selectableForOrder ? "Wounded" : "Wounded - Unavailable";
                 return selectableForOrder ? "Ready" : "Unavailable";

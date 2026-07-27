@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using System.Linq;
 using UnityEngine.AI;
@@ -11,6 +12,21 @@ public class HunterManager : MonoBehaviour
         public string hunterId;
         public int level;
         public int xp;
+        public int weaponId = -1;
+        public bool hasWeaponOverride;
+    }
+
+    [System.Serializable]
+    private class HunterEquipmentSaveData
+    {
+        public List<HunterEquipmentSaveState> equipment = new List<HunterEquipmentSaveState>();
+    }
+
+    [System.Serializable]
+    private class HunterEquipmentSaveState
+    {
+        public string hunterId;
+        public int weaponId;
     }
 
     [Header("Hunter Database")]
@@ -33,11 +49,13 @@ public class HunterManager : MonoBehaviour
     private readonly Dictionary<string, HunterData> hunterLookup = new Dictionary<string, HunterData>();
     private readonly HashSet<string> hiredHunterIds = new HashSet<string>();
     private readonly Dictionary<string, HunterSaveState> hunterSaveStates = new Dictionary<string, HunterSaveState>();
+    private readonly Dictionary<string, int> savedWeaponOverrides = new Dictionary<string, int>();
     private readonly Dictionary<Hunter, bool> idleAllDayCandidates = new Dictionary<Hunter, bool>();
     private readonly HashSet<HunterSeat> briefingRoomSeats = new HashSet<HunterSeat>();
     private int nextSeatIndex = 0;
     private bool navMeshChecked = false;
     private bool navMeshAvailable = false;
+    private string equipmentSavePath;
     
     public event System.Action OnHuntersChanged;
     public event System.Action<Hunter> OnHunterLeveledUp;
@@ -90,6 +108,8 @@ public class HunterManager : MonoBehaviour
     
     private void Awake()
     {
+        equipmentSavePath = GameSaveUtility.GetSavePath("hunter_equipment_state.json");
+        LoadEquipmentOverrides();
         BuildHunterLookup();
 
         if (hunterSpawnPoint == null)
@@ -454,7 +474,7 @@ public class HunterManager : MonoBehaviour
         {
             if (hunter == null || hunter.Data == null) continue;
             HunterState state = hunter.GetState();
-            if (state == HunterState.Dead || state == HunterState.OnMission || state == HunterState.Candidate) continue;
+            if (state == HunterState.Dead || state == HunterState.OnMission || state == HunterState.Candidate || state == HunterState.Armory) continue;
 
             int upkeep = hunter.GetUpkeepCost();
             if (best == null || upkeep > bestUpkeep)
@@ -615,6 +635,13 @@ public class HunterManager : MonoBehaviour
         NotifyHuntersChanged();
     }
 
+    public void NotifyHunterEquipmentChanged(Hunter hunter)
+    {
+        CaptureHunterState(hunter);
+        SaveEquipmentOverride(hunter);
+        NotifyHuntersChanged();
+    }
+
     public IReadOnlyList<HunterData> GetAllHunterData() => allHunterData;
 
     public List<HunterData> GetRecruitableHunters(int reputation)
@@ -686,7 +713,9 @@ public class HunterManager : MonoBehaviour
             {
                 hunterId = state.hunterId,
                 level = Mathf.Max(1, state.level),
-                xp = Mathf.Max(0, state.xp)
+                xp = Mathf.Max(0, state.xp),
+                weaponId = state.weaponId,
+                hasWeaponOverride = state.hasWeaponOverride
             };
         }
     }
@@ -704,7 +733,9 @@ public class HunterManager : MonoBehaviour
             {
                 hunterId = state.hunterId,
                 level = state.level,
-                xp = state.xp
+                xp = state.xp,
+                weaponId = state.weaponId,
+                hasWeaponOverride = state.hasWeaponOverride
             })
             .ToList();
     }
@@ -716,15 +747,83 @@ public class HunterManager : MonoBehaviour
         {
             hunterId = hunter.Data.hunterId,
             level = Mathf.Max(1, hunter.GetLevel()),
-            xp = Mathf.Max(0, hunter.GetXP())
+            xp = Mathf.Max(0, hunter.GetXP()),
+            weaponId = hunter.GetSavedWeaponOverride(),
+            hasWeaponOverride = hunter.GetSavedWeaponOverride() >= 0
         };
     }
 
     private void ApplySavedHunterState(Hunter hunter)
     {
         if (hunter == null || hunter.Data == null || string.IsNullOrEmpty(hunter.Data.hunterId)) return;
-        if (!hunterSaveStates.TryGetValue(hunter.Data.hunterId, out var state) || state == null) return;
-        hunter.DebugSetLevelAndXP(state.level, state.xp);
+        if (hunterSaveStates.TryGetValue(hunter.Data.hunterId, out var state) && state != null)
+        {
+            hunter.DebugSetLevelAndXP(state.level, state.xp);
+            if (state.hasWeaponOverride && state.weaponId >= 0)
+            {
+                hunter.SetEquippedWeaponId(state.weaponId);
+                return;
+            }
+        }
+
+        if (savedWeaponOverrides.TryGetValue(hunter.Data.hunterId, out int weaponId) && weaponId >= 0)
+        {
+            hunter.SetEquippedWeaponId(weaponId);
+        }
+    }
+
+    private void SaveEquipmentOverride(Hunter hunter)
+    {
+        if (hunter == null || hunter.Data == null || string.IsNullOrEmpty(hunter.Data.hunterId)) return;
+
+        savedWeaponOverrides[hunter.Data.hunterId] = hunter.GetSavedWeaponOverride();
+        SaveEquipmentOverrides();
+    }
+
+    private void LoadEquipmentOverrides()
+    {
+        savedWeaponOverrides.Clear();
+        if (string.IsNullOrEmpty(equipmentSavePath) || !File.Exists(equipmentSavePath)) return;
+
+        try
+        {
+            string json = File.ReadAllText(equipmentSavePath);
+            if (string.IsNullOrWhiteSpace(json)) return;
+
+            HunterEquipmentSaveData data = JsonUtility.FromJson<HunterEquipmentSaveData>(json);
+            if (data?.equipment == null) return;
+
+            foreach (var entry in data.equipment)
+            {
+                if (entry == null || string.IsNullOrEmpty(entry.hunterId)) continue;
+                savedWeaponOverrides[entry.hunterId] = Mathf.Max(-1, entry.weaponId);
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogWarning($"HunterManager: Failed to load equipment state. {ex.Message}", this);
+        }
+    }
+
+    private void SaveEquipmentOverrides()
+    {
+        if (string.IsNullOrEmpty(equipmentSavePath)) return;
+
+        try
+        {
+            HunterEquipmentSaveData data = new HunterEquipmentSaveData();
+            foreach (var kvp in savedWeaponOverrides)
+            {
+                if (string.IsNullOrEmpty(kvp.Key) || kvp.Value < 0) continue;
+                data.equipment.Add(new HunterEquipmentSaveState { hunterId = kvp.Key, weaponId = kvp.Value });
+            }
+
+            File.WriteAllText(equipmentSavePath, JsonUtility.ToJson(data, true));
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogWarning($"HunterManager: Failed to save equipment state. {ex.Message}", this);
+        }
     }
 
     private void ApplyMentorBonuses()
@@ -808,7 +907,7 @@ public class HunterManager : MonoBehaviour
         {
             if (hunter == null) continue;
             HunterState state = hunter.GetState();
-            if (state == HunterState.Dead || state == HunterState.OnMission || state == HunterState.Candidate) continue;
+            if (state == HunterState.Dead || state == HunterState.OnMission || state == HunterState.Candidate || state == HunterState.Armory) continue;
 
             var data = hunter.Data;
             if (data == null || data.traits == null) continue;
@@ -840,6 +939,8 @@ public class HunterManager : MonoBehaviour
         activeHunters.Clear();
         hiredHunterIds.Clear();
         hunterSaveStates.Clear();
+        savedWeaponOverrides.Clear();
+        SaveEquipmentOverrides();
         nextSeatIndex = 0;
         EnsureInitialHunters();
         var graveyardManager = GameManager.Instance != null ? GameManager.Instance.GetGraveyardManager() : null;

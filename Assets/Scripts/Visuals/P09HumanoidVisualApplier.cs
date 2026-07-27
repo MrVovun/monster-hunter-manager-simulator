@@ -16,6 +16,17 @@ public class P09HumanoidVisualApplier : MonoBehaviour
     [SerializeField] private Transform modelRoot;
     [SerializeField] private Animator animator;
 
+    [Header("Weapon Attachment")]
+    [SerializeField] private bool snapWeaponToHandTarget = true;
+    [SerializeField] private string rightHandWeaponTargetName = "Weapon_Target_Hand_R";
+    [SerializeField] private string leftHandWeaponTargetName = "Weapon_Target_Hand_L";
+    [SerializeField] private Vector3 weaponLocalPositionOffset;
+    [SerializeField] private Vector3 weaponLocalRotationOffset;
+    [SerializeField] private Vector3 weaponLocalScale = Vector3.one;
+    [SerializeField] private Vector3 shieldLocalPositionOffset;
+    [SerializeField] private Vector3 shieldLocalRotationOffset;
+    [SerializeField] private Vector3 shieldLocalScale = Vector3.one;
+
     [Header("Debug")]
     [SerializeField] private bool logAppliedParts = true;
 
@@ -105,6 +116,8 @@ public class P09HumanoidVisualApplier : MonoBehaviour
             ApplySkinColor(renderer, preset.skinId, sexId);
             ApplyEyeColor(renderer, preset.eyeColorId, sexId);
         }
+
+        SnapEquipmentToTargets(root);
     }
 
     public List<string> ValidateCurrentPreset()
@@ -255,6 +268,48 @@ public class P09HumanoidVisualApplier : MonoBehaviour
         }
     }
 
+    private void SnapEquipmentToTargets(Transform root)
+    {
+        if (!snapWeaponToHandTarget || root == null) return;
+
+        Transform rightTarget = FindDeepChild(root, rightHandWeaponTargetName);
+        Transform leftTarget = FindDeepChild(root, leftHandWeaponTargetName);
+
+        if (rightTarget != null)
+        {
+            SnapEnabledPartToTarget(root, EditPartType.Weapon, preset.weaponId, rightTarget, weaponLocalPositionOffset, weaponLocalRotationOffset, weaponLocalScale);
+        }
+
+        if (leftTarget != null)
+        {
+            SnapEnabledPartToTarget(root, EditPartType.Shield, preset.shieldId, leftTarget, shieldLocalPositionOffset, shieldLocalRotationOffset, shieldLocalScale);
+        }
+    }
+
+    private void SnapEnabledPartToTarget(Transform root, EditPartType type, int currentId, Transform target, Vector3 localPosition, Vector3 localRotation, Vector3 localScale)
+    {
+        if (currentId == 0 || target == null) return;
+
+        List<IEditPartData> dataList = library.GetPartDataList(type, preset.sexId);
+        IEditPartData selectedData = dataList?.FirstOrDefault(d => d != null && d.ContentId == currentId);
+        if (selectedData == null || string.IsNullOrWhiteSpace(selectedData.MeshName)) return;
+
+        Renderer[] renderers = root.GetComponentsInChildren<Renderer>(true);
+        foreach (Renderer renderer in renderers)
+        {
+            if (renderer == null || !renderer.enabled) continue;
+            if (!MatchesRenderer(renderer, selectedData.MeshName, preset.sexId, preset.hairStyleId)) continue;
+
+            Transform part = renderer.transform;
+            part.SetParent(target, false);
+            part.localPosition = localPosition;
+            part.localRotation = Quaternion.Euler(localRotation);
+            part.localScale = localScale.sqrMagnitude <= 0.0001f ? Vector3.one : localScale;
+            EnsureActivePath(part, root);
+            return;
+        }
+    }
+
     private void CacheReferences()
     {
         if (modelRoot == null)
@@ -343,6 +398,21 @@ public class P09HumanoidVisualApplier : MonoBehaviour
 
             current = current.parent;
         }
+    }
+
+    private static Transform FindDeepChild(Transform root, string childName)
+    {
+        if (root == null || string.IsNullOrWhiteSpace(childName)) return null;
+
+        foreach (Transform child in root.GetComponentsInChildren<Transform>(true))
+        {
+            if (child.name == childName)
+            {
+                return child;
+            }
+        }
+
+        return null;
     }
 
     private void OnValidate()

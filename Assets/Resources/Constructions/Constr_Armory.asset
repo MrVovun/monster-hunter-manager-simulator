@@ -12,11 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c36aeecd21b815440a668ca3bb4d0acf, type: 3}
   m_Name: Constr_Armory
   m_EditorClassIdentifier: Assembly-CSharp::GuildConstructionDefinition
-  constructionId: 
-  displayName: 
-  description: 
+  constructionId: Constr_Armory
+  displayName: Armory
+  description: Here you can equip new stuff for your hunters!
+  previewImage: {fileID: 0}
+  builtPreviewImage: {fileID: 0}
   planOverlay: {fileID: 0}
   goldCost: 0
-  requiredReputation: 0
+  requiredReputation: 1
   prerequisite: {fileID: 0}
   startsBuilt: 0
+  hunterCapacityIncrease: 0
