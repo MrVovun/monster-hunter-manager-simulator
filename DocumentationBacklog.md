@@ -38,6 +38,9 @@
   - UI showing who has eaten and who still needs food.
 - Full-game economy:
   - Add a last-chance debt option, such as a loan, before the guild collapses from consecutive unpaid upkeep.
+- Future card game expansions:
+  - Make playing cards consume configurable action-time once the minigame has production rules and rewards.
+  - Add stakes/rewards, hunter personality reactions, and a fuller side-deck progression.
 
 ## Notification Message Templates
 
