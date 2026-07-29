@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: 28686aeab6ca40abad93a01c71635cf0
   displayName: Lich
-  portrait: {fileID: 21300000, guid: 665d113e944d2cc41a7f56e32ae4aed4, type: 3}
+  portrait: {fileID: 21300000, guid: 6716070382d5c1a4b85d4f3342b0ff34, type: 3}
   description: Liches are powerful undead spellcasters, typically medium-sized robed
     figures with withered or skeletal bodies. They move at a measured, unhurried
     pace, often more focused on their magic than their physical form. Their voices

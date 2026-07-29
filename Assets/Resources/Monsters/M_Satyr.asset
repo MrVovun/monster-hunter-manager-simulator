@@ -14,13 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: 855ff2c33cf7404f952908ce0adfa98f
   displayName: Satyr
-  portrait: {fileID: 21300000, guid: 4dd08b0a083995f4b985dc3f1b3e87e2, type: 3}
+  portrait: {fileID: 21300000, guid: 355765eac0073cb4498e22d32456f2f5, type: 3}
   description: Satyrs are medium-sized fae with humanoid torsos and bestial lower
     bodies, marked by a clear tail and a restless stance. They move fast, bounding
     with energetic, springy steps. They speak clearly in a human language, although
     sometimes their speech abrupts with goat-like sounds.
   requiredReputation: 2
   minimumDifficulty: 60
+  preferredDifficulty: 60
+  difficultyFalloff: 40
+  difficultyFalloffPower: 2
   possibleTraits:
   - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
   - {fileID: 11400000, guid: 02041b403a87b234ba630b13fd996c0f, type: 2}
@@ -61,3 +64,5 @@ MonoBehaviour:
   weight: 1
   trophyHeadPrefab: {fileID: 0}
   trophyScale: 1
+  trophyPositionOffset: {x: 0, y: 0, z: 0}
+  trophyRotationOffsetEuler: {x: 0, y: 0, z: 0}

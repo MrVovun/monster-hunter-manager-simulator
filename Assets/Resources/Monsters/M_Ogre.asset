@@ -14,13 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: eff0d31a35fa44d882163d716ad34b19
   displayName: Ogre
-  portrait: {fileID: 21300000, guid: a6eb2231eb1f75649ae61feec1b848bb, type: 3}
+  portrait: {fileID: 21300000, guid: 369b776e29ef0cc42bfb43697a4e3580, type: 3}
   description: Ogres are towering greenskins, head and shoulders above any man, with
     massive arms and thick torsos. They lumber rather than run, every step a slow,
     heavy stomp that you can feel through the ground. Their voices are crude speech,
     often simple words or bellowed threats, but always loud enough to rattle teeth.
   requiredReputation: 3
   minimumDifficulty: 70
+  preferredDifficulty: 70
+  difficultyFalloff: 40
+  difficultyFalloffPower: 2
   possibleTraits:
   - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
   - {fileID: 11400000, guid: f149ed5426264cb4db6fac2830e77841, type: 2}
@@ -62,3 +65,5 @@ MonoBehaviour:
   weight: 1
   trophyHeadPrefab: {fileID: 0}
   trophyScale: 1
+  trophyPositionOffset: {x: 0, y: 0, z: 0}
+  trophyRotationOffsetEuler: {x: 0, y: 0, z: 0}

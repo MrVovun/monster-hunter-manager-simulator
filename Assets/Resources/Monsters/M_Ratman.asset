@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: e0ad94725a014591827a579356b03f55
   displayName: Ratman
-  portrait: {fileID: 21300000, guid: 99d7bedd9a203bf46b64f9a4d7f48a21, type: 3}
+  portrait: {fileID: 21300000, guid: 1efea94acbd287340b75608e67d63de2, type: 3}
   description: 'Ratmen are the primary representatives of the ratkin kind - rat-like
     creatures twisted toward humanoid form: medium-sized, hunched figures with furred
     bodies and long tails. They move with quick, nervous, darting steps, faster than
@@ -22,6 +22,9 @@ MonoBehaviour:
     chittering with words as they scheme and shout to one another.'
   requiredReputation: 1
   minimumDifficulty: 40
+  preferredDifficulty: 40
+  difficultyFalloff: 40
+  difficultyFalloffPower: 2
   possibleTraits:
   - {fileID: 11400000, guid: 02041b403a87b234ba630b13fd996c0f, type: 2}
   - {fileID: 11400000, guid: f149ed5426264cb4db6fac2830e77841, type: 2}
@@ -62,3 +65,5 @@ MonoBehaviour:
   weight: 1
   trophyHeadPrefab: {fileID: 5850429268395648456, guid: 6edabc536b2f96642aa8b3a8a8b1231f, type: 3}
   trophyScale: 1
+  trophyPositionOffset: {x: 0, y: 0, z: 0}
+  trophyRotationOffsetEuler: {x: 0, y: 0, z: 0}

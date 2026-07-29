@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: aaead96b021643a686de747f54a85e33
   displayName: Dragon
-  portrait: {fileID: 21300000, guid: 8a0b14be142d67d41b3df4aece1130c2, type: 3}
+  portrait: {fileID: 21300000, guid: 7850d8b06fe94a447966a2afee1a1757, type: 3}
   description: Proud elders of the dragonkin, true dragons are huge, towering beasts
     with a long, powerful tail and a pair of massive bat-like wings folded at their
     sides. They move with a heavy but steady four-limbed gait when on the ground,

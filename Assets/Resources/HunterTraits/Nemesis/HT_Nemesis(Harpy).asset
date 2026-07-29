@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Nemesis (Harpy)
   description: This hunter has a nemesis. Provides a free 35% bonus to success chance
     in orders against Harpies.
-  icon: {fileID: 21300000, guid: 93e87a5e32ced7a449465ffd5e68e8ef, type: 3}
+  icon: {fileID: 21300000, guid: 5d74c27e1381e6e4aaa70778da6a3c61, type: 3}
   bonusEffects:
   - bonusType: 0
     value: 35

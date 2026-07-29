@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: 2764b94d3f694bfd96b8491c636d6af0
   displayName: Dracolich
-  portrait: {fileID: 21300000, guid: 1d639387a517c444f9cd0a24b74ac8a4, type: 3}
+  portrait: {fileID: 21300000, guid: 63d13f3744739914c80e8dd507b62f28, type: 3}
   description: Dracoliches are undeads, sometimes mistaken for dragonkin, massive
     like dragons but reduced to bone and tattered hide, with a skeletal tail and
     great skeletal wings that still carry them aloft with necromantic magic. On the
@@ -23,6 +23,9 @@ MonoBehaviour:
     through bones and the grinding of ancient joints.
   requiredReputation: 6
   minimumDifficulty: 170
+  preferredDifficulty: 170
+  difficultyFalloff: 40
+  difficultyFalloffPower: 2
   possibleTraits:
   - {fileID: 11400000, guid: 6af8b3bbb8f5f8d4fbdb3a6057fd4b86, type: 2}
   - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
@@ -63,3 +66,5 @@ MonoBehaviour:
   weight: 1
   trophyHeadPrefab: {fileID: 0}
   trophyScale: 1
+  trophyPositionOffset: {x: 0, y: 0, z: 0}
+  trophyRotationOffsetEuler: {x: 0, y: 0, z: 0}

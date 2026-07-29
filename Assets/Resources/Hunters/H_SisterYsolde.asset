@@ -35,7 +35,7 @@ MonoBehaviour:
   - level: 4
     requiredXP: 400
   minReputation: 1
-  portrait: {fileID: 21300000, guid: 3358ec05694a52e47b48bc3c4cd26048, type: 3}
+  portrait: {fileID: 21300000, guid: b4778ecb322061e4788a4df42461620c, type: 3}
   visualPrefab: {fileID: 1782384603142300, guid: 8054459727ee21940b6193d60eea8bf6, type: 3}
   p09VisualPreset: {fileID: 11400000, guid: d5ac1b20de5fc134191e7f450d9826a3, type: 2}
   greeting: Nerzgol bless you, Manager.

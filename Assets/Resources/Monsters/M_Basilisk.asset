@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: bcf535c1416f45158219f0232d5b7365
   displayName: Basilisk
-  portrait: {fileID: 21300000, guid: 57d420da852622440994524d0fcdf324, type: 3}
+  portrait: {fileID: 21300000, guid: f1352fe3c3d12d848b0060386b2695e8, type: 3}
   description: A basilisk is a large hybrid reptile, heavy-bodied with a powerful
     tail, resembling a dragonkin. Despite its bulk, it moves fast, darting forward
     with sudden, predatory lunges. It makes only animalistic noises - hisses, rattling
@@ -22,6 +22,9 @@ MonoBehaviour:
     calculating.
   requiredReputation: 5
   minimumDifficulty: 110
+  preferredDifficulty: 110
+  difficultyFalloff: 40
+  difficultyFalloffPower: 2
   possibleTraits:
   - {fileID: 11400000, guid: 6af8b3bbb8f5f8d4fbdb3a6057fd4b86, type: 2}
   - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
@@ -63,3 +66,5 @@ MonoBehaviour:
   weight: 1
   trophyHeadPrefab: {fileID: 0}
   trophyScale: 1
+  trophyPositionOffset: {x: 0, y: 0, z: 0}
+  trophyRotationOffsetEuler: {x: 0, y: 0, z: 0}

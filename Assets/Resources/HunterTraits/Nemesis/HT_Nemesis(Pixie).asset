@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Nemesis (Pixie)
   description: This hunter has a nemesis. Provides a free 35% bonus to success chance
     in orders against Pixies.
-  icon: {fileID: 21300000, guid: 4a7ae80b6b648994d892fe304a9fec0c, type: 3}
+  icon: {fileID: 21300000, guid: a4607c4dffb6748439b550941037fbb1, type: 3}
   bonusEffects:
   - bonusType: 0
     value: 35
@@ -29,5 +29,11 @@ MonoBehaviour:
       maxPartySize: 0
       procChancePercent: 0
       requiresSoloParty: 0
+      requiredMonsterTrait: {fileID: 0}
+      requiredMonsterTraitId: 
+      minMissionDurationSeconds: 0
+      maxMissionDurationSeconds: 0
+      requiresWeakestInParty: 0
   missionEffects: []
   counters: []
+  conditionalCounters: []

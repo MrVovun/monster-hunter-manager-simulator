@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Nemesis (Leprechaun)
   description: This hunter has a nemesis. Provides a free 35% bonus to success chance
     in orders against Leprechauns.
-  icon: {fileID: 21300000, guid: dc4578cdc53ebc9438c6e0c51d38da01, type: 3}
+  icon: {fileID: 21300000, guid: 7a0b2d196c4121041b2421426603cc85, type: 3}
   bonusEffects:
   - bonusType: 0
     value: 35
@@ -29,5 +29,11 @@ MonoBehaviour:
       maxPartySize: 0
       procChancePercent: 0
       requiresSoloParty: 0
+      requiredMonsterTrait: {fileID: 0}
+      requiredMonsterTraitId: 
+      minMissionDurationSeconds: 0
+      maxMissionDurationSeconds: 0
+      requiresWeakestInParty: 0
   missionEffects: []
   counters: []
+  conditionalCounters: []

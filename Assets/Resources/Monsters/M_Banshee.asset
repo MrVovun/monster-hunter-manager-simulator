@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: ecdeb58eb92a4884a33ff368b6e44a04
   displayName: Banshee
-  portrait: {fileID: 21300000, guid: de047cfabf6efac42a8c2f13a9490fab, type: 3}
+  portrait: {fileID: 21300000, guid: d7cff6ff2921c5b44b354f28d62b6167, type: 3}
   description: 'A banshee is a human-sized undead apparition, often appearing as
     a thin, drifting figure with hollow eyes. It has no wings, but still it moves
     with a mournful, slow float that glides through halls and ruins. Its defining
@@ -22,6 +22,9 @@ MonoBehaviour:
     before it is seen, echoing off stone and making the hair on your arms rise.'
   requiredReputation: 2
   minimumDifficulty: 50
+  preferredDifficulty: 50
+  difficultyFalloff: 40
+  difficultyFalloffPower: 2
   possibleTraits:
   - {fileID: 11400000, guid: 6af8b3bbb8f5f8d4fbdb3a6057fd4b86, type: 2}
   - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
@@ -62,3 +65,5 @@ MonoBehaviour:
   weight: 1
   trophyHeadPrefab: {fileID: 1063521500666159176, guid: f72be4a581262284fbb27592fa2a6dd9, type: 3}
   trophyScale: 1
+  trophyPositionOffset: {x: 0, y: 0, z: 0}
+  trophyRotationOffsetEuler: {x: 0, y: 0, z: 0}

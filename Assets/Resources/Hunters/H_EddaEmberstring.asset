@@ -34,7 +34,7 @@ MonoBehaviour:
   - level: 4
     requiredXP: 400
   minReputation: 1
-  portrait: {fileID: 21300000, guid: d11defb8e652cad45b2799e7190a84a4, type: 3}
+  portrait: {fileID: 21300000, guid: 9905a3c2a2d43d14190c18c48c0821fb, type: 3}
   visualPrefab: {fileID: 1782384603142300, guid: 74373cda1a49bea4283db3dd13a42081, type: 3}
   p09VisualPreset: {fileID: 11400000, guid: 78a3bbf2e06e6cb47b6cc39f5a8c05dd, type: 2}
   greeting: I'm listening.

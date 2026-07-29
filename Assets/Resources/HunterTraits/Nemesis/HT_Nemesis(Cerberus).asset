@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Nemesis (Cerberus)
   description: This hunter has a nemesis. Provides a free 35% bonus to success chance
     in orders against Cerberuses.
-  icon: {fileID: 21300000, guid: 24fd00da0cc416b4c9162d83f11598ca, type: 3}
+  icon: {fileID: 21300000, guid: 8ef1adb07ae4ba9469facbd15841005c, type: 3}
   bonusEffects:
   - bonusType: 0
     value: 35

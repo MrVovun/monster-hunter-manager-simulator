@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Nemesis (Redcap)
   description: This hunter has a nemesis. Provides a free 35% bonus to success chance
     in orders against Redcaps.
-  icon: {fileID: 21300000, guid: 53cde51585b5d574e8015af2181adc56, type: 3}
+  icon: {fileID: 21300000, guid: a059187861452bd49b3ea7c56d4a8df9, type: 3}
   bonusEffects:
   - bonusType: 0
     value: 35

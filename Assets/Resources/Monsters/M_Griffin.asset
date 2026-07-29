@@ -14,13 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: 70f0c23e7482433fbe93ec56b2facf99
   displayName: Griffin
-  portrait: {fileID: 21300000, guid: 84f6ff2532c6e3c4f95738d2a78bb45a, type: 3}
+  portrait: {fileID: 21300000, guid: 23c2847c99cde554e807370e65174c7c, type: 3}
   description: "A griffin is a large hybrid beast, combining a lion\u2019s body with
     an eagle\u2019s head and a powerful tail. It has two wings, broad and feathered,
     and moves at a strong pace on the ground, stalking like a big cat before taking
     off. It makes only animalistic cries - screams, barks, and harsh eagle-shrieks."
   requiredReputation: 3
   minimumDifficulty: 70
+  preferredDifficulty: 70
+  difficultyFalloff: 40
+  difficultyFalloffPower: 2
   possibleTraits:
   - {fileID: 11400000, guid: 6af8b3bbb8f5f8d4fbdb3a6057fd4b86, type: 2}
   - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
@@ -62,3 +65,5 @@ MonoBehaviour:
   weight: 1
   trophyHeadPrefab: {fileID: 0}
   trophyScale: 1
+  trophyPositionOffset: {x: 0, y: 0, z: 0}
+  trophyRotationOffsetEuler: {x: 0, y: 0, z: 0}

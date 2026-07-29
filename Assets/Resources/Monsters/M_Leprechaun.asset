@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: 8a04c5d04c844b5c8a5fd18076b80939
   displayName: Leprechaun
-  portrait: {fileID: 21300000, guid: dc4578cdc53ebc9438c6e0c51d38da01, type: 3}
+  portrait: {fileID: 21300000, guid: c5cc466c0eb8a2d42b559aa0430aa1ba, type: 3}
   description: 'A leprechaun is a small fae humanoid, shorter than a child, with
     a clever posture and quick hands. It moves at a deceptively calm normal pace
     - until it vanishes around a corner. Its weapon is its mouth: confident, teasing
@@ -22,6 +22,9 @@ MonoBehaviour:
     part of a trick.'
   requiredReputation: 1
   minimumDifficulty: 20
+  preferredDifficulty: 20
+  difficultyFalloff: 40
+  difficultyFalloffPower: 2
   possibleTraits:
   - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
   - {fileID: 11400000, guid: f149ed5426264cb4db6fac2830e77841, type: 2}
@@ -62,3 +65,5 @@ MonoBehaviour:
   weight: 1
   trophyHeadPrefab: {fileID: 0}
   trophyScale: 1
+  trophyPositionOffset: {x: 0, y: 0, z: 0}
+  trophyRotationOffsetEuler: {x: 0, y: 0, z: 0}

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: 7c71c7c469b849e7bc68f09c174a426b
   displayName: Wyvern
-  portrait: {fileID: 21300000, guid: e5a2a66599ecef6459f12547061c1c4b, type: 3}
+  portrait: {fileID: 21300000, guid: 42403d21fb122ef4f8c406f23ad7d792, type: 3}
   description: "Wyverns are lean, large dragonkin built for the sky: they have a
     barbed tail and two powerful wings that double as forelimbs when they clamber
     on the ground. Seen from afar, they\u2019re often mistaken for dragons, but their
@@ -23,6 +23,9 @@ MonoBehaviour:
     a piercing, predatory screech rather than a roar."
   requiredReputation: 3
   minimumDifficulty: 70
+  preferredDifficulty: 70
+  difficultyFalloff: 40
+  difficultyFalloffPower: 2
   possibleTraits:
   - {fileID: 11400000, guid: 6af8b3bbb8f5f8d4fbdb3a6057fd4b86, type: 2}
   - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
@@ -64,3 +67,5 @@ MonoBehaviour:
   weight: 1
   trophyHeadPrefab: {fileID: 4531971642176072909, guid: 9a22c45a260ea9c45ab520195c522fd5, type: 3}
   trophyScale: 0.5
+  trophyPositionOffset: {x: 0, y: 0, z: 0}
+  trophyRotationOffsetEuler: {x: 0, y: 0, z: 0}

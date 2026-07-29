@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Nemesis (Dryad)
   description: This hunter has a nemesis. Provides a free 35% bonus to success chance
     in orders against Dryads.
-  icon: {fileID: 21300000, guid: 4becec01ffc9aab4e9844ecd608c2cca, type: 3}
+  icon: {fileID: 21300000, guid: 084688299d3008b409bf9b6b633f4829, type: 3}
   bonusEffects:
   - bonusType: 0
     value: 35

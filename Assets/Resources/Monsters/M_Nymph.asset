@@ -14,13 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: 3264dab9cc234878bb96d6299e0fbf32
   displayName: Nymph
-  portrait: {fileID: 21300000, guid: 613d37b9f0ae45d419768d094cfa7d91, type: 3}
+  portrait: {fileID: 21300000, guid: a61bb419ad57b3c4685503acb9195c6a, type: 3}
   description: Nymphs are medium-sized fae, human-like in form and height, graceful
     and unsettlingly beautiful. They move at a calm pace that feels more like drifting
     than walking. They speak with soft, mesmerizing speech, often coaxing, bargaining,
     or luring with carefully chosen words.
   requiredReputation: 2
   minimumDifficulty: 60
+  preferredDifficulty: 60
+  difficultyFalloff: 40
+  difficultyFalloffPower: 2
   possibleTraits:
   - {fileID: 11400000, guid: 6af8b3bbb8f5f8d4fbdb3a6057fd4b86, type: 2}
   - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
@@ -62,3 +65,5 @@ MonoBehaviour:
   weight: 1
   trophyHeadPrefab: {fileID: 0}
   trophyScale: 1
+  trophyPositionOffset: {x: 0, y: 0, z: 0}
+  trophyRotationOffsetEuler: {x: 0, y: 0, z: 0}

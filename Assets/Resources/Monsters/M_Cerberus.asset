@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: f94f2098d93149d49191b1ab145e573e
   displayName: Cerberus
-  portrait: {fileID: 21300000, guid: 24fd00da0cc416b4c9162d83f11598ca, type: 3}
+  portrait: {fileID: 21300000, guid: c7f0481efaa6c654bb62bc97a0e61eee, type: 3}
   description: "Cerberus is a medium-sized demonic beast, roughly the size of a large
     wolf or small bear, with a thick, whipping tail and three heads. It moves at
     a steady pace, closing in like a hunter that never tires rather than a sprinter.
@@ -23,6 +23,9 @@ MonoBehaviour:
     than a natural animal\u2019s voice."
   requiredReputation: 2
   minimumDifficulty: 60
+  preferredDifficulty: 60
+  difficultyFalloff: 40
+  difficultyFalloffPower: 2
   possibleTraits:
   - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
   - {fileID: 11400000, guid: 02041b403a87b234ba630b13fd996c0f, type: 2}
@@ -63,3 +66,5 @@ MonoBehaviour:
   weight: 1
   trophyHeadPrefab: {fileID: 0}
   trophyScale: 1
+  trophyPositionOffset: {x: 0, y: 0, z: 0}
+  trophyRotationOffsetEuler: {x: 0, y: 0, z: 0}

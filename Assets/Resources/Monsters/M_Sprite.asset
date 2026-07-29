@@ -14,13 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: 7779fbfb875d402196bca32239f86644
   displayName: Sprite
-  portrait: {fileID: 21300000, guid: dcda955cff8566e40bb16e2215c1cbe5, type: 3}
+  portrait: {fileID: 21300000, guid: a008adbe9633dc14382d6161cdc78140, type: 3}
   description: "Sprites are tiny fae with delicate bodies and two wings that buzz
     like a hummingbird\u2019s. They zip through the air with fast, playful motion,
     rarely staying still. Unlike many fae beasts, sprites use rapid, bright speech,
     chattering jokes, insults, and riddles while darting just out of reach."
   requiredReputation: 1
   minimumDifficulty: 30
+  preferredDifficulty: 30
+  difficultyFalloff: 40
+  difficultyFalloffPower: 2
   possibleTraits:
   - {fileID: 11400000, guid: 6af8b3bbb8f5f8d4fbdb3a6057fd4b86, type: 2}
   - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
@@ -63,3 +66,5 @@ MonoBehaviour:
   weight: 1
   trophyHeadPrefab: {fileID: 0}
   trophyScale: 1
+  trophyPositionOffset: {x: 0, y: 0, z: 0}
+  trophyRotationOffsetEuler: {x: 0, y: 0, z: 0}

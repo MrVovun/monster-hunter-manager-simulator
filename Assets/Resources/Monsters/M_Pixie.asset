@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: bea9a911f953472ba4cf6dc34fe69520
   displayName: Pixie
-  portrait: {fileID: 21300000, guid: 4a7ae80b6b648994d892fe304a9fec0c, type: 3}
+  portrait: {fileID: 21300000, guid: c4b43e018863f434d9a36a206a751a20, type: 3}
   description: "Pixies are tiny fae, no larger than a child\u2019s forearm, clearly
     small by any standard, with delicate bodies and shimmering four wings like a
     giant insect\u2019s. They zip and flutter with incredible speed, a blur of motion
@@ -22,6 +22,9 @@ MonoBehaviour:
     teasing comments, and sing-song phrases."
   requiredReputation: 1
   minimumDifficulty: 20
+  preferredDifficulty: 20
+  difficultyFalloff: 40
+  difficultyFalloffPower: 2
   possibleTraits:
   - {fileID: 11400000, guid: 6af8b3bbb8f5f8d4fbdb3a6057fd4b86, type: 2}
   - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
@@ -64,3 +67,5 @@ MonoBehaviour:
   weight: 1
   trophyHeadPrefab: {fileID: 0}
   trophyScale: 1
+  trophyPositionOffset: {x: 0, y: 0, z: 0}
+  trophyRotationOffsetEuler: {x: 0, y: 0, z: 0}

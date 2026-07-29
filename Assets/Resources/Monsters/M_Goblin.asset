@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: e0cc0d7bc53b4258944aa7c15346b34e
   displayName: Goblin
-  portrait: {fileID: 21300000, guid: ed099cb105dd32745b0ba6ea57ab44b6, type: 3}
+  portrait: {fileID: 21300000, guid: afa79914ee9998e41a40f3558abc89aa, type: 3}
   description: "Goblins are the smallest of the greenskin tribes, shorter than a
     human\u2019s chest, with wiry limbs. They scramble over rocks and ruins with
     frantic, unnaturally fast footwork. Their voices are shrill speech, chattering
@@ -22,6 +22,9 @@ MonoBehaviour:
     rude insults."
   requiredReputation: 1
   minimumDifficulty: 30
+  preferredDifficulty: 30
+  difficultyFalloff: 40
+  difficultyFalloffPower: 2
   possibleTraits:
   - {fileID: 11400000, guid: 02041b403a87b234ba630b13fd996c0f, type: 2}
   - {fileID: 11400000, guid: 1baf58fa8f43050499b86fd6d8886381, type: 2}
@@ -62,3 +65,5 @@ MonoBehaviour:
   weight: 1
   trophyHeadPrefab: {fileID: 0}
   trophyScale: 1
+  trophyPositionOffset: {x: 0, y: 0, z: 0}
+  trophyRotationOffsetEuler: {x: 0, y: 0, z: 0}

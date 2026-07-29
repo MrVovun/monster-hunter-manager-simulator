@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: 66de6746c0664784815556d0570e9920
   displayName: Centaur
-  portrait: {fileID: 21300000, guid: 621aef7111bff3248abbca6a458f6d2c, type: 3}
+  portrait: {fileID: 21300000, guid: db4d2c22d21fa184db146193271457b0, type: 3}
   description: Centaurs are medium-sized hybrids, half human and half horse, with
     a strong tail and two pairs of hooves. They move fast, able to gallop and circle
     prey with ease, outrunning most armored hunters. They communicate mostly with
@@ -22,6 +22,9 @@ MonoBehaviour:
     gestures can feel unsettlingly intelligent.
   requiredReputation: 4
   minimumDifficulty: 90
+  preferredDifficulty: 90
+  difficultyFalloff: 40
+  difficultyFalloffPower: 2
   possibleTraits:
   - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
   - {fileID: 11400000, guid: 02041b403a87b234ba630b13fd996c0f, type: 2}
@@ -64,3 +67,5 @@ MonoBehaviour:
   weight: 1
   trophyHeadPrefab: {fileID: 0}
   trophyScale: 1
+  trophyPositionOffset: {x: 0, y: 0, z: 0}
+  trophyRotationOffsetEuler: {x: 0, y: 0, z: 0}

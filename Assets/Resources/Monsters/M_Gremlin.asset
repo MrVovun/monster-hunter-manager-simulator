@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: 3960426e1b0c4972a990da20fc75dc9d
   displayName: Gremlin
-  portrait: {fileID: 21300000, guid: 229d30d8ed952be40a5ece0f55378e9a, type: 3}
+  portrait: {fileID: 21300000, guid: b9a5a79e304fe8248952602db497c63c, type: 3}
   description: "Gremlins are small fae pests, wiry and ugly, often seen as a blur
     scrambling over furniture and rafters. They move fast, darting in short, chaotic
     bursts. They don\u2019t speak; they make animalistic noises - clicks, chittering,
@@ -22,6 +22,9 @@ MonoBehaviour:
     it."
   requiredReputation: 1
   minimumDifficulty: 30
+  preferredDifficulty: 30
+  difficultyFalloff: 40
+  difficultyFalloffPower: 2
   possibleTraits:
   - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
   - {fileID: 11400000, guid: 02041b403a87b234ba630b13fd996c0f, type: 2}
@@ -63,3 +66,5 @@ MonoBehaviour:
   weight: 1
   trophyHeadPrefab: {fileID: 0}
   trophyScale: 1
+  trophyPositionOffset: {x: 0, y: 0, z: 0}
+  trophyRotationOffsetEuler: {x: 0, y: 0, z: 0}

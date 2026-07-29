@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: 4b898978274b42febeae3e2de1c85f62
   displayName: Rathive Praetorian
-  portrait: {fileID: 21300000, guid: 6eea0b9c791a87149a94b8d8a6d17a49, type: 3}
+  portrait: {fileID: 21300000, guid: b8166939f59b7864997dfb3d251e4ffb, type: 3}
   description: The Rathive Praetorians are elite ratkin soldiers, sworn to protect
     their queen, roughly human-sized, built lean and corded with muscle. A thick
     tail trails behind them and flicks with irritation like a whip. They move at

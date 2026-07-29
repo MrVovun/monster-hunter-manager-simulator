@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Nemesis (Nymph)
   description: This hunter has a nemesis. Provides a free 35% bonus to success chance
     in orders against Nymphs.
-  icon: {fileID: 21300000, guid: 613d37b9f0ae45d419768d094cfa7d91, type: 3}
+  icon: {fileID: 21300000, guid: aa064f46a05aebf4bb8d890a1a0174bd, type: 3}
   bonusEffects:
   - bonusType: 0
     value: 35

@@ -14,13 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: ad2a4133da44405f9e7c18e49b82ed34
   displayName: Redcap
-  portrait: {fileID: 21300000, guid: 53cde51585b5d574e8015af2181adc56, type: 3}
+  portrait: {fileID: 21300000, guid: a65d4e66b70648c438264da746989c94, type: 3}
   description: Redcaps are small fae killers, squat and vicious, often wearing a
     stained cap and carrying a crude weapon. They move in fast bursts of anger, rushing
     victims with sudden, violent intent. They use harsh, cruel speech, spitting threats
     and taunts mid-charge, as if words are just another way to wound.
   requiredReputation: 2
   minimumDifficulty: 60
+  preferredDifficulty: 60
+  difficultyFalloff: 40
+  difficultyFalloffPower: 2
   possibleTraits:
   - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
   - {fileID: 11400000, guid: 02041b403a87b234ba630b13fd996c0f, type: 2}
@@ -63,3 +66,5 @@ MonoBehaviour:
   weight: 1
   trophyHeadPrefab: {fileID: 0}
   trophyScale: 1
+  trophyPositionOffset: {x: 0, y: 0, z: 0}
+  trophyRotationOffsetEuler: {x: 0, y: 0, z: 0}

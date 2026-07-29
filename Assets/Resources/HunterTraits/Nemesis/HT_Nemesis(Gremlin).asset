@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Nemesis (Gremlin)
   description: This hunter has a nemesis. Provides a free 35% bonus to success chance
     in orders against Gremlins.
-  icon: {fileID: 21300000, guid: 229d30d8ed952be40a5ece0f55378e9a, type: 3}
+  icon: {fileID: 21300000, guid: f8ae6be5d43ffda48869d6677ef68d39, type: 3}
   bonusEffects:
   - bonusType: 0
     value: 35
@@ -29,5 +29,11 @@ MonoBehaviour:
       maxPartySize: 0
       procChancePercent: 0
       requiresSoloParty: 0
+      requiredMonsterTrait: {fileID: 0}
+      requiredMonsterTraitId: 
+      minMissionDurationSeconds: 0
+      maxMissionDurationSeconds: 0
+      requiresWeakestInParty: 0
   missionEffects: []
   counters: []
+  conditionalCounters: []

@@ -14,13 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: 530857a6af4243caadb6d22cd86e9f74
   displayName: Skeleton
-  portrait: {fileID: 21300000, guid: 2f6eba8a6421bb9448a8e9f3891ca7a3, type: 3}
+  portrait: {fileID: 21300000, guid: 4f5587ebb967d2940b981269f21e0a65, type: 3}
   description: 'Skeletons are undead humanoid frames of medium size, stripped to
     bare bone. They move with stiff, jerky steps at a normal walking pace, bones
     clattering and armor rattling but seldom rushing. They are unnervingly silent
     in voice: no breathing, no speech - only the dry scrape of bones and weapons.'
   requiredReputation: 1
   minimumDifficulty: 30
+  preferredDifficulty: 30
+  difficultyFalloff: 40
+  difficultyFalloffPower: 2
   possibleTraits:
   - {fileID: 11400000, guid: 6af8b3bbb8f5f8d4fbdb3a6057fd4b86, type: 2}
   - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
@@ -64,3 +67,5 @@ MonoBehaviour:
   weight: 1
   trophyHeadPrefab: {fileID: 7496667546102216960, guid: 0fa7394ec9ac760458e1fb3da5016f45, type: 3}
   trophyScale: 0.8
+  trophyPositionOffset: {x: 0, y: 0, z: 0}
+  trophyRotationOffsetEuler: {x: 0, y: 0, z: 0}

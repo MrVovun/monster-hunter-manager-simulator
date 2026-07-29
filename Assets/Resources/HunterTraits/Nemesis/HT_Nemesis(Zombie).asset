@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Nemesis (Zombie)
   description: This hunter has a nemesis. Provides a free 35% bonus to success chance
     in orders against Zombies.
-  icon: {fileID: 21300000, guid: 8640a211bcdd6084ba6841305ba967d3, type: 3}
+  icon: {fileID: 21300000, guid: b25affacf50bd2442be294d788ff2b9e, type: 3}
   bonusEffects:
   - bonusType: 0
     value: 35
@@ -29,5 +29,11 @@ MonoBehaviour:
       maxPartySize: 0
       procChancePercent: 0
       requiresSoloParty: 0
+      requiredMonsterTrait: {fileID: 0}
+      requiredMonsterTraitId: 
+      minMissionDurationSeconds: 0
+      maxMissionDurationSeconds: 0
+      requiresWeakestInParty: 0
   missionEffects: []
   counters: []
+  conditionalCounters: []

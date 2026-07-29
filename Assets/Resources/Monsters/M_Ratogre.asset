@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: 95b8de444b204220a5c211a2a353959a
   displayName: Ratogre
-  portrait: {fileID: 21300000, guid: a9a07b2a73d45f5448054ef5ebee9e6e, type: 3}
+  portrait: {fileID: 21300000, guid: 9350ac704bbc6d140974ef9c318ca4d8, type: 3}
   description: Ratogres are hulking ratkin brutes, ogre-sized monsters with swollen,
     muscular frames and thick tails dragging behind them. They move with a slow,
     ponderous gait, though when enraged they can surge forward in short bursts. Their
@@ -22,6 +22,9 @@ MonoBehaviour:
     than thinking creature.
   requiredReputation: 3
   minimumDifficulty: 80
+  preferredDifficulty: 80
+  difficultyFalloff: 40
+  difficultyFalloffPower: 2
   possibleTraits:
   - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
   - {fileID: 11400000, guid: 02041b403a87b234ba630b13fd996c0f, type: 2}
@@ -63,3 +66,5 @@ MonoBehaviour:
   weight: 1
   trophyHeadPrefab: {fileID: 0}
   trophyScale: 1
+  trophyPositionOffset: {x: 0, y: 0, z: 0}
+  trophyRotationOffsetEuler: {x: 0, y: 0, z: 0}

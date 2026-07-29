@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: b7ec1e8af3c14c768a6658757560cbe0
   displayName: Vampire
-  portrait: {fileID: 21300000, guid: c8d8c72da26143849a6bc1885bb47882, type: 3}
+  portrait: {fileID: 21300000, guid: 2ab6c231288cfb34a82a3cfdb2628a28, type: 3}
   description: Vampires are elegant undead predators, of medium human size, outwardly
     almost human with pale skin and predatory eyes. They are moving with fluid, predatory
     strides that can burst into supernatural speed when they choose. Unlike most
@@ -22,6 +22,9 @@ MonoBehaviour:
     perfectly formed words.
   requiredReputation: 5
   minimumDifficulty: 110
+  preferredDifficulty: 110
+  difficultyFalloff: 40
+  difficultyFalloffPower: 2
   possibleTraits:
   - {fileID: 11400000, guid: 6af8b3bbb8f5f8d4fbdb3a6057fd4b86, type: 2}
   - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
@@ -64,3 +67,5 @@ MonoBehaviour:
   weight: 1
   trophyHeadPrefab: {fileID: 785350365716013717, guid: c177fe1065032584692a7358f24e20a3, type: 3}
   trophyScale: 2.8
+  trophyPositionOffset: {x: 0, y: 0, z: 0}
+  trophyRotationOffsetEuler: {x: 0, y: 0, z: 0}

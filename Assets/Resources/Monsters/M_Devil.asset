@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: 05c75fd924aa4b10b20e94843817b32e
   displayName: Devil
-  portrait: {fileID: 21300000, guid: 4de22c6d0fdc7c9408b43c96d2f72bd0, type: 3}
+  portrait: {fileID: 21300000, guid: 79718064e4b9ce647a6cc689eb1cf256, type: 3}
   description: Devils are disciplined demons of medium size, often armored or sharply
     dressed, with barbed tails and a pair of imposing wings folded neatly behind
     them. They move with controlled, purposeful steps, taking flight when it suits
@@ -22,6 +22,9 @@ MonoBehaviour:
     used for contracts, orders, and chillingly polite threats.
   requiredReputation: 5
   minimumDifficulty: 120
+  preferredDifficulty: 120
+  difficultyFalloff: 40
+  difficultyFalloffPower: 2
   possibleTraits:
   - {fileID: 11400000, guid: 6af8b3bbb8f5f8d4fbdb3a6057fd4b86, type: 2}
   - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
@@ -64,3 +67,5 @@ MonoBehaviour:
   weight: 1
   trophyHeadPrefab: {fileID: 0}
   trophyScale: 1
+  trophyPositionOffset: {x: 0, y: 0, z: 0}
+  trophyRotationOffsetEuler: {x: 0, y: 0, z: 0}

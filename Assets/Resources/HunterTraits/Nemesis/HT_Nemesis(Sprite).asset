@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Nemesis (Sprite)
   description: This hunter has a nemesis. Provides a free 35% bonus to success chance
     in orders against Sprites.
-  icon: {fileID: 21300000, guid: dcda955cff8566e40bb16e2215c1cbe5, type: 3}
+  icon: {fileID: 21300000, guid: 1261d07c86a73294aa07585f92dfe402, type: 3}
   bonusEffects:
   - bonusType: 0
     value: 35
@@ -29,5 +29,11 @@ MonoBehaviour:
       maxPartySize: 0
       procChancePercent: 0
       requiresSoloParty: 0
+      requiredMonsterTrait: {fileID: 0}
+      requiredMonsterTraitId: 
+      minMissionDurationSeconds: 0
+      maxMissionDurationSeconds: 0
+      requiresWeakestInParty: 0
   missionEffects: []
   counters: []
+  conditionalCounters: []

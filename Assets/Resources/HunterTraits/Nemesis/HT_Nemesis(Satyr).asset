@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Nemesis (Satyr)
   description: This hunter has a nemesis. Provides a free 35% bonus to success chance
     in orders against Satyrs.
-  icon: {fileID: 21300000, guid: 4dd08b0a083995f4b985dc3f1b3e87e2, type: 3}
+  icon: {fileID: 21300000, guid: d85f760f3098813418ec84fb67060389, type: 3}
   bonusEffects:
   - bonusType: 0
     value: 35

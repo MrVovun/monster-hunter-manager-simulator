@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: 40d6ae073b4148e8844c3c2e926d52e8
   displayName: Spriggan
-  portrait: {fileID: 21300000, guid: d965f22fabf5e114485c95db917ebcc3, type: 3}
+  portrait: {fileID: 21300000, guid: b7e2fb8fffef6c04c8a607745bc69688, type: 3}
   description: Spriggans are small fae, gnarled and root-like, resembling a living
     knot of bark and thorn. They move with a creeping, slow shuffle, as if the forest
     itself is walking. They are entirely silent - no speech, no growls - only the
@@ -22,6 +22,9 @@ MonoBehaviour:
     move.
   requiredReputation: 2
   minimumDifficulty: 60
+  preferredDifficulty: 60
+  difficultyFalloff: 40
+  difficultyFalloffPower: 2
   possibleTraits:
   - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
   - {fileID: 11400000, guid: 02041b403a87b234ba630b13fd996c0f, type: 2}
@@ -62,3 +65,5 @@ MonoBehaviour:
   weight: 1
   trophyHeadPrefab: {fileID: 0}
   trophyScale: 1
+  trophyPositionOffset: {x: 0, y: 0, z: 0}
+  trophyRotationOffsetEuler: {x: 0, y: 0, z: 0}

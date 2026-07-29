@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: 2d1f8c5a67524e54bbad1f6bd66f9006
   displayName: Kelpie
-  portrait: {fileID: 21300000, guid: 5bf1b02cc8e772d498d73d7e7f014351, type: 3}
+  portrait: {fileID: 21300000, guid: 1b50b485fcb6c1a41aa2a871386f68d3, type: 3}
   description: Kelpies are medium-sized fae beasts, shaped like sleek, predatory
     horses with a whipping fishy tail. They are fast, galloping with sudden surges
     that feel almost unnatural, especially near water. They make only animalistic
@@ -22,6 +22,9 @@ MonoBehaviour:
     a predator.
   requiredReputation: 5
   minimumDifficulty: 120
+  preferredDifficulty: 120
+  difficultyFalloff: 40
+  difficultyFalloffPower: 2
   possibleTraits:
   - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
   - {fileID: 11400000, guid: 02041b403a87b234ba630b13fd996c0f, type: 2}
@@ -61,3 +64,5 @@ MonoBehaviour:
   weight: 1
   trophyHeadPrefab: {fileID: 0}
   trophyScale: 1
+  trophyPositionOffset: {x: 0, y: 0, z: 0}
+  trophyRotationOffsetEuler: {x: 0, y: 0, z: 0}

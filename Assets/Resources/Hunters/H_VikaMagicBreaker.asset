@@ -33,7 +33,7 @@ MonoBehaviour:
   - level: 4
     requiredXP: 400
   minReputation: 1
-  portrait: {fileID: 21300000, guid: 9cd5d0b9fc24ca24aa776ffde1330c31, type: 3}
+  portrait: {fileID: 21300000, guid: 33eb1912af8e1a741a1872eaa349554d, type: 3}
   visualPrefab: {fileID: 1782384603142300, guid: 88b91037f8978874d811272f9c6f27a6, type: 3}
   p09VisualPreset: {fileID: 11400000, guid: 0581bf4df066dd24db24729ce50bbe15, type: 2}
   greeting: Death to Fae!

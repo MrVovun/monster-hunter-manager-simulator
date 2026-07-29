@@ -33,7 +33,7 @@ MonoBehaviour:
   - level: 4
     requiredXP: 400
   minReputation: 1
-  portrait: {fileID: 21300000, guid: 695429870c9a9204ca8524233a8f76d2, type: 3}
+  portrait: {fileID: 21300000, guid: 1e73850abfd2f4d418263588900f9806, type: 3}
   visualPrefab: {fileID: 1782384603142300, guid: 478ac9f7cca084249b11cae243bacf8b, type: 3}
   p09VisualPreset: {fileID: 11400000, guid: 057ee2ee032f79c4aa55fa5e389e33b3, type: 2}
   greeting: Hello, sir.

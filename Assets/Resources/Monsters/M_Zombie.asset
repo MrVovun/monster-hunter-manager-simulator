@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: 20cc58e7283b4d6d9ce7d5940324a2c1
   displayName: Zombie
-  portrait: {fileID: 21300000, guid: 8640a211bcdd6084ba6841305ba967d3, type: 3}
+  portrait: {fileID: 21300000, guid: 583ec6a475b117340be744d71785ebdd, type: 3}
   description: Zombies are shambling undead, roughly human-sized, with rotting flesh
     and skin. They move with a dragging, very slow gait, often stumbling or falling
     and then rising again. They do not truly speak; at most they emit low, unconscious
@@ -22,6 +22,9 @@ MonoBehaviour:
     meaningful sound.
   requiredReputation: 1
   minimumDifficulty: 40
+  preferredDifficulty: 40
+  difficultyFalloff: 40
+  difficultyFalloffPower: 2
   possibleTraits:
   - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
   - {fileID: 11400000, guid: 02041b403a87b234ba630b13fd996c0f, type: 2}
@@ -62,3 +65,5 @@ MonoBehaviour:
   weight: 1
   trophyHeadPrefab: {fileID: 0}
   trophyScale: 1
+  trophyPositionOffset: {x: 0, y: 0, z: 0}
+  trophyRotationOffsetEuler: {x: 0, y: 0, z: 0}

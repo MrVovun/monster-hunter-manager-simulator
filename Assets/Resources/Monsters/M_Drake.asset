@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: 6e032929691d46a59d29f5470a48b212
   displayName: Drake
-  portrait: {fileID: 21300000, guid: a49b3b6190a0c244a8a97de50e3713fa, type: 3}
+  portrait: {fileID: 21300000, guid: 9013790af4a8d0c499224ed0496dcd8b, type: 3}
   description: Drakes are wingless dragonkin, roughly dragon-sized but more like
     bulky, scaled war-beasts than lords of the sky. They move on all fours with a
     heavy reptilian stride, but unlike dragons they have no tail and no wings at
@@ -22,6 +22,9 @@ MonoBehaviour:
     intelligent monster.
   requiredReputation: 4
   minimumDifficulty: 90
+  preferredDifficulty: 90
+  difficultyFalloff: 40
+  difficultyFalloffPower: 2
   possibleTraits:
   - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
   - {fileID: 11400000, guid: 02041b403a87b234ba630b13fd996c0f, type: 2}
@@ -62,3 +65,5 @@ MonoBehaviour:
   weight: 1
   trophyHeadPrefab: {fileID: 4298355117289747310, guid: c4f3b45392cc64c4a875afa65e1405b5, type: 3}
   trophyScale: 0.5
+  trophyPositionOffset: {x: 0, y: 0, z: 0}
+  trophyRotationOffsetEuler: {x: 0, y: 0, z: 0}

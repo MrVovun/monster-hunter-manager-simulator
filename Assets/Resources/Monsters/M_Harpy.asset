@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterId: 1aa0f517fbae4f1fbe4b5a12e8e67244
   displayName: Harpy
-  portrait: {fileID: 21300000, guid: 93e87a5e32ced7a449465ffd5e68e8ef, type: 3}
+  portrait: {fileID: 21300000, guid: 3f722bd8c054e66408ab56f768497cf2, type: 3}
   description: "Harpies are medium-sized hybrid creatures, roughly human-sized but
     clearly avian, with a visible tail of a bird and two wings that fold tightly
     when they perch. They move at a normal pace when grounded but rely on flight
@@ -23,6 +23,9 @@ MonoBehaviour:
     with sound."
   requiredReputation: 2
   minimumDifficulty: 50
+  preferredDifficulty: 50
+  difficultyFalloff: 40
+  difficultyFalloffPower: 2
   possibleTraits:
   - {fileID: 11400000, guid: 6af8b3bbb8f5f8d4fbdb3a6057fd4b86, type: 2}
   - {fileID: 11400000, guid: 9730bc573034c0f4d881ecb60dca6155, type: 2}
@@ -65,3 +68,5 @@ MonoBehaviour:
   weight: 1
   trophyHeadPrefab: {fileID: 0}
   trophyScale: 1
+  trophyPositionOffset: {x: 0, y: 0, z: 0}
+  trophyRotationOffsetEuler: {x: 0, y: 0, z: 0}

@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Nemesis (Orc)
   description: This hunter has a nemesis. Provides a free 35% bonus to success chance
     in orders against Orcs.
-  icon: {fileID: 21300000, guid: bb2685e6eb7673a4d8d52f775d0dc18a, type: 3}
+  icon: {fileID: 21300000, guid: 138d03e6f5b968f48afa481e156f2a29, type: 3}
   bonusEffects:
   - bonusType: 0
     value: 35
