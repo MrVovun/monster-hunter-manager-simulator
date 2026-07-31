@@ -9,21 +9,22 @@ public class HunterRosterItem : MonoBehaviour, IBeginDragHandler, IDragHandler, 
     [SerializeField] private TMP_Text nameText;
     [SerializeField] private TMP_Text statusText;
     [SerializeField] private CanvasGroup canvasGroup;
+    [Header("Drag Visual")]
+    [SerializeField] private Vector2 dragPortraitSize = new Vector2(72f, 72f);
+    [SerializeField] private float sourceAlphaWhileDragging = 0.45f;
+    [SerializeField] private float dragPortraitAlpha = 0.95f;
 
     private OrdersTab ownerTab;
     private HuntersTab huntersTab;
     private Hunter hunter;
     private RectTransform rectTransform;
-    private Transform originalParent;
-    private Vector2 originalAnchoredPosition;
-    private Vector3 originalScale;
-    private Vector3 originalLocalPosition;
-    private int originalSiblingIndex;
     private Canvas rootCanvas;
     private bool draggable;
     private bool isDragging;
     private bool displayOnly;
     private System.Action<Hunter> onDisplaySelected;
+    private RectTransform dragVisualRect;
+    private GameObject dragVisualObject;
 
     public void Initialize(Hunter hunter, OrdersTab owner)
     {
@@ -120,26 +121,18 @@ public class HunterRosterItem : MonoBehaviour, IBeginDragHandler, IDragHandler, 
 
         InteractionFeedbackManager.PlayUIDragStart();
         isDragging = true;
-        originalParent = transform.parent;
-        originalSiblingIndex = transform.GetSiblingIndex();
-        originalAnchoredPosition = rectTransform.anchoredPosition;
-        originalLocalPosition = rectTransform.localPosition;
-        originalScale = rectTransform.localScale;
 
         if (rootCanvas == null)
         {
             rootCanvas = GetComponentInParent<Canvas>();
         }
 
-        if (rootCanvas != null)
-        {
-            transform.SetParent(rootCanvas.transform, true);
-        }
+        CreateDragVisual();
 
         if (canvasGroup != null)
         {
             canvasGroup.blocksRaycasts = false;
-            canvasGroup.alpha = 0.75f;
+            canvasGroup.alpha = sourceAlphaWhileDragging;
         }
 
         OnDrag(eventData);
@@ -148,7 +141,10 @@ public class HunterRosterItem : MonoBehaviour, IBeginDragHandler, IDragHandler, 
     public void OnDrag(PointerEventData eventData)
     {
         if (!isDragging || hunter == null) return;
-        rectTransform.position = eventData.position;
+        if (dragVisualRect != null)
+        {
+            dragVisualRect.position = eventData.position;
+        }
     }
 
     public void OnEndDrag(PointerEventData eventData)
@@ -173,14 +169,7 @@ public class HunterRosterItem : MonoBehaviour, IBeginDragHandler, IDragHandler, 
 
         bool assigned = dropSlot != null && dropSlot.TryAssignHunter(hunter);
 
-        if (originalParent != null)
-        {
-            transform.SetParent(originalParent, false);
-            transform.SetSiblingIndex(originalSiblingIndex);
-            rectTransform.anchoredPosition = originalAnchoredPosition;
-            rectTransform.localPosition = originalLocalPosition;
-            rectTransform.localScale = originalScale;
-        }
+        DestroyDragVisual();
 
         if (canvasGroup != null)
         {
@@ -194,6 +183,51 @@ public class HunterRosterItem : MonoBehaviour, IBeginDragHandler, IDragHandler, 
         {
             ownerTab?.ForceRosterStateRefresh();
         }
+    }
+
+    private void CreateDragVisual()
+    {
+        DestroyDragVisual();
+        if (rootCanvas == null) return;
+
+        Sprite portrait = hunter != null ? hunter.Data?.portrait : null;
+        if (portrait == null && portraitImage != null)
+        {
+            portrait = portraitImage.sprite;
+        }
+        if (portrait == null) return;
+
+        dragVisualObject = new GameObject("HunterPortraitDragVisual", typeof(RectTransform), typeof(CanvasGroup), typeof(Image));
+        dragVisualRect = dragVisualObject.GetComponent<RectTransform>();
+        dragVisualRect.SetParent(rootCanvas.transform, false);
+        dragVisualRect.anchorMin = new Vector2(0.5f, 0.5f);
+        dragVisualRect.anchorMax = new Vector2(0.5f, 0.5f);
+        dragVisualRect.pivot = new Vector2(0.5f, 0.5f);
+        dragVisualRect.sizeDelta = dragPortraitSize;
+
+        Image image = dragVisualObject.GetComponent<Image>();
+        image.sprite = portrait;
+        image.color = new Color(1f, 1f, 1f, dragPortraitAlpha);
+        image.preserveAspect = true;
+        image.raycastTarget = false;
+
+        CanvasGroup dragCanvasGroup = dragVisualObject.GetComponent<CanvasGroup>();
+        dragCanvasGroup.blocksRaycasts = false;
+        dragCanvasGroup.interactable = false;
+        dragCanvasGroup.alpha = 1f;
+
+        dragVisualObject.transform.SetAsLastSibling();
+    }
+
+    private void DestroyDragVisual()
+    {
+        if (dragVisualObject != null)
+        {
+            Destroy(dragVisualObject);
+        }
+
+        dragVisualObject = null;
+        dragVisualRect = null;
     }
 
     public void OnPointerClick(PointerEventData eventData)

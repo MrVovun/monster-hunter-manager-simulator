@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &1816290431027912
+--- !u!1 &6562177473307622797
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,47 +8,48 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 4028456588922094}
-  - component: {fileID: 33493238188859682}
-  - component: {fileID: 23663205929247402}
-  - component: {fileID: 64954317468888542}
+  - component: {fileID: 3734584264402571330}
+  - component: {fileID: 6409014385917776998}
+  - component: {fileID: 307633300533905041}
+  - component: {fileID: 927809389609223207}
+  - component: {fileID: 9042958772851394855}
   m_Layer: 0
-  m_Name: SM_Bld_House_WoodBeam_01
+  m_Name: WarTable
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &4028456588922094
+--- !u!4 &3734584264402571330
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1816290431027912}
+  m_GameObject: {fileID: 6562177473307622797}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: 0.00024426414, y: -0.70680726, z: -0.00024405736, w: 0.7074061}
+  m_LocalPosition: {x: -25.246191, y: 0, z: -4.21801}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &33493238188859682
+  m_LocalEulerAnglesHint: {x: 0, y: -89.951, z: -0.04}
+--- !u!33 &6409014385917776998
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1816290431027912}
-  m_Mesh: {fileID: 4300000, guid: 82f1488a984443b4db9feb70c748ab60, type: 3}
---- !u!23 &23663205929247402
+  m_GameObject: {fileID: 6562177473307622797}
+  m_Mesh: {fileID: 4300000, guid: b96282b92e47a8941a58de2421385ba1, type: 3}
+--- !u!23 &307633300533905041
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1816290431027912}
+  m_GameObject: {fileID: 6562177473307622797}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -91,13 +92,13 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &64954317468888542
+--- !u!64 &927809389609223207
 MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1816290431027912}
+  m_GameObject: {fileID: 6562177473307622797}
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -112,4 +113,43 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 1
   m_CookingOptions: 30
-  m_Mesh: {fileID: 43567914654907048, guid: 19e1db129386d534fa21e0d9a75bc4b9, type: 2}
+  m_Mesh: {fileID: 43107910501926784, guid: 4a218d62e3fb009499ecd43ff2d82b47, type: 2}
+--- !u!114 &9042958772851394855
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6562177473307622797}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9588d0890623bd24ca0eeeb2b4301010, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TriggerInteraction
+  interactionType: 2
+  locksPlayer: 1
+  useCustomCamera: 0
+  interactionPrompt: '[E] Interact'
+  tutorialActionId: 
+  playInteractionFeedback: 1
+  disableHudDuringInteraction: 0
+  hideNotificationFeedDuringInteraction: 0
+  hudRootsToDisable: []
+  customCamera: {fileID: 0}
+  onTriggered:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
+  generateOrderOnTrigger: 0
+  orderOfferPanel: {fileID: 0}
