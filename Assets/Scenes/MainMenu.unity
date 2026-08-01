@@ -3144,9 +3144,88 @@ MonoBehaviour:
   uiClickClip: {fileID: 8300000, guid: d3c5a7d075f462748a9f67e19486a473, type: 3}
   uiHoverClip: {fileID: 8300000, guid: a550cb02580f00c40b4ba02aeff3acb4, type: 3}
   uiDragStartClip: {fileID: 8300000, guid: 0dae724cb893d234693f768c9f4c20b9, type: 3}
+  uiClickVfxMode: 0
   uiClickVfxPrefab: {fileID: 0}
   uiClickVfxParent: {fileID: 0}
+  useDedicatedUiClickVfxCanvas: 1
+  dedicatedUiClickVfxSortingOrder: 32000
   uiClickVfxLifetime: 2
+  clickSparkleGradient:
+    serializedVersion: 2
+    key0: {r: 1, g: 1, b: 0.92, a: 1}
+    key1: {r: 1, g: 0.78, b: 0.2, a: 1}
+    key2: {r: 1, g: 0.55, b: 0.08, a: 0}
+    key3: {r: 0, g: 0, b: 0, a: 0}
+    key4: {r: 0, g: 0, b: 0, a: 0}
+    key5: {r: 0, g: 0, b: 0, a: 0}
+    key6: {r: 0, g: 0, b: 0, a: 0}
+    key7: {r: 0, g: 0, b: 0, a: 0}
+    ctime0: 0
+    ctime1: 29491
+    ctime2: 65535
+    ctime3: 0
+    ctime4: 0
+    ctime5: 0
+    ctime6: 0
+    ctime7: 0
+    atime0: 0
+    atime1: 65535
+    atime2: 0
+    atime3: 0
+    atime4: 0
+    atime5: 0
+    atime6: 0
+    atime7: 0
+    m_Mode: 0
+    m_ColorSpace: -1
+    m_NumColorKeys: 3
+    m_NumAlphaKeys: 2
+  generatedUiClickVfxDuration: 0.32
+  generatedUiClickSparkleCount: 12
+  generatedUiClickSparkleSizeRange: {x: 5, y: 12}
+  generatedUiClickSparkleDistanceRange: {x: 22, y: 72}
+  generatedUiClickSparkleGravity: 35
+  generatedUiClickVfxStartScale: 0.35
+  generatedUiClickVfxEndScale: 1
+  enableUiCursorSparkleTrail: 1
+  cursorSparkleMinMoveDistance: 18
+  cursorSparkleMinInterval: 0.035
+  cursorSparkleCount: 2
+  cursorSparkleGradient:
+    serializedVersion: 2
+    key0: {r: 1, g: 1, b: 0.92, a: 1}
+    key1: {r: 1, g: 0.78, b: 0.2, a: 1}
+    key2: {r: 1, g: 0.55, b: 0.08, a: 0}
+    key3: {r: 0, g: 0, b: 0, a: 0}
+    key4: {r: 0, g: 0, b: 0, a: 0}
+    key5: {r: 0, g: 0, b: 0, a: 0}
+    key6: {r: 0, g: 0, b: 0, a: 0}
+    key7: {r: 0, g: 0, b: 0, a: 0}
+    ctime0: 0
+    ctime1: 29491
+    ctime2: 65535
+    ctime3: 0
+    ctime4: 0
+    ctime5: 0
+    ctime6: 0
+    ctime7: 0
+    atime0: 0
+    atime1: 65535
+    atime2: 0
+    atime3: 0
+    atime4: 0
+    atime5: 0
+    atime6: 0
+    atime7: 0
+    m_Mode: 0
+    m_ColorSpace: -1
+    m_NumColorKeys: 3
+    m_NumAlphaKeys: 2
+  cursorSparkleDuration: 0.42
+  cursorSparkleSizeRange: {x: 3, y: 8}
+  cursorSparkleDistanceRange: {x: 8, y: 28}
+  cursorSparkleGravity: 55
+  cursorSparklesOnlyWhenCursorActive: 1
 --- !u!4 &910100004
 Transform:
   m_ObjectHideFlags: 0
@@ -4824,7 +4903,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16794163dee31bf4580b1fa51991418a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MainMenuUI
-  gameSceneName: TestScene2
+  gameSceneName: TrailerScene
   continueButton: {fileID: 1472498362}
   newGameButton: {fileID: 178408398}
   settingsButton: {fileID: 495983534}

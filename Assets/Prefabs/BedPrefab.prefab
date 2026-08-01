@@ -84,7 +84,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6628374030533069347}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -205,10 +205,14 @@ MonoBehaviour:
   locksPlayer: 0
   useCustomCamera: 0
   interactionPrompt: '[E] Change Sheets'
+  tutorialActionId: 
   playInteractionFeedback: 1
+  disableHudDuringInteraction: 0
+  hideNotificationFeedDuringInteraction: 0
+  hudRootsToDisable: []
   customCamera: {fileID: 0}
   bedId: 
-  cleanVisual: {fileID: 1878323629671566348, guid: 6aa1d891720f8ac4e8681286b13e2e5e, type: 3}
-  dirtyVisual: {fileID: 4538924896326667470, guid: 95d77867a89378f468a5292de06fcebc, type: 3}
-  staleVisual: {fileID: 4538924896326667470, guid: 95d77867a89378f468a5292de06fcebc, type: 3}
-  unusableVisual: {fileID: 4538924896326667470, guid: 95d77867a89378f468a5292de06fcebc, type: 3}
+  cleanVisual: {fileID: 1059455012409756, guid: 738cf61d8bf80e846b0cca454d760017, type: 3}
+  dirtyVisual: {fileID: 1798876308872938, guid: 1e78d882b6d2f4c46a777aea3055a6ef, type: 3}
+  staleVisual: {fileID: 1768318062061644, guid: 3d72411d409fc684cbb3da43c8e5c7ed, type: 3}
+  unusableVisual: {fileID: 1768318062061644, guid: 3d72411d409fc684cbb3da43c8e5c7ed, type: 3}

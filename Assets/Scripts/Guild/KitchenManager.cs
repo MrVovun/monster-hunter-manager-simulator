@@ -53,6 +53,11 @@ public class KitchenManager : MonoBehaviour
     [SerializeField] private Transform potAnchor;
     [SerializeField] private GameObject defaultPotPrefab;
     [SerializeField] private GameObject dirtyPlatePrefab;
+    [SerializeField] private GameObject carriedPlatePrefab;
+    [SerializeField] private HumanBodyBones carriedPlateBone = HumanBodyBones.RightHand;
+    [SerializeField] private Vector3 carriedPlateLocalPosition;
+    [SerializeField] private Vector3 carriedPlateLocalRotation;
+    [SerializeField] private Vector3 carriedPlateLocalScale = Vector3.one;
 
     [Header("Hunter Flow")]
     [SerializeField] private List<ServingPoint> servingPoints = new List<ServingPoint>();
@@ -73,6 +78,7 @@ public class KitchenManager : MonoBehaviour
     private readonly HashSet<Hunter> feedingHunters = new HashSet<Hunter>();
     private readonly HashSet<string> dirtySeatIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<Hunter, HunterSeat> returnSeats = new Dictionary<Hunter, HunterSeat>();
+    private readonly Dictionary<Hunter, GameObject> carriedPlateInstances = new Dictionary<Hunter, GameObject>();
     private readonly Dictionary<string, KitchenRecipe> recipeLookup = new Dictionary<string, KitchenRecipe>(StringComparer.OrdinalIgnoreCase);
     private readonly List<QueueSlot> queueSlots = new List<QueueSlot>();
 
@@ -484,8 +490,11 @@ public class KitchenManager : MonoBehaviour
             return;
         }
 
+        SpawnCarriedPlate(hunter);
+
         if (seat.HasDirtyPlate || !hunter.WalkToTemporarySeat(seat, HandleHunterReturnedToSeat))
         {
+            ClearCarriedPlate(hunter);
             ClearFeedingHunter(hunter);
             hunter?.ReturnToGuildSeat();
         }
@@ -505,6 +514,7 @@ public class KitchenManager : MonoBehaviour
             return;
         }
 
+        ClearCarriedPlate(hunter);
         bool played = hunter.PlayCustomAnimation(eatingClip, eatingClip != null && eatingClip.loop ? null : () => CompleteHunterEating(hunter));
         if (!played)
         {
@@ -560,6 +570,7 @@ public class KitchenManager : MonoBehaviour
 
         feedingHunters.Remove(hunter);
         returnSeats.Remove(hunter);
+        ClearCarriedPlate(hunter);
         RemoveHunterFromQueue(hunter);
         RemoveHunterFromServingPoint(hunter);
     }
@@ -812,6 +823,7 @@ public class KitchenManager : MonoBehaviour
         fedHunterIds.Clear();
         feedingHunters.Clear();
         returnSeats.Clear();
+        ClearAllCarriedPlates();
         ClearQueueSlots();
         foreach (var point in servingPoints)
         {
@@ -839,6 +851,65 @@ public class KitchenManager : MonoBehaviour
             }
         }
         dirtySeatIds.Clear();
+    }
+
+    private void SpawnCarriedPlate(Hunter hunter)
+    {
+        if (hunter == null || carriedPlateInstances.ContainsKey(hunter)) return;
+
+        GameObject prefab = carriedPlatePrefab != null ? carriedPlatePrefab : dirtyPlatePrefab;
+        if (prefab == null) return;
+
+        GameObject plate = hunter.AttachTemporaryVisualToBone(
+            prefab,
+            carriedPlateBone,
+            carriedPlateLocalPosition,
+            carriedPlateLocalRotation,
+            carriedPlateLocalScale);
+        if (plate == null) return;
+
+        DisableCarriedPlateInteraction(plate);
+        carriedPlateInstances[hunter] = plate;
+    }
+
+    private void ClearCarriedPlate(Hunter hunter)
+    {
+        if (hunter == null) return;
+        if (!carriedPlateInstances.TryGetValue(hunter, out GameObject plate)) return;
+
+        carriedPlateInstances.Remove(hunter);
+        if (plate != null)
+        {
+            Destroy(plate);
+        }
+    }
+
+    private void ClearAllCarriedPlates()
+    {
+        foreach (var kvp in carriedPlateInstances)
+        {
+            if (kvp.Value != null)
+            {
+                Destroy(kvp.Value);
+            }
+        }
+
+        carriedPlateInstances.Clear();
+    }
+
+    private static void DisableCarriedPlateInteraction(GameObject plate)
+    {
+        if (plate == null) return;
+
+        foreach (var interactable in plate.GetComponentsInChildren<Interactable>(true))
+        {
+            interactable.enabled = false;
+        }
+
+        foreach (var collider in plate.GetComponentsInChildren<Collider>(true))
+        {
+            collider.enabled = false;
+        }
     }
 
     private void ResolveReferences()

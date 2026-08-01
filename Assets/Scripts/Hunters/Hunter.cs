@@ -385,6 +385,28 @@ public class Hunter : MonoBehaviour
         sharedAnimator?.StopClipPlayback();
     }
 
+    public GameObject AttachTemporaryVisualToBone(GameObject prefab, HumanBodyBones bone, Vector3 localPosition, Vector3 localRotation, Vector3 localScale)
+    {
+        if (prefab == null) return null;
+
+        Transform parent = null;
+        if (animator != null && animator.isHuman)
+        {
+            parent = animator.GetBoneTransform(bone);
+        }
+
+        if (parent == null)
+        {
+            parent = visualInstance != null ? visualInstance.transform : transform;
+        }
+
+        GameObject instance = Instantiate(prefab, parent);
+        instance.transform.localPosition = localPosition;
+        instance.transform.localRotation = Quaternion.Euler(localRotation);
+        instance.transform.localScale = localScale.sqrMagnitude <= 0.0001f ? Vector3.one : localScale;
+        return instance;
+    }
+
     public void PlayBriefingReactionThenReturn(SharedCharacterAnimator.ClipEntry reactionClip, float fallbackDelay)
     {
         if (GetState() == HunterState.Dead || GetState() == HunterState.OnMission || GetState() == HunterState.Candidate || GetState() == HunterState.Armory) return;
@@ -509,6 +531,7 @@ public class Hunter : MonoBehaviour
             navAgent.enabled = false;
         }
 
+        p09VisualApplier?.SetEquipmentHeldInHands(true);
         sharedAnimator?.SetMoving(false);
         if (stanceClip != null && stanceClip.clip != null)
         {
@@ -523,6 +546,7 @@ public class Hunter : MonoBehaviour
         if (GetState() != HunterState.Armory) return;
 
         sharedAnimator?.StopClipPlayback();
+        p09VisualApplier?.SetEquipmentHeldInHands(false);
         if (navAgent != null)
         {
             navAgent.enabled = true;
@@ -1407,6 +1431,10 @@ public class Hunter : MonoBehaviour
         }
 
         p09VisualApplier?.ApplyPreset(runtimeP09Preset);
+        if (GetState() == HunterState.Armory)
+        {
+            p09VisualApplier?.SetEquipmentHeldInHands(true);
+        }
     }
 
     private void SnapVisualToParent()

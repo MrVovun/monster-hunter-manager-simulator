@@ -291,7 +291,7 @@ MonoBehaviour:
   doorAnimator: {fileID: 4934893599745046423}
   openTriggerName: Open
   closeTriggerName: Close
-  startsOpen: 1
+  startsOpen: 0
 --- !u!114 &8203989889994751827
 MonoBehaviour:
   m_ObjectHideFlags: 0

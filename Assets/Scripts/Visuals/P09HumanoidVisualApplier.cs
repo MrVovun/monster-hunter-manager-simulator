@@ -17,7 +17,8 @@ public class P09HumanoidVisualApplier : MonoBehaviour
     [SerializeField] private Animator animator;
 
     [Header("Weapon Attachment")]
-    [SerializeField] private bool snapWeaponToHandTarget = true;
+    [Tooltip("Allows gameplay code, such as the armory preview, to temporarily move weapons/shields to hand targets.")]
+    [SerializeField] private bool allowEquipmentHandSnap = true;
     [SerializeField] private string rightHandWeaponTargetName = "Weapon_Target_Hand_R";
     [SerializeField] private string leftHandWeaponTargetName = "Weapon_Target_Hand_L";
     [SerializeField] private Vector3 weaponLocalPositionOffset;
@@ -32,6 +33,8 @@ public class P09HumanoidVisualApplier : MonoBehaviour
 
     private const string SkinMaterialPattern = @"^P09_.*_Skin.*$";
     private const string EyeMaterialPattern = @"^P09_Eye.*$";
+    private readonly Dictionary<Transform, TransformSnapshot> defaultEquipmentTransforms = new Dictionary<Transform, TransformSnapshot>();
+    private bool snapEquipmentToHandOnApply;
 
     private static readonly EditPartType[] EquipmentTypes =
     {
@@ -85,6 +88,8 @@ public class P09HumanoidVisualApplier : MonoBehaviour
         }
 
         Transform root = modelRoot != null ? modelRoot : transform;
+        RestoreSnappedEquipment();
+
         Renderer[] renderers = root.GetComponentsInChildren<Renderer>(true);
         Transform[] children = root.GetComponentsInChildren<Transform>(true);
 
@@ -117,7 +122,23 @@ public class P09HumanoidVisualApplier : MonoBehaviour
             ApplyEyeColor(renderer, preset.eyeColorId, sexId);
         }
 
-        SnapEquipmentToTargets(root);
+        if (snapEquipmentToHandOnApply)
+        {
+            SnapEquipmentToTargets(root);
+        }
+    }
+
+    public void SetEquipmentHeldInHands(bool held)
+    {
+        snapEquipmentToHandOnApply = held && allowEquipmentHandSnap;
+        if (preset != null)
+        {
+            ApplyPreset(preset);
+        }
+        else if (!snapEquipmentToHandOnApply)
+        {
+            RestoreSnappedEquipment();
+        }
     }
 
     public List<string> ValidateCurrentPreset()
@@ -270,7 +291,7 @@ public class P09HumanoidVisualApplier : MonoBehaviour
 
     private void SnapEquipmentToTargets(Transform root)
     {
-        if (!snapWeaponToHandTarget || root == null) return;
+        if (!allowEquipmentHandSnap || root == null) return;
 
         Transform rightTarget = FindDeepChild(root, rightHandWeaponTargetName);
         Transform leftTarget = FindDeepChild(root, leftHandWeaponTargetName);
@@ -301,6 +322,7 @@ public class P09HumanoidVisualApplier : MonoBehaviour
             if (!MatchesRenderer(renderer, selectedData.MeshName, preset.sexId, preset.hairStyleId)) continue;
 
             Transform part = renderer.transform;
+            RememberDefaultTransform(part);
             part.SetParent(target, false);
             part.localPosition = localPosition;
             part.localRotation = Quaternion.Euler(localRotation);
@@ -308,6 +330,56 @@ public class P09HumanoidVisualApplier : MonoBehaviour
             EnsureActivePath(part, root);
             return;
         }
+    }
+
+    private void RememberDefaultTransform(Transform part)
+    {
+        if (part == null || defaultEquipmentTransforms.ContainsKey(part)) return;
+
+        defaultEquipmentTransforms.Add(part, new TransformSnapshot
+        {
+            parent = part.parent,
+            localPosition = part.localPosition,
+            localRotation = part.localRotation,
+            localScale = part.localScale
+        });
+    }
+
+    private void RestoreSnappedEquipment()
+    {
+        if (defaultEquipmentTransforms.Count == 0) return;
+
+        List<Transform> missing = null;
+        foreach (var kvp in defaultEquipmentTransforms)
+        {
+            Transform part = kvp.Key;
+            if (part == null)
+            {
+                missing ??= new List<Transform>();
+                missing.Add(part);
+                continue;
+            }
+
+            TransformSnapshot snapshot = kvp.Value;
+            part.SetParent(snapshot.parent, false);
+            part.localPosition = snapshot.localPosition;
+            part.localRotation = snapshot.localRotation;
+            part.localScale = snapshot.localScale;
+        }
+
+        if (missing == null) return;
+        foreach (Transform part in missing)
+        {
+            defaultEquipmentTransforms.Remove(part);
+        }
+    }
+
+    private struct TransformSnapshot
+    {
+        public Transform parent;
+        public Vector3 localPosition;
+        public Quaternion localRotation;
+        public Vector3 localScale;
     }
 
     private void CacheReferences()
