@@ -870,7 +870,7 @@ public class Hunter : MonoBehaviour
             navAgent.enabled = false;
         }
 
-        bool playedGetUpClip = sharedAnimator != null && sharedAnimator.PlayGetUpClip(CompleteStandUpSequence);
+        bool playedGetUpClip = sharedAnimator != null && sharedAnimator.PlaySeatedGetUpClip(CompleteStandUpSequence);
         if (playedGetUpClip)
         {
             return;
