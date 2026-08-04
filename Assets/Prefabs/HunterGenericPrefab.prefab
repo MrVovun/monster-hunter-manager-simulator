@@ -183,6 +183,24 @@ MonoBehaviour:
   thinkingClipLoop: 0
   thinkingClipLocalRotationOffset: {x: 0, y: 0, z: 0}
   speakingClips: []
+  sitDownClip:
+    clip: {fileID: 7400000, guid: 1cad8312c605f444084aaddf0fc8c29a, type: 3}
+    speed: 1
+    loop: 0
+    avatarMask: {fileID: 0}
+    localRotationOffset: {x: 0, y: 0, z: 0}
+  seatedIdleLoopClip:
+    clip: {fileID: 7400000, guid: 31cf1c8ecfb45b54684085020049baf9, type: 3}
+    speed: 1
+    loop: 1
+    avatarMask: {fileID: 0}
+    localRotationOffset: {x: 0, y: 0, z: 0}
+  seatedGetUpClip:
+    clip: {fileID: 7400000, guid: 53ebce72e127f3749904a874d9c21274, type: 3}
+    speed: 1
+    loop: 0
+    avatarMask: {fileID: 0}
+    localRotationOffset: {x: 0, y: 0, z: 0}
   layDownClip:
     clip: {fileID: 7400000, guid: b114a6a9e895bd44282faaf61e208e2f, type: 3}
     speed: 1
@@ -240,6 +258,11 @@ MonoBehaviour:
   faceLookOffset: {x: 0, y: 0, z: 0}
   hideNotificationsDuringDialogue: 1
   healVfx: {fileID: 1785531118582403841}
+  cardGameUI: {fileID: 0}
+  injectCardGameDialogueOption: 1
+  cardGameQuestionId: play_cards
+  cardGameQuestionText: You want to play some cards?
+  cardGameAnswerText: Sure. Let's play.
 --- !u!1001 &1785531118582289075
 PrefabInstance:
   m_ObjectHideFlags: 0

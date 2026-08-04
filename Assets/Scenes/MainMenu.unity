@@ -3181,7 +3181,7 @@ MonoBehaviour:
     m_NumColorKeys: 3
     m_NumAlphaKeys: 2
   generatedUiClickVfxDuration: 0.32
-  generatedUiClickSparkleCount: 12
+  generatedUiClickSparkleCount: 24
   generatedUiClickSparkleSizeRange: {x: 5, y: 12}
   generatedUiClickSparkleDistanceRange: {x: 22, y: 72}
   generatedUiClickSparkleGravity: 35
@@ -3190,7 +3190,7 @@ MonoBehaviour:
   enableUiCursorSparkleTrail: 1
   cursorSparkleMinMoveDistance: 18
   cursorSparkleMinInterval: 0.035
-  cursorSparkleCount: 2
+  cursorSparkleCount: 4
   cursorSparkleGradient:
     serializedVersion: 2
     key0: {r: 1, g: 1, b: 0.92, a: 1}
@@ -3226,6 +3226,12 @@ MonoBehaviour:
   cursorSparkleDistanceRange: {x: 8, y: 28}
   cursorSparkleGravity: 55
   cursorSparklesOnlyWhenCursorActive: 1
+  enableRecorderCursor: 1
+  recorderCursorSprite: {fileID: 21300000, guid: 2ee905236428fe249bd5c8c14894d505, type: 3}
+  recorderCursorSize: {x: 50, y: 50}
+  recorderCursorOffset: {x: 0, y: 0}
+  recorderCursorColor: {r: 1, g: 1, b: 1, a: 1}
+  hideSystemCursorWhileRecorderCursorVisible: 1
 --- !u!4 &910100004
 Transform:
   m_ObjectHideFlags: 0

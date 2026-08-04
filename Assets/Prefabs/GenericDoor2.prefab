@@ -110,7 +110,7 @@ MeshCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
@@ -284,11 +284,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5696914b3a460c142bcbdafbbf71961c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GuildDoorController
-  doorInteractable: {fileID: 0}
+  doorInteractable: {fileID: 7065998548555950184}
   colliders: []
   controlColliders: 0
   lockedIndicator: {fileID: 0}
-  doorAnimator: {fileID: 0}
+  doorAnimator: {fileID: 5576547420166962604}
   openTriggerName: Open
   closeTriggerName: Close
   startsOpen: 0
@@ -317,7 +317,7 @@ MonoBehaviour:
   onTriggered:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 8459125555196283431}
         m_TargetAssemblyTypeName: GuildDoorController, Assembly-CSharp
         m_MethodName: ToggleDoor
         m_Mode: 1

@@ -52,9 +52,21 @@ public class InteractionFeedbackManager : MonoBehaviour
     [SerializeField] private float cursorSparkleGravity = 55f;
     [SerializeField] private bool cursorSparklesOnlyWhenCursorActive = true;
 
+    [Header("Recorder Cursor")]
+    [Tooltip("Shows a UI cursor that Unity Recorder can capture. Assign a cursor sprite, or leave empty to use a generated pointer.")]
+    [SerializeField] private bool enableRecorderCursor = false;
+    [SerializeField] private Sprite recorderCursorSprite;
+    [SerializeField] private Vector2 recorderCursorSize = new Vector2(32f, 32f);
+    [SerializeField] private Vector2 recorderCursorOffset;
+    [SerializeField] private Color recorderCursorColor = Color.white;
+    [SerializeField] private bool hideSystemCursorWhileRecorderCursorVisible = true;
+
     private RectTransform dedicatedUiClickVfxParent;
     private Sprite generatedClickSparkleSprite;
     private Sprite generatedCursorSparkleSprite;
+    private Sprite generatedRecorderCursorSprite;
+    private RectTransform recorderCursorRect;
+    private Image recorderCursorImage;
     private Vector2 lastCursorSparklePosition;
     private float lastCursorSparkleTime;
     private bool hasLastCursorSparklePosition;
@@ -116,11 +128,13 @@ public class InteractionFeedbackManager : MonoBehaviour
     {
         generatedClickSparkleSprite = null;
         generatedCursorSparkleSprite = null;
+        generatedRecorderCursorSprite = null;
     }
 
     private void Update()
     {
         TrySpawnCursorSparkleTrail();
+        UpdateRecorderCursor();
     }
 
     public static void PlayInteraction(Vector3 position)
@@ -242,7 +256,7 @@ public class InteractionFeedbackManager : MonoBehaviour
     {
         if (!enableUiCursorSparkleTrail) return;
         if (!TryGetCurrentPointerPosition(out Vector2 pointerPosition)) return;
-        if (cursorSparklesOnlyWhenCursorActive && !IsCursorActive())
+        if (cursorSparklesOnlyWhenCursorActive && !IsCursorPresentationActive())
         {
             hasLastCursorSparklePosition = false;
             return;
@@ -298,6 +312,87 @@ public class InteractionFeedbackManager : MonoBehaviour
 
         rect.SetAsLastSibling();
         StartCoroutine(AnimateSparkles(root, rect, group, sparkles, cursorSparkleDuration, 1f, 1f, cursorSparkleGravity));
+    }
+
+    private void UpdateRecorderCursor()
+    {
+        if (!enableRecorderCursor)
+        {
+            SetRecorderCursorVisible(false);
+            return;
+        }
+
+        if (!TryGetCurrentPointerPosition(out Vector2 pointerPosition) || !IsCursorPresentationActive())
+        {
+            SetRecorderCursorVisible(false);
+            return;
+        }
+
+        Canvas canvas = ResolveCanvas(null);
+        RectTransform parent = ResolveVfxParent(canvas);
+        if (parent == null)
+        {
+            SetRecorderCursorVisible(false);
+            return;
+        }
+
+        EnsureRecorderCursor(parent);
+        if (recorderCursorRect == null || recorderCursorImage == null) return;
+
+        Camera uiCamera = GetCanvasCamera(canvas);
+        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, pointerPosition, uiCamera, out Vector2 localPoint))
+        {
+            recorderCursorRect.anchoredPosition = localPoint + recorderCursorOffset;
+        }
+
+        recorderCursorRect.sizeDelta = new Vector2(
+            Mathf.Max(1f, recorderCursorSize.x),
+            Mathf.Max(1f, recorderCursorSize.y));
+        recorderCursorImage.sprite = recorderCursorSprite != null
+            ? recorderCursorSprite
+            : GetGeneratedRecorderCursorSprite();
+        recorderCursorImage.color = recorderCursorColor;
+        recorderCursorRect.SetAsLastSibling();
+        SetRecorderCursorVisible(true);
+    }
+
+    private void EnsureRecorderCursor(RectTransform parent)
+    {
+        if (recorderCursorRect != null && recorderCursorRect.parent == parent) return;
+
+        if (recorderCursorRect != null)
+        {
+            Destroy(recorderCursorRect.gameObject);
+        }
+
+        GameObject cursorObject = new GameObject("RecorderCursor", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        cursorObject.transform.SetParent(parent, false);
+
+        recorderCursorRect = cursorObject.GetComponent<RectTransform>();
+        recorderCursorRect.anchorMin = new Vector2(0.5f, 0.5f);
+        recorderCursorRect.anchorMax = new Vector2(0.5f, 0.5f);
+        recorderCursorRect.pivot = new Vector2(0f, 1f);
+        recorderCursorRect.localScale = Vector3.one;
+
+        recorderCursorImage = cursorObject.GetComponent<Image>();
+        recorderCursorImage.sprite = recorderCursorSprite != null
+            ? recorderCursorSprite
+            : GetGeneratedRecorderCursorSprite();
+        recorderCursorImage.preserveAspect = true;
+        recorderCursorImage.raycastTarget = false;
+    }
+
+    private void SetRecorderCursorVisible(bool visible)
+    {
+        if (recorderCursorImage != null && recorderCursorImage.enabled != visible)
+        {
+            recorderCursorImage.enabled = visible;
+        }
+
+        if (visible && hideSystemCursorWhileRecorderCursorVisible && Cursor.lockState != CursorLockMode.Locked)
+        {
+            Cursor.visible = false;
+        }
     }
 
     private List<GeneratedClickSparkle> CreateClickSparkles(Transform parent)
@@ -503,6 +598,91 @@ public class InteractionFeedbackManager : MonoBehaviour
         return cachedSprite;
     }
 
+    private Sprite GetGeneratedRecorderCursorSprite()
+    {
+        if (generatedRecorderCursorSprite != null)
+        {
+            return generatedRecorderCursorSprite;
+        }
+
+        const int size = 64;
+        var texture = new Texture2D(size, size, TextureFormat.RGBA32, false)
+        {
+            name = "GeneratedRecorderCursorSprite",
+            filterMode = FilterMode.Bilinear,
+            wrapMode = TextureWrapMode.Clamp
+        };
+
+        Color clear = new Color(0f, 0f, 0f, 0f);
+        Color fill = Color.white;
+        Color outline = new Color(0.08f, 0.04f, 0.02f, 1f);
+
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                texture.SetPixel(x, y, clear);
+            }
+        }
+
+        Vector2 a = new Vector2(6f, 58f);
+        Vector2 b = new Vector2(6f, 8f);
+        Vector2 c = new Vector2(42f, 36f);
+
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                Vector2 p = new Vector2(x, y);
+                float signedDistance = SignedDistanceToTriangle(p, a, b, c);
+                if (signedDistance <= 0f)
+                {
+                    texture.SetPixel(x, y, signedDistance > -2f ? outline : fill);
+                }
+                else if (signedDistance < 2f)
+                {
+                    texture.SetPixel(x, y, outline);
+                }
+            }
+        }
+
+        texture.Apply();
+        generatedRecorderCursorSprite = Sprite.Create(texture, new Rect(0f, 0f, size, size), new Vector2(0f, 1f), size);
+        generatedRecorderCursorSprite.name = "GeneratedRecorderCursorSprite";
+        return generatedRecorderCursorSprite;
+    }
+
+    private static float SignedDistanceToTriangle(Vector2 p, Vector2 a, Vector2 b, Vector2 c)
+    {
+        float d = Mathf.Min(
+            DistanceToSegment(p, a, b),
+            Mathf.Min(DistanceToSegment(p, b, c), DistanceToSegment(p, c, a)));
+        return IsPointInTriangle(p, a, b, c) ? -d : d;
+    }
+
+    private static float DistanceToSegment(Vector2 p, Vector2 a, Vector2 b)
+    {
+        Vector2 segment = b - a;
+        float t = segment.sqrMagnitude > 0f ? Mathf.Clamp01(Vector2.Dot(p - a, segment) / segment.sqrMagnitude) : 0f;
+        return Vector2.Distance(p, a + segment * t);
+    }
+
+    private static bool IsPointInTriangle(Vector2 p, Vector2 a, Vector2 b, Vector2 c)
+    {
+        float d1 = Sign(p, a, b);
+        float d2 = Sign(p, b, c);
+        float d3 = Sign(p, c, a);
+
+        bool hasNegative = d1 < 0f || d2 < 0f || d3 < 0f;
+        bool hasPositive = d1 > 0f || d2 > 0f || d3 > 0f;
+        return !(hasNegative && hasPositive);
+    }
+
+    private static float Sign(Vector2 p1, Vector2 p2, Vector2 p3)
+    {
+        return (p1.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p3.y);
+    }
+
     private Canvas ResolveCanvas(Transform contextTransform)
     {
         if (uiClickVfxParent != null)
@@ -550,8 +730,8 @@ public class InteractionFeedbackManager : MonoBehaviour
         return false;
     }
 
-    private static bool IsCursorActive()
+    private static bool IsCursorPresentationActive()
     {
-        return Cursor.visible && Cursor.lockState != CursorLockMode.Locked;
+        return Cursor.lockState != CursorLockMode.Locked;
     }
 }

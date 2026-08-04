@@ -42,6 +42,11 @@ public class SharedCharacterAnimator : MonoBehaviour
 
     [SerializeField] private ClipEntry[] speakingClips;
 
+    [Header("Seated Clip Playback")]
+    [SerializeField] private ClipEntry sitDownClip;
+    [SerializeField] private ClipEntry seatedIdleLoopClip;
+    [SerializeField] private ClipEntry seatedGetUpClip;
+
     [Header("Rest Clip Playback")]
     [SerializeField] private ClipEntry layDownClip;
     [SerializeField] private ClipEntry sleepLoopClip;
@@ -215,11 +220,49 @@ public class SharedCharacterAnimator : MonoBehaviour
         }
     }
 
-    public void PlaySitSequence()
+    public bool PlaySitSequence()
     {
-        if (animator == null) return;
+        if (animator == null) return false;
         CacheParameters();
 
+        if (useClipPlayback)
+        {
+            if (PlayClipEntry(sitDownClip, PlaySeatedIdleAfterSitDown))
+            {
+                return true;
+            }
+
+            if (PlaySeatedIdleLoopClip())
+            {
+                return true;
+            }
+        }
+
+        PlayControllerSitSequence();
+        return true;
+    }
+
+    private void PlaySeatedIdleAfterSitDown()
+    {
+        if (!PlaySeatedIdleLoopClip())
+        {
+            PlayControllerSitSequence();
+        }
+    }
+
+    private bool PlaySeatedIdleLoopClip()
+    {
+        return useClipPlayback && PlayClipEntry(seatedIdleLoopClip);
+    }
+
+    public bool PlaySeatedGetUpClip(System.Action onComplete = null)
+    {
+        if (!useClipPlayback) return false;
+        return PlayClipEntry(seatedGetUpClip, onComplete);
+    }
+
+    private void PlayControllerSitSequence()
+    {
         if (hasTriggerNumber)
         {
             animator.SetInteger(triggerNumberParameter, 2);

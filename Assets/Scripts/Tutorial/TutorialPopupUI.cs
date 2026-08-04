@@ -14,11 +14,15 @@ public class TutorialPopupUI : MonoBehaviour
     [SerializeField] private List<MoodPortrait> moodPortraits = new List<MoodPortrait>();
 
     private readonly Dictionary<TutorialSpeakerMood, Sprite> portraitLookup = new Dictionary<TutorialSpeakerMood, Sprite>();
+    private bool activatingForShow;
 
     private void Awake()
     {
         BuildLookup();
-        Hide();
+        if (!activatingForShow)
+        {
+            Hide();
+        }
     }
 
     public void Show(TutorialStep step, string manualContinueBindingText)
@@ -30,7 +34,9 @@ public class TutorialPopupUI : MonoBehaviour
         }
 
         BuildLookup();
+        activatingForShow = true;
         SetActive(true);
+        activatingForShow = false;
 
         if (speakerText != null) speakerText.text = string.IsNullOrWhiteSpace(step.speakerName) ? "Guild Inspector" : step.speakerName;
         if (bodyText != null) bodyText.text = step.text ?? string.Empty;
@@ -54,15 +60,7 @@ public class TutorialPopupUI : MonoBehaviour
             portraitImage.enabled = portrait != null;
         }
 
-        if (voiceSource != null)
-        {
-            voiceSource.Stop();
-            voiceSource.clip = step.voiceClip;
-            if (step.voiceClip != null)
-            {
-                voiceSource.Play();
-            }
-        }
+        PlayVoice(step.voiceClip);
     }
 
     public void Hide()
@@ -86,8 +84,12 @@ public class TutorialPopupUI : MonoBehaviour
     public void ResumeVoice()
     {
         bool visible = root != null ? root.activeInHierarchy : gameObject.activeInHierarchy;
-        if (voiceSource != null && voiceSource.clip != null && visible)
+        if (voiceSource != null && voiceSource.clip != null && visible && voiceSource.gameObject.activeInHierarchy)
         {
+            if (!voiceSource.enabled)
+            {
+                voiceSource.enabled = true;
+            }
             voiceSource.UnPause();
         }
     }
@@ -102,6 +104,32 @@ public class TutorialPopupUI : MonoBehaviour
         {
             gameObject.SetActive(value);
         }
+    }
+
+    private void PlayVoice(AudioClip clip)
+    {
+        if (voiceSource == null) return;
+
+        if (voiceSource.gameObject.activeInHierarchy)
+        {
+            voiceSource.Stop();
+        }
+
+        voiceSource.clip = clip;
+        if (clip == null) return;
+
+        if (!voiceSource.gameObject.activeInHierarchy)
+        {
+            Debug.LogWarning("TutorialPopupUI: Cannot play tutorial voice because the assigned AudioSource is inactive in the hierarchy. Keep the AudioSource active or place it under the popup root.", this);
+            return;
+        }
+
+        if (!voiceSource.enabled)
+        {
+            voiceSource.enabled = true;
+        }
+
+        voiceSource.Play();
     }
 
     private void BuildLookup()

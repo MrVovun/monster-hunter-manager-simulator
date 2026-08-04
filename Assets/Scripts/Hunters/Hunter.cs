@@ -449,8 +449,7 @@ public class Hunter : MonoBehaviour
             transform.position = anchor.position;
             transform.rotation = anchor.rotation;
             isSeated = true;
-            playSitEntry = true;
-            sharedAnimator?.PlaySitSequence();
+            playSitEntry = !(sharedAnimator?.PlaySitSequence() ?? false);
 
             if (navAgent != null)
             {
@@ -863,8 +862,21 @@ public class Hunter : MonoBehaviour
     private void BeginStandUpSequence(System.Action onCompleted = null)
     {
         isStandingUp = true;
-        standUpTimer = Mathf.Max(0.1f, standUpDuration);
+        standUpTimer = 0f;
         standUpCompletedAction = onCompleted;
+
+        if (navAgent != null)
+        {
+            navAgent.enabled = false;
+        }
+
+        bool playedGetUpClip = sharedAnimator != null && sharedAnimator.PlayGetUpClip(CompleteStandUpSequence);
+        if (playedGetUpClip)
+        {
+            return;
+        }
+
+        standUpTimer = Mathf.Max(0.1f, standUpDuration);
 
         if (animator != null)
         {
@@ -873,15 +885,11 @@ public class Hunter : MonoBehaviour
             animator.SetInteger("Action", 9);
             animator.SetBool("Moving", false);
         }
-
-        if (navAgent != null)
-        {
-            navAgent.enabled = false;
-        }
     }
 
     private void CompleteStandUpSequence()
     {
+        sharedAnimator?.StopClipPlayback();
         isStandingUp = false;
         standUpTimer = 0f;
 

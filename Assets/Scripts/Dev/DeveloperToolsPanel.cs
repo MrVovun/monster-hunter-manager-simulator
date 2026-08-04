@@ -26,6 +26,7 @@ public class DeveloperToolsPanel : MonoBehaviour
     private MonsterLibrary monsterLibrary;
     private GraveyardManager graveyardManager;
     private MissionBonusChestManager bonusChestManager;
+    private CinematicCameraRig cinematicRig;
 
     private Rect windowRect = new Rect(30f, 30f, 420f, 640f);
     private bool visible;
@@ -114,6 +115,11 @@ public class DeveloperToolsPanel : MonoBehaviour
         {
             bonusChestManager = FindObjectOfType<MissionBonusChestManager>();
         }
+
+        if (cinematicRig == null)
+        {
+            cinematicRig = FindFirstObjectByType<CinematicCameraRig>(FindObjectsInactive.Include);
+        }
     }
 
     private void HandleTogglePerformed(InputAction.CallbackContext ctx)
@@ -146,6 +152,8 @@ public class DeveloperToolsPanel : MonoBehaviour
 
         scrollPosition = GUILayout.BeginScrollView(scrollPosition, false, true);
         DrawGlobalSection();
+        GUILayout.Space(8f);
+        DrawCinematicSection();
         GUILayout.Space(8f);
         DrawHunterSection();
         GUILayout.Space(8f);
@@ -383,6 +391,66 @@ public class DeveloperToolsPanel : MonoBehaviour
                 {
                     Debug.LogWarning("DeveloperTools: MissionBonusChestManager not found.");
                 }
+            }
+        }
+    }
+
+    private void DrawCinematicSection()
+    {
+        GUILayout.Label("Cinematics", headerStyle);
+        if (cinematicRig == null)
+        {
+            CacheManagers();
+        }
+
+        if (cinematicRig == null)
+        {
+            GUILayout.Label("CinematicCameraRig not found.");
+            return;
+        }
+
+        GUILayout.Label($"Shots: {cinematicRig.ShotCount} | Active: {(cinematicRig.ActiveShotIndex >= 0 ? cinematicRig.ActiveShotIndex + 1 : 0)}");
+        using (new GUILayout.HorizontalScope())
+        {
+            if (GUILayout.Button("Prev Shot"))
+            {
+                cinematicRig.PlayPreviousShot();
+            }
+            if (GUILayout.Button("Next Shot"))
+            {
+                cinematicRig.PlayNextShot();
+            }
+            if (GUILayout.Button("Exit Shot"))
+            {
+                cinematicRig.ExitCinematic();
+            }
+        }
+
+        using (new GUILayout.HorizontalScope())
+        {
+            if (GUILayout.Button("Toggle HUD"))
+            {
+                cinematicRig.ToggleHud();
+            }
+            if (GUILayout.Button("Toggle Notifications"))
+            {
+                cinematicRig.ToggleNotifications();
+            }
+            if (GUILayout.Button("Screenshot"))
+            {
+                cinematicRig.CaptureScreenshot();
+            }
+        }
+
+        using (new GUILayout.HorizontalScope())
+        {
+            if (GUILayout.Button("Pause"))
+            {
+                cinematicRig.TogglePause();
+            }
+            if (GUILayout.Button("Slow Motion"))
+            {
+                cinematicRig.ToggleSlowMotion();
             }
         }
     }
