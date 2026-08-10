@@ -12,6 +12,7 @@ public class ReputationManager : MonoBehaviour
 
     [SerializeField] private float currentReputationPoints;
     public event System.Action<float> OnReputationChanged; // passes reputation level
+    public event System.Action<int, int> OnReputationRankIncreased; // previous rank, new rank
 
     private GameConfig cachedConfig;
     private float defaultReputationPoints;
@@ -87,6 +88,18 @@ public class ReputationManager : MonoBehaviour
         return "Maximum reputation";
     }
 
+    public float GetProgressToNextReputationLevel01()
+    {
+        if (!TryGetNextReputationLevel(out _, out int nextRequiredPoints))
+        {
+            return 1f;
+        }
+
+        int currentRequiredPoints = GetCurrentReputationLevelRequiredPoints();
+        float span = Mathf.Max(1f, nextRequiredPoints - currentRequiredPoints);
+        return Mathf.Clamp01((currentReputationPoints - currentRequiredPoints) / span);
+    }
+
     public void AddReputation(float amount)
     {
         AddReputationPoints(amount);
@@ -99,9 +112,10 @@ public class ReputationManager : MonoBehaviour
 
     public void AddReputationPoints(float amount)
     {
+        int previousRank = GetReputation();
         currentReputationPoints = Mathf.Max(0f, currentReputationPoints + amount);
         SaveState();
-        NotifyReputationChanged();
+        NotifyReputationChanged(previousRank);
     }
 
     public int LoseReputationRanks(int ranksToLose)
@@ -113,17 +127,19 @@ public class ReputationManager : MonoBehaviour
         int targetLevel = Mathf.Max(0, currentLevel - ranksToLose);
         float targetPoints = GetRequiredPointsForLevel(targetLevel);
 
+        int previousRank = GetReputation();
         currentReputationPoints = Mathf.Min(currentReputationPoints, targetPoints);
         SaveState();
-        NotifyReputationChanged();
+        NotifyReputationChanged(previousRank);
         return targetLevel;
     }
 
     public void ResetToDefault()
     {
+        int previousRank = GetReputation();
         currentReputationPoints = defaultReputationPoints;
         SaveState();
-        NotifyReputationChanged();
+        NotifyReputationChanged(previousRank);
     }
 
     private int ComputeReputationLevel(float reputationPoints)
@@ -151,7 +167,17 @@ public class ReputationManager : MonoBehaviour
 
     private void NotifyReputationChanged()
     {
-        OnReputationChanged?.Invoke(GetReputation());
+        NotifyReputationChanged(GetReputation());
+    }
+
+    private void NotifyReputationChanged(int previousRank)
+    {
+        int currentRank = GetReputation();
+        OnReputationChanged?.Invoke(currentRank);
+        if (currentRank > previousRank)
+        {
+            OnReputationRankIncreased?.Invoke(previousRank, currentRank);
+        }
     }
 
     private int GetRequiredPointsForLevel(int level)

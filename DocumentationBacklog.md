@@ -2,8 +2,6 @@
 
 ## Polishing Backlog
 
-- Revisit UI click VFX rendering. Click VFX currently spawn under the Canvas, but assigned prefabs may still be invisible depending on Canvas/rendering setup.
-- Add a reputation progress bar to show current progress toward the next reputation level, using the same reputation points and thresholds as the reputation progress text.
 - Audit construction registration and remove remaining double-wiring. `GuildConstructionManager` still reads `GameConfig.guildConstructions` and scene instances; construction assets that are only in `Resources/Constructions` will not appear unless referenced by one of those paths.
 - Tune and finish newly added trait assets that need explicit balance values: Talent Scout, Earplugs, Last Stand, and Overprepared.
 - Document real evidence tag categories/values for trait setup: `family`, `size`, `sound`, `tail`, `winged`, and `movement`.

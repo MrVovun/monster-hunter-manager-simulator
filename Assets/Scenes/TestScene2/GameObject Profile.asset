@@ -100,7 +100,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e3b43e232564d52b710c4bdc0cd6e42, type: 3}
   m_Name: ColorMapVol
   m_EditorClassIdentifier: VolFx::VolFx.ColorMapVol
-  active: 1
+  active: 0
   m_Weight:
     m_OverrideState: 1
     m_Value: 0
@@ -748,10 +748,10 @@ MonoBehaviour:
       - {r: 1, g: 1, b: 1, a: 1}
   m_Thickness:
     m_OverrideState: 1
-    m_Value: 0.075
+    m_Value: 0.1
   m_Sharpness:
     m_OverrideState: 1
-    m_Value: 0.8
+    m_Value: 0.2
   m_Mode:
     m_OverrideState: 1
     m_Value: 0
@@ -787,7 +787,7 @@ MonoBehaviour:
   active: 1
   m_Tint:
     m_OverrideState: 0
-    m_Value: {r: 1, g: 0.9396674, b: 0.7311321, a: 1}
+    m_Value: {r: 0.9811321, g: 0.5970096, b: 0.8530073, a: 1}
   m_Threshold:
     m_OverrideState: 0
     m_Value:
@@ -905,7 +905,7 @@ MonoBehaviour:
     m_Value: 1
   m_Thickness:
     m_OverrideState: 1
-    m_Value: 0.1
+    m_Value: 0.06
   m_Color:
     m_OverrideState: 1
     m_Value:
@@ -1002,7 +1002,7 @@ MonoBehaviour:
   active: 0
   m_Count:
     m_OverrideState: 1
-    m_Value: 64
+    m_Value: 3
 --- !u!114 &8493479370681589017
 MonoBehaviour:
   m_ObjectHideFlags: 3

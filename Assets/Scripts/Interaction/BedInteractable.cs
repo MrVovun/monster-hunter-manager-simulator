@@ -35,6 +35,14 @@ public class BedInteractable : Interactable
         }
 
         OnInteractionStart(player);
+        FirstPersonController controller = player != null ? player.GetComponent<FirstPersonController>() : null;
+        DayTransitionUI transition = DayTransitionUI.Instance;
+        if (transition != null && transition.Play(EndDayAndStartNext, controller))
+        {
+            OnInteractionEnd(player);
+            return;
+        }
+
         EndDayAndStartNext();
         OnInteractionEnd(player);
     }

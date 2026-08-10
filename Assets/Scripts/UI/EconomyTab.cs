@@ -7,6 +7,8 @@ public class EconomyTab : MonoBehaviour
     [SerializeField] private TMP_Text goldText;
     [SerializeField] private TMP_Text reputationText;
     [SerializeField] private TMP_Text reputationProgressText;
+    [SerializeField] private Image reputationProgressFillImage;
+    [SerializeField] private Slider reputationProgressSlider;
     [SerializeField] private TMP_Text upkeepText;
     [SerializeField] private TMP_Text debtText;
     [SerializeField] private TMP_Text previousIncomeText;
@@ -34,6 +36,20 @@ public class EconomyTab : MonoBehaviour
         if (reputationProgressText != null && rep != null)
         {
             reputationProgressText.text = rep.GetProgressText();
+        }
+
+        if (rep != null)
+        {
+            float progress = rep.GetProgressToNextReputationLevel01();
+            if (reputationProgressFillImage != null)
+            {
+                reputationProgressFillImage.fillAmount = progress;
+            }
+
+            if (reputationProgressSlider != null)
+            {
+                reputationProgressSlider.value = progress;
+            }
         }
 
         if (upkeepText != null && hunters != null)
