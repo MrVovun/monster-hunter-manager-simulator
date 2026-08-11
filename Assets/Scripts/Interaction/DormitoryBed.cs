@@ -75,6 +75,26 @@ public class DormitoryBed : Interactable
             && tm.GetDayState() == TimeManager.DayState.Active;
     }
 
+    public override bool TryGetUnavailableReason(out string reason)
+    {
+        if (base.TryGetUnavailableReason(out reason)) return true;
+
+        if (dirtyDayCount <= 0)
+        {
+            reason = "This bed is already clean.";
+            return true;
+        }
+
+        var tm = GameManager.Instance != null ? GameManager.Instance.GetTimeManager() : null;
+        if (tm == null || tm.GetDayState() != TimeManager.DayState.Active)
+        {
+            reason = "Sheets can only be changed during the workday.";
+            return true;
+        }
+
+        return false;
+    }
+
     public override void Interact(PlayerInteraction player)
     {
         if (dormitoryManager == null)

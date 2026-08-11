@@ -14,6 +14,9 @@ public class HunterManager : MonoBehaviour
         public int xp;
         public int weaponId = -1;
         public bool hasWeaponOverride;
+        public int morningDialogueDay = -1;
+        public string morningDialogueLineId;
+        public bool morningDialogueAsked;
     }
 
     [System.Serializable]
@@ -28,6 +31,23 @@ public class HunterManager : MonoBehaviour
         public string hunterId;
         public int weaponId;
     }
+
+    [System.Serializable]
+    private class MorningDialogueSaveData
+    {
+        public List<MorningDialogueSaveEntry> entries = new List<MorningDialogueSaveEntry>();
+    }
+
+    [System.Serializable]
+    private class MorningDialogueSaveEntry
+    {
+        public string hunterId;
+        public int day;
+        public string lineId;
+        public bool asked;
+    }
+
+    private const string MorningDialogueSaveKey = "HunterMorningDialogueState";
 
     [Header("Hunter Database")]
     [SerializeField] private List<HunterData> allHunterData = new List<HunterData>();
@@ -110,6 +130,7 @@ public class HunterManager : MonoBehaviour
     {
         equipmentSavePath = GameSaveUtility.GetSavePath("hunter_equipment_state.json");
         LoadEquipmentOverrides();
+        LoadMorningDialogueState();
         BuildHunterLookup();
 
         if (hunterSpawnPoint == null)
@@ -704,20 +725,26 @@ public class HunterManager : MonoBehaviour
     public void LoadHunterSaveStates(IEnumerable<HunterSaveState> states)
     {
         hunterSaveStates.Clear();
-        if (states == null) return;
-
-        foreach (var state in states)
+        if (states != null)
         {
-            if (state == null || string.IsNullOrEmpty(state.hunterId)) continue;
-            hunterSaveStates[state.hunterId] = new HunterSaveState
+            foreach (var state in states)
             {
-                hunterId = state.hunterId,
-                level = Mathf.Max(1, state.level),
-                xp = Mathf.Max(0, state.xp),
-                weaponId = state.weaponId,
-                hasWeaponOverride = state.hasWeaponOverride
-            };
+                if (state == null || string.IsNullOrEmpty(state.hunterId)) continue;
+                hunterSaveStates[state.hunterId] = new HunterSaveState
+                {
+                    hunterId = state.hunterId,
+                    level = Mathf.Max(1, state.level),
+                    xp = Mathf.Max(0, state.xp),
+                    weaponId = state.weaponId,
+                    hasWeaponOverride = state.hasWeaponOverride,
+                    morningDialogueDay = state.morningDialogueDay,
+                    morningDialogueLineId = state.morningDialogueLineId,
+                    morningDialogueAsked = state.morningDialogueAsked
+                };
+            }
         }
+
+        LoadMorningDialogueState();
     }
 
     public List<HunterSaveState> GetHunterSaveStates()
@@ -735,7 +762,10 @@ public class HunterManager : MonoBehaviour
                 level = state.level,
                 xp = state.xp,
                 weaponId = state.weaponId,
-                hasWeaponOverride = state.hasWeaponOverride
+                hasWeaponOverride = state.hasWeaponOverride,
+                morningDialogueDay = state.morningDialogueDay,
+                morningDialogueLineId = state.morningDialogueLineId,
+                morningDialogueAsked = state.morningDialogueAsked
             })
             .ToList();
     }
@@ -743,14 +773,265 @@ public class HunterManager : MonoBehaviour
     private void CaptureHunterState(Hunter hunter)
     {
         if (hunter == null || hunter.Data == null || string.IsNullOrEmpty(hunter.Data.hunterId)) return;
+        hunterSaveStates.TryGetValue(hunter.Data.hunterId, out var existingState);
         hunterSaveStates[hunter.Data.hunterId] = new HunterSaveState
         {
             hunterId = hunter.Data.hunterId,
             level = Mathf.Max(1, hunter.GetLevel()),
             xp = Mathf.Max(0, hunter.GetXP()),
             weaponId = hunter.GetSavedWeaponOverride(),
-            hasWeaponOverride = hunter.GetSavedWeaponOverride() >= 0
+            hasWeaponOverride = hunter.GetSavedWeaponOverride() >= 0,
+            morningDialogueDay = existingState != null ? existingState.morningDialogueDay : -1,
+            morningDialogueLineId = existingState != null ? existingState.morningDialogueLineId : null,
+            morningDialogueAsked = existingState != null && existingState.morningDialogueAsked
         };
+    }
+
+    public string GetMorningDialogueAnswer(Hunter hunter, string repeatPrefix, out bool alreadyAsked)
+    {
+        alreadyAsked = false;
+        if (hunter == null || hunter.Data == null) return string.Empty;
+
+        HunterSaveState state = GetOrCreateHunterSaveState(hunter);
+        int dayIndex = GetCurrentDayIndex();
+        if (state.morningDialogueDay != dayIndex || string.IsNullOrWhiteSpace(state.morningDialogueLineId))
+        {
+            RollMorningDialogueLine(hunter, state, dayIndex);
+        }
+
+        alreadyAsked = state.morningDialogueAsked;
+        string line = ResolveMorningDialogueText(hunter.Data, state.morningDialogueLineId);
+        if (string.IsNullOrWhiteSpace(line))
+        {
+            line = "Nothing new today.";
+        }
+
+        return alreadyAsked && !string.IsNullOrWhiteSpace(repeatPrefix)
+            ? $"{repeatPrefix} {line}"
+            : line;
+    }
+
+    public void MarkMorningDialogueAsked(Hunter hunter)
+    {
+        if (hunter == null || hunter.Data == null) return;
+        HunterSaveState state = GetOrCreateHunterSaveState(hunter);
+        int dayIndex = GetCurrentDayIndex();
+        if (state.morningDialogueDay != dayIndex || string.IsNullOrWhiteSpace(state.morningDialogueLineId))
+        {
+            RollMorningDialogueLine(hunter, state, dayIndex);
+        }
+
+        state.morningDialogueAsked = true;
+        CaptureHunterState(hunter);
+        SaveMorningDialogueState();
+    }
+
+    private HunterSaveState GetOrCreateHunterSaveState(Hunter hunter)
+    {
+        string hunterId = hunter.Data.hunterId;
+        if (!hunterSaveStates.TryGetValue(hunterId, out var state) || state == null)
+        {
+            state = new HunterSaveState
+            {
+                hunterId = hunterId,
+                level = Mathf.Max(1, hunter.GetLevel()),
+                xp = Mathf.Max(0, hunter.GetXP()),
+                weaponId = hunter.GetSavedWeaponOverride(),
+                hasWeaponOverride = hunter.GetSavedWeaponOverride() >= 0,
+                morningDialogueDay = -1
+            };
+            hunterSaveStates[hunterId] = state;
+        }
+
+        return state;
+    }
+
+    private void RollMorningDialogueLine(Hunter hunter, HunterSaveState state, int dayIndex)
+    {
+        state.morningDialogueDay = dayIndex;
+        state.morningDialogueAsked = false;
+        state.morningDialogueLineId = PickMorningDialogueLineId(hunter);
+        SaveMorningDialogueState();
+    }
+
+    private string PickMorningDialogueLineId(Hunter hunter)
+    {
+        var lines = hunter?.Data?.morningDialogueLines;
+        if (lines == null || lines.Count == 0) return string.Empty;
+
+        List<int> eligible = new List<int>();
+        int totalWeight = 0;
+        for (int i = 0; i < lines.Count; i++)
+        {
+            var line = lines[i];
+            if (line == null || string.IsNullOrWhiteSpace(line.responseText)) continue;
+            if (!IsMorningDialogueLineEligible(hunter, line)) continue;
+
+            eligible.Add(i);
+            totalWeight += Mathf.Max(1, line.weight);
+        }
+
+        if (eligible.Count == 0)
+        {
+            for (int i = 0; i < lines.Count; i++)
+            {
+                var line = lines[i];
+                if (line == null || string.IsNullOrWhiteSpace(line.responseText)) continue;
+                if (line.condition != HunterData.MorningDialogueCondition.Always) continue;
+
+                eligible.Add(i);
+                totalWeight += Mathf.Max(1, line.weight);
+            }
+        }
+
+        if (eligible.Count == 0) return string.Empty;
+
+        int roll = Random.Range(0, Mathf.Max(1, totalWeight));
+        foreach (int index in eligible)
+        {
+            var line = lines[index];
+            roll -= Mathf.Max(1, line.weight);
+            if (roll < 0)
+            {
+                return GetMorningDialogueLineKey(line, index);
+            }
+        }
+
+        int fallbackIndex = eligible[0];
+        return GetMorningDialogueLineKey(lines[fallbackIndex], fallbackIndex);
+    }
+
+    private bool IsMorningDialogueLineEligible(Hunter hunter, HunterData.HunterMorningDialogueLine line)
+    {
+        switch (line.condition)
+        {
+            case HunterData.MorningDialogueCondition.Always:
+                return true;
+            case HunterData.MorningDialogueCondition.Unpaid:
+                return GameManager.Instance != null && GameManager.Instance.GetUnpaidUpkeepStreak() > 0;
+            case HunterData.MorningDialogueCondition.NotFed:
+                return KitchenManager.Instance != null && !KitchenManager.Instance.IsHunterFed(hunter);
+            case HunterData.MorningDialogueCondition.Wounded:
+                var state = hunter != null ? hunter.GetComponent<HunterInteractionState>() : null;
+                return state != null && (state.IsWounded || state.IsHealing);
+            case HunterData.MorningDialogueCondition.ReadyToLevelUp:
+                return hunter != null && hunter.CanLevelUp();
+            case HunterData.MorningDialogueCondition.OrderWithMonsterPresent:
+                return IsOrderWithMonsterPresent(line.monster);
+            default:
+                return false;
+        }
+    }
+
+    private bool IsOrderWithMonsterPresent(MonsterData monster)
+    {
+        if (monster == null || GameManager.Instance == null) return false;
+        OrderManager orderManager = GameManager.Instance.GetOrderManager();
+        if (orderManager == null) return false;
+
+        foreach (var order in orderManager.GetActiveOrders())
+        {
+            if (OrderMatchesMonster(order, monster)) return true;
+        }
+
+        foreach (var order in orderManager.GetOfferedOrders())
+        {
+            if (OrderMatchesMonster(order, monster)) return true;
+        }
+
+        return false;
+    }
+
+    private static bool OrderMatchesMonster(Order order, MonsterData monster)
+    {
+        if (order == null || monster == null) return false;
+        return order.monsterData == monster || order.declaredMonster == monster;
+    }
+
+    private string ResolveMorningDialogueText(HunterData data, string lineId)
+    {
+        if (data == null || data.morningDialogueLines == null || string.IsNullOrWhiteSpace(lineId)) return string.Empty;
+
+        for (int i = 0; i < data.morningDialogueLines.Count; i++)
+        {
+            var line = data.morningDialogueLines[i];
+            if (line == null) continue;
+            if (string.Equals(GetMorningDialogueLineKey(line, i), lineId, System.StringComparison.OrdinalIgnoreCase))
+            {
+                return line.responseText;
+            }
+        }
+
+        return string.Empty;
+    }
+
+    private static string GetMorningDialogueLineKey(HunterData.HunterMorningDialogueLine line, int index)
+    {
+        if (line != null && !string.IsNullOrWhiteSpace(line.lineId)) return line.lineId;
+        return $"line_{index}";
+    }
+
+    private int GetCurrentDayIndex()
+    {
+        TimeManager timeManager = GameManager.Instance != null ? GameManager.Instance.GetTimeManager() : null;
+        return timeManager != null ? timeManager.GetCurrentDayIndex() : 0;
+    }
+
+    private void LoadMorningDialogueState()
+    {
+        if (!PlayerPrefs.HasKey(MorningDialogueSaveKey)) return;
+
+        try
+        {
+            MorningDialogueSaveData data = JsonUtility.FromJson<MorningDialogueSaveData>(PlayerPrefs.GetString(MorningDialogueSaveKey));
+            if (data?.entries == null) return;
+
+            foreach (var entry in data.entries)
+            {
+                if (entry == null || string.IsNullOrWhiteSpace(entry.hunterId)) continue;
+                if (!hunterSaveStates.TryGetValue(entry.hunterId, out var state) || state == null)
+                {
+                    state = new HunterSaveState
+                    {
+                        hunterId = entry.hunterId,
+                        level = 1,
+                        xp = 0,
+                        weaponId = -1,
+                        morningDialogueDay = -1
+                    };
+                    hunterSaveStates[entry.hunterId] = state;
+                }
+
+                state.morningDialogueDay = entry.day;
+                state.morningDialogueLineId = entry.lineId;
+                state.morningDialogueAsked = entry.asked;
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogWarning($"HunterManager: Failed to load morning dialogue state. {ex.Message}", this);
+        }
+    }
+
+    private void SaveMorningDialogueState()
+    {
+        MorningDialogueSaveData data = new MorningDialogueSaveData();
+        foreach (var state in hunterSaveStates.Values)
+        {
+            if (state == null || string.IsNullOrWhiteSpace(state.hunterId)) continue;
+            if (state.morningDialogueDay < 0 || string.IsNullOrWhiteSpace(state.morningDialogueLineId)) continue;
+
+            data.entries.Add(new MorningDialogueSaveEntry
+            {
+                hunterId = state.hunterId,
+                day = state.morningDialogueDay,
+                lineId = state.morningDialogueLineId,
+                asked = state.morningDialogueAsked
+            });
+        }
+
+        PlayerPrefs.SetString(MorningDialogueSaveKey, JsonUtility.ToJson(data));
+        PlayerPrefs.Save();
     }
 
     private void ApplySavedHunterState(Hunter hunter)

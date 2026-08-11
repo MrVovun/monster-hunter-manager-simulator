@@ -23,7 +23,27 @@ public class KitchenStoveInteractable : Interactable
     public override bool IsInteractionAvailable()
     {
         ResolveReferences();
-        return base.IsInteractionAvailable() && kitchenManager != null && kitchenManager.CanOpenRecipeUI();
+        return base.IsInteractionAvailable() && !HasBlockingState();
+    }
+
+    public override bool TryGetUnavailableReason(out string reason)
+    {
+        if (base.TryGetUnavailableReason(out reason)) return true;
+
+        ResolveReferences();
+        if (kitchenManager == null || recipeUI == null)
+        {
+            reason = "The kitchen is not ready.";
+            return true;
+        }
+
+        if (!kitchenManager.CanOpenRecipeUI())
+        {
+            reason = "The kitchen has not been built yet.";
+            return true;
+        }
+
+        return false;
     }
 
     public override void Interact(PlayerInteraction player)
@@ -53,5 +73,10 @@ public class KitchenStoveInteractable : Interactable
         {
             kitchenManager = KitchenManager.Instance != null ? KitchenManager.Instance : FindFirstObjectByType<KitchenManager>();
         }
+    }
+
+    private bool HasBlockingState()
+    {
+        return TryGetUnavailableReason(out _);
     }
 }

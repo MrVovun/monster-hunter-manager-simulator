@@ -13,6 +13,32 @@ public class ClientBell : Interactable
         locksPlayer = false;
     }
 
+    public override bool IsInteractionAvailable()
+    {
+        return base.IsInteractionAvailable() && !HasBlockingState();
+    }
+
+    public override bool TryGetUnavailableReason(out string reason)
+    {
+        if (base.TryGetUnavailableReason(out reason)) return true;
+
+        var manager = ResolveInvestigationManager();
+        if (manager != null && manager.HasActiveClientInvestigation())
+        {
+            reason = "A client is already waiting.";
+            return true;
+        }
+
+        var timeManager = GameManager.Instance != null ? GameManager.Instance.GetTimeManager() : null;
+        if (timeManager != null && timeManager.GetDayState() == TimeManager.DayState.Evening)
+        {
+            reason = "Clients cannot be called in the evening.";
+            return true;
+        }
+
+        return false;
+    }
+
     public override void Interact(PlayerInteraction player)
     {
         var manager = ResolveInvestigationManager();
@@ -42,6 +68,9 @@ public class ClientBell : Interactable
             bellAudio.Play();
         }
 
+        MainHallFloorDirtManager floorDirt = MainHallFloorDirtManager.Instance;
+        floorDirt?.AddClientArrivalDirt();
+
         if (manager == null || generator == null)
         {
             Debug.LogWarning("ClientBell: Missing InvestigationManager or OrderGenerator reference.");
@@ -59,6 +88,7 @@ public class ClientBell : Interactable
             return;
         }
 
+        floorDirt?.ApplyRewardPenalty(newOrder);
         manager.StartInvestigation(newOrder);
         TutorialManager.ReportEvent(TutorialIds.EventClientBellRung);
 
@@ -88,5 +118,10 @@ public class ClientBell : Interactable
         if (orderGenerator != null) return orderGenerator;
         orderGenerator = GameManager.Instance != null ? GameManager.Instance.GetOrderGenerator() : null;
         return orderGenerator;
+    }
+
+    private bool HasBlockingState()
+    {
+        return TryGetUnavailableReason(out _);
     }
 }

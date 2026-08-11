@@ -44,6 +44,7 @@ public class HunterData : ScriptableObject
     [TextArea(2, 4)] public string healLine;
     [TextArea(2, 4)] public string goodbyeLine;
     public List<HunterDialogueQuestion> dialogueQuestions = new List<HunterDialogueQuestion>();
+    public List<HunterMorningDialogueLine> morningDialogueLines = new List<HunterMorningDialogueLine>();
 
     
     // Calculated stats (base + level bonuses)
@@ -135,6 +136,28 @@ public class HunterData : ScriptableObject
     {
         [Min(2)] public int level = 2;
         [Min(1)] public int requiredXP = 100;
+    }
+
+    public enum MorningDialogueCondition
+    {
+        Always,
+        Unpaid,
+        NotFed,
+        Wounded,
+        ReadyToLevelUp,
+        OrderWithMonsterPresent
+    }
+
+    [System.Serializable]
+    public class HunterMorningDialogueLine
+    {
+        [Tooltip("Optional stable id for save/load. If empty, the line index is used.")]
+        public string lineId;
+        public MorningDialogueCondition condition = MorningDialogueCondition.Always;
+        [Tooltip("Used only for Order With Monster Present.")]
+        public MonsterData monster;
+        [Min(1)] public int weight = 1;
+        [TextArea(2, 5)] public string responseText;
     }
 
     public static GlobalHunterConfig GetGlobalConfig()

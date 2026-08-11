@@ -135,13 +135,13 @@ public class HuntersTab : MonoBehaviour
         GoldManager gold = GameManager.Instance != null ? GameManager.Instance.GetGoldManager() : null;
         if (manager == null || gold == null || selectedHunter == null)
         {
-            SetLevelUpButtonInteractable(false);
+            SetLevelUpButtonInteractable(false, "Select a hunter first.");
             RefreshLevelUpPriceText(null, gold);
             return;
         }
 
         bool canLevelSelected = selectedHunter.CanLevelUp() && gold.GetGold() >= selectedHunter.GetLevelUpCost();
-        SetLevelUpButtonInteractable(canLevelSelected);
+        SetLevelUpButtonInteractable(canLevelSelected, GetLevelUpUnavailableReason(selectedHunter, gold));
         RefreshLevelUpPriceText(selectedHunter, gold);
     }
 
@@ -151,13 +151,21 @@ public class HuntersTab : MonoBehaviour
 
         HunterManager manager = GameManager.Instance != null ? GameManager.Instance.GetHunterManager() : null;
         bool canFire = manager != null && selectedHunter != null && manager.CanFireHunter(selectedHunter);
-        SetFireButtonInteractable(canFire);
+        SetFireButtonInteractable(canFire, GetFireUnavailableReason(manager));
     }
 
-    private void SetLevelUpButtonInteractable(bool value)
+    private void SetLevelUpButtonInteractable(bool value, string unavailableReason = null)
     {
         if (levelUpButton == null) return;
         levelUpButton.interactable = value;
+        if (value)
+        {
+            UnavailableReasonButton.ClearReason(levelUpButton);
+        }
+        else
+        {
+            UnavailableReasonButton.SetReason(levelUpButton, unavailableReason);
+        }
         var visualFeedback = levelUpButton.GetComponent<UIButtonVisualFeedback>();
         if (visualFeedback != null)
         {
@@ -208,13 +216,47 @@ public class HuntersTab : MonoBehaviour
         }
     }
 
-    private void SetFireButtonInteractable(bool value)
+    private void SetFireButtonInteractable(bool value, string unavailableReason = null)
     {
+        if (fireButton == null) return;
         fireButton.interactable = value;
+        if (value)
+        {
+            UnavailableReasonButton.ClearReason(fireButton);
+        }
+        else
+        {
+            UnavailableReasonButton.SetReason(fireButton, unavailableReason);
+        }
         var visualFeedback = fireButton.GetComponent<UIButtonVisualFeedback>();
         if (visualFeedback != null)
         {
             visualFeedback.RefreshVisualState(true);
         }
+    }
+
+    private string GetLevelUpUnavailableReason(Hunter hunter, GoldManager gold)
+    {
+        if (hunter == null) return "Select a hunter first.";
+        int xpForNext = hunter.GetXPToNextLevel();
+        if (xpForNext == int.MaxValue) return "This hunter is already at max level.";
+        int xpNeeded = Mathf.Max(0, xpForNext - hunter.GetXP());
+        if (!hunter.CanLevelUp()) return $"Needs {xpNeeded} more XP.";
+
+        int cost = hunter.GetLevelUpCost();
+        int currentGold = gold != null ? gold.GetGold() : 0;
+        if (currentGold < cost) return $"Needs {cost} gold. You have {currentGold}.";
+
+        return "Cannot level up this hunter right now.";
+    }
+
+    private string GetFireUnavailableReason(HunterManager manager)
+    {
+        if (selectedHunter == null) return "Select a hunter first.";
+        if (manager == null) return "Hunter manager is not ready.";
+        if (selectedHunter.GetState() == HunterState.OnMission) return "Hunters on orders cannot be fired.";
+        if (selectedHunter.GetState() == HunterState.Dead) return "Dead hunters cannot be fired.";
+        if (selectedHunter.GetState() == HunterState.Candidate) return "Candidates cannot be fired.";
+        return "This hunter cannot be fired right now.";
     }
 }

@@ -164,6 +164,8 @@ public class OrderManager : MonoBehaviour
             }
         }
 
+        MainHallFloorDirtManager.Instance?.AddHunterDepartureDirt(party.Count);
+
         // Apply mission time modifiers from monster traits
         var outcome = MissionOutcomeCalculator.Evaluate(order, party);
         if (outcome != null && outcome.MissionTimeMultiplier > 0f)

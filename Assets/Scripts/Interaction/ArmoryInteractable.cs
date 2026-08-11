@@ -23,10 +23,34 @@ public class ArmoryInteractable : Interactable
     public override bool IsInteractionAvailable()
     {
         ResolveReferences();
-        return base.IsInteractionAvailable()
-            && armoryManager != null
-            && armoryUI != null
-            && armoryManager.CanOpenArmory();
+        return base.IsInteractionAvailable() && !HasBlockingState();
+    }
+
+    public override bool TryGetUnavailableReason(out string reason)
+    {
+        if (base.TryGetUnavailableReason(out reason)) return true;
+
+        ResolveReferences();
+        if (armoryManager == null || armoryUI == null)
+        {
+            reason = "The armory is not ready.";
+            return true;
+        }
+
+        if (!armoryManager.CanOpenArmory())
+        {
+            var timeManager = GameManager.Instance != null ? GameManager.Instance.GetTimeManager() : null;
+            if (timeManager != null && timeManager.GetDayState() == TimeManager.DayState.Evening)
+            {
+                reason = "The armory is closed in the evening.";
+                return true;
+            }
+
+            reason = "The armory has not been built yet.";
+            return true;
+        }
+
+        return false;
     }
 
     public override void Interact(PlayerInteraction player)
@@ -63,5 +87,10 @@ public class ArmoryInteractable : Interactable
         {
             armoryManager = FindObjectOfType<ArmoryManager>(true);
         }
+    }
+
+    private bool HasBlockingState()
+    {
+        return TryGetUnavailableReason(out _);
     }
 }

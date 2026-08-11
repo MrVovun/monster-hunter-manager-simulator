@@ -13,11 +13,34 @@ public class BedInteractable : Interactable
         locksPlayer = false;
     }
 
+    public override bool IsInteractionAvailable()
+    {
+        return base.IsInteractionAvailable() && !HasBlockingState();
+    }
+
+    public override bool TryGetUnavailableReason(out string reason)
+    {
+        if (base.TryGetUnavailableReason(out reason)) return true;
+
+        ResolveReferences();
+        if (timeManager == null || timeManager.GetDayState() != TimeManager.DayState.Evening)
+        {
+            reason = "You can only sleep in the evening.";
+            return true;
+        }
+
+        if (orderManager != null && orderManager.HasInProgressOrders())
+        {
+            reason = "Cannot sleep while orders are still in progress.";
+            return true;
+        }
+
+        return false;
+    }
+
     public override void Interact(PlayerInteraction player)
     {
-        gm = GameManager.Instance;
-        orderManager = gm != null ? gm.GetOrderManager() : null;
-        timeManager = gm != null ? gm.GetTimeManager() : null;
+        ResolveReferences();
 
         if (timeManager == null || timeManager.GetDayState() != TimeManager.DayState.Evening)
         {
@@ -54,5 +77,17 @@ public class BedInteractable : Interactable
         {
             gm.HandleEndOfDaySleep();
         }
+    }
+
+    private void ResolveReferences()
+    {
+        gm = GameManager.Instance;
+        orderManager = gm != null ? gm.GetOrderManager() : null;
+        timeManager = gm != null ? gm.GetTimeManager() : null;
+    }
+
+    private bool HasBlockingState()
+    {
+        return TryGetUnavailableReason(out _);
     }
 }

@@ -18,6 +18,33 @@ public class BriefingBellInteractable : Interactable
         return base.IsInteractionAvailable() && manager != null && manager.CanCallHunters();
     }
 
+    public override bool TryGetUnavailableReason(out string reason)
+    {
+        if (base.TryGetUnavailableReason(out reason)) return true;
+
+        var manager = ResolveManager();
+        if (manager == null)
+        {
+            reason = "The briefing room is not ready.";
+            return true;
+        }
+
+        if (!manager.CanCallHunters())
+        {
+            var timeManager = GameManager.Instance != null ? GameManager.Instance.GetTimeManager() : null;
+            if (timeManager != null && timeManager.GetDayState() != TimeManager.DayState.PreBell)
+            {
+                reason = "Briefings can only be called before the workday starts.";
+                return true;
+            }
+
+            reason = "The briefing bell was already used today.";
+            return true;
+        }
+
+        return false;
+    }
+
     public override void Interact(PlayerInteraction player)
     {
         var manager = ResolveManager();

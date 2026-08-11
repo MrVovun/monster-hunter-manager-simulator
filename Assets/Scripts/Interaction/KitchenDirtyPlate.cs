@@ -33,6 +33,20 @@ public class KitchenDirtyPlate : Interactable
         return base.IsInteractionAvailable() && tm != null && tm.GetDayState() == TimeManager.DayState.Active;
     }
 
+    public override bool TryGetUnavailableReason(out string reason)
+    {
+        if (base.TryGetUnavailableReason(out reason)) return true;
+
+        var tm = GameManager.Instance != null ? GameManager.Instance.GetTimeManager() : null;
+        if (tm == null || tm.GetDayState() != TimeManager.DayState.Active)
+        {
+            reason = "Plates can only be cleaned during the workday.";
+            return true;
+        }
+
+        return false;
+    }
+
     public override void Interact(PlayerInteraction player)
     {
         if (kitchenManager == null)

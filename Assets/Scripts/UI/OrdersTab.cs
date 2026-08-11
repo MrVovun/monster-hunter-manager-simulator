@@ -284,11 +284,28 @@ public class OrdersTab : MonoBehaviour
         OrderManager orderManager = GameManager.Instance != null ? GameManager.Instance.GetOrderManager() : null;
         bool canCancel = orderManager != null && orderManager.CanCancelOrder(selectedOrder);
         cancelOrderButton.interactable = canCancel;
+        if (canCancel)
+        {
+            UnavailableReasonButton.ClearReason(cancelOrderButton);
+        }
+        else
+        {
+            UnavailableReasonButton.SetReason(cancelOrderButton, GetCancelOrderUnavailableReason(orderManager));
+        }
         var visualFeedback = cancelOrderButton.GetComponent<UIButtonVisualFeedback>();
         if (visualFeedback != null)
         {
             visualFeedback.RefreshVisualState(true);
         }
+    }
+
+    private string GetCancelOrderUnavailableReason(OrderManager orderManager)
+    {
+        if (orderManager == null) return "Orders are not ready.";
+        if (selectedOrder == null) return "Select an order first.";
+        if (selectedOrder.state == OrderState.InProgress) return "Orders in progress cannot be cancelled.";
+        if (selectedOrder.state == OrderState.Completed) return "Completed orders cannot be cancelled.";
+        return "This order cannot be cancelled right now.";
     }
 
     private void RefreshOrderListSelection()

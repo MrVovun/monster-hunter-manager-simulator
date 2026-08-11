@@ -21,6 +21,11 @@ public class HunterInteractable : Interactable
     [SerializeField] private Vector3 faceLookOffset = new Vector3(0f, 0.02f, 0f);
     [SerializeField] private bool hideNotificationsDuringDialogue = true;
     [SerializeField] private GameObject healVfx;
+    [Header("Morning Flavor")]
+    [SerializeField] private bool injectMorningDialogueOption = true;
+    [SerializeField] private string morningDialogueQuestionId = "morning_whats_new";
+    [SerializeField] private string morningDialogueQuestionText = "What's new?";
+    [SerializeField] private string repeatedMorningDialoguePrefix = "As I said earlier,";
     [Header("Card Game")]
     [SerializeField] private CardGameUI cardGameUI;
     [SerializeField] private bool injectCardGameDialogueOption = true;
@@ -94,6 +99,51 @@ public class HunterInteractable : Interactable
         return state != HunterState.OnMission && state != HunterState.Dead && state != HunterState.Healing && state != HunterState.Sleeping && state != HunterState.Armory;
     }
 
+    public override bool TryGetUnavailableReason(out string reason)
+    {
+        if (base.TryGetUnavailableReason(out reason)) return true;
+
+        if (interactionDisabled)
+        {
+            reason = "They are not ready to talk yet.";
+            return true;
+        }
+
+        if (awaitingRelease)
+        {
+            reason = "You are already talking to them.";
+            return true;
+        }
+
+        if (ownerHunter == null)
+        {
+            ownerHunter = GetComponent<Hunter>();
+        }
+
+        if (ownerHunter == null) return false;
+
+        switch (ownerHunter.GetState())
+        {
+            case HunterState.OnMission:
+                reason = "They are away on an order.";
+                return true;
+            case HunterState.Dead:
+                reason = "They are dead.";
+                return true;
+            case HunterState.Healing:
+                reason = "They are being treated.";
+                return true;
+            case HunterState.Sleeping:
+                reason = "They are sleeping.";
+                return true;
+            case HunterState.Armory:
+                reason = "They are using the armory.";
+                return true;
+        }
+
+        return false;
+    }
+
     public override void Interact(PlayerInteraction player)
     {
         if (interactionDisabled) return;
@@ -160,11 +210,22 @@ public class HunterInteractable : Interactable
         var hunterData = ownerHunter != null ? ownerHunter.Data : null;
         List<InvestigationQuestion> questionList = new List<InvestigationQuestion>();
         Dictionary<string, string> answers = new Dictionary<string, string>(System.StringComparer.OrdinalIgnoreCase);
+
+        if (CanInjectMorningDialogue(hunterData))
+        {
+            var morning = ScriptableObject.CreateInstance<InvestigationQuestion>();
+            morning.questionId = morningDialogueQuestionId;
+            morning.promptText = morningDialogueQuestionText;
+            answers[morning.questionId] = BuildMorningDialogueAnswer();
+            questionList.Add(morning);
+        }
+
         if (hunterData != null && hunterData.dialogueQuestions != null)
         {
             foreach (var hq in hunterData.dialogueQuestions)
             {
                 if (hq == null) continue;
+                if (IsManualMorningDialogueDuplicate(hq)) continue;
                 var q = ScriptableObject.CreateInstance<InvestigationQuestion>();
                 q.questionId = hq.questionId;
                 q.promptText = hq.questionText;
@@ -328,6 +389,13 @@ public class HunterInteractable : Interactable
     private void HandleQuestionSelected(InvestigationQuestion question)
     {
         if (question == null) return;
+        if (IsMorningDialogueQuestion(question.questionId))
+        {
+            HunterManager hunterManager = GameManager.Instance != null ? GameManager.Instance.GetHunterManager() : null;
+            hunterManager?.MarkMorningDialogueAsked(ownerHunter);
+            return;
+        }
+
         if (question.questionId == "goodbye")
         {
             investigationManager?.CompleteInvestigation();
@@ -354,6 +422,37 @@ public class HunterInteractable : Interactable
     {
         return !string.IsNullOrWhiteSpace(questionId) &&
                string.Equals(questionId, cardGameQuestionId, System.StringComparison.OrdinalIgnoreCase);
+    }
+
+    private bool CanInjectMorningDialogue(HunterData hunterData)
+    {
+        return injectMorningDialogueOption
+            && hunterData != null
+            && !string.IsNullOrWhiteSpace(morningDialogueQuestionText);
+    }
+
+    private bool IsManualMorningDialogueDuplicate(HunterDialogueQuestion question)
+    {
+        if (!injectMorningDialogueOption || question == null) return false;
+        if (string.IsNullOrWhiteSpace(question.questionText) || string.IsNullOrWhiteSpace(morningDialogueQuestionText)) return false;
+        return string.Equals(question.questionText.Trim(), morningDialogueQuestionText.Trim(), System.StringComparison.OrdinalIgnoreCase);
+    }
+
+    private string BuildMorningDialogueAnswer()
+    {
+        HunterManager hunterManager = GameManager.Instance != null ? GameManager.Instance.GetHunterManager() : null;
+        if (hunterManager == null || ownerHunter == null)
+        {
+            return "Nothing new today.";
+        }
+
+        return hunterManager.GetMorningDialogueAnswer(ownerHunter, repeatedMorningDialoguePrefix, out _);
+    }
+
+    private bool IsMorningDialogueQuestion(string questionId)
+    {
+        return !string.IsNullOrWhiteSpace(questionId) &&
+               string.Equals(questionId, morningDialogueQuestionId, System.StringComparison.OrdinalIgnoreCase);
     }
 
     private void OpenCardGameAfterDialogueResponse()

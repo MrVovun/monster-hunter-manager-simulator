@@ -40,6 +40,12 @@ public class PlayerInteraction : MonoBehaviour
 
         if (WasInteractPressed() && currentInteractable != null)
         {
+            if (!currentInteractable.IsInteractionAvailable())
+            {
+                InteractionPromptUI.Instance?.ShowPrompt(currentInteractable.GetUnavailablePrompt());
+                return;
+            }
+
             currentInteractable.Interact(this);
             if (InteractionPromptUI.Instance != null)
             {
@@ -69,7 +75,7 @@ public class PlayerInteraction : MonoBehaviour
         if (Physics.Raycast(ray, out RaycastHit hit, interactionRange, interactionMask, QueryTriggerInteraction.Collide))
         {
             Interactable interactable = hit.collider.GetComponentInParent<Interactable>();
-            if (interactable != null && interactable.IsInteractionAvailable())
+            if (interactable != null && interactable.isActiveAndEnabled)
             {
                 if (interactable != currentInteractable)
                 {
@@ -109,9 +115,7 @@ public class PlayerInteraction : MonoBehaviour
             }
             else
             {
-                currentInteractable.OnPlayerExit();
-                currentInteractable = null;
-                InteractionPromptUI.Instance.HidePrompt();
+                InteractionPromptUI.Instance.ShowPrompt(currentInteractable.GetUnavailablePrompt());
             }
         }
         else

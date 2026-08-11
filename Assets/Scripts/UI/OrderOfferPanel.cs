@@ -239,10 +239,10 @@ public class OrderOfferPanel : MonoBehaviour
     {
         bool declarationValid = currentOrder != null && currentOrder.declaredMonster != null;
         bool limitAllowsAccept = declarationValid && CanAcceptAnotherOrder();
-        SetButtonState(selectMonsterButton, activeInvestigation != null && TutorialManager.IsActionAllowed(TutorialIds.SelectMonster));
-        SetButtonState(acceptButton, limitAllowsAccept && TutorialManager.IsActionAllowed(TutorialIds.AcceptOrder));
-        SetButtonState(referButton, declarationValid && TutorialManager.IsActionAllowed(TutorialIds.ReferOrder));
-        SetButtonState(backButton, TutorialManager.IsActionAllowed(TutorialIds.DeclineOrder));
+        SetButtonState(selectMonsterButton, activeInvestigation != null && TutorialManager.IsActionAllowed(TutorialIds.SelectMonster), GetSelectMonsterUnavailableReason());
+        SetButtonState(acceptButton, limitAllowsAccept && TutorialManager.IsActionAllowed(TutorialIds.AcceptOrder), GetAcceptUnavailableReason(declarationValid));
+        SetButtonState(referButton, declarationValid && TutorialManager.IsActionAllowed(TutorialIds.ReferOrder), GetReferUnavailableReason(declarationValid));
+        SetButtonState(backButton, TutorialManager.IsActionAllowed(TutorialIds.DeclineOrder), "Unavailable during the current tutorial step.");
     }
 
     private OrderManager GetOrderManager()
@@ -473,10 +473,18 @@ public class OrderOfferPanel : MonoBehaviour
         return manager == null || manager.CanAcceptMoreOrders();
     }
 
-    private void SetButtonState(Button button, bool enabled)
+    private void SetButtonState(Button button, bool enabled, string unavailableReason = null)
     {
         if (button == null) return;
         button.interactable = enabled;
+        if (enabled)
+        {
+            UnavailableReasonButton.ClearReason(button);
+        }
+        else
+        {
+            UnavailableReasonButton.SetReason(button, unavailableReason);
+        }
 
         CanvasGroup group = button.GetComponent<CanvasGroup>();
         if (group != null)
@@ -489,6 +497,28 @@ public class OrderOfferPanel : MonoBehaviour
         {
             visualFeedback.RefreshVisualState(true);
         }
+    }
+
+    private string GetSelectMonsterUnavailableReason()
+    {
+        if (activeInvestigation == null) return "No active investigation.";
+        if (!TutorialManager.IsActionAllowed(TutorialIds.SelectMonster)) return "Unavailable during the current tutorial step.";
+        return "Cannot select a monster right now.";
+    }
+
+    private string GetAcceptUnavailableReason(bool declarationValid)
+    {
+        if (!TutorialManager.IsActionAllowed(TutorialIds.AcceptOrder)) return "Unavailable during the current tutorial step.";
+        if (!declarationValid) return "Select the suspected monster first.";
+        if (!CanAcceptAnotherOrder()) return "No more orders can be accepted right now.";
+        return "Cannot accept this order right now.";
+    }
+
+    private string GetReferUnavailableReason(bool declarationValid)
+    {
+        if (!TutorialManager.IsActionAllowed(TutorialIds.ReferOrder)) return "Unavailable during the current tutorial step.";
+        if (!declarationValid) return "Select the suspected monster first.";
+        return "Cannot refer this order right now.";
     }
 
     private void UpdateSuccessTelemetryHint()

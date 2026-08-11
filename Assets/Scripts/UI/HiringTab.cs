@@ -103,7 +103,16 @@ public class HiringTab : MonoBehaviour
         if (postAdButton != null)
         {
             postAdButton.gameObject.SetActive(!active);
-            postAdButton.interactable = !active && TutorialManager.IsActionAllowed(TutorialIds.PostHiringAd);
+            bool canPostAd = !active && CanPostHiringAd();
+            postAdButton.interactable = canPostAd;
+            if (canPostAd)
+            {
+                UnavailableReasonButton.ClearReason(postAdButton);
+            }
+            else
+            {
+                UnavailableReasonButton.SetReason(postAdButton, GetPostHiringAdUnavailableReason());
+            }
             var visualFeedback = postAdButton.GetComponent<UIButtonVisualFeedback>();
             if (visualFeedback != null)
             {
@@ -285,5 +294,38 @@ public class HiringTab : MonoBehaviour
             }
         }
         UpdateScalarUI();
+    }
+
+    private bool CanPostHiringAd()
+    {
+        if (recruitmentManager == null) return false;
+        if (!TutorialManager.IsActionAllowed(TutorialIds.PostHiringAd)) return false;
+
+        var gm = GameManager.Instance;
+        var tm = gm != null ? gm.GetTimeManager() : null;
+        if (tm != null && tm.GetDayState() != TimeManager.DayState.Active) return false;
+        if (gm != null && gm.GetUnpaidUpkeepStreak() >= 2) return false;
+
+        HunterManager hunterManager = gm != null ? gm.GetHunterManager() : null;
+        if (hunterManager != null && hunterManager.IsAtHunterLimit()) return false;
+
+        return true;
+    }
+
+    private string GetPostHiringAdUnavailableReason()
+    {
+        if (recruitmentManager == null) return "Hiring is not ready.";
+        if (recruitmentManager.IsCampaignActive) return "A hiring ad is already active.";
+        if (!TutorialManager.IsActionAllowed(TutorialIds.PostHiringAd)) return "Unavailable during the current tutorial step.";
+
+        var gm = GameManager.Instance;
+        var tm = gm != null ? gm.GetTimeManager() : null;
+        if (tm != null && tm.GetDayState() != TimeManager.DayState.Active) return "Hiring ads can only be posted during the workday.";
+        if (gm != null && gm.GetUnpaidUpkeepStreak() >= 2) return "Critical upkeep debt blocks new hiring ads.";
+
+        HunterManager hunterManager = gm != null ? gm.GetHunterManager() : null;
+        if (hunterManager != null && hunterManager.IsAtHunterLimit()) return "Hunter limit reached.";
+
+        return "Cannot post a hiring ad right now.";
     }
 }

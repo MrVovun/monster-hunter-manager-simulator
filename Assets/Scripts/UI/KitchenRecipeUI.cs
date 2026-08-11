@@ -145,7 +145,16 @@ public class KitchenRecipeUI : MonoBehaviour
         }
         if (chooseButton != null)
         {
-            chooseButton.interactable = manager != null && manager.CanChooseRecipe() && selectedRecipe != null;
+            bool canChoose = manager != null && manager.CanChooseRecipe() && selectedRecipe != null;
+            chooseButton.interactable = canChoose;
+            if (canChoose)
+            {
+                UnavailableReasonButton.ClearReason(chooseButton);
+            }
+            else
+            {
+                UnavailableReasonButton.SetReason(chooseButton, GetChooseRecipeUnavailableReason());
+            }
         }
     }
 
@@ -171,6 +180,21 @@ public class KitchenRecipeUI : MonoBehaviour
         }
 
         return "Kitchen unavailable.";
+    }
+
+    private string GetChooseRecipeUnavailableReason()
+    {
+        if (manager == null) return "Kitchen is not ready.";
+        if (selectedRecipe == null) return "Select a recipe first.";
+        if (manager.GetCurrentRecipe() != null) return "A meal is already cooking today.";
+
+        var tm = GameManager.Instance != null ? GameManager.Instance.GetTimeManager() : null;
+        if (tm != null && tm.GetDayState() != TimeManager.DayState.Active)
+        {
+            return "Recipes can only be chosen during the workday.";
+        }
+
+        return "Cannot choose a recipe right now.";
     }
 
     private void ClearList()

@@ -170,9 +170,10 @@ public class MonsterData : ScriptableObject
             if (response == null) continue;
             if (response.question != null && response.question != question) continue;
             if (!response.MatchesCategory(this, categoryName)) continue;
-            if (!string.IsNullOrWhiteSpace(response.responseText))
+            string pickedResponse = response.PickResponse();
+            if (!string.IsNullOrWhiteSpace(pickedResponse))
             {
-                return response.responseText;
+                return pickedResponse;
             }
         }
         return null;
@@ -184,7 +185,10 @@ public class MonsterData : ScriptableObject
         public InvestigationQuestion question;
         [Tooltip("Pick a tag category from this monster's evidence list. Leave unset to apply to any category.")]
         public int tagIndex = -1;
+        [Tooltip("Legacy/fallback answer. Used when Response Pool is empty.")]
         [TextArea(2, 4)] public string responseText;
+        [Tooltip("Weighted answer variants. Use this for broad/specific client answer rolls.")]
+        public List<WeightedQuestionResponse> responsePool = new List<WeightedQuestionResponse>();
 
         public bool MatchesCategory(MonsterData owner, string categoryName)
         {
@@ -206,5 +210,41 @@ public class MonsterData : ScriptableObject
 
             return string.Equals(entry.categoryName, categoryName, StringComparison.OrdinalIgnoreCase);
         }
+
+        public string PickResponse()
+        {
+            if (responsePool != null && responsePool.Count > 0)
+            {
+                int totalWeight = 0;
+                foreach (var entry in responsePool)
+                {
+                    if (entry == null || string.IsNullOrWhiteSpace(entry.responseText)) continue;
+                    totalWeight += Mathf.Max(1, entry.weight);
+                }
+
+                if (totalWeight > 0)
+                {
+                    int roll = UnityEngine.Random.Range(0, totalWeight);
+                    foreach (var entry in responsePool)
+                    {
+                        if (entry == null || string.IsNullOrWhiteSpace(entry.responseText)) continue;
+                        roll -= Mathf.Max(1, entry.weight);
+                        if (roll < 0)
+                        {
+                            return entry.responseText;
+                        }
+                    }
+                }
+            }
+
+            return responseText;
+        }
+    }
+
+    [Serializable]
+    public class WeightedQuestionResponse
+    {
+        [Min(1)] public int weight = 1;
+        [TextArea(2, 4)] public string responseText;
     }
 }

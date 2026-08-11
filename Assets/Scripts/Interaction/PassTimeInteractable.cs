@@ -17,6 +17,38 @@ public class PassTimeInteractable : Interactable
         locksPlayer = true;
     }
 
+    public override bool IsInteractionAvailable()
+    {
+        return base.IsInteractionAvailable() && !HasBlockingState();
+    }
+
+    public override bool TryGetUnavailableReason(out string reason)
+    {
+        if (base.TryGetUnavailableReason(out reason)) return true;
+
+        var tm = GameManager.Instance != null ? GameManager.Instance.GetTimeManager() : null;
+        if (tm == null)
+        {
+            reason = "The clock is not ready.";
+            return true;
+        }
+
+        TimeManager.DayState state = tm.GetDayState();
+        if (state == TimeManager.DayState.PreBell)
+        {
+            reason = "Time starts after the first client is called.";
+            return true;
+        }
+
+        if (state == TimeManager.DayState.Evening)
+        {
+            reason = "The workday is over.";
+            return true;
+        }
+
+        return false;
+    }
+
     public override void Interact(PlayerInteraction player)
     {
         if (passTimeUI != null)
@@ -61,5 +93,10 @@ public class PassTimeInteractable : Interactable
     public override string GetTutorialActionId()
     {
         return string.IsNullOrWhiteSpace(tutorialActionId) ? TutorialIds.PassTime : tutorialActionId;
+    }
+
+    private bool HasBlockingState()
+    {
+        return TryGetUnavailableReason(out _);
     }
 }

@@ -16,6 +16,7 @@ public class InvestigationCase
     public List<TagKnowledge> knownTags = new List<TagKnowledge>();
     public List<string> confirmedTraitIds = new List<string>();
     public List<EvidenceRecord> history = new List<EvidenceRecord>();
+    public List<QuestionResponseRoll> rolledQuestionResponses = new List<QuestionResponseRoll>();
 
     public MonsterData declaredMonster;
 
@@ -65,6 +66,56 @@ public class InvestigationCase
         }
     }
 
+    public bool TryGetRolledQuestionResponse(string questionId, string categoryName, string valueName, out string responseText)
+    {
+        responseText = null;
+        if (rolledQuestionResponses == null || string.IsNullOrWhiteSpace(questionId) || string.IsNullOrWhiteSpace(categoryName))
+        {
+            return false;
+        }
+
+        foreach (var roll in rolledQuestionResponses)
+        {
+            if (roll == null) continue;
+            if (!string.Equals(roll.questionId, questionId, StringComparison.OrdinalIgnoreCase)) continue;
+            if (!string.Equals(roll.categoryName, categoryName, StringComparison.OrdinalIgnoreCase)) continue;
+            if (!string.Equals(roll.valueName, valueName, StringComparison.OrdinalIgnoreCase)) continue;
+
+            responseText = roll.responseText;
+            return !string.IsNullOrWhiteSpace(responseText);
+        }
+
+        return false;
+    }
+
+    public void SetRolledQuestionResponse(string questionId, string categoryName, string valueName, string responseText)
+    {
+        if (string.IsNullOrWhiteSpace(questionId) || string.IsNullOrWhiteSpace(categoryName) || string.IsNullOrWhiteSpace(responseText)) return;
+        if (rolledQuestionResponses == null)
+        {
+            rolledQuestionResponses = new List<QuestionResponseRoll>();
+        }
+
+        foreach (var roll in rolledQuestionResponses)
+        {
+            if (roll == null) continue;
+            if (!string.Equals(roll.questionId, questionId, StringComparison.OrdinalIgnoreCase)) continue;
+            if (!string.Equals(roll.categoryName, categoryName, StringComparison.OrdinalIgnoreCase)) continue;
+            if (!string.Equals(roll.valueName, valueName, StringComparison.OrdinalIgnoreCase)) continue;
+
+            roll.responseText = responseText;
+            return;
+        }
+
+        rolledQuestionResponses.Add(new QuestionResponseRoll
+        {
+            questionId = questionId,
+            categoryName = categoryName,
+            valueName = valueName,
+            responseText = responseText
+        });
+    }
+
     [Serializable]
     public class TagKnowledge
     {
@@ -79,5 +130,14 @@ public class InvestigationCase
         public string summary;
         public string categoryName;
         public string valueName;
+    }
+
+    [Serializable]
+    public class QuestionResponseRoll
+    {
+        public string questionId;
+        public string categoryName;
+        public string valueName;
+        public string responseText;
     }
 }

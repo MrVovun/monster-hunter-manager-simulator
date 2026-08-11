@@ -342,7 +342,16 @@ public class WarTableUI : MonoBehaviour
     private void SetTabButtonAllowed(Button button, int tabIndex)
     {
         if (button == null) return;
-        button.interactable = IsTabAllowed(tabIndex);
+        bool allowed = IsTabAllowed(tabIndex);
+        button.interactable = allowed;
+        if (allowed)
+        {
+            UnavailableReasonButton.ClearReason(button);
+        }
+        else
+        {
+            UnavailableReasonButton.SetReason(button, "Unavailable during the current tutorial step.");
+        }
         var visualFeedback = button.GetComponent<UIButtonVisualFeedback>();
         if (visualFeedback != null)
         {

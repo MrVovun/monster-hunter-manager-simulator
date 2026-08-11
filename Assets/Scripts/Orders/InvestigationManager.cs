@@ -430,6 +430,7 @@ public class InvestigationManager : MonoBehaviour
             ? new List<MonsterTrait>()
             : GenerateTruthTraits(order.monsterData);
         CurrentCase.clientProfile = overrideProfile != null ? overrideProfile : PickClientProfile();
+        PreRollQuestionResponses(CurrentCase);
         order.investigationCase = CurrentCase;
         CurrentOrder = order;
     }
@@ -446,6 +447,12 @@ public class InvestigationManager : MonoBehaviour
 
     private string BuildResponseText(InvestigationQuestion question, string categoryName, string valueName)
     {
+        string questionId = question != null ? question.questionId : null;
+        if (CurrentCase != null && CurrentCase.TryGetRolledQuestionResponse(questionId, categoryName, valueName, out string rolledText))
+        {
+            return rolledText;
+        }
+
         string text = CurrentCase?.truthMonster?.GetInvestigationResponse(tagLibrary, question, categoryName, valueName);
         if (string.IsNullOrWhiteSpace(text))
         {
@@ -453,7 +460,57 @@ public class InvestigationManager : MonoBehaviour
             Debug.LogWarning(warning, CurrentCase?.truthMonster);
             text = warning;
         }
+
+        CurrentCase?.SetRolledQuestionResponse(questionId, categoryName, valueName, text);
         return text;
+    }
+
+    private void PreRollQuestionResponses(InvestigationCase caseData)
+    {
+        if (caseData == null || caseData.truthMonster == null || questions == null) return;
+
+        foreach (var question in questions)
+        {
+            if (question == null) continue;
+
+            if (question.revealedCategories != null)
+            {
+                foreach (var categorySelection in question.revealedCategories)
+                {
+                    string categoryName = categorySelection.GetCategoryName(tagLibrary);
+                    string truthValue = caseData.truthMonster.GetTagValue(categoryName);
+                    TryPreRollQuestionResponse(caseData, question, categoryName, truthValue);
+                }
+            }
+
+            if (question.explicitReveals != null)
+            {
+                foreach (var explicitReveal in question.explicitReveals)
+                {
+                    string categoryName = explicitReveal.GetCategoryName(tagLibrary);
+                    string value = explicitReveal.GetValueName(tagLibrary);
+                    if (string.IsNullOrWhiteSpace(value))
+                    {
+                        value = caseData.truthMonster.GetTagValue(categoryName);
+                    }
+
+                    TryPreRollQuestionResponse(caseData, question, categoryName, value);
+                }
+            }
+        }
+    }
+
+    private void TryPreRollQuestionResponse(InvestigationCase caseData, InvestigationQuestion question, string categoryName, string valueName)
+    {
+        if (caseData == null || question == null || caseData.truthMonster == null) return;
+        if (string.IsNullOrWhiteSpace(question.questionId) || string.IsNullOrWhiteSpace(categoryName) || string.IsNullOrWhiteSpace(valueName)) return;
+        if (caseData.TryGetRolledQuestionResponse(question.questionId, categoryName, valueName, out _)) return;
+
+        string text = caseData.truthMonster.GetInvestigationResponse(tagLibrary, question, categoryName, valueName);
+        if (!string.IsNullOrWhiteSpace(text))
+        {
+            caseData.SetRolledQuestionResponse(question.questionId, categoryName, valueName, text);
+        }
     }
 
     public struct MonsterCandidate

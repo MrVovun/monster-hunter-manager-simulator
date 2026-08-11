@@ -56,6 +56,32 @@ public abstract class Interactable : MonoBehaviour
     {
         return isActiveAndEnabled && TutorialManager.IsActionAllowed(GetTutorialActionId());
     }
+
+    public virtual bool TryGetUnavailableReason(out string reason)
+    {
+        reason = string.Empty;
+
+        if (!isActiveAndEnabled)
+        {
+            reason = "This cannot be used right now.";
+            return true;
+        }
+
+        if (!TutorialManager.IsActionAllowed(GetTutorialActionId()))
+        {
+            reason = "Unavailable during the current tutorial step.";
+            return true;
+        }
+
+        return false;
+    }
+
+    public string GetUnavailablePrompt()
+    {
+        return TryGetUnavailableReason(out string reason) && !string.IsNullOrWhiteSpace(reason)
+            ? reason
+            : "Unavailable.";
+    }
     
     public virtual void OnPlayerEnter()
     {

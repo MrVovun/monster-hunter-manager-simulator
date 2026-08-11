@@ -102,6 +102,8 @@ public class GameConfig : ScriptableObject
         public float cleanDormitoryBedSeconds = 3f;
         [Tooltip("Changing sheets on a stale or unusable dormitory bed.")]
         public float cleanStaleDormitoryBedSeconds = 6f;
+        [Tooltip("Fallback action-time cost for washing the main hall floor.")]
+        public float washFloorSeconds = 5f;
         [Tooltip("Pass time amount per tap in the pass-time UI.")]
         public float passTimeStepSeconds = 60f;
     }

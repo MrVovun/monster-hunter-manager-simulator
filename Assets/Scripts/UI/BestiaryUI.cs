@@ -161,13 +161,21 @@ public class BestiaryUI : MonoBehaviour
                 spawnedEntries.Add(entry);
                 ConfigureMonsterListEntry(entry, monster);
                 Button entryButton = EnsureButton(entry);
-                EnsureButtonVisualFeedback(entryButton);
-                entryButton.interactable = !selectionEnabled || forcedSelectionMonster == null || monster == forcedSelectionMonster;
-                entryButton?.onClick.AddListener(() =>
-                {
-                    if (!entryButton.interactable) return;
-                    InteractionFeedbackManager.PlayUIClick();
-                    ShowDetails(monster);
+            EnsureButtonVisualFeedback(entryButton);
+            entryButton.interactable = !selectionEnabled || forcedSelectionMonster == null || monster == forcedSelectionMonster;
+            if (entryButton.interactable)
+            {
+                UnavailableReasonButton.ClearReason(entryButton);
+            }
+            else
+            {
+                UnavailableReasonButton.SetReason(entryButton, "The tutorial is asking you to choose a specific monster.");
+            }
+            entryButton?.onClick.AddListener(() =>
+            {
+                if (!entryButton.interactable) return;
+                InteractionFeedbackManager.PlayUIClick();
+                ShowDetails(monster);
                 });
                 if (firstSelectable == null)
                 {
@@ -213,6 +221,14 @@ public class BestiaryUI : MonoBehaviour
         if (selectButton != null)
         {
             selectButton.interactable = selectionEnabled && monster != null && TutorialManager.IsActionAllowed(TutorialIds.SelectMonster);
+            if (selectButton.interactable)
+            {
+                UnavailableReasonButton.ClearReason(selectButton);
+            }
+            else
+            {
+                UnavailableReasonButton.SetReason(selectButton, GetSelectUnavailableReason(monster));
+            }
             RefreshButtonVisual(selectButton);
         }
 
@@ -301,6 +317,14 @@ public class BestiaryUI : MonoBehaviour
         {
             visualFeedback.RefreshVisualState(true);
         }
+    }
+
+    private string GetSelectUnavailableReason(MonsterData monster)
+    {
+        if (!selectionEnabled) return "Monster selection is not available here.";
+        if (monster == null) return "Select a monster first.";
+        if (!TutorialManager.IsActionAllowed(TutorialIds.SelectMonster)) return "Unavailable during the current tutorial step.";
+        return "Cannot choose this monster right now.";
     }
 
     private void EnsureButtonVisualFeedback(Button button)

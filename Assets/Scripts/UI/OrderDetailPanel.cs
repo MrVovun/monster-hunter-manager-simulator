@@ -426,20 +426,65 @@ public class OrderDetailPanel : MonoBehaviour
 
     private void UpdateActionButtonStates()
     {
-        SetButtonState(sendPartyButton, CanSendParty());
-        SetButtonState(autoFillPartyButton, CanEditParty() && TutorialManager.IsActionAllowed(TutorialIds.AssignHunter));
-        SetButtonState(clearPartyButton, CanEditParty() && TutorialManager.IsActionAllowed(TutorialIds.AssignHunter) && partyFormation != null && partyFormation.GetPartySize() > 0);
+        SetButtonState(sendPartyButton, CanSendParty(), GetSendPartyUnavailableReason());
+        SetButtonState(autoFillPartyButton, CanEditParty() && TutorialManager.IsActionAllowed(TutorialIds.AssignHunter), GetAssignHunterUnavailableReason());
+        SetButtonState(clearPartyButton, CanEditParty() && TutorialManager.IsActionAllowed(TutorialIds.AssignHunter) && partyFormation != null && partyFormation.GetPartySize() > 0, GetClearPartyUnavailableReason());
     }
 
-    private void SetButtonState(Button button, bool interactable)
+    private void SetButtonState(Button button, bool interactable, string unavailableReason = null)
     {
         if (button == null) return;
         button.interactable = interactable;
+        if (interactable)
+        {
+            UnavailableReasonButton.ClearReason(button);
+        }
+        else
+        {
+            UnavailableReasonButton.SetReason(button, unavailableReason);
+        }
         var visualFeedback = button.GetComponent<UIButtonVisualFeedback>();
         if (visualFeedback != null)
         {
             visualFeedback.RefreshVisualState(true);
         }
+    }
+
+    private string GetSendPartyUnavailableReason()
+    {
+        if (currentOrder == null) return "Select an accepted order first.";
+        if (partyFormation == null) return "Party formation is not ready.";
+        if (!TutorialManager.IsActionAllowed(TutorialIds.SendParty)) return "Unavailable during the current tutorial step.";
+        if (currentOrder.state != OrderState.Accepted) return "Only accepted orders can be sent.";
+
+        int partySize = partyFormation.GetPartySize();
+        if (partySize < currentOrder.minPartySize) return $"Assign at least {currentOrder.minPartySize} hunter(s).";
+        if (partySize > currentOrder.maxPartySize) return $"This order allows at most {currentOrder.maxPartySize} hunter(s).";
+
+        TimeManager timeManager = GameManager.Instance != null ? GameManager.Instance.GetTimeManager() : null;
+        if (timeManager != null)
+        {
+            var dayState = timeManager.GetDayState();
+            if (dayState == TimeManager.DayState.PreBell) return "Orders can be sent after the workday starts.";
+            if (dayState == TimeManager.DayState.Evening) return "No new orders can be sent in the evening.";
+        }
+
+        return "Cannot send this party right now.";
+    }
+
+    private string GetAssignHunterUnavailableReason()
+    {
+        if (!TutorialManager.IsActionAllowed(TutorialIds.AssignHunter)) return "Unavailable during the current tutorial step.";
+        if (currentOrder == null) return "Select an accepted order first.";
+        if (currentOrder.state != OrderState.Accepted) return "Party can only be edited on accepted orders.";
+        return "Cannot edit this party right now.";
+    }
+
+    private string GetClearPartyUnavailableReason()
+    {
+        string editReason = GetAssignHunterUnavailableReason();
+        if (partyFormation == null || partyFormation.GetPartySize() <= 0) return "No hunters are assigned.";
+        return editReason;
     }
 
     private void AutoBindActionButtons()

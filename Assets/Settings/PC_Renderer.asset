@@ -886,7 +886,8 @@ MonoBehaviour:
   m_RendererFeatures:
   - {fileID: 7833122117494664109}
   - {fileID: -6594726862359136618}
-  m_RendererFeatureMap: ad6b866f10d7b46c96765beadbd27aa4
+  - {fileID: 217916326223578281}
+  m_RendererFeatureMap: ad6b866f10d7b46c96765beadbd27aa4a984507fbe310603
   m_UseNativeRenderPass: 1
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
@@ -929,6 +930,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: VolFx::VolFx.JpegPass
   _active: 1
   _shader: {fileID: 4800000, guid: c87cb70bbf7424448b290759a6e27a96, type: 3}
+--- !u!114 &217916326223578281
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1614fc811f8f184697d9bee70ab9fe5, type: 3}
+  m_Name: DecalRendererFeature
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.DecalRendererFeature
+  m_Active: 1
+  m_Settings:
+    technique: 0
+    maxDrawDistance: 1000
+    decalLayers: 0
+    dBufferSettings:
+      surfaceData: 2
+    screenSpaceSettings:
+      normalBlend: 0
 --- !u!114 &269005003085400626
 MonoBehaviour:
   m_ObjectHideFlags: 3
