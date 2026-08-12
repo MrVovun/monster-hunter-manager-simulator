@@ -471,12 +471,13 @@ public class HunterManager : MonoBehaviour
         return true;
     }
 
-    public int DismissHuntersUntilUpkeepAtOrBelow(int targetDailyUpkeep)
+    public int DismissHuntersUntilUpkeepAtOrBelow(int targetDailyUpkeep, int minimumHuntersToKeep = 1)
     {
         targetDailyUpkeep = Mathf.Max(0, targetDailyUpkeep);
+        minimumHuntersToKeep = Mathf.Max(0, minimumHuntersToKeep);
         int dismissed = 0;
 
-        while (CalculateDailyUpkeep() > targetDailyUpkeep)
+        while (CalculateDailyUpkeep() > targetDailyUpkeep && CountDebtDismissibleHunters() > minimumHuntersToKeep)
         {
             Hunter hunter = FindDebtDismissalCandidate();
             if (hunter == null) break;
@@ -487,15 +488,27 @@ public class HunterManager : MonoBehaviour
         return dismissed;
     }
 
+    private int CountDebtDismissibleHunters()
+    {
+        int count = 0;
+        foreach (var hunter in activeHunters)
+        {
+            if (IsDebtDismissible(hunter))
+            {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
     private Hunter FindDebtDismissalCandidate()
     {
         Hunter best = null;
         int bestUpkeep = int.MinValue;
         foreach (var hunter in activeHunters)
         {
-            if (hunter == null || hunter.Data == null) continue;
-            HunterState state = hunter.GetState();
-            if (state == HunterState.Dead || state == HunterState.OnMission || state == HunterState.Candidate || state == HunterState.Armory) continue;
+            if (!IsDebtDismissible(hunter)) continue;
 
             int upkeep = hunter.GetUpkeepCost();
             if (best == null || upkeep > bestUpkeep)
@@ -506,6 +519,16 @@ public class HunterManager : MonoBehaviour
         }
 
         return best;
+    }
+
+    private bool IsDebtDismissible(Hunter hunter)
+    {
+        if (hunter == null || hunter.Data == null) return false;
+        HunterState state = hunter.GetState();
+        return state != HunterState.Dead
+            && state != HunterState.OnMission
+            && state != HunterState.Candidate
+            && state != HunterState.Armory;
     }
 
     private void DismissHunterForDebt(Hunter hunter)

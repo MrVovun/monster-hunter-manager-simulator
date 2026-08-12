@@ -26,8 +26,12 @@ public class MusicManager : MonoBehaviour
     [SerializeField] private AudioClip workdayClip;
     [SerializeField] private AudioClip eveningClip;
 
+    [Header("Game Over")]
+    [SerializeField] private AudioClip gameOverClip;
+
     private Coroutine fadeRoutine;
     private AudioClip currentClip;
+    private bool gameOverOverrideActive;
 
     private void Awake()
     {
@@ -89,6 +93,18 @@ public class MusicManager : MonoBehaviour
         PlayClip(nextClip, immediate);
     }
 
+    public void PlayGameOverMusic(bool immediate = false)
+    {
+        gameOverOverrideActive = true;
+        PlayClip(gameOverClip, immediate);
+    }
+
+    public void ClearGameOverOverride(bool immediate = false)
+    {
+        gameOverOverrideActive = false;
+        RefreshMusic(immediate);
+    }
+
     private void HandleDayStateChanged(TimeManager.DayState _)
     {
         RefreshMusic();
@@ -117,6 +133,11 @@ public class MusicManager : MonoBehaviour
 
     private AudioClip GetDesiredClip()
     {
+        if (gameOverOverrideActive)
+        {
+            return gameOverClip;
+        }
+
         if (mode == MusicMode.MainMenu)
         {
             return mainMenuClip;

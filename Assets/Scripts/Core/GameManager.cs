@@ -172,7 +172,9 @@ public class GameManager : MonoBehaviour
 
         if (secondUnpaidDay && debtSettings.dismissHuntersUntilUpkeepFitsPreviousIncome)
         {
-            hunterManager.DismissHuntersUntilUpkeepAtOrBelow(previousDayGrossIncome);
+            hunterManager.DismissHuntersUntilUpkeepAtOrBelow(
+                previousDayGrossIncome,
+                Mathf.Max(0, debtSettings.minimumHuntersAfterDebtDismissal));
         }
 
         notificationManager?.NotifyUnpaidUpkeep(
@@ -186,6 +188,7 @@ public class GameManager : MonoBehaviour
     private void TriggerGameOver(string reason)
     {
         if (gameOver) return;
+        GameSaveUtility.CreateGameOverBackup();
         gameOver = true;
         gameOverReason = string.IsNullOrWhiteSpace(reason) ? "The guild has collapsed." : reason;
         activeDebtSuccessPenaltyPercent = 0f;

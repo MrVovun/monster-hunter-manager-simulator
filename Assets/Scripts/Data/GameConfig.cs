@@ -121,6 +121,8 @@ public class GameConfig : ScriptableObject
         public int unpaidDay2ReputationRankLoss = 1;
         [Tooltip("Day 2 dismissals continue until remaining daily upkeep is at or below previous day's gross income.")]
         public bool dismissHuntersUntilUpkeepFitsPreviousIncome = true;
+        [Tooltip("Debt dismissals will not reduce the roster below this many active hunters. Keep at least 1 if you want Day 3 game over to remain reachable.")]
+        public int minimumHuntersAfterDebtDismissal = 1;
     }
 
     public int RollTraitCount(int min, int max)
