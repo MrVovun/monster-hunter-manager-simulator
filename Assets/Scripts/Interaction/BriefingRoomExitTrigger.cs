@@ -14,7 +14,7 @@ public class BriefingRoomExitTrigger : MonoBehaviour
         triggerCollider = GetComponent<Collider>();
         if (player == null)
         {
-            player = FindObjectOfType<PlayerInteraction>();
+            player = SceneLookup.Find<PlayerInteraction>();
         }
     }
 
@@ -35,7 +35,7 @@ public class BriefingRoomExitTrigger : MonoBehaviour
         }
         if (player == null)
         {
-            player = FindObjectOfType<PlayerInteraction>();
+            player = SceneLookup.Find<PlayerInteraction>();
         }
         if (triggerCollider == null || player == null) return;
 
@@ -77,7 +77,7 @@ public class BriefingRoomExitTrigger : MonoBehaviour
         briefingRoomManager = BriefingRoomManager.Instance;
         if (briefingRoomManager == null)
         {
-            briefingRoomManager = FindObjectOfType<BriefingRoomManager>();
+            briefingRoomManager = SceneLookup.Find<BriefingRoomManager>();
         }
         return briefingRoomManager;
     }

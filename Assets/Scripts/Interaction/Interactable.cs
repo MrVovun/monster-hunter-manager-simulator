@@ -184,14 +184,14 @@ public abstract class Interactable : MonoBehaviour
 
         if (disableHudDuringInteraction && roots.Count == 0)
         {
-            AddComponentRoot(FindObjectOfType<DayTimeHUD>(true), roots, seen);
-            AddComponentRoot(FindObjectOfType<TimeAdvanceFeedback>(true), roots, seen);
-            AddComponentRoot(FindObjectOfType<InteractionPromptUI>(true), roots, seen);
+            AddComponentRoot(SceneLookup.Find<DayTimeHUD>(true), roots, seen);
+            AddComponentRoot(SceneLookup.Find<TimeAdvanceFeedback>(true), roots, seen);
+            AddComponentRoot(SceneLookup.Find<InteractionPromptUI>(true), roots, seen);
         }
 
         if (disableHudDuringInteraction || HideNotificationFeedDuringInteraction)
         {
-            AddComponentRoot(FindObjectOfType<NotificationFeedUI>(true), roots, seen);
+            AddComponentRoot(SceneLookup.Find<NotificationFeedUI>(true), roots, seen);
         }
 
         return roots;

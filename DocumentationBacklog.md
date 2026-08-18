@@ -1,5 +1,8 @@
 # Documentation Backlog
 
+## Balance Reference
+- Current system formulas and live balance values are documented in [BalanceReference.md](BalanceReference.md).
+
 ## Polishing Backlog
 
 - Audit construction registration and remove remaining double-wiring. `GuildConstructionManager` still reads `GameConfig.guildConstructions` and scene instances; construction assets that are only in `Resources/Constructions` will not appear unless referenced by one of those paths.

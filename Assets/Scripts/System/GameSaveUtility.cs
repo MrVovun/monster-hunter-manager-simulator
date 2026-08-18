@@ -2,6 +2,7 @@ using System.IO;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 public static class GameSaveUtility
@@ -263,6 +264,164 @@ public static class GameSaveUtility
                 return PlayerPrefValueType.Float;
             default:
                 return PlayerPrefValueType.String;
+        }
+    }
+}
+
+public static class SceneLookup
+{
+    public static T Find<T>(bool includeInactive = false) where T : UnityEngine.Object
+    {
+#if UNITY_2023_1_OR_NEWER
+        return UnityEngine.Object.FindFirstObjectByType<T>(
+            includeInactive ? FindObjectsInactive.Include : FindObjectsInactive.Exclude);
+#else
+        return UnityEngine.Object.FindObjectOfType<T>(includeInactive);
+#endif
+    }
+
+    public static T[] FindAll<T>(bool includeInactive = false) where T : UnityEngine.Object
+    {
+#if UNITY_2023_1_OR_NEWER
+        return UnityEngine.Object.FindObjectsByType<T>(
+            includeInactive ? FindObjectsInactive.Include : FindObjectsInactive.Exclude,
+            FindObjectsSortMode.InstanceID);
+#else
+        return UnityEngine.Object.FindObjectsOfType<T>(includeInactive);
+#endif
+    }
+}
+
+public static class InputKeyUtility
+{
+    public static bool WasPressed(KeyCode keyCode)
+    {
+        if (Keyboard.current != null && TryConvertKeyCode(keyCode, out Key key))
+        {
+            return Keyboard.current[key].wasPressedThisFrame;
+        }
+
+#if ENABLE_LEGACY_INPUT_MANAGER
+        return Input.GetKeyDown(keyCode);
+#else
+        return false;
+#endif
+    }
+
+    public static bool IsPressed(KeyCode keyCode)
+    {
+        if (Keyboard.current != null && TryConvertKeyCode(keyCode, out Key key))
+        {
+            return Keyboard.current[key].isPressed;
+        }
+
+#if ENABLE_LEGACY_INPUT_MANAGER
+        return Input.GetKey(keyCode);
+#else
+        return false;
+#endif
+    }
+
+    public static bool IsMouseButtonPressed(int button)
+    {
+        if (Mouse.current != null)
+        {
+            switch (button)
+            {
+                case 0:
+                    return Mouse.current.leftButton.isPressed;
+                case 1:
+                    return Mouse.current.rightButton.isPressed;
+                case 2:
+                    return Mouse.current.middleButton.isPressed;
+            }
+        }
+
+#if ENABLE_LEGACY_INPUT_MANAGER
+        return Input.GetMouseButton(button);
+#else
+        return false;
+#endif
+    }
+
+    public static Vector2 GetPointerPosition()
+    {
+        if (Mouse.current != null)
+        {
+            return Mouse.current.position.ReadValue();
+        }
+
+#if ENABLE_LEGACY_INPUT_MANAGER
+        return Input.mousePosition;
+#else
+        return Vector2.zero;
+#endif
+    }
+
+    private static bool TryConvertKeyCode(KeyCode keyCode, out Key key)
+    {
+        switch (keyCode)
+        {
+            case KeyCode.None:
+                key = Key.None;
+                return false;
+            case KeyCode.Escape:
+                key = Key.Escape;
+                return true;
+            case KeyCode.Space:
+                key = Key.Space;
+                return true;
+            case KeyCode.Return:
+                key = Key.Enter;
+                return true;
+            case KeyCode.KeypadEnter:
+                key = Key.NumpadEnter;
+                return true;
+            case KeyCode.Tab:
+                key = Key.Tab;
+                return true;
+            case KeyCode.E:
+                key = Key.E;
+                return true;
+            case KeyCode.R:
+                key = Key.R;
+                return true;
+            case KeyCode.P:
+                key = Key.P;
+                return true;
+            case KeyCode.Alpha0:
+                key = Key.Digit0;
+                return true;
+            case KeyCode.Alpha1:
+                key = Key.Digit1;
+                return true;
+            case KeyCode.Alpha2:
+                key = Key.Digit2;
+                return true;
+            case KeyCode.Alpha3:
+                key = Key.Digit3;
+                return true;
+            case KeyCode.Alpha4:
+                key = Key.Digit4;
+                return true;
+            case KeyCode.Alpha5:
+                key = Key.Digit5;
+                return true;
+            case KeyCode.Alpha6:
+                key = Key.Digit6;
+                return true;
+            case KeyCode.Alpha7:
+                key = Key.Digit7;
+                return true;
+            case KeyCode.Alpha8:
+                key = Key.Digit8;
+                return true;
+            case KeyCode.Alpha9:
+                key = Key.Digit9;
+                return true;
+            default:
+                key = Key.None;
+                return false;
         }
     }
 }

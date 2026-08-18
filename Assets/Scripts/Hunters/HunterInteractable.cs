@@ -459,7 +459,7 @@ public class HunterInteractable : Interactable
     {
         if (cardGameUI == null)
         {
-            cardGameUI = FindObjectOfType<CardGameUI>(true);
+            cardGameUI = SceneLookup.Find<CardGameUI>(true);
         }
 
         if (cardGameUI == null)
@@ -498,7 +498,7 @@ public class HunterInteractable : Interactable
         }
         if (recruitmentManager == null)
         {
-            recruitmentManager = FindObjectOfType<HunterRecruitmentManager>();
+            recruitmentManager = SceneLookup.Find<HunterRecruitmentManager>();
         }
     }
 

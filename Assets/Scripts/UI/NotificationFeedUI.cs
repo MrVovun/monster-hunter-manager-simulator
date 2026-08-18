@@ -87,7 +87,7 @@ public class NotificationFeedUI : MonoBehaviour
         }
         if (notificationManager == null)
         {
-            notificationManager = FindObjectOfType<NotificationManager>();
+            notificationManager = SceneLookup.Find<NotificationManager>();
         }
     }
 

@@ -294,9 +294,7 @@ public class TutorialManager : MonoBehaviour
             return manualContinueAction.action.WasPressedThisFrame();
         }
 
-        return Keyboard.current != null
-            ? Keyboard.current[Key.R].wasPressedThisFrame
-            : Input.GetKeyDown(KeyCode.R);
+        return InputKeyUtility.WasPressed(KeyCode.R);
     }
 
     private string GetManualContinueBindingLabel()

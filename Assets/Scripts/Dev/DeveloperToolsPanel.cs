@@ -103,22 +103,22 @@ public class DeveloperToolsPanel : MonoBehaviour
 
         if (recruitmentManager == null)
         {
-            recruitmentManager = FindObjectOfType<HunterRecruitmentManager>();
+            recruitmentManager = SceneLookup.Find<HunterRecruitmentManager>();
         }
 
         if (slainTracker == null)
         {
-            slainTracker = FindObjectOfType<MonsterSlainTracker>();
+            slainTracker = SceneLookup.Find<MonsterSlainTracker>();
         }
 
         if (bonusChestManager == null)
         {
-            bonusChestManager = FindObjectOfType<MissionBonusChestManager>();
+            bonusChestManager = SceneLookup.Find<MissionBonusChestManager>();
         }
 
         if (cinematicRig == null)
         {
-            cinematicRig = FindFirstObjectByType<CinematicCameraRig>(FindObjectsInactive.Include);
+            cinematicRig = SceneLookup.Find<CinematicCameraRig>(true);
         }
     }
 
@@ -327,7 +327,7 @@ public class DeveloperToolsPanel : MonoBehaviour
                 {
                     notificationManager = GameManager.Instance != null
                         ? GameManager.Instance.GetNotificationManager()
-                        : FindObjectOfType<NotificationManager>();
+                        : SceneLookup.Find<NotificationManager>();
                 }
 
                 if (notificationManager != null)
@@ -349,7 +349,7 @@ public class DeveloperToolsPanel : MonoBehaviour
                 {
                     graveyardManager = GameManager.Instance != null
                         ? GameManager.Instance.GetGraveyardManager()
-                        : FindObjectOfType<GraveyardManager>();
+                        : SceneLookup.Find<GraveyardManager>();
                 }
 
                 if (graveyardManager != null)
@@ -569,7 +569,7 @@ public class DeveloperToolsPanel : MonoBehaviour
         GUILayout.Label("Recruitment", headerStyle);
         if (recruitmentManager == null)
         {
-            recruitmentManager = FindObjectOfType<HunterRecruitmentManager>();
+            recruitmentManager = SceneLookup.Find<HunterRecruitmentManager>();
         }
 
         if (recruitmentManager == null)

@@ -40,7 +40,7 @@ public class TimeAdvanceFeedback : MonoBehaviour
         }
         if (timeManager == null)
         {
-            timeManager = FindObjectOfType<TimeManager>();
+            timeManager = SceneLookup.Find<TimeManager>();
         }
     }
 

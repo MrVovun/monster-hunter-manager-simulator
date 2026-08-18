@@ -118,7 +118,7 @@ public class UnavailableReasonButton : MonoBehaviour, IPointerEnterHandler, IPoi
 
         if (tooltipPanel == null && autoFindTooltipPanel)
         {
-            tooltipPanel = FindFirstObjectByType<TraitTooltipPanel>(FindObjectsInactive.Include);
+            tooltipPanel = SceneLookup.Find<TraitTooltipPanel>(true);
         }
     }
 }

@@ -76,14 +76,14 @@ public class GameManager : MonoBehaviour
         if (orderManager == null) orderManager = GetComponentInChildren<OrderManager>();
         if (goldManager == null) goldManager = GetComponentInChildren<GoldManager>();
         if (reputationManager == null) reputationManager = GetComponentInChildren<ReputationManager>();
-        if (hunterManager == null) hunterManager = FindObjectOfType<HunterManager>();
+        if (hunterManager == null) hunterManager = SceneLookup.Find<HunterManager>();
         if (orderGenerator == null) orderGenerator = GetComponentInChildren<OrderGenerator>();
         if (missionResolver == null) missionResolver = GetComponentInChildren<MissionResolver>();
-        if (timeManager == null) timeManager = FindObjectOfType<TimeManager>();
-        if (investigationManager == null) investigationManager = FindObjectOfType<InvestigationManager>();
-        if (constructionManager == null) constructionManager = FindObjectOfType<GuildConstructionManager>();
-        if (notificationManager == null) notificationManager = FindObjectOfType<NotificationManager>();
-        if (graveyardManager == null) graveyardManager = FindObjectOfType<GraveyardManager>();
+        if (timeManager == null) timeManager = SceneLookup.Find<TimeManager>();
+        if (investigationManager == null) investigationManager = SceneLookup.Find<InvestigationManager>();
+        if (constructionManager == null) constructionManager = SceneLookup.Find<GuildConstructionManager>();
+        if (notificationManager == null) notificationManager = SceneLookup.Find<NotificationManager>();
+        if (graveyardManager == null) graveyardManager = SceneLookup.Find<GraveyardManager>();
         if (gameConfig == null) gameConfig = Resources.Load<GameConfig>("GameConfig");
 
         // Create basics if missing so the scene can run
@@ -275,7 +275,7 @@ public class GameManager : MonoBehaviour
     {
         if (graveyardManager == null)
         {
-            graveyardManager = FindObjectOfType<GraveyardManager>();
+            graveyardManager = SceneLookup.Find<GraveyardManager>();
         }
         return graveyardManager;
     }

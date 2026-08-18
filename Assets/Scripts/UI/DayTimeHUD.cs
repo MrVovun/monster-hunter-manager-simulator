@@ -194,7 +194,7 @@ public class DayTimeHUD : MonoBehaviour
         }
         if (timeManager == null)
         {
-            timeManager = FindObjectOfType<TimeManager>();
+            timeManager = SceneLookup.Find<TimeManager>();
         }
     }
 

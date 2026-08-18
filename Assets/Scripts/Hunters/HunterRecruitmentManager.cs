@@ -111,7 +111,7 @@ public class HunterRecruitmentManager : MonoBehaviour
     {
         if (hunterManager == null)
         {
-            hunterManager = FindObjectOfType<HunterManager>();
+            hunterManager = SceneLookup.Find<HunterManager>();
         }
         if (goldManager == null && GameManager.Instance != null)
         {

@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 public class BriefingChalkHolder : MonoBehaviour
@@ -30,7 +29,7 @@ public class BriefingChalkHolder : MonoBehaviour
 
     public static void RefreshAll()
     {
-        var holders = FindObjectsByType<BriefingChalkHolder>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        var holders = SceneLookup.FindAll<BriefingChalkHolder>(true);
         foreach (var holder in holders)
         {
             if (holder != null)
@@ -48,7 +47,7 @@ public class BriefingChalkHolder : MonoBehaviour
         activeDrawingSurfaceCollider = value ? drawingSurfaceCollider : null;
         activeDrawingSurfaceOffset = Mathf.Max(0f, drawingSurfaceOffset);
 
-        var holders = FindObjectsByType<BriefingChalkHolder>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        var holders = SceneLookup.FindAll<BriefingChalkHolder>(true);
         foreach (var holder in holders)
         {
             if (holder != null)
@@ -174,7 +173,7 @@ public class BriefingChalkHolder : MonoBehaviour
 
     private void FollowCursor()
     {
-        Vector2 pointerPosition = Mouse.current != null ? Mouse.current.position.ReadValue() : (Vector2)Input.mousePosition;
+        Vector2 pointerPosition = InputKeyUtility.GetPointerPosition();
         pointerPosition += cursorOffset;
 
         if (rectTransform != null)

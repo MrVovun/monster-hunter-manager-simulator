@@ -80,7 +80,7 @@ public class GraveyardManager : MonoBehaviour
     {
         if (plaqueUI == null)
         {
-            plaqueUI = FindObjectOfType<GravePlaqueUI>(true);
+            plaqueUI = SceneLookup.Find<GravePlaqueUI>(true);
         }
 
         if (plaqueUI == null)

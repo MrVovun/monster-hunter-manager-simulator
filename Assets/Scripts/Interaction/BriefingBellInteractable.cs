@@ -67,7 +67,7 @@ public class BriefingBellInteractable : Interactable
         briefingRoomManager = BriefingRoomManager.Instance;
         if (briefingRoomManager == null)
         {
-            briefingRoomManager = FindObjectOfType<BriefingRoomManager>();
+            briefingRoomManager = SceneLookup.Find<BriefingRoomManager>();
         }
         return briefingRoomManager;
     }

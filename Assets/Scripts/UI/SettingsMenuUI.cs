@@ -198,7 +198,7 @@ public class SettingsMenuUI : MonoBehaviour
             return GameSettingsManager.Instance;
         }
 
-        var existing = FindFirstObjectByType<GameSettingsManager>();
+        var existing = SceneLookup.Find<GameSettingsManager>();
         if (existing != null)
         {
             return existing;

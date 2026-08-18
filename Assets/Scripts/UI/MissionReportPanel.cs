@@ -535,14 +535,14 @@ public class MissionReportPanel : MonoBehaviour
     private FirstPersonController ResolvePlayerController()
     {
         if (cachedController != null) return cachedController;
-        cachedController = FindObjectOfType<FirstPersonController>();
+        cachedController = SceneLookup.Find<FirstPersonController>();
         return cachedController;
     }
 
     private PlayerInteraction ResolvePlayerInteraction()
     {
         if (cachedInteraction != null) return cachedInteraction;
-        cachedInteraction = FindObjectOfType<PlayerInteraction>();
+        cachedInteraction = SceneLookup.Find<PlayerInteraction>();
         return cachedInteraction;
     }
 
@@ -551,7 +551,7 @@ public class MissionReportPanel : MonoBehaviour
         if (cachedInvestigationManager != null) return cachedInvestigationManager;
         cachedInvestigationManager = GameManager.Instance != null
             ? GameManager.Instance.GetInvestigationManager()
-            : FindObjectOfType<InvestigationManager>();
+            : SceneLookup.Find<InvestigationManager>();
         return cachedInvestigationManager;
     }
 
@@ -560,7 +560,7 @@ public class MissionReportPanel : MonoBehaviour
         if (cachedGraveyardManager != null) return cachedGraveyardManager;
         cachedGraveyardManager = GameManager.Instance != null
             ? GameManager.Instance.GetGraveyardManager()
-            : FindObjectOfType<GraveyardManager>();
+            : SceneLookup.Find<GraveyardManager>();
         return cachedGraveyardManager;
     }
 

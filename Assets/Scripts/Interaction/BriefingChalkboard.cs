@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Collider))]
 public class BriefingChalkboard : Interactable
@@ -519,32 +518,17 @@ public class BriefingChalkboard : Interactable
             return false;
         }
 
-        if (Keyboard.current != null)
-        {
-            return Keyboard.current[Key.E].wasPressedThisFrame;
-        }
-
-        return Input.GetKeyDown(finishKey);
+        return InputKeyUtility.WasPressed(finishKey);
     }
 
     private bool IsFinishHeld()
     {
-        if (Keyboard.current != null)
-        {
-            return Keyboard.current[Key.E].isPressed;
-        }
-
-        return Input.GetKey(finishKey);
+        return InputKeyUtility.IsPressed(finishKey);
     }
 
     private bool IsPaintHeld()
     {
-        if (Mouse.current != null)
-        {
-            return Mouse.current.leftButton.isPressed;
-        }
-
-        return Input.GetMouseButton(0);
+        return InputKeyUtility.IsMouseButtonPressed(0);
     }
 
     private void PaintFromPointer()
@@ -554,7 +538,7 @@ public class BriefingChalkboard : Interactable
         Camera cameraToUse = customCamera != null && customCamera.enabled ? customCamera : Camera.main;
         if (cameraToUse == null) return;
 
-        Vector2 pointerPosition = Mouse.current != null ? Mouse.current.position.ReadValue() : (Vector2)Input.mousePosition;
+        Vector2 pointerPosition = InputKeyUtility.GetPointerPosition();
         Ray ray = cameraToUse.ScreenPointToRay(pointerPosition);
         if (!boardCollider.Raycast(ray, out RaycastHit hit, 100f))
         {

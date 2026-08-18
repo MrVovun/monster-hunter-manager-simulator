@@ -69,7 +69,7 @@ public class GuildConstructionManager : MonoBehaviour
             constructionInstances = new List<GuildConstructionInstance>();
         }
 
-        var discovered = FindObjectsOfType<GuildConstructionInstance>(true);
+        var discovered = SceneLookup.FindAll<GuildConstructionInstance>(true);
         foreach (var instance in discovered)
         {
             if (instance != null && !constructionInstances.Contains(instance))

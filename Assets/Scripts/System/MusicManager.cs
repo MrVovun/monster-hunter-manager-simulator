@@ -122,7 +122,7 @@ public class MusicManager : MonoBehaviour
     {
         if (timeManager == null)
         {
-            timeManager = FindFirstObjectByType<TimeManager>();
+            timeManager = SceneLookup.Find<TimeManager>();
         }
 
         if (timeManager == null) return;
@@ -250,7 +250,7 @@ public class MusicManager : MonoBehaviour
             return GameSettingsManager.Instance;
         }
 
-        GameSettingsManager existing = FindFirstObjectByType<GameSettingsManager>();
+        GameSettingsManager existing = SceneLookup.Find<GameSettingsManager>();
         if (existing != null)
         {
             return existing;

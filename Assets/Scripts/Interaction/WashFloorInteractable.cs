@@ -60,7 +60,7 @@ public class WashFloorInteractable : Interactable
         {
             dirtManager = MainHallFloorDirtManager.Instance != null
                 ? MainHallFloorDirtManager.Instance
-                : FindFirstObjectByType<MainHallFloorDirtManager>();
+                : SceneLookup.Find<MainHallFloorDirtManager>();
         }
     }
 }

@@ -42,7 +42,7 @@ public class HiringTab : MonoBehaviour
     {
         if (recruitmentManager == null)
         {
-            recruitmentManager = FindObjectOfType<HunterRecruitmentManager>();
+            recruitmentManager = SceneLookup.Find<HunterRecruitmentManager>();
         }
         if (hunterConfig == null)
         {

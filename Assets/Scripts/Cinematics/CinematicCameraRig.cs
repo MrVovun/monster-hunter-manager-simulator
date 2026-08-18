@@ -345,9 +345,9 @@ public class CinematicCameraRig : MonoBehaviour
         AddConfiguredRoots(hudRoots, roots, seen);
         if (roots.Count == 0)
         {
-            AddComponentRoot(FindFirstObjectByType<DayTimeHUD>(FindObjectsInactive.Include), roots, seen);
-            AddComponentRoot(FindFirstObjectByType<TimeAdvanceFeedback>(FindObjectsInactive.Include), roots, seen);
-            AddComponentRoot(FindFirstObjectByType<InteractionPromptUI>(FindObjectsInactive.Include), roots, seen);
+            AddComponentRoot(SceneLookup.Find<DayTimeHUD>(true), roots, seen);
+            AddComponentRoot(SceneLookup.Find<TimeAdvanceFeedback>(true), roots, seen);
+            AddComponentRoot(SceneLookup.Find<InteractionPromptUI>(true), roots, seen);
         }
 
         return roots;
@@ -360,7 +360,7 @@ public class CinematicCameraRig : MonoBehaviour
         AddConfiguredRoots(notificationRoots, roots, seen);
         if (roots.Count == 0)
         {
-            AddComponentRoot(FindFirstObjectByType<NotificationFeedUI>(FindObjectsInactive.Include), roots, seen);
+            AddComponentRoot(SceneLookup.Find<NotificationFeedUI>(true), roots, seen);
         }
 
         return roots;
@@ -397,7 +397,7 @@ public class CinematicCameraRig : MonoBehaviour
 
         if (playerController == null)
         {
-            playerController = FindFirstObjectByType<FirstPersonController>(FindObjectsInactive.Include);
+            playerController = SceneLookup.Find<FirstPersonController>(true);
         }
 
         if (playerCamera == null && playerController != null)

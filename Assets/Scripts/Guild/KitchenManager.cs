@@ -729,7 +729,7 @@ public class KitchenManager : MonoBehaviour
         diningSeats.RemoveAll(seat => seat == null);
         if (diningSeats.Count > 0) return;
 
-        var seats = FindObjectsByType<HunterSeat>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+        var seats = SceneLookup.FindAll<HunterSeat>();
         foreach (var seat in seats)
         {
             if (seat != null && seat.CanUseForGuildHall)
@@ -842,7 +842,7 @@ public class KitchenManager : MonoBehaviour
 
     private void ClearAllDirtyPlates()
     {
-        var plates = FindObjectsByType<KitchenDirtyPlate>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+        var plates = SceneLookup.FindAll<KitchenDirtyPlate>();
         foreach (var plate in plates)
         {
             if (plate != null)

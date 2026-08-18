@@ -145,7 +145,7 @@ public class PauseMenuUI : MonoBehaviour
 
         if (Keyboard.current != null)
         {
-            if (Keyboard.current[fallbackKey].wasPressedThisFrame)
+            if (fallbackKey != Key.None && Keyboard.current[fallbackKey].wasPressedThisFrame)
             {
                 return true;
             }
@@ -156,40 +156,7 @@ public class PauseMenuUI : MonoBehaviour
             }
         }
 
-        if (TryGetLegacyKeyCode(fallbackKey, out KeyCode legacyFallback) && Input.GetKeyDown(legacyFallback))
-        {
-            return true;
-        }
-
-        return secondaryFallbackKey != Key.None
-            && TryGetLegacyKeyCode(secondaryFallbackKey, out KeyCode legacySecondary)
-            && Input.GetKeyDown(legacySecondary);
-    }
-
-    private bool TryGetLegacyKeyCode(Key key, out KeyCode keyCode)
-    {
-        switch (key)
-        {
-            case Key.Escape:
-                keyCode = KeyCode.Escape;
-                return true;
-            case Key.P:
-                keyCode = KeyCode.P;
-                return true;
-            case Key.Tab:
-                keyCode = KeyCode.Tab;
-                return true;
-            case Key.Space:
-                keyCode = KeyCode.Space;
-                return true;
-            case Key.Enter:
-            case Key.NumpadEnter:
-                keyCode = KeyCode.Return;
-                return true;
-            default:
-                keyCode = KeyCode.None;
-                return false;
-        }
+        return false;
     }
 
     private void HookButtons()
@@ -245,7 +212,7 @@ public class PauseMenuUI : MonoBehaviour
 
         if (playerController == null)
         {
-            playerController = FindFirstObjectByType<FirstPersonController>();
+            playerController = SceneLookup.Find<FirstPersonController>();
         }
 
         if (playerController == null) return;
@@ -275,7 +242,7 @@ public class PauseMenuUI : MonoBehaviour
     {
         if (tutorialPopup == null)
         {
-            tutorialPopup = FindFirstObjectByType<TutorialPopupUI>(FindObjectsInactive.Include);
+            tutorialPopup = SceneLookup.Find<TutorialPopupUI>(true);
         }
 
         tutorialPopup?.PauseVoice();

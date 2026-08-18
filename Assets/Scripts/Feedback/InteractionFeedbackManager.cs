@@ -175,7 +175,7 @@ public class InteractionFeedbackManager : MonoBehaviour
     private static void ResolveInstance()
     {
         if (instance != null) return;
-        instance = FindFirstObjectByType<InteractionFeedbackManager>();
+        instance = SceneLookup.Find<InteractionFeedbackManager>();
     }
 
     private void PlayInteractionInternal(Vector3 position)
@@ -696,7 +696,7 @@ public class InteractionFeedbackManager : MonoBehaviour
             if (contextCanvas != null) return contextCanvas;
         }
 
-        return FindFirstObjectByType<Canvas>();
+        return SceneLookup.Find<Canvas>();
     }
 
     private void PlayClip(AudioClip clip)

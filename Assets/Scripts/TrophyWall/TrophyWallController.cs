@@ -94,7 +94,7 @@ public class TrophyWallController : MonoBehaviour
 
         if (slainTracker == null)
         {
-            slainTracker = FindObjectOfType<MonsterSlainTracker>();
+            slainTracker = SceneLookup.Find<MonsterSlainTracker>();
         }
 
         CacheBasis();

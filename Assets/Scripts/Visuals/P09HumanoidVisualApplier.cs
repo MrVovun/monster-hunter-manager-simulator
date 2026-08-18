@@ -29,7 +29,7 @@ public class P09HumanoidVisualApplier : MonoBehaviour
     [SerializeField] private Vector3 shieldLocalScale = Vector3.one;
 
     [Header("Debug")]
-    [SerializeField] private bool logAppliedParts = true;
+    [SerializeField] private bool logAppliedParts;
 
     private const string SkinMaterialPattern = @"^P09_.*_Skin.*$";
     private const string EyeMaterialPattern = @"^P09_Eye.*$";

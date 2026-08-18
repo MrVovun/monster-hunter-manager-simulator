@@ -53,7 +53,7 @@ public class MissionBonusChestManager : MonoBehaviour
     {
         OrderManager manager = GameManager.Instance != null
             ? GameManager.Instance.GetOrderManager()
-            : FindObjectOfType<OrderManager>();
+            : SceneLookup.Find<OrderManager>();
 
         if (manager == orderManager) return;
 

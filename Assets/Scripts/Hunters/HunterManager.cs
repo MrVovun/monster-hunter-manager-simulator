@@ -163,7 +163,7 @@ public class HunterManager : MonoBehaviour
     {
         RefreshBriefingSeatCache();
         hunterSeats.Clear();
-        HunterSeat[] seats = FindObjectsOfType<HunterSeat>(true);
+        HunterSeat[] seats = SceneLookup.FindAll<HunterSeat>(true);
         foreach (var seat in seats)
         {
             if (IsValidIdleSeat(seat))
@@ -208,7 +208,7 @@ public class HunterManager : MonoBehaviour
     private void RefreshBriefingSeatCache()
     {
         briefingRoomSeats.Clear();
-        var briefingRooms = FindObjectsOfType<BriefingRoomManager>(true);
+        var briefingRooms = SceneLookup.FindAll<BriefingRoomManager>(true);
         foreach (var room in briefingRooms)
         {
             if (room == null) continue;

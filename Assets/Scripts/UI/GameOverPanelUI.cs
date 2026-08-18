@@ -288,7 +288,7 @@ public class GameOverPanelUI : MonoBehaviour
 
         if (lockedController == null)
         {
-            lockedController = FindFirstObjectByType<FirstPersonController>();
+            lockedController = SceneLookup.Find<FirstPersonController>();
         }
 
         if (lockedController != null)
@@ -302,7 +302,7 @@ public class GameOverPanelUI : MonoBehaviour
 
         if (disabledInteraction == null)
         {
-            disabledInteraction = FindFirstObjectByType<PlayerInteraction>();
+            disabledInteraction = SceneLookup.Find<PlayerInteraction>();
         }
 
         if (disabledInteraction != null)
@@ -314,7 +314,7 @@ public class GameOverPanelUI : MonoBehaviour
     private MusicManager ResolveMusicManager()
     {
         if (musicManager != null) return musicManager;
-        musicManager = FindFirstObjectByType<MusicManager>();
+        musicManager = SceneLookup.Find<MusicManager>();
         return musicManager;
     }
 

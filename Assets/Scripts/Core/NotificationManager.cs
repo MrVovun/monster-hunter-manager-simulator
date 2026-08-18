@@ -213,19 +213,19 @@ public class NotificationManager : MonoBehaviour
             if (orderManager == null) orderManager = GameManager.Instance.GetOrderManager();
             if (goldManager == null) goldManager = GameManager.Instance.GetGoldManager();
             if (hunterManager == null) hunterManager = GameManager.Instance.GetHunterManager();
-            if (recruitmentManager == null) recruitmentManager = FindObjectOfType<HunterRecruitmentManager>();
+            if (recruitmentManager == null) recruitmentManager = SceneLookup.Find<HunterRecruitmentManager>();
             if (constructionManager == null) constructionManager = GameManager.Instance.GetConstructionManager();
-            if (clientSpawner == null) clientSpawner = FindObjectOfType<ClientSpawner>();
+            if (clientSpawner == null) clientSpawner = SceneLookup.Find<ClientSpawner>();
         }
         else
         {
-            if (timeManager == null) timeManager = FindObjectOfType<TimeManager>();
-            if (orderManager == null) orderManager = FindObjectOfType<OrderManager>();
-            if (goldManager == null) goldManager = FindObjectOfType<GoldManager>();
-            if (hunterManager == null) hunterManager = FindObjectOfType<HunterManager>();
-            if (recruitmentManager == null) recruitmentManager = FindObjectOfType<HunterRecruitmentManager>();
-            if (constructionManager == null) constructionManager = FindObjectOfType<GuildConstructionManager>();
-            if (clientSpawner == null) clientSpawner = FindObjectOfType<ClientSpawner>();
+            if (timeManager == null) timeManager = SceneLookup.Find<TimeManager>();
+            if (orderManager == null) orderManager = SceneLookup.Find<OrderManager>();
+            if (goldManager == null) goldManager = SceneLookup.Find<GoldManager>();
+            if (hunterManager == null) hunterManager = SceneLookup.Find<HunterManager>();
+            if (recruitmentManager == null) recruitmentManager = SceneLookup.Find<HunterRecruitmentManager>();
+            if (constructionManager == null) constructionManager = SceneLookup.Find<GuildConstructionManager>();
+            if (clientSpawner == null) clientSpawner = SceneLookup.Find<ClientSpawner>();
         }
     }
 

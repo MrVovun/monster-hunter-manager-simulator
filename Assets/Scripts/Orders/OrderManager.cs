@@ -62,8 +62,8 @@ public class OrderManager : MonoBehaviour
 
     public void Initialize(OrderGenerator generator, MissionResolver resolver, TimeManager timeMgr)
     {
-        orderGenerator = generator != null ? generator : FindObjectOfType<OrderGenerator>();
-        missionResolver = resolver != null ? resolver : FindObjectOfType<MissionResolver>();
+        orderGenerator = generator != null ? generator : SceneLookup.Find<OrderGenerator>();
+        missionResolver = resolver != null ? resolver : SceneLookup.Find<MissionResolver>();
         gameConfig = GameManager.Instance != null ? GameManager.Instance.GetGameConfig() : null;
         savePath = GameSaveUtility.GetSavePath("orders_state.json");
 
@@ -72,7 +72,7 @@ public class OrderManager : MonoBehaviour
             timeManager.OnDayStateChanged -= HandleDayStateChanged;
         }
 
-        timeManager = timeMgr != null ? timeMgr : FindObjectOfType<TimeManager>();
+        timeManager = timeMgr != null ? timeMgr : SceneLookup.Find<TimeManager>();
         if (timeManager != null)
         {
             timeManager.OnDayStateChanged += HandleDayStateChanged;

@@ -57,7 +57,7 @@ public class InvestigationManager : MonoBehaviour
         if (CurrentCase != null || CurrentOrder != null) return true;
         if (clientSpawner == null)
         {
-            clientSpawner = FindObjectOfType<ClientSpawner>();
+            clientSpawner = SceneLookup.Find<ClientSpawner>();
         }
         return clientSpawner != null && clientSpawner.HasActiveClient;
     }
@@ -309,7 +309,7 @@ public class InvestigationManager : MonoBehaviour
     {
         if (clientSpawner == null)
         {
-            clientSpawner = FindObjectOfType<ClientSpawner>();
+            clientSpawner = SceneLookup.Find<ClientSpawner>();
         }
 
         if (clientSpawner == null)
@@ -332,7 +332,7 @@ public class InvestigationManager : MonoBehaviour
         if (hunterDialogueActive) return null;
         if (clientSpawner == null)
         {
-            clientSpawner = FindObjectOfType<ClientSpawner>();
+            clientSpawner = SceneLookup.Find<ClientSpawner>();
         }
         return clientSpawner != null ? clientSpawner.GetActiveAnimator() : null;
     }
@@ -342,7 +342,7 @@ public class InvestigationManager : MonoBehaviour
         if (hunterDialogueActive) return null;
         if (clientSpawner == null)
         {
-            clientSpawner = FindObjectOfType<ClientSpawner>();
+            clientSpawner = SceneLookup.Find<ClientSpawner>();
         }
         return clientSpawner != null && clientSpawner.HasActiveClient
             ? clientSpawner.GetActiveClientAgent()
@@ -634,7 +634,7 @@ public class InvestigationManager : MonoBehaviour
 
         if (dialogueUI == null)
         {
-            dialogueUI = FindObjectOfType<InvestigationDialogueUI>(true);
+            dialogueUI = SceneLookup.Find<InvestigationDialogueUI>(true);
         }
 
         if (dialogueUI == null)
@@ -651,7 +651,7 @@ public class InvestigationManager : MonoBehaviour
     {
         if (orderOfferPanel == null)
         {
-            orderOfferPanel = FindObjectOfType<OrderOfferPanel>(true);
+            orderOfferPanel = SceneLookup.Find<OrderOfferPanel>(true);
         }
 
         if (orderOfferPanel == null || CurrentOrder == null)
@@ -721,7 +721,7 @@ public class InvestigationManager : MonoBehaviour
         }
         if (dialogueUI == null)
         {
-            dialogueUI = FindObjectOfType<InvestigationDialogueUI>(true);
+            dialogueUI = SceneLookup.Find<InvestigationDialogueUI>(true);
         }
         if (dialogueUI != null)
         {
@@ -963,7 +963,7 @@ public class InvestigationManager : MonoBehaviour
     {
         if (dialogueUI == null)
         {
-            dialogueUI = FindObjectOfType<InvestigationDialogueUI>(true);
+            dialogueUI = SceneLookup.Find<InvestigationDialogueUI>(true);
         }
         if (dialogueUI != null)
         {
@@ -975,7 +975,7 @@ public class InvestigationManager : MonoBehaviour
     {
         if (dialogueUI == null)
         {
-            dialogueUI = FindObjectOfType<InvestigationDialogueUI>(true);
+            dialogueUI = SceneLookup.Find<InvestigationDialogueUI>(true);
         }
         if (dialogueUI != null)
         {
@@ -993,7 +993,7 @@ public class InvestigationManager : MonoBehaviour
     {
         if (bestiaryUI == null)
         {
-            bestiaryUI = FindObjectOfType<BestiaryUI>(true);
+            bestiaryUI = SceneLookup.Find<BestiaryUI>(true);
         }
         return bestiaryUI;
     }
@@ -1074,14 +1074,14 @@ public class InvestigationManager : MonoBehaviour
             if (playerController != null) return playerController;
         }
 
-        playerController = FindObjectOfType<FirstPersonController>();
+        playerController = SceneLookup.Find<FirstPersonController>();
         return playerController;
     }
 
     private PlayerInteraction ResolvePlayerInteraction()
     {
         if (playerInteraction != null) return playerInteraction;
-        playerInteraction = FindObjectOfType<PlayerInteraction>();
+        playerInteraction = SceneLookup.Find<PlayerInteraction>();
         return playerInteraction;
     }
 

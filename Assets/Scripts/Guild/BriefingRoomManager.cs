@@ -343,7 +343,7 @@ public class BriefingRoomManager : MonoBehaviour
         }
 
         chalkboards.RemoveAll(board => board == null);
-        var boardsInScene = FindObjectsByType<BriefingChalkboard>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+        var boardsInScene = SceneLookup.FindAll<BriefingChalkboard>();
         foreach (var board in boardsInScene)
         {
             if (board != null && !chalkboards.Contains(board))

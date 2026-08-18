@@ -101,7 +101,7 @@ public class DayTransitionUI : MonoBehaviour
 
     private void LockPlayer(FirstPersonController controller)
     {
-        lockedController = controller != null ? controller : FindFirstObjectByType<FirstPersonController>();
+        lockedController = controller != null ? controller : SceneLookup.Find<FirstPersonController>();
         if (lockedController == null) return;
 
         lockedControllerWasAlreadyLocked = lockedController.IsMovementLocked();

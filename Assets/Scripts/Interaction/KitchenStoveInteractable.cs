@@ -71,7 +71,7 @@ public class KitchenStoveInteractable : Interactable
     {
         if (kitchenManager == null)
         {
-            kitchenManager = KitchenManager.Instance != null ? KitchenManager.Instance : FindFirstObjectByType<KitchenManager>();
+            kitchenManager = KitchenManager.Instance != null ? KitchenManager.Instance : SceneLookup.Find<KitchenManager>();
         }
     }
 

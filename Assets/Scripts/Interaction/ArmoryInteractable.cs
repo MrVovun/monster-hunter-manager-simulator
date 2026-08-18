@@ -85,7 +85,7 @@ public class ArmoryInteractable : Interactable
     {
         if (armoryManager == null)
         {
-            armoryManager = FindObjectOfType<ArmoryManager>(true);
+            armoryManager = SceneLookup.Find<ArmoryManager>(true);
         }
     }
 
