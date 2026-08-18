@@ -141,11 +141,11 @@ MonoBehaviour:
     xpReward: 180
     reputationPointsReward: 60
     weight: 1
-  - minReputation: 5
+  - minReputation: 6
     maxReputation: 6
-    difficultyValue: 140
-    missionTimeSeconds: 172
-    goldReward: 390
-    xpReward: 140
-    reputationPointsReward: 50
+    difficultyValue: 170
+    missionTimeSeconds: 196
+    goldReward: 500
+    xpReward: 200
+    reputationPointsReward: 60
     weight: 1

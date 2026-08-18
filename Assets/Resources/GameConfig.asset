@@ -55,6 +55,12 @@ MonoBehaviour:
     orderLimit: 0
   baseInjuryChance: 0.5
   baseDeathChance: 0.25
+  successThresholdPercent: 100
+  woundProtectionThresholdPercent: 150
+  bonusRewardThresholdPercent: 200
+  lateDispatchWindowSeconds: 60
+  lateDispatchSuccessPenaltyPercent: 10
+  referralRate: 0.25
   debtSettings:
     unpaidDay1SuccessPenaltyPercent: 5
     unpaidDay2SuccessPenaltyPercent: 15
@@ -65,6 +71,7 @@ MonoBehaviour:
     ringBellSeconds: 5
     questionSeconds: 5
     acceptOrderSeconds: 5
+    referOrderSeconds: 5
     sendPartySeconds: 5
     treatWoundsBonusSeconds: 0
     levelUpSeconds: 5
@@ -76,6 +83,7 @@ MonoBehaviour:
     cleanKitchenPlateSeconds: 3
     cleanDormitoryBedSeconds: 3
     cleanStaleDormitoryBedSeconds: 6
+    washFloorSeconds: 5
     passTimeStepSeconds: 60
   dialogueResponseDelaySeconds: 1
   traitCountChances:

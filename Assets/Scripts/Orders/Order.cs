@@ -28,6 +28,8 @@ public class Order
     public InvestigationCase investigationCase;
     [Tooltip("When true, investigation will not roll random monster traits for this order.")]
     public bool suppressRandomTraits;
+    [Tooltip("Set when the party was sent during the final configured part of the workday.")]
+    public bool lateDispatch;
     public int difficulty;
     public int goldReward;
     public int xpReward;

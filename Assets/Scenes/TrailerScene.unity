@@ -23432,6 +23432,8 @@ MonoBehaviour:
   declaredMonsterText: {fileID: 2088428671}
   acceptButton: {fileID: 2094595205}
   referButton: {fileID: 1849585802}
+  referButtonText: {fileID: 1162616888}
+  referralRewardText: {fileID: 1543960861}
   declaredMonsterPortrait: {fileID: 1853452387}
 --- !u!114 &227315565
 MonoBehaviour:
@@ -69796,7 +69798,9 @@ MonoBehaviour:
   offeredOrders: []
   activeOrders: []
   missionHistory: []
-  referralPayout: 10
+  fallbackReferralRate: 0.25
+  minimumDailyReferralMultiplier: 0.25
+  dailyReferralMultiplierLoss: 0.2
 --- !u!114 &660880175
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -114664,6 +114668,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d81e75372cfa6974190ddf50cfb9b0f4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MissionBonusChestManager
+  useGameConfigThreshold: 1
   requiredSuccessChancePercent: 200
   mimicChance: 1
   chestPrefab: {fileID: 652704635636142108, guid: 4b5b102f96614904cb010ca2dc4779f8, type: 3}
@@ -165293,7 +165298,7 @@ GameObject:
   - component: {fileID: 1543960862}
   - component: {fileID: 1543960861}
   m_Layer: 5
-  m_Name: SuccessTelemetry
+  m_Name: ReferralReward
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -165319,7 +165324,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Success Telemetry
+  m_text: Referral reward
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 009fe344ad60a3f45bb22ef678dac8b7, type: 2}
   m_sharedMaterial: {fileID: -8583652012644886522, guid: 009fe344ad60a3f45bb22ef678dac8b7, type: 2}

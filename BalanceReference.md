@@ -9,16 +9,39 @@ Referral is handled by `OrderManager.ReferOrder`.
 - The player must first declare a suspected monster.
 - The order is removed from offered orders.
 - The order state becomes `Failed`.
-- The guild receives a flat referral payout.
-- Current payout field: `OrderManager.referralPayout = 25` by default.
-- Referral does not currently advance action time.
+- The guild receives a case-quality payout.
+- Referral advances action time through `GameConfig.actionTimeSettings.referOrderSeconds`.
 - Referral income uses `GoldManager.AddGold`, so if the guild has debt, the referral payout pays debt before becoming spendable gold.
 
-There is no difficulty-based referral formula yet. Current formula:
+Current formula:
 
 ```text
-referralGold = referralPayout
+ReferralFee = OrderReward * ReferralRate * CaseQuality * DailyReferralMultiplier
+ReferralRate = GameConfig.referralRate
+DailyReferralMultiplier = max(0.25, 1 - 0.20 * referralsToday)
 ```
+
+Default referral rate:
+
+```text
+ReferralRate = 0.25
+```
+
+Case quality:
+
+```text
+if declared monster family != true monster family:
+    CaseQuality = 0
+else if true monster has traits:
+    CaseQuality = 0.40
+                + 0.35 if declared monster is correct
+                + 0.25 * revealedCorrectTraits / actualTraitCount
+else:
+    CaseQuality = 0.45
+                + 0.55 if declared monster is correct
+```
+
+`referralsToday` resets at the start of each day. The first referral of a day pays 100% of the calculated value, then 80%, 60%, 40%, and 25% for the fifth and later referrals.
 
 ## Action Time
 
@@ -45,6 +68,7 @@ Current configured action costs:
 ```text
 Ring client bell: 5
 Accept order: 5
+Refer order: 5
 Send party: 5
 Level up hunter: 5
 Post hiring ad: 10
@@ -190,9 +214,34 @@ Important thresholds:
 
 ```text
 successChance >= 100: mission success is guaranteed
-successChance > 100: success prevents wounds
+successChance >= 150: success prevents wounds
 successChance >= 200: success prevents death and can spawn a bonus chest
 ```
+
+These are exposed on `GameConfig` as:
+
+```text
+successThresholdPercent = 100
+woundProtectionThresholdPercent = 150
+bonusRewardThresholdPercent = 200
+```
+
+Late dispatch:
+
+```text
+if party is sent while secondsRemainingInDay <= lateDispatchWindowSeconds:
+    order.lateDispatch = true
+    successChance -= lateDispatchSuccessPenaltyPercent
+```
+
+Defaults:
+
+```text
+lateDispatchWindowSeconds = 60
+lateDispatchSuccessPenaltyPercent = 10
+```
+
+The order stores whether it was sent late. This matters because mission success is recalculated when the mission resolves, not only when the party is dispatched.
 
 Current base risk values:
 

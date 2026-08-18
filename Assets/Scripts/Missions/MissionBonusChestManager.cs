@@ -4,6 +4,7 @@ using UnityEngine;
 public class MissionBonusChestManager : MonoBehaviour
 {
     [Header("Reward Condition")]
+    [SerializeField] private bool useGameConfigThreshold = true;
     [SerializeField] private float requiredSuccessChancePercent = MissionOutcomeCalculator.MaxSuccessChance;
     [SerializeField, Range(0f, 1f)] private float mimicChance = 0.05f;
 
@@ -79,7 +80,21 @@ public class MissionBonusChestManager : MonoBehaviour
     private bool ShouldSpawnReward(MissionReport report)
     {
         if (report == null || !report.success) return false;
-        return report.successChancePercent >= requiredSuccessChancePercent;
+        return report.successChancePercent >= GetRequiredSuccessChancePercent();
+    }
+
+    private float GetRequiredSuccessChancePercent()
+    {
+        if (useGameConfigThreshold)
+        {
+            var config = GameManager.Instance != null ? GameManager.Instance.GetGameConfig() : null;
+            if (config != null)
+            {
+                return Mathf.Max(1f, config.bonusRewardThresholdPercent);
+            }
+        }
+
+        return Mathf.Max(1f, requiredSuccessChancePercent);
     }
 
     public void DebugSpawnChest()

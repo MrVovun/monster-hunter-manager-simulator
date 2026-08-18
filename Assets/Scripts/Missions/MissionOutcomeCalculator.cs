@@ -8,12 +8,12 @@ public static class MissionOutcomeCalculator
 
     public static List<string> BuildSuccessTelemetryLines(Order order, List<Hunter> party)
     {
-        return BuildSuccessTelemetryLines(order, party, GetTruthMonster(order), CollectMonsterTraits(order));
+        return BuildSuccessTelemetryLines(order, party, GetTruthMonster(order), CollectMonsterTraits(order), false);
     }
 
     public static List<string> BuildPreviewSuccessTelemetryLines(Order order, List<Hunter> party)
     {
-        return BuildSuccessTelemetryLines(order, party, GetPreviewMonster(order), CollectPreviewMonsterTraits(order));
+        return BuildSuccessTelemetryLines(order, party, GetPreviewMonster(order), CollectPreviewMonsterTraits(order), true);
     }
 
     public static List<MissionTraitCounterPreview> BuildPreviewTraitCounterStates(Order order, List<Hunter> party)
@@ -36,7 +36,7 @@ public static class MissionOutcomeCalculator
         return states;
     }
 
-    private static List<string> BuildSuccessTelemetryLines(Order order, List<Hunter> party, MonsterData monsterForConditions, List<MonsterTrait> monsterTraits)
+    private static List<string> BuildSuccessTelemetryLines(Order order, List<Hunter> party, MonsterData monsterForConditions, List<MonsterTrait> monsterTraits, bool preview)
     {
         var lines = new List<string>();
         if (order == null)
@@ -65,32 +65,35 @@ public static class MissionOutcomeCalculator
 
         float successBonusTotal = 0f;
         float minSuccessTotal = 0f;
+        var briefingGroups = new Dictionary<float, List<string>>();
+        var kitchenSuccessGroups = new Dictionary<string, GroupedModifierLine>();
+        var missedSleepGroups = new Dictionary<float, List<string>>();
 
         foreach (var hunter in party)
         {
             var data = hunter?.Data;
+            string hunterName = GetHunterDisplayName(hunter);
             float briefingBonus = BriefingRoomManager.GetActiveDailyBonus(hunter);
             if (Mathf.Abs(briefingBonus) > 0.01f)
             {
-                string hunterName = hunter != null && !string.IsNullOrWhiteSpace(hunter.name) ? hunter.name : "Hunter";
                 successBonusTotal += briefingBonus;
-                lines.Add($"{hunterName} - Briefing plan: {(briefingBonus >= 0f ? "+" : string.Empty)}{briefingBonus:0.#}% success");
+                AddNameToGroup(briefingGroups, briefingBonus, hunterName);
             }
 
             KitchenRecipe kitchenRecipe = KitchenManager.GetActiveRecipe(hunter);
             if (kitchenRecipe != null && Mathf.Abs(kitchenRecipe.successChanceBonusPercent) > 0.01f)
             {
-                string hunterName = hunter != null && !string.IsNullOrWhiteSpace(hunter.name) ? hunter.name : "Hunter";
                 successBonusTotal += kitchenRecipe.successChanceBonusPercent;
-                lines.Add($"{hunterName} - Ate {kitchenRecipe.GetDisplayName()}: {(kitchenRecipe.successChanceBonusPercent >= 0f ? "+" : string.Empty)}{kitchenRecipe.successChanceBonusPercent:0.#}% success");
+                string recipeName = kitchenRecipe.GetDisplayName();
+                string key = $"{recipeName}|{kitchenRecipe.successChanceBonusPercent:0.###}";
+                AddNameToKitchenGroup(kitchenSuccessGroups, key, recipeName, kitchenRecipe.successChanceBonusPercent, hunterName);
             }
 
             float missedSleepPenalty = DormitoryManager.GetActiveMissedSleepPenaltyPercent(hunter);
             if (missedSleepPenalty > 0.01f)
             {
-                string hunterName = hunter != null && !string.IsNullOrWhiteSpace(hunter.name) ? hunter.name : "Hunter";
                 successBonusTotal -= missedSleepPenalty;
-                lines.Add($"{hunterName} - Missed sleep: -{missedSleepPenalty:0.#}% success");
+                AddNameToGroup(missedSleepGroups, missedSleepPenalty, hunterName);
             }
 
             if (data == null || data.traits == null) continue;
@@ -104,7 +107,6 @@ public static class MissionOutcomeCalculator
                     if (effect == null) continue;
                     if (!DoesConditionPassPreview(effect.condition, monsterForConditions, partySize, hunter, party, order, monsterTraits)) continue;
 
-                    string hunterName = !string.IsNullOrWhiteSpace(hunter.name) ? hunter.name : "Hunter";
                     string traitName = !string.IsNullOrWhiteSpace(trait.displayName) ? trait.displayName : "Trait";
                     string suffix = BuildConditionSuffix(effect.condition);
 
@@ -126,6 +128,10 @@ public static class MissionOutcomeCalculator
             }
         }
 
+        AppendGroupedPercentLines(lines, briefingGroups, "Briefing plan", "success", positive: true);
+        AppendKitchenGroupedLines(lines, kitchenSuccessGroups);
+        AppendGroupedPercentLines(lines, missedSleepGroups, "Missed sleep", "success", positive: false);
+
         if (Mathf.Abs(successBonusTotal) > 0.01f)
         {
             lines.Add($"Total flat success bonus: {(successBonusTotal >= 0f ? "+" : string.Empty)}{successBonusTotal:0.#}%");
@@ -139,6 +145,11 @@ public static class MissionOutcomeCalculator
         {
             lines.Add($"Minimum success floor: {minSuccessTotal:0.#}%");
         }
+        float lateDispatchPenalty = GetLateDispatchPenalty(order, ResolveConfig(null), preview);
+        if (lateDispatchPenalty > 0.01f)
+        {
+            lines.Add($"Late dispatch: -{lateDispatchPenalty:0.#}% success");
+        }
 
         if (lines.Count == 0)
         {
@@ -150,18 +161,21 @@ public static class MissionOutcomeCalculator
 
     public static MissionOutcomeResult Evaluate(Order order, List<Hunter> party, MissionOutcomeConfig? configOverride = null)
     {
-        return Evaluate(order, party, configOverride, GetTruthMonster(order), CollectMonsterTraits(order));
+        return Evaluate(order, party, configOverride, GetTruthMonster(order), CollectMonsterTraits(order), false);
     }
 
     public static MissionOutcomeResult EvaluatePreview(Order order, List<Hunter> party, MissionOutcomeConfig? configOverride = null)
     {
-        return Evaluate(order, party, configOverride, GetPreviewMonster(order), CollectPreviewMonsterTraits(order));
+        return Evaluate(order, party, configOverride, GetPreviewMonster(order), CollectPreviewMonsterTraits(order), true);
     }
 
-    private static MissionOutcomeResult Evaluate(Order order, List<Hunter> party, MissionOutcomeConfig? configOverride, MonsterData monsterForConditions, List<MonsterTrait> monsterTraits)
+    private static MissionOutcomeResult Evaluate(Order order, List<Hunter> party, MissionOutcomeConfig? configOverride, MonsterData monsterForConditions, List<MonsterTrait> monsterTraits, bool preview)
     {
         var config = ResolveConfig(configOverride);
         var result = new MissionOutcomeResult();
+        result.SuccessThresholdPercent = Mathf.Max(1f, config.successThresholdPercent);
+        result.WoundProtectionThresholdPercent = Mathf.Max(result.SuccessThresholdPercent, config.woundProtectionThresholdPercent);
+        result.BonusRewardThresholdPercent = Mathf.Max(result.WoundProtectionThresholdPercent, config.bonusRewardThresholdPercent);
         result.RequiredPower = Mathf.Max(1f, order != null ? order.difficulty : 1f);
 
         if (order == null || party == null || party.Count == 0)
@@ -211,7 +225,7 @@ public static class MissionOutcomeCalculator
         var aggregate = AggregateHunterBonuses(order, monsterForConditions, monsterTraits, party);
         missionTimeMultiplier *= Mathf.Clamp(1f - (aggregate.missionTimeReductionPercent / 100f), 0.01f, 1f);
         missionTimeMultiplier *= Mathf.Max(0.01f, aggregate.missionTimeMultiplier);
-        float successChance = Mathf.Clamp(baseSuccess + aggregate.successChanceBonus - config.debtSuccessPenaltyPercent, 0f, MaxSuccessChance);
+        float successChance = Mathf.Clamp(baseSuccess + aggregate.successChanceBonus - config.debtSuccessPenaltyPercent - GetLateDispatchPenalty(order, config, preview), 0f, MaxSuccessChance);
         successChance = Mathf.Clamp(successChance, 0f, capSuccessLimit);
         successChance = Mathf.Max(successChance, aggregate.minSuccessPercent);
         result.SuccessChancePercent = successChance;
@@ -731,6 +745,94 @@ public static class MissionOutcomeCalculator
         return string.Empty;
     }
 
+    private static string GetHunterDisplayName(Hunter hunter)
+    {
+        return hunter != null && !string.IsNullOrWhiteSpace(hunter.name) ? hunter.name : "Hunter";
+    }
+
+    private static void AddNameToGroup(Dictionary<float, List<string>> groups, float value, string hunterName)
+    {
+        if (groups == null) return;
+        float key = Mathf.Round(value * 100f) / 100f;
+        if (!groups.TryGetValue(key, out var names))
+        {
+            names = new List<string>();
+            groups[key] = names;
+        }
+        names.Add(hunterName);
+    }
+
+    private static void AddNameToKitchenGroup(Dictionary<string, GroupedModifierLine> groups, string key, string label, float value, string hunterName)
+    {
+        if (groups == null || string.IsNullOrWhiteSpace(key)) return;
+        if (!groups.TryGetValue(key, out var group))
+        {
+            group = new GroupedModifierLine(label, value);
+        }
+        group.hunterNames.Add(hunterName);
+        groups[key] = group;
+    }
+
+    private static void AppendGroupedPercentLines(List<string> lines, Dictionary<float, List<string>> groups, string label, string suffix, bool positive)
+    {
+        if (lines == null || groups == null || groups.Count == 0) return;
+        foreach (var pair in groups)
+        {
+            float value = pair.Key;
+            var names = pair.Value;
+            if (names == null || names.Count == 0) continue;
+            float totalValue = value * names.Count;
+            string sign = positive && value >= 0f ? "+" : "-";
+            lines.Add($"{label}: {sign}{Mathf.Abs(totalValue):0.#}% {suffix} from {JoinNames(names)}");
+        }
+    }
+
+    private static void AppendKitchenGroupedLines(List<string> lines, Dictionary<string, GroupedModifierLine> groups)
+    {
+        if (lines == null || groups == null || groups.Count == 0) return;
+        foreach (var pair in groups)
+        {
+            var group = pair.Value;
+            if (group.hunterNames == null || group.hunterNames.Count == 0) continue;
+            float totalValue = group.value * group.hunterNames.Count;
+            string sign = totalValue >= 0f ? "+" : string.Empty;
+            lines.Add($"{group.label}: {sign}{totalValue:0.#}% success from {JoinNames(group.hunterNames)}");
+        }
+    }
+
+    private static string JoinNames(List<string> names)
+    {
+        if (names == null || names.Count == 0) return "hunters";
+        if (names.Count == 1) return names[0];
+        if (names.Count == 2) return $"{names[0]} and {names[1]}";
+
+        return $"{string.Join(", ", names.GetRange(0, names.Count - 1))}, and {names[names.Count - 1]}";
+    }
+
+    private static float GetLateDispatchPenalty(Order order, MissionOutcomeConfig config, bool preview)
+    {
+        if (order == null || config.lateDispatchSuccessPenaltyPercent <= 0f)
+        {
+            return 0f;
+        }
+
+        bool isLateDispatch = preview ? WouldDispatchBeLate(config) : order.lateDispatch;
+        return isLateDispatch ? config.lateDispatchSuccessPenaltyPercent : 0f;
+    }
+
+    private static bool WouldDispatchBeLate(MissionOutcomeConfig config)
+    {
+        if (config.lateDispatchWindowSeconds <= 0f) return false;
+
+        TimeManager timeManager = GameManager.Instance != null ? GameManager.Instance.GetTimeManager() : null;
+        if (timeManager == null || timeManager.GetDayState() != TimeManager.DayState.Active)
+        {
+            return false;
+        }
+
+        return timeManager.GetSecondsRemainingInDay() <= config.lateDispatchWindowSeconds;
+    }
+
     private struct HunterBonusAggregate
     {
         public float successChanceBonus;
@@ -763,6 +865,20 @@ public static class MissionOutcomeCalculator
             };
         }
     }
+
+    private struct GroupedModifierLine
+    {
+        public string label;
+        public float value;
+        public List<string> hunterNames;
+
+        public GroupedModifierLine(string label, float value)
+        {
+            this.label = string.IsNullOrWhiteSpace(label) ? "Bonus" : label;
+            this.value = value;
+            hunterNames = new List<string>();
+        }
+    }
 }
 
 public struct MissionOutcomeConfig
@@ -770,12 +886,22 @@ public struct MissionOutcomeConfig
     public float baseInjuryChance;
     public float baseDeathChance;
     public float debtSuccessPenaltyPercent;
+    public float successThresholdPercent;
+    public float woundProtectionThresholdPercent;
+    public float bonusRewardThresholdPercent;
+    public float lateDispatchWindowSeconds;
+    public float lateDispatchSuccessPenaltyPercent;
 
     public static MissionOutcomeConfig Default => new MissionOutcomeConfig
     {
         baseInjuryChance = 0.2f,
         baseDeathChance = 0.05f,
-        debtSuccessPenaltyPercent = 0f
+        debtSuccessPenaltyPercent = 0f,
+        successThresholdPercent = 100f,
+        woundProtectionThresholdPercent = 150f,
+        bonusRewardThresholdPercent = MissionOutcomeCalculator.MaxSuccessChance,
+        lateDispatchWindowSeconds = 60f,
+        lateDispatchSuccessPenaltyPercent = 10f
     };
 
     public static MissionOutcomeConfig FromGameConfig(GameConfig config)
@@ -789,7 +915,12 @@ public struct MissionOutcomeConfig
         {
             baseInjuryChance = Mathf.Clamp01(config.baseInjuryChance),
             baseDeathChance = Mathf.Clamp01(config.baseDeathChance),
-            debtSuccessPenaltyPercent = GameManager.Instance != null ? Mathf.Max(0f, GameManager.Instance.GetDebtSuccessPenaltyPercent()) : 0f
+            debtSuccessPenaltyPercent = GameManager.Instance != null ? Mathf.Max(0f, GameManager.Instance.GetDebtSuccessPenaltyPercent()) : 0f,
+            successThresholdPercent = Mathf.Max(1f, config.successThresholdPercent),
+            woundProtectionThresholdPercent = Mathf.Max(1f, config.woundProtectionThresholdPercent),
+            bonusRewardThresholdPercent = Mathf.Max(1f, config.bonusRewardThresholdPercent),
+            lateDispatchWindowSeconds = Mathf.Max(0f, config.lateDispatchWindowSeconds),
+            lateDispatchSuccessPenaltyPercent = Mathf.Max(0f, config.lateDispatchSuccessPenaltyPercent)
         };
     }
 }
@@ -807,10 +938,15 @@ public class MissionOutcomeResult
     public bool InjuryPreventionActive { get; internal set; }
     public bool DeathPreventionActive { get; internal set; }
     public float AdditionalSuccessXP { get; internal set; }
+    public float SuccessThresholdPercent { get; internal set; } = 100f;
+    public float WoundProtectionThresholdPercent { get; internal set; } = 150f;
+    public float BonusRewardThresholdPercent { get; internal set; } = MissionOutcomeCalculator.MaxSuccessChance;
 
     public float SuccessRollThreshold => Mathf.Min(SuccessChancePercent, 100f);
-    public bool InjuryProtectionFromSuccess => SuccessChancePercent > 100f;
-    public bool DeathProtectionFromSuccess => SuccessChancePercent >= MissionOutcomeCalculator.MaxSuccessChance;
+    public bool GuaranteedSuccessFromChance => SuccessChancePercent >= SuccessThresholdPercent;
+    public bool InjuryProtectionFromSuccess => SuccessChancePercent >= WoundProtectionThresholdPercent;
+    public bool DeathProtectionFromSuccess => SuccessChancePercent >= BonusRewardThresholdPercent;
+    public bool BonusRewardFromSuccess => SuccessChancePercent >= BonusRewardThresholdPercent;
 }
 
 public readonly struct MissionTraitCounterPreview

@@ -29,6 +29,20 @@ public class GameConfig : ScriptableObject
     [Header("Mission Balance")]
     [Range(0f, 1f)] public float baseInjuryChance = 0.2f;
     [Range(0f, 1f)] public float baseDeathChance = 0.05f;
+    [Tooltip("Success chance at or above this value guarantees mission success.")]
+    public float successThresholdPercent = 100f;
+    [Tooltip("Success chance at or above this value prevents normal wound rolls.")]
+    public float woundProtectionThresholdPercent = 150f;
+    [Tooltip("Success chance at or above this value qualifies the mission for bonus rewards.")]
+    public float bonusRewardThresholdPercent = 200f;
+    [Tooltip("Sending parties during this many final seconds of the workday counts as a late dispatch.")]
+    public float lateDispatchWindowSeconds = 60f;
+    [Tooltip("Flat success chance penalty applied to orders sent during the late dispatch window.")]
+    public float lateDispatchSuccessPenaltyPercent = 10f;
+
+    [Header("Referral Economy")]
+    [Tooltip("Base share of the order gold reward paid when referring a well-documented case.")]
+    [Range(0f, 1f)] public float referralRate = 0.25f;
 
     [Header("Debt / Unpaid Upkeep")]
     public DebtSettings debtSettings = new DebtSettings();
@@ -80,6 +94,8 @@ public class GameConfig : ScriptableObject
         public float questionSeconds = 5f;
         [Tooltip("Accepting an order.")]
         public float acceptOrderSeconds = 5f;
+        [Tooltip("Referring an order to another guild.")]
+        public float referOrderSeconds = 5f;
         [Tooltip("Dispatching a party (not counting mission duration).")]
         public float sendPartySeconds = 5f;
         [Tooltip("Treating hunter wounds. Uses the heal duration plus this bonus if set > 0.")]

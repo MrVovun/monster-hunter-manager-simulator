@@ -31,6 +31,8 @@ public class OrderOfferPanel : MonoBehaviour
     [SerializeField] private TMP_Text declaredMonsterText;
     [SerializeField] private Button acceptButton;
     [SerializeField] private Button referButton;
+    [SerializeField] private TMP_Text referButtonText;
+    [SerializeField] private TMP_Text referralRewardText;
     [Header("Monster Visuals")]
     [SerializeField] private Image declaredMonsterPortrait;
 
@@ -196,6 +198,7 @@ public class OrderOfferPanel : MonoBehaviour
         }
 
         UpdateSuccessTelemetryHint();
+        UpdateReferralPreview();
 
         UpdateRevealedTraitsUI();
     }
@@ -243,6 +246,7 @@ public class OrderOfferPanel : MonoBehaviour
         SetButtonState(acceptButton, limitAllowsAccept && TutorialManager.IsActionAllowed(TutorialIds.AcceptOrder), GetAcceptUnavailableReason(declarationValid));
         SetButtonState(referButton, declarationValid && TutorialManager.IsActionAllowed(TutorialIds.ReferOrder), GetReferUnavailableReason(declarationValid));
         SetButtonState(backButton, TutorialManager.IsActionAllowed(TutorialIds.DeclineOrder), "Unavailable during the current tutorial step.");
+        UpdateReferralPreview();
     }
 
     private OrderManager GetOrderManager()
@@ -537,5 +541,28 @@ public class OrderOfferPanel : MonoBehaviour
         }
 
         successTelemetryText.text = "Modifiers: final success bonuses are shown in Orders tab after assigning party.";
+    }
+
+    private void UpdateReferralPreview()
+    {
+        OrderManager manager = GetOrderManager();
+        float multiplier = manager != null ? manager.GetDailyReferralMultiplier() : 1f;
+        int multiplierPercent = Mathf.RoundToInt(multiplier * 100f);
+
+        TMP_Text buttonText = referButtonText != null
+            ? referButtonText
+            : (referButton != null ? referButton.GetComponentInChildren<TMP_Text>(true) : null);
+        if (buttonText != null)
+        {
+            buttonText.text = $"Refer ({multiplierPercent}%)";
+        }
+
+        if (referralRewardText == null) return;
+        int reward = manager != null && currentOrder != null && currentOrder.declaredMonster != null
+            ? manager.CalculateReferralFee(currentOrder)
+            : 0;
+        referralRewardText.text = currentOrder != null && currentOrder.declaredMonster != null
+            ? $"{reward} gold"
+            : "-";
     }
 }

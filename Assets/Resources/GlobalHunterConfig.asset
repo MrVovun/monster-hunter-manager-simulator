@@ -35,7 +35,7 @@ MonoBehaviour:
     recruitmentWeight: 0.03125
   basePostingFee: 10
   costPerMinute: 20
-  arrivalIntervalSeconds: {x: 10, y: 20}
-  campaignDurationsMinutes: 020000000400000006000000
+  arrivalIntervalSeconds: {x: 10, y: 30}
+  campaignDurationsMinutes: 010000000200000003000000040000000500000006000000
   maxCandidateQueueSize: 1
   defaultInitialHunterCount: 1
