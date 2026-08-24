@@ -801,6 +801,7 @@ public class DeveloperToolsPanel : MonoBehaviour
             goldReward = Mathf.Max(0, debugOrderGold),
             xpReward = Mathf.Max(0, debugOrderXp),
             reputationPointsReward = Mathf.Max(0f, debugOrderDifficulty / 5f),
+            reputationTier = GameManager.Instance != null ? Mathf.Max(0, GameManager.Instance.GetReputation()) : 0,
             missionDuration = Mathf.Max(30f, debugOrderDuration),
             maxPartySize = 3,
             minPartySize = 1,

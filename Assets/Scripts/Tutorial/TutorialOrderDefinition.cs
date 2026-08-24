@@ -10,6 +10,7 @@ public class TutorialOrderDefinition : ScriptableObject
     public int goldReward = 25;
     public int xpReward = 25;
     public float reputationPointsReward = 0.1f;
+    public int reputationTier = 1;
     public float missionDurationSeconds = 60f;
     public int minPartySize = 1;
     public int maxPartySize = 1;
@@ -26,6 +27,7 @@ public class TutorialOrderDefinition : ScriptableObject
             goldReward = Mathf.Max(0, goldReward),
             xpReward = Mathf.Max(0, xpReward),
             reputationPointsReward = Mathf.Max(0f, reputationPointsReward),
+            reputationTier = Mathf.Max(0, reputationTier),
             missionDuration = Mathf.Max(1f, missionDurationSeconds),
             minPartySize = Mathf.Max(1, minPartySize),
             maxPartySize = Mathf.Max(Mathf.Max(1, minPartySize), maxPartySize),

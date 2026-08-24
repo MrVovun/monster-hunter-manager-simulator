@@ -18,19 +18,34 @@ MonoBehaviour:
   bio: Bram is a sexist, but only when it's applied to monsters. In his worldview,
     monsters shouldn't be allowed to be beautiful, so he's willing to exterminate
     all of them.
-  basePower: 28
-  powerPerLevel: 2
+  statBlock: {fileID: 0}
+  statOverrides:
+    overrideUpkeep: 0
+    overrideProgression: 0
+    overrideReputationRequirement: 0
+  legacyBasePower: 28
+  legacyPowerPerLevel: 2
+  legacyDailyUpkeepCost: 0
+  migratedLevelPower: 1
+  migratedLevelUpkeep: 1
+  migratedLevelUpCost: 1
   traits:
   - {fileID: 11400000, guid: eb2201f61acba2443aea852625688b84, type: 2}
   - {fileID: 11400000, guid: 34a66b83ac8c20746a10aebbbdbeaa7e, type: 2}
-  dailyUpkeepCost: 64
   startingLevel: 1
   startingXP: 0
-  levelXPTable: []
-  minReputation: 2
+  levelXPTable:
+  - level: 1
+    requiredXP: 0
+    power: 1
+    upkeep: 0
+    levelUpCost: 0
+  minReputation: 0
   portrait: {fileID: 21300000, guid: cb46314f93a7cf9479fe5ab8346cdd02, type: 3}
   visualPrefab: {fileID: 1615356946489238, guid: 8805364c00c6ce947a40c218a4beca69, type: 3}
+  p09VisualPreset: {fileID: 0}
   greeting: Busy?
   healLine: 
   goodbyeLine: Not really, just hanging around.
   dialogueQuestions: []
+  morningDialogueLines: []

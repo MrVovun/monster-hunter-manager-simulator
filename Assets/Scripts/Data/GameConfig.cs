@@ -44,6 +44,32 @@ public class GameConfig : ScriptableObject
     [Tooltip("Base share of the order gold reward paid when referring a well-documented case.")]
     [Range(0f, 1f)] public float referralRate = 0.25f;
 
+    [Header("Dynamic Spawn Balance")]
+    [Tooltip("Each reputation tier above an order's unlock tier multiplies that order's spawn weight by this value.")]
+    [Range(0f, 1f)] public float lowerOrderDecay = 0.45f;
+    [Tooltip("Lowest multiplier retained for old lower-tier orders so they remain possible.")]
+    [Range(0f, 1f)] public float minOldOrderMultiplier = 0.02f;
+    [Tooltip("Weight multiplier for orders from the current reputation tier. 1 means no extra weighting.")]
+    public float currentTierOrderMultiplier = 1f;
+    [Tooltip("Each reputation tier above a hunter's unlock tier multiplies that hunter's recruitment weight by this value.")]
+    [Range(0f, 1f)] public float lowerRecruitDecay = 0.55f;
+
+    [Header("Trait Reward Scaling")]
+    [Tooltip("Reward multiplier bonus for each rolled monster trait on the order. 0.33 = +33% per trait.")]
+    public float rewardBonusPerMonsterTrait = 0.33f;
+
+    [Header("Guild Trust")]
+    [Tooltip("Trust gained for a clean successful order.")]
+    public int cleanSuccessTrustGain = 1;
+    [Tooltip("Trust lost after a failed order, clamped at 0.")]
+    public int failedOrderTrustLoss = 2;
+    [Tooltip("When enabled, any failed order resets Trust to 0 instead of subtracting Failed Order Trust Loss.")]
+    public bool resetTrustOnFailedOrder = true;
+    [Tooltip("Each Trust point adds this multiplier to reputation rewards. 0.15 = +15% per Trust.")]
+    public float trustReputationBonusPerStreak = 0.15f;
+    [Tooltip("Clean successes only add Trust when order tier is at least current reputation minus this value.")]
+    public int trustEligibleTierBelowCurrentReputation = 1;
+
     [Header("Debt / Unpaid Upkeep")]
     public DebtSettings debtSettings = new DebtSettings();
 
@@ -90,8 +116,6 @@ public class GameConfig : ScriptableObject
     {
         [Tooltip("Ringing the bell to call a client.")]
         public float ringBellSeconds = 5f;
-        [Tooltip("Asking any question in a dialogue (investigation or hunter).")]
-        public float questionSeconds = 5f;
         [Tooltip("Accepting an order.")]
         public float acceptOrderSeconds = 5f;
         [Tooltip("Referring an order to another guild.")]

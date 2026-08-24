@@ -86,9 +86,7 @@ public class HunterLevelSystem : MonoBehaviour
     public int GetLevelUpCost()
     {
         if (hunterData == null) return 0;
-        // Cost scales with level: base cost * level
-        int baseCost = 100;
-        return baseCost * currentLevel;
+        return hunterData.GetLevelUpCostForLevel(currentLevel + 1);
     }
 
     private int GetMaxLevel()

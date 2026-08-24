@@ -305,6 +305,14 @@ public class HunterRecruitmentManager : MonoBehaviour
             rarityWeight *= hunterManager.GetRecruitmentRarityWeightMultiplier(data.rarity);
         }
 
+        int reputation = reputationManager != null ? reputationManager.GetReputation() : 0;
+        GameConfig config = GameManager.Instance != null ? GameManager.Instance.GetGameConfig() : null;
+        if (config != null && reputation > data.minReputation)
+        {
+            int tierDelta = reputation - data.minReputation;
+            rarityWeight *= Mathf.Pow(Mathf.Clamp01(config.lowerRecruitDecay), tierDelta);
+        }
+
         float powerScore = 1f;
         if (activeSettings.targetPower > 0)
         {
@@ -316,7 +324,7 @@ public class HunterRecruitmentManager : MonoBehaviour
         float upkeepScore = 1f;
         if (activeSettings.maxUpkeep > 0)
         {
-            float diff = data.dailyUpkeepCost - activeSettings.maxUpkeep;
+            float diff = data.GetUpkeepCost(data.startingLevel) - activeSettings.maxUpkeep;
             upkeepScore = diff <= 0 ? 1f : Mathf.Clamp01(1f - diff / Mathf.Max(1f, activeSettings.maxUpkeep));
         }
 

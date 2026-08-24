@@ -1,0 +1,74 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: baccc7ff44bd4692bd1f9c5088b74703, type: 3}
+  m_Name: _rep1StatBlock
+  m_EditorClassIdentifier: Assembly-CSharp::HunterStatBlock
+  legacyBasePower: 10
+  legacyPowerPerLevel: 4
+  legacyDailyUpkeepCost: 10
+  migratedLevelPower: 1
+  migratedLevelUpkeep: 1
+  migratedLevelUpCost: 1
+  startingLevel: 1
+  startingXP: 0
+  levelXPTable:
+  - level: 1
+    requiredXP: 0
+    power: 15
+    upkeep: 10
+    levelUpCost: 0
+  - level: 2
+    requiredXP: 80
+    power: 18
+    upkeep: 10
+    levelUpCost: 100
+  - level: 3
+    requiredXP: 110
+    power: 20
+    upkeep: 10
+    levelUpCost: 200
+  - level: 4
+    requiredXP: 160
+    power: 23
+    upkeep: 10
+    levelUpCost: 300
+  - level: 5
+    requiredXP: 230
+    power: 25
+    upkeep: 10
+    levelUpCost: 400
+  - level: 6
+    requiredXP: 330
+    power: 28
+    upkeep: 10
+    levelUpCost: 500
+  - level: 7
+    requiredXP: 460
+    power: 30
+    upkeep: 10
+    levelUpCost: 600
+  - level: 8
+    requiredXP: 660
+    power: 33
+    upkeep: 10
+    levelUpCost: 700
+  - level: 9
+    requiredXP: 930
+    power: 35
+    upkeep: 10
+    levelUpCost: 800
+  - level: 10
+    requiredXP: 1320
+    power: 38
+    upkeep: 10
+    levelUpCost: 900
+  minReputation: 1

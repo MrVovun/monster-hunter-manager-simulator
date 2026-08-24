@@ -21,6 +21,8 @@ ReferralRate = GameConfig.referralRate
 DailyReferralMultiplier = max(0.25, 1 - 0.20 * referralsToday)
 ```
 
+`OrderReward` is the order's current gold reward. This includes dirty-floor reward penalties and trait reward scaling if they have already been applied to the offered order.
+
 Default referral rate:
 
 ```text
@@ -90,8 +92,6 @@ client question time = InvestigationQuestion.askDurationSeconds + ClientProfile.
 hunter question time = InvestigationQuestion.askDurationSeconds
 ```
 
-`GameConfig.actionTimeSettings.questionSeconds` exists but is not the active formula for investigation or hunter dialogue questions.
-
 Floor washing is handled by `MainHallFloorDirtManager`:
 
 ```text
@@ -111,12 +111,31 @@ currentReputation >= entry.minReputation
 currentReputation <= entry.maxReputation
 ```
 
-Eligible difficulty entries are picked by weight:
+Eligible difficulty entries are picked by dynamic weight:
 
 ```text
-effectiveWeight = max(1, entry.weight)
+if entry.weight <= 0:
+    effectiveWeight = 0
+else if currentReputation > entry.minReputation:
+    tierDelta = currentReputation - entry.minReputation
+    effectiveWeight = entry.weight * max(minOldOrderMultiplier, lowerOrderDecay ^ tierDelta)
+else if currentReputation == entry.minReputation:
+    effectiveWeight = entry.weight * currentTierOrderMultiplier
+else:
+    effectiveWeight = entry.weight
+
 entryChance = effectiveWeight / sum(eligibleEffectiveWeights)
 ```
+
+Current dynamic order defaults:
+
+```text
+lowerOrderDecay = 0.45
+minOldOrderMultiplier = 0.02
+currentTierOrderMultiplier = 1
+```
+
+`currentTierOrderMultiplier = 1` means current-tier orders keep their normal weight.
 
 Order values come directly from the selected difficulty entry:
 
@@ -126,7 +145,24 @@ order.missionDuration = entry.missionTimeSeconds
 order.goldReward = entry.goldReward
 order.xpReward = entry.xpReward
 order.reputationPointsReward = entry.reputationPointsReward
+order.reputationTier = entry.minReputation
 ```
+
+After the investigation truth is rolled, monster traits scale gold and XP rewards once:
+
+```text
+traitRewardMultiplier = 1 + actualTraitCount * rewardBonusPerMonsterTrait
+order.goldReward = round(order.goldReward * traitRewardMultiplier)
+order.xpReward = round(order.xpReward * traitRewardMultiplier)
+```
+
+Current default:
+
+```text
+rewardBonusPerMonsterTrait = 0.33
+```
+
+This means each trait adds +33% reward. Three traits produce `1 + 0.33 * 3 = 1.99x`, effectively double reward.
 
 Current difficulty table:
 
@@ -192,11 +228,26 @@ missionTimeMultiplier =
 
 Mission preview and resolution use `MissionOutcomeCalculator`.
 
+Hunter progression stats come from the hunter's Level XP table, either directly on `HunterData` or inherited from a `HunterStatBlock`.
+
+Each level row defines:
+
+```text
+level
+requiredXP     // XP required to upgrade into this level
+power          // hunter power at this level
+upkeep         // daily upkeep at this level
+levelUpCost    // gold required to upgrade into this level
+```
+
+Level 1 should usually have `requiredXP = 0` and `levelUpCost = 0`.
+
 Base power formula:
 
 ```text
 requiredPower = max(1, order.difficulty * requiredPowerMultiplier)
-partyPower = sum(hunter total power) * partyPowerMultiplier
+hunterPower = hunter.LevelXPTable[currentLevel].power
+partyPower = sum(hunterPower) * partyPowerMultiplier
 baseSuccess = clamp((partyPower / requiredPower) * 100, 0, 200)
 ```
 
@@ -296,11 +347,55 @@ successGold = round(order.goldReward * rewardMultiplier + rewardFlat)
 failureGold = order.goldReward / 2
 successXP = round(order.xpReward + additionalSuccessXP)
 failureXP = order.xpReward / 2
-successReputation = order.reputationPointsReward
+if hunter died:
+    successReputation = order.reputationPointsReward
+else:
+    successReputation = order.reputationPointsReward * (1 + trustStreak * trustReputationBonusPerStreak)
 failureReputation = 0
 ```
 
 Gold rewards use `GoldManager.AddGold`, so debt is paid first.
+
+Guild Trust:
+
+```text
+clean success:
+    if order.reputationTier >= currentReputation - trustEligibleTierBelowCurrentReputation:
+        trustStreak += cleanSuccessTrustGain
+
+messy success:
+    trustStreak unchanged
+
+failed order:
+    if resetTrustOnFailedOrder:
+        trustStreak = 0
+    else:
+        trustStreak = max(0, trustStreak - failedOrderTrustLoss)
+
+hunter death:
+    trustStreak = 0
+```
+
+Clean success means:
+
+```text
+mission succeeds
+declared/suspected monster is the true monster
+no hunter died
+no hunter returned wounded
+```
+
+Referrals, declines, ignored orders, and canceled orders do not change Trust.
+
+Current Guild Trust defaults:
+
+```text
+cleanSuccessTrustGain = 1
+failedOrderTrustLoss = 2
+resetTrustOnFailedOrder = true
+trustReputationBonusPerStreak = 0.15
+trustEligibleTierBelowCurrentReputation = 1
+```
 
 Bonus chest:
 
@@ -352,7 +447,8 @@ dailyUpkeep = sum(active non-dead hunter.GetUpkeepCost())
 Hunter upkeep:
 
 ```text
-hunterUpkeep = round(hunter.dailyUpkeepCost * product(upkeepTraitMultipliers))
+hunterBaseUpkeep = hunter.LevelXPTable[currentLevel].upkeep
+hunterUpkeep = round(hunterBaseUpkeep * product(upkeepTraitMultipliers))
 ```
 
 If upkeep is paid:
@@ -495,6 +591,9 @@ Candidate weight:
 ```text
 rarityWeight = rarity.recruitmentWeight * activeRecruitmentRarityTraitMultiplier
 
+if currentReputation > hunter.minReputation:
+    rarityWeight *= lowerRecruitDecay ^ (currentReputation - hunter.minReputation)
+
 powerScore = 1
 if targetPower > 0:
     powerScore = clamp01(1 - abs(targetPower - hunterPower) / targetPower)
@@ -522,6 +621,7 @@ Current scoring weights from script defaults:
 traitPriorityWeight = 2
 powerPriorityWeight = 1
 upkeepPriorityWeight = 1
+lowerRecruitDecay = 0.55
 ```
 
 Candidate interactions:

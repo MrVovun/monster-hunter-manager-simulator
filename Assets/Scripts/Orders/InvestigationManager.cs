@@ -430,8 +430,9 @@ public class InvestigationManager : MonoBehaviour
             ? new List<MonsterTrait>()
             : GenerateTruthTraits(order.monsterData);
         CurrentCase.clientProfile = overrideProfile != null ? overrideProfile : PickClientProfile();
-        PreRollQuestionResponses(CurrentCase);
         order.investigationCase = CurrentCase;
+        OrderRewardUtility.ApplyTraitRewardScaling(order, GameManager.Instance != null ? GameManager.Instance.GetGameConfig() : null);
+        PreRollQuestionResponses(CurrentCase);
         CurrentOrder = order;
     }
 

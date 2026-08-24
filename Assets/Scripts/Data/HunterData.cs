@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [CreateAssetMenu(fileName = "New Hunter", menuName = "Guild Manager/Hunter")]
 public class HunterData : ScriptableObject
@@ -10,20 +11,27 @@ public class HunterData : ScriptableObject
     private static GlobalHunterConfig cachedConfig;
     public GlobalHunterConfig.RarityType rarity = GlobalHunterConfig.RarityType.Common;
     [TextArea(3, 6)] public string bio;
+
+    [Header("Stat Block")]
+    [Tooltip("Optional shared stat preset. Non-overridden stats below are copied from this asset in the editor.")]
+    public HunterStatBlock statBlock;
+    public HunterStatOverrides statOverrides = new HunterStatOverrides();
     
-    [Header("Base Stats")]
-    [Tooltip("Base combined combat power at level 1.")]
-    [Range(1, 200)]
-    public int basePower = 10;
-    [Tooltip("Amount of combat power gained each level.")]
-    [Range(0, 50)]
-    public int powerPerLevel = 2;
+    [SerializeField, HideInInspector, FormerlySerializedAs("basePower")]
+    private int legacyBasePower = 10;
+    [SerializeField, HideInInspector, FormerlySerializedAs("powerPerLevel")]
+    private int legacyPowerPerLevel = 2;
+    [SerializeField, HideInInspector, FormerlySerializedAs("dailyUpkeepCost")]
+    private int legacyDailyUpkeepCost = 10;
+    [SerializeField, HideInInspector]
+    private bool migratedLevelPower;
+    [SerializeField, HideInInspector]
+    private bool migratedLevelUpkeep;
+    [SerializeField, HideInInspector]
+    private bool migratedLevelUpCost;
 
     [Header("Traits")]
     public List<HunterTrait> traits = new List<HunterTrait>();
-    
-    [Header("Economy")]
-    public int dailyUpkeepCost = 10;
     
     [Header("Progression")]
     public int startingLevel = 1;
@@ -47,11 +55,78 @@ public class HunterData : ScriptableObject
     public List<HunterMorningDialogueLine> morningDialogueLines = new List<HunterMorningDialogueLine>();
 
     
-    // Calculated stats (base + level bonuses)
+    private void OnEnable()
+    {
+        EnsureId();
+        MigrateLegacyPowerTableIfNeeded();
+        MigrateLegacyUpkeepTableIfNeeded();
+        MigrateLegacyLevelUpCostTableIfNeeded();
+        ApplyStatBlockDefaults();
+        NormalizeStats();
+    }
+
+    // Calculated stats from the per-level table.
     public int GetTotalPower(int level)
     {
-        int levelBonus = Mathf.Max(0, level - 1) * powerPerLevel;
-        return basePower + levelBonus;
+        level = Mathf.Max(1, level);
+        if (levelXPTable == null || levelXPTable.Count == 0)
+        {
+            return GetLegacyPowerForLevel(level);
+        }
+
+        LevelXPRequirement bestEntry = null;
+        foreach (var entry in levelXPTable)
+        {
+            if (entry == null) continue;
+            if (entry.level == level)
+            {
+                return Mathf.Max(1, entry.power);
+            }
+
+            if (entry.level <= level && (bestEntry == null || entry.level > bestEntry.level))
+            {
+                bestEntry = entry;
+            }
+        }
+
+        if (bestEntry != null)
+        {
+            return Mathf.Max(1, bestEntry.power);
+        }
+
+        foreach (var entry in levelXPTable)
+        {
+            if (entry != null)
+            {
+                return Mathf.Max(1, entry.power);
+            }
+        }
+
+        return GetLegacyPowerForLevel(level);
+    }
+
+    public int GetUpkeepCost(int level)
+    {
+        level = Mathf.Max(1, level);
+        var entry = GetBestLevelEntry(level);
+        if (entry != null)
+        {
+            return Mathf.Max(0, entry.upkeep);
+        }
+
+        return Mathf.Max(0, legacyDailyUpkeepCost);
+    }
+
+    public int GetLevelUpCostForLevel(int level)
+    {
+        level = Mathf.Max(1, level);
+        var entry = GetBestLevelEntry(level);
+        if (entry != null)
+        {
+            return Mathf.Max(0, entry.levelUpCost);
+        }
+
+        return GetLegacyLevelUpCostForLevel(level);
     }
 
     public int GetXPRequirementForLevel(int level)
@@ -114,28 +189,265 @@ public class HunterData : ScriptableObject
 
     private void OnValidate()
     {
+        EnsureId();
+        MigrateLegacyPowerTableIfNeeded();
+        MigrateLegacyUpkeepTableIfNeeded();
+        MigrateLegacyLevelUpCostTableIfNeeded();
+        ApplyStatBlockDefaults();
+        NormalizeStats();
+    }
+
+    public void ApplyStatBlockDefaults()
+    {
+        if (statBlock == null) return;
+
+        if (statOverrides == null)
+        {
+            statOverrides = new HunterStatOverrides();
+        }
+
+        if (!statOverrides.overrideProgression)
+        {
+            startingLevel = statBlock.startingLevel;
+            startingXP = statBlock.startingXP;
+            levelXPTable = CloneLevelTable(statBlock.levelXPTable);
+        }
+        else if (!statOverrides.overrideUpkeep)
+        {
+            ApplyStatBlockUpkeepDefaults();
+        }
+
+        if (!statOverrides.overrideReputationRequirement)
+        {
+            minReputation = statBlock.minReputation;
+        }
+    }
+
+    private void NormalizeStats()
+    {
+        legacyBasePower = Mathf.Max(1, legacyBasePower);
+        legacyPowerPerLevel = Mathf.Max(0, legacyPowerPerLevel);
+        legacyDailyUpkeepCost = Mathf.Max(0, legacyDailyUpkeepCost);
+        startingLevel = Mathf.Max(1, startingLevel);
+        startingXP = Mathf.Max(0, startingXP);
+        minReputation = Mathf.Max(0, minReputation);
+        EnsureLevelOnePowerEntry();
+        SortLevelTable();
+    }
+
+    private void EnsureId()
+    {
         if (string.IsNullOrWhiteSpace(hunterId))
         {
             hunterId = System.Guid.NewGuid().ToString("N");
         }
+    }
 
-        if (levelXPTable != null)
+    private void MigrateLegacyPowerTableIfNeeded()
+    {
+        if (migratedLevelPower) return;
+
+        if (levelXPTable == null)
         {
-            levelXPTable.Sort((a, b) =>
+            levelXPTable = new List<LevelXPRequirement>();
+        }
+
+        EnsureLevelOnePowerEntry();
+        foreach (var entry in levelXPTable)
+        {
+            if (entry == null) continue;
+            entry.power = GetLegacyPowerForLevel(entry.level);
+        }
+
+        migratedLevelPower = true;
+    }
+
+    private void MigrateLegacyUpkeepTableIfNeeded()
+    {
+        if (migratedLevelUpkeep) return;
+
+        if (levelXPTable == null)
+        {
+            levelXPTable = new List<LevelXPRequirement>();
+        }
+
+        EnsureLevelOnePowerEntry();
+        foreach (var entry in levelXPTable)
+        {
+            if (entry == null) continue;
+            entry.upkeep = Mathf.Max(0, legacyDailyUpkeepCost);
+        }
+
+        migratedLevelUpkeep = true;
+    }
+
+    private void MigrateLegacyLevelUpCostTableIfNeeded()
+    {
+        if (migratedLevelUpCost) return;
+
+        if (levelXPTable == null)
+        {
+            levelXPTable = new List<LevelXPRequirement>();
+        }
+
+        EnsureLevelOnePowerEntry();
+        foreach (var entry in levelXPTable)
+        {
+            if (entry == null) continue;
+            entry.levelUpCost = GetLegacyLevelUpCostForLevel(entry.level);
+        }
+
+        migratedLevelUpCost = true;
+    }
+
+    private void EnsureLevelOnePowerEntry()
+    {
+        if (levelXPTable == null)
+        {
+            levelXPTable = new List<LevelXPRequirement>();
+        }
+
+        bool hasLevelOne = false;
+        foreach (var entry in levelXPTable)
+        {
+            if (entry == null) continue;
+            entry.level = Mathf.Max(1, entry.level);
+            entry.requiredXP = Mathf.Max(0, entry.requiredXP);
+            entry.power = Mathf.Max(1, entry.power);
+            entry.upkeep = Mathf.Max(0, entry.upkeep);
+            entry.levelUpCost = Mathf.Max(0, entry.levelUpCost);
+            if (entry.level == 1)
             {
-                if (a == null && b == null) return 0;
-                if (a == null) return 1;
-                if (b == null) return -1;
-                return a.level.CompareTo(b.level);
+                hasLevelOne = true;
+            }
+        }
+
+        if (!hasLevelOne)
+        {
+            levelXPTable.Add(new LevelXPRequirement
+            {
+                level = 1,
+                requiredXP = 0,
+                power = GetLegacyPowerForLevel(1),
+                upkeep = Mathf.Max(0, legacyDailyUpkeepCost),
+                levelUpCost = 0
             });
         }
+    }
+
+    private int GetLegacyPowerForLevel(int level)
+    {
+        return Mathf.Max(1, legacyBasePower) + Mathf.Max(0, level - 1) * Mathf.Max(0, legacyPowerPerLevel);
+    }
+
+    private int GetLegacyLevelUpCostForLevel(int level)
+    {
+        return Mathf.Max(0, level - 1) * 100;
+    }
+
+    private LevelXPRequirement GetBestLevelEntry(int level)
+    {
+        if (levelXPTable == null || levelXPTable.Count == 0)
+        {
+            return null;
+        }
+
+        LevelXPRequirement bestEntry = null;
+        foreach (var entry in levelXPTable)
+        {
+            if (entry == null) continue;
+            if (entry.level == level)
+            {
+                return entry;
+            }
+
+            if (entry.level <= level && (bestEntry == null || entry.level > bestEntry.level))
+            {
+                bestEntry = entry;
+            }
+        }
+
+        if (bestEntry != null)
+        {
+            return bestEntry;
+        }
+
+        foreach (var entry in levelXPTable)
+        {
+            if (entry != null)
+            {
+                return entry;
+            }
+        }
+
+        return null;
+    }
+
+    private void ApplyStatBlockUpkeepDefaults()
+    {
+        if (statBlock == null) return;
+        EnsureLevelOnePowerEntry();
+
+        foreach (var entry in levelXPTable)
+        {
+            if (entry == null) continue;
+            entry.upkeep = statBlock.GetUpkeepCost(entry.level);
+        }
+    }
+
+    private void SortLevelTable()
+    {
+        if (levelXPTable == null) return;
+        levelXPTable.Sort((a, b) =>
+        {
+            if (a == null && b == null) return 0;
+            if (a == null) return 1;
+            if (b == null) return -1;
+            return a.level.CompareTo(b.level);
+        });
+    }
+
+    private static List<LevelXPRequirement> CloneLevelTable(List<LevelXPRequirement> source)
+    {
+        List<LevelXPRequirement> result = new List<LevelXPRequirement>();
+        if (source == null) return result;
+
+        foreach (var entry in source)
+        {
+            if (entry == null) continue;
+            result.Add(new LevelXPRequirement
+            {
+                level = Mathf.Max(1, entry.level),
+                requiredXP = Mathf.Max(0, entry.requiredXP),
+                power = Mathf.Max(1, entry.power),
+                upkeep = Mathf.Max(0, entry.upkeep),
+                levelUpCost = Mathf.Max(0, entry.levelUpCost)
+            });
+        }
+
+        return result;
     }
 
     [System.Serializable]
     public class LevelXPRequirement
     {
-        [Min(2)] public int level = 2;
-        [Min(1)] public int requiredXP = 100;
+        [Min(1)] public int level = 1;
+        [Min(0)] public int requiredXP = 0;
+        [Min(1)] public int power = 10;
+        [Min(0)] public int upkeep = 10;
+        [Tooltip("Gold paid to upgrade into this level. Level 2 is the price from level 1 to 2.")]
+        [Min(0)] public int levelUpCost = 0;
+    }
+
+    [System.Serializable]
+    public class HunterStatOverrides
+    {
+        [Tooltip("Use the hunter's own per-level Upkeep values instead of the stat block.")]
+        public bool overrideUpkeep;
+        [Tooltip("Use the hunter's own Starting Level, Starting XP, XP table, and per-level power instead of the stat block.")]
+        public bool overrideProgression;
+        [Tooltip("Use the hunter's own Minimum Reputation instead of the stat block.")]
+        public bool overrideReputationRequirement;
     }
 
     public enum MorningDialogueCondition

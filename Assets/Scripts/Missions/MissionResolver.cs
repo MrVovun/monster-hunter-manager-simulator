@@ -39,12 +39,10 @@ public class MissionResolver : MonoBehaviour
 
             float gold = order.goldReward * rewardMultiplier + rewardFlat;
             report.goldEarned = Mathf.Max(0, Mathf.RoundToInt(gold));
-            report.reputationGained = Mathf.Max(0f, order.reputationPointsReward);
         }
         else
         {
             report.goldEarned = order.goldReward / 2; // Half reward on failure
-            report.reputationGained = 0f;
         }
         
         int successXpReward = Mathf.Max(0, Mathf.RoundToInt(order.xpReward + Mathf.Max(0f, outcome.AdditionalSuccessXP)));
@@ -118,6 +116,11 @@ public class MissionResolver : MonoBehaviour
         }
 
         ApplyGuardianSacrifice(report);
+
+        ReputationManager repManager = GameManager.Instance != null ? GameManager.Instance.GetReputationManager() : null;
+        report.reputationGained = repManager != null
+            ? repManager.ApplyMissionTrustAndCalculateReputation(report)
+            : (report.success ? Mathf.Max(0f, order.reputationPointsReward) : 0f);
         
         // Apply rewards
         if (GameManager.Instance != null)
@@ -127,8 +130,6 @@ public class MissionResolver : MonoBehaviour
             {
                 goldManager.AddGold(report.goldEarned);
             }
-            
-            ReputationManager repManager = GameManager.Instance.GetReputationManager();
             if (repManager != null && report.reputationGained > 0f)
             {
                 repManager.AddReputationPoints(report.reputationGained);

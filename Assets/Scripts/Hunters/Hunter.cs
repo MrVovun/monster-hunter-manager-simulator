@@ -1243,7 +1243,7 @@ public class Hunter : MonoBehaviour
     public int GetUpkeepCost()
     {
         if (debugUpkeepOverride >= 0) return debugUpkeepOverride;
-        int baseCost = hunterData != null ? hunterData.dailyUpkeepCost : 0;
+        int baseCost = hunterData != null ? hunterData.GetUpkeepCost(currentLevel) : 0;
         float multiplier = 1f;
 
         var traits = hunterData != null ? hunterData.traits : null;

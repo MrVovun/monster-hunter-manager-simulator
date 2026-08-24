@@ -64,7 +64,7 @@ public class HunterDetailsPanel : MonoBehaviour
 
         if (upkeepText != null)
         {
-            int upkeepValue = hunter != null ? hunter.GetUpkeepCost() : (data != null ? data.dailyUpkeepCost : 0);
+            int upkeepValue = hunter != null ? hunter.GetUpkeepCost() : (data != null ? data.GetUpkeepCost(data.startingLevel) : 0);
             upkeepText.text = hunter != null ? upkeepValue.ToString() : "-";
         }
 

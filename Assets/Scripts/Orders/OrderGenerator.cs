@@ -54,6 +54,7 @@ public class OrderGenerator : MonoBehaviour
         order.xpReward = difficultyEntry != null ? difficultyEntry.xpReward : difficultyValue * defaultXpPerDifficulty;
         float fallbackReputation = Mathf.Max(0f, difficultyValue * Mathf.Max(0f, defaultReputationPerDifficulty));
         order.reputationPointsReward = difficultyEntry != null ? Mathf.Max(0f, difficultyEntry.reputationPointsReward) : fallbackReputation;
+        order.reputationTier = difficultyEntry != null ? Mathf.Max(0, difficultyEntry.minReputation) : Mathf.Max(0, GameManager.Instance != null ? GameManager.Instance.GetReputation() : 0);
         order.missionDuration = difficultyEntry != null ? difficultyEntry.missionTimeSeconds : defaultMissionTime;
         order.maxPartySize = 3;
         order.minPartySize = 1;
@@ -84,20 +85,55 @@ public class OrderGenerator : MonoBehaviour
             return null;
         }
 
-        int totalWeight = 0;
-        foreach (var e in eligible) totalWeight += Mathf.Max(1, e.weight);
-        int roll = Random.Range(0, totalWeight);
-        int cumulative = 0;
+        List<float> weights = new List<float>();
+        float totalWeight = 0f;
         foreach (var e in eligible)
         {
-            cumulative += Mathf.Max(1, e.weight);
+            float weight = GetDifficultySelectionWeight(e, reputation);
+            weights.Add(weight);
+            totalWeight += weight;
+        }
+
+        if (totalWeight <= 0f)
+        {
+            return null;
+        }
+
+        float roll = Random.Range(0f, totalWeight);
+        float cumulative = 0f;
+        for (int i = 0; i < eligible.Count; i++)
+        {
+            cumulative += weights[i];
             if (roll < cumulative)
             {
-                return e;
+                return eligible[i];
             }
         }
 
         return eligible[eligible.Count - 1];
+    }
+
+    private float GetDifficultySelectionWeight(DifficultyEntry entry, int currentReputation)
+    {
+        if (entry == null) return 0f;
+        float weight = Mathf.Max(0f, entry.weight);
+        if (weight <= 0f) return 0f;
+
+        GameConfig config = GameManager.Instance != null ? GameManager.Instance.GetGameConfig() : null;
+        if (config == null) return weight;
+
+        int tierDelta = Mathf.Max(0, currentReputation - entry.minReputation);
+        if (tierDelta > 0)
+        {
+            float decay = Mathf.Pow(Mathf.Clamp01(config.lowerOrderDecay), tierDelta);
+            weight *= Mathf.Max(Mathf.Clamp01(config.minOldOrderMultiplier), decay);
+        }
+        else if (entry.minReputation == currentReputation)
+        {
+            weight *= Mathf.Max(0f, config.currentTierOrderMultiplier);
+        }
+
+        return weight;
     }
 
     private MonsterData PickMonster(int difficultyValue)

@@ -28,6 +28,8 @@ public class OrderManager : MonoBehaviour
         public int goldReward;
         public int xpReward;
         public float reputationPointsReward;
+        public int reputationTier;
+        public bool traitRewardsScaled;
         public float missionDuration;
         public int maxPartySize;
         public int minPartySize;
@@ -534,6 +536,8 @@ public class OrderManager : MonoBehaviour
             goldReward = order.goldReward,
             xpReward = order.xpReward,
             reputationPointsReward = order.reputationPointsReward,
+            reputationTier = order.reputationTier,
+            traitRewardsScaled = order.traitRewardsScaled,
             missionDuration = order.missionDuration,
             maxPartySize = order.maxPartySize,
             minPartySize = order.minPartySize,
@@ -560,6 +564,8 @@ public class OrderManager : MonoBehaviour
             goldReward = Mathf.Max(0, saved.goldReward),
             xpReward = Mathf.Max(0, saved.xpReward),
             reputationPointsReward = Mathf.Max(0f, saved.reputationPointsReward),
+            reputationTier = Mathf.Max(0, saved.reputationTier),
+            traitRewardsScaled = saved.traitRewardsScaled,
             missionDuration = Mathf.Max(1f, saved.missionDuration),
             maxPartySize = Mathf.Max(1, saved.maxPartySize),
             minPartySize = Mathf.Max(1, saved.minPartySize),

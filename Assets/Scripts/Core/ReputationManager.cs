@@ -8,9 +8,11 @@ public class ReputationManager : MonoBehaviour
     private class ReputationSaveData
     {
         public float reputationPoints;
+        public int trustStreak;
     }
 
     [SerializeField] private float currentReputationPoints;
+    [SerializeField] private int trustStreak;
     public event System.Action<float> OnReputationChanged; // passes reputation level
     public event System.Action<int, int> OnReputationRankIncreased; // previous rank, new rank
 
@@ -118,6 +120,57 @@ public class ReputationManager : MonoBehaviour
         NotifyReputationChanged(previousRank);
     }
 
+    public float ApplyMissionTrustAndCalculateReputation(MissionReport report)
+    {
+        if (report == null || report.order == null)
+        {
+            return 0f;
+        }
+
+        float baseReward = Mathf.Max(0f, report.order.reputationPointsReward);
+        bool success = report.success;
+        bool hunterDied = HasHunterDeath(report);
+        bool cleanSuccess = success && IsCleanSuccess(report);
+        bool trustEligible = IsOrderTrustEligible(report.order);
+        int trustBefore = Mathf.Max(0, trustStreak);
+
+        int trustForReward = hunterDied ? 0 : trustBefore;
+        float finalReward = success
+            ? baseReward * (1f + trustForReward * GetTrustReputationBonusPerStreak())
+            : 0f;
+
+        if (hunterDied)
+        {
+            trustStreak = 0;
+        }
+        else if (success)
+        {
+            if (cleanSuccess && trustEligible)
+            {
+                trustStreak += GetCleanSuccessTrustGain();
+            }
+        }
+        else
+        {
+            trustStreak = ResetTrustOnFailedOrder()
+                ? 0
+                : Mathf.Max(0, trustStreak - GetFailedOrderTrustLoss());
+        }
+
+        SaveState();
+        return Mathf.Max(0f, finalReward);
+    }
+
+    public int GetTrustStreak()
+    {
+        return Mathf.Max(0, trustStreak);
+    }
+
+    public float GetTrustReputationMultiplier()
+    {
+        return 1f + GetTrustStreak() * GetTrustReputationBonusPerStreak();
+    }
+
     public int LoseReputationRanks(int ranksToLose)
     {
         ranksToLose = Mathf.Max(0, ranksToLose);
@@ -138,6 +191,7 @@ public class ReputationManager : MonoBehaviour
     {
         int previousRank = GetReputation();
         currentReputationPoints = defaultReputationPoints;
+        trustStreak = 0;
         SaveState();
         NotifyReputationChanged(previousRank);
     }
@@ -214,6 +268,7 @@ public class ReputationManager : MonoBehaviour
             ReputationSaveData data = JsonUtility.FromJson<ReputationSaveData>(json);
             if (data == null) return;
             currentReputationPoints = Mathf.Max(0f, data.reputationPoints);
+            trustStreak = Mathf.Max(0, data.trustStreak);
         }
         catch (Exception ex)
         {
@@ -229,7 +284,8 @@ public class ReputationManager : MonoBehaviour
         {
             ReputationSaveData data = new ReputationSaveData
             {
-                reputationPoints = currentReputationPoints
+                reputationPoints = currentReputationPoints,
+                trustStreak = Mathf.Max(0, trustStreak)
             };
             string json = JsonUtility.ToJson(data, true);
             File.WriteAllText(savePath, json);
@@ -238,5 +294,79 @@ public class ReputationManager : MonoBehaviour
         {
             Debug.LogWarning($"ReputationManager: Failed to save reputation state. {ex.Message}");
         }
+    }
+
+    private bool IsCleanSuccess(MissionReport report)
+    {
+        if (report == null || report.order == null || !report.success) return false;
+        if (!SameMonster(report.order.declaredMonster, report.order.monsterData)) return false;
+        if (HasHunterDeath(report)) return false;
+        if (HasHunterInjury(report)) return false;
+        return true;
+    }
+
+    private bool IsOrderTrustEligible(Order order)
+    {
+        if (order == null) return false;
+        int currentRank = GetReputation();
+        int allowedTierDelta = cachedConfig != null ? Mathf.Max(0, cachedConfig.trustEligibleTierBelowCurrentReputation) : 1;
+        int minimumEligibleTier = Mathf.Max(0, currentRank - allowedTierDelta);
+        return order.reputationTier >= minimumEligibleTier;
+    }
+
+    private bool HasHunterDeath(MissionReport report)
+    {
+        if (report?.hunterResults == null) return false;
+        foreach (var result in report.hunterResults)
+        {
+            if (result != null && result.died)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private bool HasHunterInjury(MissionReport report)
+    {
+        if (report?.hunterResults == null) return false;
+        foreach (var result in report.hunterResults)
+        {
+            if (result != null && result.injured)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private bool SameMonster(MonsterData a, MonsterData b)
+    {
+        if (a == null || b == null) return false;
+        if (!string.IsNullOrWhiteSpace(a.monsterId) && !string.IsNullOrWhiteSpace(b.monsterId))
+        {
+            return string.Equals(a.monsterId, b.monsterId, StringComparison.OrdinalIgnoreCase);
+        }
+        return a == b;
+    }
+
+    private int GetCleanSuccessTrustGain()
+    {
+        return cachedConfig != null ? Mathf.Max(0, cachedConfig.cleanSuccessTrustGain) : 1;
+    }
+
+    private int GetFailedOrderTrustLoss()
+    {
+        return cachedConfig != null ? Mathf.Max(0, cachedConfig.failedOrderTrustLoss) : 2;
+    }
+
+    private bool ResetTrustOnFailedOrder()
+    {
+        return cachedConfig == null || cachedConfig.resetTrustOnFailedOrder;
+    }
+
+    private float GetTrustReputationBonusPerStreak()
+    {
+        return cachedConfig != null ? Mathf.Max(0f, cachedConfig.trustReputationBonusPerStreak) : 0.15f;
     }
 }

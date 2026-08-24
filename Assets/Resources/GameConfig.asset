@@ -61,6 +61,16 @@ MonoBehaviour:
   lateDispatchWindowSeconds: 60
   lateDispatchSuccessPenaltyPercent: 10
   referralRate: 0.25
+  lowerOrderDecay: 0.45
+  minOldOrderMultiplier: 0.02
+  currentTierOrderMultiplier: 1
+  lowerRecruitDecay: 0.55
+  rewardBonusPerMonsterTrait: 0.33
+  cleanSuccessTrustGain: 1
+  failedOrderTrustLoss: 2
+  resetTrustOnFailedOrder: 1
+  trustReputationBonusPerStreak: 0.15
+  trustEligibleTierBelowCurrentReputation: 1
   debtSettings:
     unpaidDay1SuccessPenaltyPercent: 5
     unpaidDay2SuccessPenaltyPercent: 15
@@ -69,7 +79,6 @@ MonoBehaviour:
     dismissHuntersUntilUpkeepFitsPreviousIncome: 1
   actionTimeSettings:
     ringBellSeconds: 5
-    questionSeconds: 5
     acceptOrderSeconds: 5
     referOrderSeconds: 5
     sendPartySeconds: 5

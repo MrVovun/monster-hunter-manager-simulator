@@ -34,6 +34,10 @@ public class Order
     public int goldReward;
     public int xpReward;
     public float reputationPointsReward;
+    [Tooltip("Reputation tier this order belongs to. Used for trust and spawn-balance rules.")]
+    public int reputationTier;
+    [Tooltip("Set after random monster traits have been rolled and trait reward scaling has been baked into this order.")]
+    public bool traitRewardsScaled;
     public float missionDuration; // In game seconds
     public int maxPartySize;
     public int minPartySize;
