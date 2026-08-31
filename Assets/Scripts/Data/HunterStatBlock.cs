@@ -120,6 +120,7 @@ public class HunterStatBlock : ScriptableObject
             entry.power = Mathf.Max(1, entry.power);
             entry.upkeep = Mathf.Max(0, entry.upkeep);
             entry.levelUpCost = Mathf.Max(0, entry.levelUpCost);
+            entry.requiredReputation = Mathf.Max(0, entry.requiredReputation);
             if (entry.level == 1)
             {
                 hasLevelOne = true;
@@ -134,7 +135,8 @@ public class HunterStatBlock : ScriptableObject
                 requiredXP = 0,
                 power = GetLegacyPowerForLevel(1),
                 upkeep = Mathf.Max(0, legacyDailyUpkeepCost),
-                levelUpCost = 0
+                levelUpCost = 0,
+                requiredReputation = 0
             });
         }
     }

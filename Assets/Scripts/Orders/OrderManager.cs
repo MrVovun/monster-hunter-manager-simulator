@@ -156,6 +156,12 @@ public class OrderManager : MonoBehaviour
             GameManager.Instance.GetGoldManager()?.AddGold(payout);
         }
 
+        float reputationReward = CalculateReferralReputation(order);
+        if (reputationReward > 0f && GameManager.Instance != null)
+        {
+            GameManager.Instance.GetReputationManager()?.AddReputationPoints(reputationReward);
+        }
+
         referralsToday++;
         
         NotifyOrdersChanged();
@@ -177,6 +183,16 @@ public class OrderManager : MonoBehaviour
         if (order == null) return 0;
         float fee = order.goldReward * GetReferralRate() * CalculateReferralCaseQuality(order) * GetDailyReferralMultiplier();
         return Mathf.Max(0, Mathf.RoundToInt(fee));
+    }
+
+    public float CalculateReferralReputation(Order order)
+    {
+        if (order == null) return 0f;
+        var config = gameConfig != null
+            ? gameConfig
+            : (GameManager.Instance != null ? GameManager.Instance.GetGameConfig() : null);
+        float multiplier = config != null ? Mathf.Clamp01(config.referralReputationMultiplier) : 0f;
+        return Mathf.Max(0f, order.reputationPointsReward) * CalculateReferralCaseQuality(order) * multiplier;
     }
 
     public float CalculateReferralCaseQuality(Order order)

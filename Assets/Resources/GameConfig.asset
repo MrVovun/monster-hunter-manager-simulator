@@ -53,8 +53,8 @@ MonoBehaviour:
   - requiredReputation: 6
     requiredReputationPoints: 18477
     orderLimit: 0
-  baseInjuryChance: 0.5
-  baseDeathChance: 0.25
+  baseInjuryChance: 0.25
+  baseDeathChance: 0.05
   successThresholdPercent: 100
   woundProtectionThresholdPercent: 150
   bonusRewardThresholdPercent: 200
@@ -67,9 +67,14 @@ MonoBehaviour:
   lowerRecruitDecay: 0.55
   rewardBonusPerMonsterTrait: 0.33
   cleanSuccessTrustGain: 1
+  maxTrustStreak: 5
   failedOrderTrustLoss: 2
   resetTrustOnFailedOrder: 1
   trustReputationBonusPerStreak: 0.15
+  cleanSuccessReputationMultiplier: 1
+  messySuccessReputationMultiplier: 0.65
+  failureReputationMultiplier: 0
+  referralReputationMultiplier: 0
   trustEligibleTierBelowCurrentReputation: 1
   debtSettings:
     unpaidDay1SuccessPenaltyPercent: 5
@@ -77,6 +82,7 @@ MonoBehaviour:
     unpaidDay1ReputationRankLoss: 1
     unpaidDay2ReputationRankLoss: 1
     dismissHuntersUntilUpkeepFitsPreviousIncome: 1
+    minimumHuntersAfterDebtDismissal: 1
   actionTimeSettings:
     ringBellSeconds: 5
     acceptOrderSeconds: 5
@@ -94,7 +100,7 @@ MonoBehaviour:
     cleanStaleDormitoryBedSeconds: 6
     washFloorSeconds: 5
     passTimeStepSeconds: 60
-  dialogueResponseDelaySeconds: 1
+  dialogueResponseDelaySeconds: 0
   traitCountChances:
   - traitCount: 0
     weight: 0.5

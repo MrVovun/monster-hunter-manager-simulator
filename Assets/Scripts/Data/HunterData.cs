@@ -129,6 +129,18 @@ public class HunterData : ScriptableObject
         return GetLegacyLevelUpCostForLevel(level);
     }
 
+    public int GetRequiredReputationForLevel(int level)
+    {
+        level = Mathf.Max(1, level);
+        var entry = GetBestLevelEntry(level);
+        if (entry != null)
+        {
+            return Mathf.Max(0, entry.requiredReputation);
+        }
+
+        return 0;
+    }
+
     public int GetXPRequirementForLevel(int level)
     {
         if (levelXPTable == null || levelXPTable.Count == 0 || level <= startingLevel)
@@ -316,6 +328,7 @@ public class HunterData : ScriptableObject
             entry.power = Mathf.Max(1, entry.power);
             entry.upkeep = Mathf.Max(0, entry.upkeep);
             entry.levelUpCost = Mathf.Max(0, entry.levelUpCost);
+            entry.requiredReputation = Mathf.Max(0, entry.requiredReputation);
             if (entry.level == 1)
             {
                 hasLevelOne = true;
@@ -330,7 +343,8 @@ public class HunterData : ScriptableObject
                 requiredXP = 0,
                 power = GetLegacyPowerForLevel(1),
                 upkeep = Mathf.Max(0, legacyDailyUpkeepCost),
-                levelUpCost = 0
+                levelUpCost = 0,
+                requiredReputation = 0
             });
         }
     }
@@ -421,7 +435,8 @@ public class HunterData : ScriptableObject
                 requiredXP = Mathf.Max(0, entry.requiredXP),
                 power = Mathf.Max(1, entry.power),
                 upkeep = Mathf.Max(0, entry.upkeep),
-                levelUpCost = Mathf.Max(0, entry.levelUpCost)
+                levelUpCost = Mathf.Max(0, entry.levelUpCost),
+                requiredReputation = Mathf.Max(0, entry.requiredReputation)
             });
         }
 
@@ -437,6 +452,8 @@ public class HunterData : ScriptableObject
         [Min(0)] public int upkeep = 10;
         [Tooltip("Gold paid to upgrade into this level. Level 2 is the price from level 1 to 2.")]
         [Min(0)] public int levelUpCost = 0;
+        [Tooltip("Minimum guild reputation required to upgrade into this level.")]
+        [Min(0)] public int requiredReputation = 0;
     }
 
     [System.Serializable]

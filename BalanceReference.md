@@ -238,9 +238,10 @@ requiredXP     // XP required to upgrade into this level
 power          // hunter power at this level
 upkeep         // daily upkeep at this level
 levelUpCost    // gold required to upgrade into this level
+requiredReputation // guild reputation required to upgrade into this level
 ```
 
-Level 1 should usually have `requiredXP = 0` and `levelUpCost = 0`.
+Level 1 should usually have `requiredXP = 0`, `levelUpCost = 0`, and `requiredReputation = 0`.
 
 Base power formula:
 

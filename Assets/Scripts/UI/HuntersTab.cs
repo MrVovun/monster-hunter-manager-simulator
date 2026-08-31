@@ -181,7 +181,7 @@ public class HuntersTab : MonoBehaviour
         if (hunter != null)
         {
             int xpForNext = hunter.GetXPToNextLevel();
-            if (xpForNext == int.MaxValue)
+            if (hunter.IsAtMaxLevel() || xpForNext == int.MaxValue)
             {
                 status = "Max level";
             }
@@ -190,13 +190,22 @@ public class HuntersTab : MonoBehaviour
                 int cost = hunter.GetLevelUpCost();
                 int currentGold = gold != null ? gold.GetGold() : 0;
                 int xpNeeded = Mathf.Max(0, xpForNext - hunter.GetXP());
-                buttonLabel = $"{levelUpButtonBaseLabel} ({cost}g)";
+                int requiredReputation = hunter.GetRequiredReputationForNextLevel();
+                int currentReputation = GetCurrentReputation();
+                bool reputationLocked = requiredReputation > currentReputation;
+                buttonLabel = reputationLocked
+                    ? $"Requires Rep {requiredReputation}"
+                    : $"{levelUpButtonBaseLabel} ({cost}g)";
 
                 if (hunter.CanLevelUp())
                 {
                     status = currentGold >= cost
                         ? $"Level up cost: {cost} gold"
                         : $"Level up cost: {cost} gold ({currentGold}/{cost})";
+                }
+                else if (reputationLocked)
+                {
+                    status = $"Requires Reputation {requiredReputation}. Current: {currentReputation}.";
                 }
                 else
                 {
@@ -239,15 +248,24 @@ public class HuntersTab : MonoBehaviour
     {
         if (hunter == null) return "Select a hunter first.";
         int xpForNext = hunter.GetXPToNextLevel();
-        if (xpForNext == int.MaxValue) return "This hunter is already at max level.";
+        if (hunter.IsAtMaxLevel() || xpForNext == int.MaxValue) return "This hunter is already at max level.";
+        int requiredReputation = hunter.GetRequiredReputationForNextLevel();
+        int currentReputation = GetCurrentReputation();
+        if (requiredReputation > currentReputation) return $"Requires Reputation {requiredReputation}. Current: {currentReputation}.";
         int xpNeeded = Mathf.Max(0, xpForNext - hunter.GetXP());
-        if (!hunter.CanLevelUp()) return $"Needs {xpNeeded} more XP.";
+        if (!hunter.HasEnoughXPForNextLevel()) return $"Needs {xpNeeded} more XP.";
 
         int cost = hunter.GetLevelUpCost();
         int currentGold = gold != null ? gold.GetGold() : 0;
         if (currentGold < cost) return $"Needs {cost} gold. You have {currentGold}.";
 
         return "Cannot level up this hunter right now.";
+    }
+
+    private int GetCurrentReputation()
+    {
+        ReputationManager reputation = GameManager.Instance != null ? GameManager.Instance.GetReputationManager() : null;
+        return reputation != null ? reputation.GetReputation() : 0;
     }
 
     private string GetFireUnavailableReason(HunterManager manager)

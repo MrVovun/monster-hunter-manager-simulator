@@ -61,12 +61,22 @@ public class GameConfig : ScriptableObject
     [Header("Guild Trust")]
     [Tooltip("Trust gained for a clean successful order.")]
     public int cleanSuccessTrustGain = 1;
+    [Tooltip("Maximum Trust streak value used for reputation rewards and stored in saves.")]
+    public int maxTrustStreak = 5;
     [Tooltip("Trust lost after a failed order, clamped at 0.")]
     public int failedOrderTrustLoss = 2;
     [Tooltip("When enabled, any failed order resets Trust to 0 instead of subtracting Failed Order Trust Loss.")]
     public bool resetTrustOnFailedOrder = true;
     [Tooltip("Each Trust point adds this multiplier to reputation rewards. 0.15 = +15% per Trust.")]
     public float trustReputationBonusPerStreak = 0.15f;
+    [Tooltip("Multiplier applied to reputation rewards for clean successes.")]
+    [Range(0f, 1f)] public float cleanSuccessReputationMultiplier = 1f;
+    [Tooltip("Multiplier applied to reputation rewards for successful but messy orders.")]
+    [Range(0f, 1f)] public float messySuccessReputationMultiplier = 0.65f;
+    [Tooltip("Multiplier applied to reputation rewards for failed orders.")]
+    [Range(0f, 1f)] public float failureReputationMultiplier = 0f;
+    [Tooltip("Multiplier applied to reputation rewards for referred orders.")]
+    [Range(0f, 1f)] public float referralReputationMultiplier = 0f;
     [Tooltip("Clean successes only add Trust when order tier is at least current reputation minus this value.")]
     public int trustEligibleTierBelowCurrentReputation = 1;
 

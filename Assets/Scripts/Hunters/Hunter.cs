@@ -120,6 +120,43 @@ public class Hunter : MonoBehaviour
         SetupVisual(data.visualPrefab, data.p09VisualPreset);
     }
 
+    public void InitializeForSimulation(HunterData data)
+    {
+        EnsureSimulationComponents();
+
+        hunterData = data;
+        currentLevel = data != null ? data.startingLevel : 1;
+        currentXP = data != null ? data.startingXP : 0;
+        state = HunterState.Idle;
+
+        stats?.Initialize(data, currentLevel);
+        levelSystem?.Initialize(data);
+        gameObject.name = data != null && !string.IsNullOrWhiteSpace(data.hunterName)
+            ? data.hunterName
+            : "Simulated Hunter";
+    }
+
+    private void EnsureSimulationComponents()
+    {
+        if (stats == null)
+        {
+            stats = GetComponent<HunterStats>();
+            if (stats == null)
+            {
+                stats = gameObject.AddComponent<HunterStats>();
+            }
+        }
+
+        if (levelSystem == null)
+        {
+            levelSystem = GetComponent<HunterLevelSystem>();
+            if (levelSystem == null)
+            {
+                levelSystem = gameObject.AddComponent<HunterLevelSystem>();
+            }
+        }
+    }
+
     public void SetState(HunterState newState)
     {
         if (state == newState) return;
@@ -1209,6 +1246,26 @@ public class Hunter : MonoBehaviour
     public bool CanLevelUp()
     {
         return levelSystem != null && levelSystem.CanLevelUp();
+    }
+
+    public bool HasEnoughXPForNextLevel()
+    {
+        return levelSystem != null && levelSystem.HasEnoughXPForNextLevel();
+    }
+
+    public bool HasEnoughReputationForNextLevel()
+    {
+        return levelSystem != null && levelSystem.HasEnoughReputationForNextLevel();
+    }
+
+    public bool IsAtMaxLevel()
+    {
+        return levelSystem == null || levelSystem.IsAtMaxLevel();
+    }
+
+    public int GetRequiredReputationForNextLevel()
+    {
+        return levelSystem != null ? levelSystem.GetRequiredReputationForNextLevel() : 0;
     }
 
     public int GetLevelUpCost()

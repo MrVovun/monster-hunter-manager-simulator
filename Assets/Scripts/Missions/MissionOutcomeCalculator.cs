@@ -231,7 +231,8 @@ public static class MissionOutcomeCalculator
         result.SuccessChancePercent = successChance;
         result.MissionTimeMultiplier = Mathf.Max(0.01f, missionTimeMultiplier);
 
-        injuryChance = Mathf.Clamp01(injuryChance * aggregate.injuryChanceMultiplier * Mathf.Clamp01(1f - (aggregate.woundChanceReductionPercent / 100f)));
+        float woundRiskScale = CalculateWoundRiskScale(successChance, result.SuccessThresholdPercent, result.WoundProtectionThresholdPercent);
+        injuryChance = Mathf.Clamp01(injuryChance * woundRiskScale * aggregate.injuryChanceMultiplier * Mathf.Clamp01(1f - (aggregate.woundChanceReductionPercent / 100f)));
         deathChance = Mathf.Clamp01(deathChance * aggregate.deathChanceMultiplier * Mathf.Clamp01(1f - (aggregate.deathChanceReductionPercent / 100f)));
 
         result.FinalInjuryChance = injuryChance;
@@ -254,6 +255,12 @@ public static class MissionOutcomeCalculator
 
         GameConfig config = GameManager.Instance != null ? GameManager.Instance.GetGameConfig() : null;
         return MissionOutcomeConfig.FromGameConfig(config);
+    }
+
+    private static float CalculateWoundRiskScale(float successScore, float successThreshold, float woundProtectionThreshold)
+    {
+        float range = Mathf.Max(1f, woundProtectionThreshold - successThreshold);
+        return Mathf.Clamp01((woundProtectionThreshold - successScore) / range);
     }
 
     private static List<MonsterTrait> CollectMonsterTraits(Order order)

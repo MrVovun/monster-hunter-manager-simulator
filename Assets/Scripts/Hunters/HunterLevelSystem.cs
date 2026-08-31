@@ -25,8 +25,7 @@ public class HunterLevelSystem : MonoBehaviour
     {
         if (hunterData == null) return false;
         if (currentLevel >= GetMaxLevel()) return false;
-        int xpNeeded = GetXPForNextLevel();
-        return currentXP >= xpNeeded;
+        return HasEnoughXPForNextLevel() && HasEnoughReputationForNextLevel();
     }
     
     public int GetXPForNextLevel()
@@ -87,6 +86,35 @@ public class HunterLevelSystem : MonoBehaviour
     {
         if (hunterData == null) return 0;
         return hunterData.GetLevelUpCostForLevel(currentLevel + 1);
+    }
+
+    public int GetRequiredReputationForNextLevel()
+    {
+        if (hunterData == null || currentLevel >= GetMaxLevel()) return 0;
+        return hunterData.GetRequiredReputationForLevel(currentLevel + 1);
+    }
+
+    public bool HasEnoughXPForNextLevel()
+    {
+        if (hunterData == null) return false;
+        if (currentLevel >= GetMaxLevel()) return false;
+        int xpNeeded = GetXPForNextLevel();
+        return xpNeeded != int.MaxValue && currentXP >= xpNeeded;
+    }
+
+    public bool HasEnoughReputationForNextLevel()
+    {
+        int requiredReputation = GetRequiredReputationForNextLevel();
+        if (requiredReputation <= 0) return true;
+
+        ReputationManager reputationManager = GameManager.Instance != null ? GameManager.Instance.GetReputationManager() : null;
+        int currentReputation = reputationManager != null ? reputationManager.GetReputation() : 0;
+        return currentReputation >= requiredReputation;
+    }
+
+    public bool IsAtMaxLevel()
+    {
+        return hunterData == null || currentLevel >= GetMaxLevel();
     }
 
     private int GetMaxLevel()

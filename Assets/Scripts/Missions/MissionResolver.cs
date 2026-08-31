@@ -61,13 +61,15 @@ public class MissionResolver : MonoBehaviour
             
             MissionReport.HunterResult result = new MissionReport.HunterResult();
             result.hunter = hunter;
+            var interactionState = hunter.GetComponent<HunterInteractionState>();
+            bool wasWoundedBeforeMission = interactionState != null && interactionState.IsWounded;
             
             // Track level before awarding XP so we can report level-ups correctly
             int levelBeforeMission = hunter.GetLevel();
             
             bool injuryPrevented = successPreventsInjury || outcome.InjuryPreventionActive;
             bool shouldRollInjury = !guaranteedInjury && !injuryPrevented;
-            bool hunterInjured = guaranteedInjury || forcedWoundedHunters.Contains(hunter);
+            bool hunterInjured = wasWoundedBeforeMission || guaranteedInjury || forcedWoundedHunters.Contains(hunter);
 
             float injuryRisk = baseInjuryRisk;
             float deathRisk = baseDeathRisk;
@@ -79,14 +81,14 @@ public class MissionResolver : MonoBehaviour
 
             bool deathPrevented = successPreventsDeath || outcome.DeathPreventionActive;
             bool requiresInjuryForDeath = !outcome.AllowDeathWithoutInjury;
-            bool canDie = !deathPrevented && (!requiresInjuryForDeath || hunterInjured);
+            bool canDie = !deathPrevented && (!requiresInjuryForDeath || wasWoundedBeforeMission);
             bool hunterDied = canDie && RollNegativeChance(deathRisk, HasRerollNegativeRolls(hunter));
 
             result.died = hunterDied;
             if (hunterDied)
             {
                 result.survived = false;
-                result.injured = hunterInjured;
+                result.injured = outcome.AllowDeathWithoutInjury && hunterInjured;
                 hunter.SetState(HunterState.Dead);
             }
             else
@@ -95,12 +97,11 @@ public class MissionResolver : MonoBehaviour
                 result.injured = hunterInjured;
                 if (hunterInjured)
                 {
-                    var state = hunter.GetComponent<HunterInteractionState>();
-                    if (state == null)
+                    if (interactionState == null)
                     {
-                        state = hunter.gameObject.AddComponent<HunterInteractionState>();
+                        interactionState = hunter.gameObject.AddComponent<HunterInteractionState>();
                     }
-                    state.SetWounded(true);
+                    interactionState.SetWounded(true);
                 }
             }
             

@@ -1,0 +1,5 @@
+﻿profile,sessions,gameOverRate,medianFinalGold,averageFinalGold,medianSurplus,averageSurplus,medianReputationRank,averageReputationRank,averageReputationEarned,averageIncome,averageUpkeep,averageLevelUpSpend,averageXpGranted,averageLevelUpsBought,averageOrdersCompleted,averageCleanSuccesses,averageMessySuccesses,averageOrdersFailed,averageOrdersReferred,averageWounds,averageDeaths,averageEndingHunterLevel,averageSuccessChance,averagePartyPower,averageRequiredPower,averageCaseQuality
+Investigator,10,1,0,0,-314.5,-316.8,1,1,4.15,8,321.8,0,10.5,0,0.4,0.3,0,0,0,0,0.1,1,21.75,3,4,1
+Middle-ground,10,0.6,0,0,-169.5,-171.9,1,1,60.75,204.5,362.7,4.7,226.8,0.1,6,0.8,4.3,3.4,0,3.3,1.5,0.6,61.151,13.725,24.239,0.372
+Traiter,10,1,0,0,-178,-193.4,1,1,56.65,151.9,340.3,0,181.6,0,5.2,1.8,2.8,1.8,0,2.3,0.8,1,72.839,14.714,20.958,0.745
+Lazy,10,0.1,226.5,214.3,126.5,112.5,2,1.8,160.65,903.6,754.1,0,770.7,0,15.7,0.8,12.5,13.5,0,11.8,4,1.25,55.81,13.897,29.987,0.146

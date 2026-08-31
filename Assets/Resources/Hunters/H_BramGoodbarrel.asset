@@ -18,7 +18,7 @@ MonoBehaviour:
   bio: Bram is a sexist, but only when it's applied to monsters. In his worldview,
     monsters shouldn't be allowed to be beautiful, so he's willing to exterminate
     all of them.
-  statBlock: {fileID: 0}
+  statBlock: {fileID: 11400000, guid: 6b737e281e08ef44a8c6337c3a5db94e, type: 2}
   statOverrides:
     overrideUpkeep: 0
     overrideProgression: 0
@@ -32,15 +32,70 @@ MonoBehaviour:
   traits:
   - {fileID: 11400000, guid: eb2201f61acba2443aea852625688b84, type: 2}
   - {fileID: 11400000, guid: 34a66b83ac8c20746a10aebbbdbeaa7e, type: 2}
-  startingLevel: 1
+  startingLevel: 2
   startingXP: 0
   levelXPTable:
   - level: 1
     requiredXP: 0
-    power: 1
-    upkeep: 0
+    power: 15
+    upkeep: 31
     levelUpCost: 0
-  minReputation: 0
+    requiredReputation: 0
+  - level: 2
+    requiredXP: 80
+    power: 18
+    upkeep: 33
+    levelUpCost: 47
+    requiredReputation: 0
+  - level: 3
+    requiredXP: 110
+    power: 20
+    upkeep: 34
+    levelUpCost: 62
+    requiredReputation: 0
+  - level: 4
+    requiredXP: 160
+    power: 36
+    upkeep: 10
+    levelUpCost: 78
+    requiredReputation: 0
+  - level: 5
+    requiredXP: 230
+    power: 25
+    upkeep: 37
+    levelUpCost: 93
+    requiredReputation: 0
+  - level: 6
+    requiredXP: 330
+    power: 28
+    upkeep: 39
+    levelUpCost: 109
+    requiredReputation: 0
+  - level: 7
+    requiredXP: 460
+    power: 30
+    upkeep: 40
+    levelUpCost: 124
+    requiredReputation: 0
+  - level: 8
+    requiredXP: 660
+    power: 33
+    upkeep: 42
+    levelUpCost: 147
+    requiredReputation: 0
+  - level: 9
+    requiredXP: 930
+    power: 35
+    upkeep: 43
+    levelUpCost: 171
+    requiredReputation: 0
+  - level: 10
+    requiredXP: 1320
+    power: 38
+    upkeep: 45
+    levelUpCost: 194
+    requiredReputation: 0
+  minReputation: 2
   portrait: {fileID: 21300000, guid: cb46314f93a7cf9479fe5ab8346cdd02, type: 3}
   visualPrefab: {fileID: 1615356946489238, guid: 8805364c00c6ce947a40c218a4beca69, type: 3}
   p09VisualPreset: {fileID: 0}

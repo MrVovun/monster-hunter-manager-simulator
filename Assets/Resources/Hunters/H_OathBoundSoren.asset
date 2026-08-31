@@ -17,20 +17,90 @@ MonoBehaviour:
   rarity: 3
   bio: A righteous paladin who swore an oath to protect the weak and fight the undead
     tyranny. He's classy. He knows it.
-  basePower: 28
-  powerPerLevel: 2
+  statBlock: {fileID: 11400000, guid: 10640021f3760d84b8fa2fd3282d16f3, type: 2}
+  statOverrides:
+    overrideUpkeep: 0
+    overrideProgression: 0
+    overrideReputationRequirement: 0
+  legacyBasePower: 28
+  legacyPowerPerLevel: 2
+  legacyDailyUpkeepCost: 64
+  migratedLevelPower: 1
+  migratedLevelUpkeep: 1
+  migratedLevelUpCost: 1
   traits:
   - {fileID: 11400000, guid: f22ae9b54a4822b45a63b7cd1024e28d, type: 2}
   - {fileID: 11400000, guid: 7b92d6da974c4684b983dfb219873a0c, type: 2}
   - {fileID: 11400000, guid: ac73fc08c14afac4f90a4ceb62fdac07, type: 2}
-  dailyUpkeepCost: 64
   startingLevel: 1
   startingXP: 0
-  levelXPTable: []
-  minReputation: 2
+  levelXPTable:
+  - level: 1
+    requiredXP: 0
+    power: 15
+    upkeep: 31
+    levelUpCost: 0
+    requiredReputation: 0
+  - level: 2
+    requiredXP: 80
+    power: 18
+    upkeep: 33
+    levelUpCost: 47
+    requiredReputation: 0
+  - level: 3
+    requiredXP: 110
+    power: 20
+    upkeep: 34
+    levelUpCost: 62
+    requiredReputation: 0
+  - level: 4
+    requiredXP: 160
+    power: 36
+    upkeep: 10
+    levelUpCost: 78
+    requiredReputation: 0
+  - level: 5
+    requiredXP: 230
+    power: 25
+    upkeep: 37
+    levelUpCost: 93
+    requiredReputation: 0
+  - level: 6
+    requiredXP: 330
+    power: 28
+    upkeep: 39
+    levelUpCost: 109
+    requiredReputation: 0
+  - level: 7
+    requiredXP: 460
+    power: 30
+    upkeep: 40
+    levelUpCost: 124
+    requiredReputation: 0
+  - level: 8
+    requiredXP: 660
+    power: 33
+    upkeep: 42
+    levelUpCost: 147
+    requiredReputation: 0
+  - level: 9
+    requiredXP: 930
+    power: 35
+    upkeep: 43
+    levelUpCost: 171
+    requiredReputation: 0
+  - level: 10
+    requiredXP: 1320
+    power: 38
+    upkeep: 45
+    levelUpCost: 194
+    requiredReputation: 0
+  minReputation: 1
   portrait: {fileID: 21300000, guid: 86887664d2c68e5498814b65e71073aa, type: 3}
   visualPrefab: {fileID: 1866232271259778, guid: 3d8ce890c770cf34b89991cd996a1dea, type: 3}
+  p09VisualPreset: {fileID: 0}
   greeting: For honor and crown!
   healLine: 
   goodbyeLine: Commander.
   dialogueQuestions: []
+  morningDialogueLines: []

@@ -132,12 +132,13 @@ public class ReputationManager : MonoBehaviour
         bool hunterDied = HasHunterDeath(report);
         bool cleanSuccess = success && IsCleanSuccess(report);
         bool trustEligible = IsOrderTrustEligible(report.order);
-        int trustBefore = Mathf.Max(0, trustStreak);
+        int trustBefore = ClampTrust(trustStreak);
+        float qualityMultiplier = success
+            ? (cleanSuccess ? GetCleanSuccessReputationMultiplier() : GetMessySuccessReputationMultiplier())
+            : GetFailureReputationMultiplier();
 
         int trustForReward = hunterDied ? 0 : trustBefore;
-        float finalReward = success
-            ? baseReward * (1f + trustForReward * GetTrustReputationBonusPerStreak())
-            : 0f;
+        float finalReward = baseReward * qualityMultiplier * (1f + trustForReward * GetTrustReputationBonusPerStreak());
 
         if (hunterDied)
         {
@@ -147,14 +148,14 @@ public class ReputationManager : MonoBehaviour
         {
             if (cleanSuccess && trustEligible)
             {
-                trustStreak += GetCleanSuccessTrustGain();
+                trustStreak = ClampTrust(trustStreak + GetCleanSuccessTrustGain());
             }
         }
         else
         {
             trustStreak = ResetTrustOnFailedOrder()
                 ? 0
-                : Mathf.Max(0, trustStreak - GetFailedOrderTrustLoss());
+                : ClampTrust(trustStreak - GetFailedOrderTrustLoss());
         }
 
         SaveState();
@@ -163,7 +164,7 @@ public class ReputationManager : MonoBehaviour
 
     public int GetTrustStreak()
     {
-        return Mathf.Max(0, trustStreak);
+        return ClampTrust(trustStreak);
     }
 
     public float GetTrustReputationMultiplier()
@@ -268,7 +269,7 @@ public class ReputationManager : MonoBehaviour
             ReputationSaveData data = JsonUtility.FromJson<ReputationSaveData>(json);
             if (data == null) return;
             currentReputationPoints = Mathf.Max(0f, data.reputationPoints);
-            trustStreak = Mathf.Max(0, data.trustStreak);
+            trustStreak = ClampTrust(data.trustStreak);
         }
         catch (Exception ex)
         {
@@ -285,7 +286,7 @@ public class ReputationManager : MonoBehaviour
             ReputationSaveData data = new ReputationSaveData
             {
                 reputationPoints = currentReputationPoints,
-                trustStreak = Mathf.Max(0, trustStreak)
+                trustStreak = ClampTrust(trustStreak)
             };
             string json = JsonUtility.ToJson(data, true);
             File.WriteAllText(savePath, json);
@@ -368,5 +369,30 @@ public class ReputationManager : MonoBehaviour
     private float GetTrustReputationBonusPerStreak()
     {
         return cachedConfig != null ? Mathf.Max(0f, cachedConfig.trustReputationBonusPerStreak) : 0.15f;
+    }
+
+    private float GetCleanSuccessReputationMultiplier()
+    {
+        return cachedConfig != null ? Mathf.Clamp01(cachedConfig.cleanSuccessReputationMultiplier) : 1f;
+    }
+
+    private float GetMessySuccessReputationMultiplier()
+    {
+        return cachedConfig != null ? Mathf.Clamp01(cachedConfig.messySuccessReputationMultiplier) : 0.65f;
+    }
+
+    private float GetFailureReputationMultiplier()
+    {
+        return cachedConfig != null ? Mathf.Clamp01(cachedConfig.failureReputationMultiplier) : 0f;
+    }
+
+    private int GetMaxTrustStreak()
+    {
+        return cachedConfig != null ? Mathf.Max(0, cachedConfig.maxTrustStreak) : 5;
+    }
+
+    private int ClampTrust(int value)
+    {
+        return Mathf.Clamp(value, 0, GetMaxTrustStreak());
     }
 }

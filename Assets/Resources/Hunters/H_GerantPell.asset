@@ -17,19 +17,89 @@ MonoBehaviour:
   rarity: 1
   bio: Former military medic, who tried to escape the horrors of losing his comrades
     on the battlefield, only to return to the only thing he knows how to do.
-  basePower: 27
-  powerPerLevel: 2
+  statBlock: {fileID: 11400000, guid: 6b737e281e08ef44a8c6337c3a5db94e, type: 2}
+  statOverrides:
+    overrideUpkeep: 0
+    overrideProgression: 0
+    overrideReputationRequirement: 0
+  legacyBasePower: 27
+  legacyPowerPerLevel: 2
+  legacyDailyUpkeepCost: 64
+  migratedLevelPower: 1
+  migratedLevelUpkeep: 1
+  migratedLevelUpCost: 1
   traits:
   - {fileID: 11400000, guid: fdd2df4b3ea1feb4085e8aa9c1d3c677, type: 2}
   - {fileID: 11400000, guid: ecd60212501adcd4b9b0bdf02aa8f380, type: 2}
-  dailyUpkeepCost: 64
-  startingLevel: 1
+  startingLevel: 2
   startingXP: 0
-  levelXPTable: []
+  levelXPTable:
+  - level: 1
+    requiredXP: 0
+    power: 15
+    upkeep: 31
+    levelUpCost: 0
+    requiredReputation: 0
+  - level: 2
+    requiredXP: 80
+    power: 18
+    upkeep: 33
+    levelUpCost: 47
+    requiredReputation: 0
+  - level: 3
+    requiredXP: 110
+    power: 20
+    upkeep: 34
+    levelUpCost: 62
+    requiredReputation: 0
+  - level: 4
+    requiredXP: 160
+    power: 36
+    upkeep: 10
+    levelUpCost: 78
+    requiredReputation: 0
+  - level: 5
+    requiredXP: 230
+    power: 25
+    upkeep: 37
+    levelUpCost: 93
+    requiredReputation: 0
+  - level: 6
+    requiredXP: 330
+    power: 28
+    upkeep: 39
+    levelUpCost: 109
+    requiredReputation: 0
+  - level: 7
+    requiredXP: 460
+    power: 30
+    upkeep: 40
+    levelUpCost: 124
+    requiredReputation: 0
+  - level: 8
+    requiredXP: 660
+    power: 33
+    upkeep: 42
+    levelUpCost: 147
+    requiredReputation: 0
+  - level: 9
+    requiredXP: 930
+    power: 35
+    upkeep: 43
+    levelUpCost: 171
+    requiredReputation: 0
+  - level: 10
+    requiredXP: 1320
+    power: 38
+    upkeep: 45
+    levelUpCost: 194
+    requiredReputation: 0
   minReputation: 2
   portrait: {fileID: 21300000, guid: c86eec7dd6fdec2408c80f5865077cc6, type: 3}
   visualPrefab: {fileID: 1306647779856116, guid: 7fe017a28b24eea45b8a5b2bc72e7fd9, type: 3}
+  p09VisualPreset: {fileID: 0}
   greeting: ...Hm? Sorry, I was... What is that you want, Manager?
   healLine: 
   goodbyeLine: We have some tea in the kitchen.
   dialogueQuestions: []
+  morningDialogueLines: []

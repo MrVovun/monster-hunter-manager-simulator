@@ -19,21 +19,83 @@ MonoBehaviour:
     the ranks of hunters to help them, while spreading thje word of her God. She's
     the purest creature in this world - just don't ask which God her church serves
     to, you don't want to know.
-  basePower: 15
-  powerPerLevel: 2
+  statBlock: {fileID: 11400000, guid: 10640021f3760d84b8fa2fd3282d16f3, type: 2}
+  statOverrides:
+    overrideUpkeep: 0
+    overrideProgression: 0
+    overrideReputationRequirement: 0
+  legacyBasePower: 15
+  legacyPowerPerLevel: 2
+  legacyDailyUpkeepCost: 30
+  migratedLevelPower: 1
+  migratedLevelUpkeep: 1
+  migratedLevelUpCost: 1
   traits:
   - {fileID: 11400000, guid: fdd2df4b3ea1feb4085e8aa9c1d3c677, type: 2}
   - {fileID: 11400000, guid: dcd1c6ef448240945a916f5871288f93, type: 2}
-  dailyUpkeepCost: 30
   startingLevel: 1
   startingXP: 0
   levelXPTable:
+  - level: 1
+    requiredXP: 0
+    power: 15
+    upkeep: 31
+    levelUpCost: 0
+    requiredReputation: 0
   - level: 2
-    requiredXP: 200
+    requiredXP: 80
+    power: 18
+    upkeep: 33
+    levelUpCost: 47
+    requiredReputation: 0
   - level: 3
-    requiredXP: 300
+    requiredXP: 110
+    power: 20
+    upkeep: 34
+    levelUpCost: 62
+    requiredReputation: 0
   - level: 4
-    requiredXP: 400
+    requiredXP: 160
+    power: 36
+    upkeep: 10
+    levelUpCost: 78
+    requiredReputation: 0
+  - level: 5
+    requiredXP: 230
+    power: 25
+    upkeep: 37
+    levelUpCost: 93
+    requiredReputation: 0
+  - level: 6
+    requiredXP: 330
+    power: 28
+    upkeep: 39
+    levelUpCost: 109
+    requiredReputation: 0
+  - level: 7
+    requiredXP: 460
+    power: 30
+    upkeep: 40
+    levelUpCost: 124
+    requiredReputation: 0
+  - level: 8
+    requiredXP: 660
+    power: 33
+    upkeep: 42
+    levelUpCost: 147
+    requiredReputation: 0
+  - level: 9
+    requiredXP: 930
+    power: 35
+    upkeep: 43
+    levelUpCost: 171
+    requiredReputation: 0
+  - level: 10
+    requiredXP: 1320
+    power: 38
+    upkeep: 45
+    levelUpCost: 194
+    requiredReputation: 0
   minReputation: 1
   portrait: {fileID: 21300000, guid: b4778ecb322061e4788a4df42461620c, type: 3}
   visualPrefab: {fileID: 1782384603142300, guid: 8054459727ee21940b6193d60eea8bf6, type: 3}
@@ -49,3 +111,4 @@ MonoBehaviour:
       Lord of Torture, God of Misfortune, Nerzgol,
       Nerzgol I call on you. I give of myself. I give unto thee. Take my blood so
       that I might spill more. An offering to you.'
+  morningDialogueLines: []

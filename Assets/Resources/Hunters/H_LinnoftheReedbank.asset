@@ -17,19 +17,89 @@ MonoBehaviour:
   rarity: 0
   bio: A woodsman's daughter whos father was lost to forest's denizens. Now she chops
     them instead of trees.
-  basePower: 28
-  powerPerLevel: 2
+  statBlock: {fileID: 11400000, guid: 6b737e281e08ef44a8c6337c3a5db94e, type: 2}
+  statOverrides:
+    overrideUpkeep: 0
+    overrideProgression: 0
+    overrideReputationRequirement: 0
+  legacyBasePower: 28
+  legacyPowerPerLevel: 2
+  legacyDailyUpkeepCost: 64
+  migratedLevelPower: 1
+  migratedLevelUpkeep: 1
+  migratedLevelUpCost: 1
   traits:
   - {fileID: 11400000, guid: ffe352da7586f0448b327298082d0dee, type: 2}
   - {fileID: 11400000, guid: be516714b6b49ac4b83d240d71f4e5a5, type: 2}
-  dailyUpkeepCost: 64
-  startingLevel: 1
+  startingLevel: 2
   startingXP: 0
-  levelXPTable: []
+  levelXPTable:
+  - level: 1
+    requiredXP: 0
+    power: 15
+    upkeep: 31
+    levelUpCost: 0
+    requiredReputation: 0
+  - level: 2
+    requiredXP: 80
+    power: 18
+    upkeep: 33
+    levelUpCost: 47
+    requiredReputation: 0
+  - level: 3
+    requiredXP: 110
+    power: 20
+    upkeep: 34
+    levelUpCost: 62
+    requiredReputation: 0
+  - level: 4
+    requiredXP: 160
+    power: 36
+    upkeep: 10
+    levelUpCost: 78
+    requiredReputation: 0
+  - level: 5
+    requiredXP: 230
+    power: 25
+    upkeep: 37
+    levelUpCost: 93
+    requiredReputation: 0
+  - level: 6
+    requiredXP: 330
+    power: 28
+    upkeep: 39
+    levelUpCost: 109
+    requiredReputation: 0
+  - level: 7
+    requiredXP: 460
+    power: 30
+    upkeep: 40
+    levelUpCost: 124
+    requiredReputation: 0
+  - level: 8
+    requiredXP: 660
+    power: 33
+    upkeep: 42
+    levelUpCost: 147
+    requiredReputation: 0
+  - level: 9
+    requiredXP: 930
+    power: 35
+    upkeep: 43
+    levelUpCost: 171
+    requiredReputation: 0
+  - level: 10
+    requiredXP: 1320
+    power: 38
+    upkeep: 45
+    levelUpCost: 194
+    requiredReputation: 0
   minReputation: 2
   portrait: {fileID: 21300000, guid: 0e4a7c620f7b41248bc029d9e6006ea4, type: 3}
   visualPrefab: {fileID: 1058980811010882, guid: 9da8341e4ce71204eb5868a0600580ac, type: 3}
+  p09VisualPreset: {fileID: 0}
   greeting: I don't have all day.
   healLine: 
   goodbyeLine: Chop-chop.
   dialogueQuestions: []
+  morningDialogueLines: []

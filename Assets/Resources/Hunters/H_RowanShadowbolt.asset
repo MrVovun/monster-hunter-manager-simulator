@@ -18,21 +18,83 @@ MonoBehaviour:
   bio: Rowan's master was a legendary elven archer who kept a pet gremlin. Once,
     Rowan accidentally fed it after midnight, and it went on the rampage, slaying
     Rowan's master in her sleep. Now he does the same to every last one of them.
-  basePower: 15
-  powerPerLevel: 2
+  statBlock: {fileID: 11400000, guid: 10640021f3760d84b8fa2fd3282d16f3, type: 2}
+  statOverrides:
+    overrideUpkeep: 0
+    overrideProgression: 0
+    overrideReputationRequirement: 0
+  legacyBasePower: 15
+  legacyPowerPerLevel: 2
+  legacyDailyUpkeepCost: 30
+  migratedLevelPower: 1
+  migratedLevelUpkeep: 1
+  migratedLevelUpCost: 1
   traits:
   - {fileID: 11400000, guid: a58613d61cc934d4f8f79972e9623bb9, type: 2}
   - {fileID: 11400000, guid: 2659e8d4d076c184991a442585b3eb68, type: 2}
-  dailyUpkeepCost: 30
   startingLevel: 1
   startingXP: 0
   levelXPTable:
+  - level: 1
+    requiredXP: 0
+    power: 15
+    upkeep: 31
+    levelUpCost: 0
+    requiredReputation: 0
   - level: 2
-    requiredXP: 200
+    requiredXP: 80
+    power: 18
+    upkeep: 33
+    levelUpCost: 47
+    requiredReputation: 0
   - level: 3
-    requiredXP: 300
+    requiredXP: 110
+    power: 20
+    upkeep: 34
+    levelUpCost: 62
+    requiredReputation: 0
   - level: 4
-    requiredXP: 400
+    requiredXP: 160
+    power: 36
+    upkeep: 10
+    levelUpCost: 78
+    requiredReputation: 0
+  - level: 5
+    requiredXP: 230
+    power: 25
+    upkeep: 37
+    levelUpCost: 93
+    requiredReputation: 0
+  - level: 6
+    requiredXP: 330
+    power: 28
+    upkeep: 39
+    levelUpCost: 109
+    requiredReputation: 0
+  - level: 7
+    requiredXP: 460
+    power: 30
+    upkeep: 40
+    levelUpCost: 124
+    requiredReputation: 0
+  - level: 8
+    requiredXP: 660
+    power: 33
+    upkeep: 42
+    levelUpCost: 147
+    requiredReputation: 0
+  - level: 9
+    requiredXP: 930
+    power: 35
+    upkeep: 43
+    levelUpCost: 171
+    requiredReputation: 0
+  - level: 10
+    requiredXP: 1320
+    power: 38
+    upkeep: 45
+    levelUpCost: 194
+    requiredReputation: 0
   minReputation: 1
   portrait: {fileID: 21300000, guid: 896d71d839003364ba801520749e987e, type: 3}
   visualPrefab: {fileID: 1782384603142300, guid: 9f9dfe5a685ba9c4e8305f30ad12f1fd, type: 3}
@@ -41,3 +103,4 @@ MonoBehaviour:
   healLine: Those damn pests...
   goodbyeLine: See ya, Rowan.
   dialogueQuestions: []
+  morningDialogueLines: []
