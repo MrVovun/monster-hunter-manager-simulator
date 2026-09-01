@@ -38,6 +38,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GuildConstructionManager constructionManager;
     [SerializeField] private NotificationManager notificationManager;
     [SerializeField] private GraveyardManager graveyardManager;
+    [SerializeField] private LiveTelemetryManager liveTelemetryManager;
     [SerializeField] private GameConfig gameConfig;
 
     [Header("Starting Values")]
@@ -68,6 +69,7 @@ public class GameManager : MonoBehaviour
         HookManagerEvents();
         HookTimeEvents();
         LoadState();
+        liveTelemetryManager?.Initialize(this);
         ApplyLoadedGameOverState();
     }
 
@@ -84,6 +86,7 @@ public class GameManager : MonoBehaviour
         if (constructionManager == null) constructionManager = SceneLookup.Find<GuildConstructionManager>();
         if (notificationManager == null) notificationManager = SceneLookup.Find<NotificationManager>();
         if (graveyardManager == null) graveyardManager = SceneLookup.Find<GraveyardManager>();
+        if (liveTelemetryManager == null) liveTelemetryManager = GetComponentInChildren<LiveTelemetryManager>();
         if (gameConfig == null) gameConfig = Resources.Load<GameConfig>("GameConfig");
 
         // Create basics if missing so the scene can run
@@ -93,6 +96,7 @@ public class GameManager : MonoBehaviour
         if (orderGenerator == null) orderGenerator = gameObject.AddComponent<OrderGenerator>();
         if (missionResolver == null) missionResolver = gameObject.AddComponent<MissionResolver>();
         if (notificationManager == null) notificationManager = gameObject.AddComponent<NotificationManager>();
+        if (liveTelemetryManager == null) liveTelemetryManager = gameObject.AddComponent<LiveTelemetryManager>();
     }
 
     private void InitializeManagers()
@@ -270,6 +274,7 @@ public class GameManager : MonoBehaviour
     public GuildConstructionManager GetConstructionManager() => constructionManager;
     public NotificationManager GetNotificationManager() => notificationManager;
     public OrderGenerator GetOrderGenerator() => orderGenerator;
+    public LiveTelemetryManager GetLiveTelemetryManager() => liveTelemetryManager;
     public GameConfig GetGameConfig() => gameConfig;
     public GraveyardManager GetGraveyardManager()
     {

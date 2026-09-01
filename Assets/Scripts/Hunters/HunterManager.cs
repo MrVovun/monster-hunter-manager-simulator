@@ -78,6 +78,9 @@ public class HunterManager : MonoBehaviour
     private string equipmentSavePath;
     
     public event System.Action OnHuntersChanged;
+    public event System.Action<Hunter> OnHunterHired;
+    public event System.Action<Hunter> OnHunterFired;
+    public event System.Action<string, int> OnHunterDismissedForDebt;
     public event System.Action<Hunter> OnHunterLeveledUp;
     public void OnDayStarted(int dayIndex)
     {
@@ -370,6 +373,7 @@ public class HunterManager : MonoBehaviour
 
         candidate.SetState(HunterState.Idle);
         AssignHunterToSeat(candidate);
+        OnHunterHired?.Invoke(candidate);
         NotifyHuntersChanged();
         return true;
     }
@@ -467,6 +471,7 @@ public class HunterManager : MonoBehaviour
             hiredHunterIds.Remove(hunterId);
         }
 
+        OnHunterFired?.Invoke(hunter);
         RemoveHunter(hunter);
         return true;
     }
@@ -542,6 +547,7 @@ public class HunterManager : MonoBehaviour
             hiredHunterIds.Remove(hunter.Data.hunterId);
         }
 
+        OnHunterDismissedForDebt?.Invoke(hunterName, hunter.GetUpkeepCost());
         RemoveHunter(hunter);
         var notificationManager = GameManager.Instance != null ? GameManager.Instance.GetNotificationManager() : null;
         notificationManager?.NotifyHunterLeft(hunterName);
@@ -723,6 +729,7 @@ public class HunterManager : MonoBehaviour
 
         hiredHunterIds.Add(data.hunterId);
         idleAllDayCandidates[hunter] = hunter.GetState() == HunterState.Idle;
+        OnHunterHired?.Invoke(hunter);
         return true;
     }
 

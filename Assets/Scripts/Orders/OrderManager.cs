@@ -67,8 +67,12 @@ public class OrderManager : MonoBehaviour
     private int referralsToday;
 
     public System.Action<MissionReport> OnMissionResolved;
+    public event System.Action<Order> OnOrderGenerated;
     public event System.Action<Order> OnOrderAccepted;
     public event System.Action<Order> OnOrderReferred;
+    public event System.Action<Order, int, float, float, float> OnOrderReferredDetailed;
+    public event System.Action<Order> OnOrderDeclined;
+    public event System.Action<Order> OnOrderCanceled;
     public event System.Action<Order, List<Hunter>> OnMissionStarted;
     public event System.Action OnOrdersChanged;
 
@@ -110,6 +114,7 @@ public class OrderManager : MonoBehaviour
         newOrder.state = OrderState.Offered;
         offeredOrders.Add(newOrder);
         NotifyOrdersChanged();
+        OnOrderGenerated?.Invoke(newOrder);
         SaveState();
         return newOrder;
     }
@@ -138,6 +143,7 @@ public class OrderManager : MonoBehaviour
         CleanupTimers(order);
         order.state = OrderState.Failed;
         NotifyOrdersChanged();
+        OnOrderDeclined?.Invoke(order);
         SaveState();
     }
 
@@ -145,6 +151,8 @@ public class OrderManager : MonoBehaviour
     {
         if (order == null) return;
         SyncReferralDay();
+        float caseQuality = CalculateReferralCaseQuality(order);
+        float dailyMultiplier = GetDailyReferralMultiplier();
         int payout = CalculateReferralFee(order);
 
         offeredOrders.Remove(order);
@@ -165,6 +173,7 @@ public class OrderManager : MonoBehaviour
         referralsToday++;
         
         NotifyOrdersChanged();
+        OnOrderReferredDetailed?.Invoke(order, payout, reputationReward, caseQuality, dailyMultiplier);
         OnOrderReferred?.Invoke(order);
         SaveState();
 
@@ -289,6 +298,7 @@ public class OrderManager : MonoBehaviour
         activeOrders.Remove(order);
         order.assignedHunters.Clear();
         order.state = OrderState.Canceled;
+        OnOrderCanceled?.Invoke(order);
         NotifyOrdersChanged();
         NotifyHunterRosterChanged();
         SaveState();

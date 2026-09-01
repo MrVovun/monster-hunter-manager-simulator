@@ -101,6 +101,11 @@ MonoBehaviour:
     washFloorSeconds: 5
     passTimeStepSeconds: 60
   dialogueResponseDelaySeconds: 0
+  enableLocalTelemetry: 1
+  writeLocalTelemetryEvents: 1
+  writeLocalTelemetrySessionSummary: 1
+  localTelemetryFolderName: Telemetry
+  logLocalTelemetryPath: 1
   traitCountChances:
   - traitCount: 0
     weight: 0.5

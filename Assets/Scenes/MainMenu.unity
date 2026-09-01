@@ -3226,7 +3226,7 @@ MonoBehaviour:
   cursorSparkleDistanceRange: {x: 8, y: 28}
   cursorSparkleGravity: 55
   cursorSparklesOnlyWhenCursorActive: 1
-  enableRecorderCursor: 1
+  enableRecorderCursor: 0
   recorderCursorSprite: {fileID: 21300000, guid: 2ee905236428fe249bd5c8c14894d505, type: 3}
   recorderCursorSize: {x: 50, y: 50}
   recorderCursorOffset: {x: 0, y: 0}
@@ -4421,6 +4421,7 @@ MonoBehaviour:
   preWorkdayClip: {fileID: 0}
   workdayClip: {fileID: 0}
   eveningClip: {fileID: 0}
+  gameOverClip: {fileID: 0}
 --- !u!4 &1422441640
 Transform:
   m_ObjectHideFlags: 0

@@ -50,6 +50,7 @@ public class InvestigationManager : MonoBehaviour
     public InvestigationCase CurrentCase { get; private set; }
     public Order CurrentOrder { get; private set; }
     public event Action OnCaseUpdated;
+    public event Action<InvestigationQuestion, InvestigationCase, string, bool> OnQuestionAnswered;
 
     public bool HasActiveClientInvestigation()
     {
@@ -163,8 +164,10 @@ public class InvestigationManager : MonoBehaviour
             hunterQuestionCallback?.Invoke(question);
             if (question != null && hunterAnswers.TryGetValue(question.questionId, out var ans))
             {
+                OnQuestionAnswered?.Invoke(question, null, ans, true);
                 return ans;
             }
+            OnQuestionAnswered?.Invoke(question, null, "...", true);
             return "...";
         }
         if (CurrentCase == null || question == null) return string.Empty;
@@ -203,7 +206,9 @@ public class InvestigationManager : MonoBehaviour
         RevealTraitsFromQuestion(question, responseBuilder);
 
         NotifyCaseUpdated();
-        return responseBuilder.ToString().Trim();
+        string response = responseBuilder.ToString().Trim();
+        OnQuestionAnswered?.Invoke(question, CurrentCase, response, false);
+        return response;
     }
 
     private void AppendResponseLine(StringBuilder builder, string line)

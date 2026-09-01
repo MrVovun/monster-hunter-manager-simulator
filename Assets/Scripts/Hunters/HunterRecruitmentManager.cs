@@ -82,7 +82,11 @@ public class HunterRecruitmentManager : MonoBehaviour
     [SerializeField] private float upkeepPriorityWeight = 1f;
 
     public event Action OnStateChanged;
+    public event Action<AdSettings, bool, float> OnCampaignStarted;
     public event Action<RecruitmentCandidate> OnCandidateArrived;
+    public event Action<RecruitmentCandidate> OnCandidateReviewed;
+    public event Action<RecruitmentCandidate> OnCandidateHired;
+    public event Action<RecruitmentCandidate> OnCandidateDeclined;
     public event Action<string> OnCampaignEnded;
 
     private readonly List<RecruitmentCandidate> candidateQueue = new List<RecruitmentCandidate>();
@@ -608,6 +612,7 @@ public class HunterRecruitmentManager : MonoBehaviour
 
         SaveState();
         OnStateChanged?.Invoke();
+        OnCampaignStarted?.Invoke(activeSettings, campaignIsFree, campaignCost);
 
         var config = gm != null ? gm.GetGameConfig() : null;
         tm = gm != null ? gm.GetTimeManager() : timeManager;
@@ -654,6 +659,7 @@ public class HunterRecruitmentManager : MonoBehaviour
             candidateQueue.Remove(candidate);
             SaveState();
             OnStateChanged?.Invoke();
+            OnCandidateHired?.Invoke(candidate);
             TryActivatePendingCandidates();
         }
         else
@@ -683,6 +689,7 @@ public class HunterRecruitmentManager : MonoBehaviour
         }
 
         OnStateChanged?.Invoke();
+        OnCandidateDeclined?.Invoke(candidate);
 
         var config = GameManager.Instance != null ? GameManager.Instance.GetGameConfig() : null;
         var tm = GameManager.Instance != null ? GameManager.Instance.GetTimeManager() : null;
@@ -697,6 +704,7 @@ public class HunterRecruitmentManager : MonoBehaviour
         if (candidate == null) return false;
         if (onlyIfPending && candidate.status != CandidateStatus.Pending) return false;
         candidateProfilePanel.ShowCandidate(candidate, onClosed);
+        OnCandidateReviewed?.Invoke(candidate);
 
         var config = GameManager.Instance != null ? GameManager.Instance.GetGameConfig() : null;
         var tm = GameManager.Instance != null ? GameManager.Instance.GetTimeManager() : null;

@@ -90,6 +90,18 @@ public class GameConfig : ScriptableObject
     [Tooltip("Real-time delay before a dialogue answer starts printing. Client profiles affect action time, not this wait.")]
     public float dialogueResponseDelaySeconds = 2f;
 
+    [Header("Telemetry")]
+    [Tooltip("Writes local playtest telemetry CSV files under Application.persistentDataPath. Keep this local-only for internal testing.")]
+    public bool enableLocalTelemetry = true;
+    [Tooltip("Write one row per tracked gameplay event.")]
+    public bool writeLocalTelemetryEvents = true;
+    [Tooltip("Append a compact session summary row when the session closes.")]
+    public bool writeLocalTelemetrySessionSummary = true;
+    [Tooltip("Folder name under Application.persistentDataPath used for local telemetry files.")]
+    public string localTelemetryFolderName = "Telemetry";
+    [Tooltip("Print the local telemetry output folder to the console at session start.")]
+    public bool logLocalTelemetryPath;
+
     [Header("Monster Trait Generation")]
     public List<TraitCountChance> traitCountChances = new List<TraitCountChance>
     {
