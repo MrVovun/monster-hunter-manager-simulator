@@ -211,7 +211,7 @@ public static class GameSaveUtility
 
         foreach (string key in PlayerPrefKeys)
         {
-            if (!includeSettings && key.StartsWith("settings."))
+            if (!includeSettings && (key.StartsWith("settings.") || key == "tutorial.disabled"))
             {
                 continue;
             }

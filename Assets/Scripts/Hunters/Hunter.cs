@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.AI;
+using System.Collections;
 using System.Collections.Generic;
 
 public class Hunter : MonoBehaviour
@@ -1006,6 +1007,31 @@ public class Hunter : MonoBehaviour
         isDepartingForMission = false;
         missionDepartureTimer = 0f;
 
+        if (navAgent != null && navAgent.enabled && navAgent.isOnNavMesh)
+        {
+            navAgent.ResetPath();
+            navAgent.isStopped = true;
+        }
+
+        CacheHunterManager();
+        float delay = hunterManager != null ? hunterManager.ReserveMissionDepartureDelay() : 0f;
+        if (delay > 0f && isActiveAndEnabled)
+        {
+            StartCoroutine(CompleteDepartureAfterDelay(delay));
+            return;
+        }
+
+        CompleteDepartureNow();
+    }
+
+    private IEnumerator CompleteDepartureAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        CompleteDepartureNow();
+    }
+
+    private void CompleteDepartureNow()
+    {
         Vector3 outside = GetDoorOutsidePosition();
         transform.position = outside;
 
@@ -1246,6 +1272,11 @@ public class Hunter : MonoBehaviour
     public bool CanLevelUp()
     {
         return levelSystem != null && levelSystem.CanLevelUp();
+    }
+
+    public bool CanUseLevelUpAction()
+    {
+        return GetState() == HunterState.Idle && CanLevelUp();
     }
 
     public bool HasEnoughXPForNextLevel()

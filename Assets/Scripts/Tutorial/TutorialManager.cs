@@ -130,7 +130,7 @@ public class TutorialManager : MonoBehaviour
         if (firstSessionSequence == null || firstSessionSequence.steps == null || firstSessionSequence.steps.Count == 0) return;
 
         disableTutorial = false;
-        PlayerPrefs.SetInt(DisabledKey, 0);
+        SetTutorialDisabledPreference(false);
         currentStepIndex = Mathf.Clamp(stepIndex, 0, firstSessionSequence.steps.Count - 1);
         currentEventCount = 0;
         SaveProgress();
@@ -158,7 +158,7 @@ public class TutorialManager : MonoBehaviour
     public void SetTutorialDisabled(bool disabled)
     {
         disableTutorial = disabled;
-        PlayerPrefs.SetInt(DisabledKey, disabled ? 1 : 0);
+        SetTutorialDisabledPreference(disabled);
         if (disabled)
         {
             currentStepIndex = -1;
@@ -174,7 +174,18 @@ public class TutorialManager : MonoBehaviour
 
     public bool IsTutorialDisabled()
     {
-        return disableTutorial || PlayerPrefs.GetInt(DisabledKey, 0) == 1;
+        return disableTutorial || IsTutorialDisabledPreference();
+    }
+
+    public static bool IsTutorialDisabledPreference()
+    {
+        return PlayerPrefs.GetInt(DisabledKey, 0) == 1;
+    }
+
+    public static void SetTutorialDisabledPreference(bool disabled)
+    {
+        PlayerPrefs.SetInt(DisabledKey, disabled ? 1 : 0);
+        PlayerPrefs.Save();
     }
 
     public static bool IsActionAllowed(string actionId)

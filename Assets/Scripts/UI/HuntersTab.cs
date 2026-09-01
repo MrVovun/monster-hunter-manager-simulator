@@ -140,7 +140,7 @@ public class HuntersTab : MonoBehaviour
             return;
         }
 
-        bool canLevelSelected = selectedHunter.CanLevelUp() && gold.GetGold() >= selectedHunter.GetLevelUpCost();
+        bool canLevelSelected = selectedHunter.CanUseLevelUpAction() && gold.GetGold() >= selectedHunter.GetLevelUpCost();
         SetLevelUpButtonInteractable(canLevelSelected, GetLevelUpUnavailableReason(selectedHunter, gold));
         RefreshLevelUpPriceText(selectedHunter, gold);
     }
@@ -181,7 +181,15 @@ public class HuntersTab : MonoBehaviour
         if (hunter != null)
         {
             int xpForNext = hunter.GetXPToNextLevel();
-            if (hunter.IsAtMaxLevel() || xpForNext == int.MaxValue)
+            if (hunter.GetState() == HunterState.OnMission)
+            {
+                status = "Hunters on orders cannot level up.";
+            }
+            else if (hunter.GetState() != HunterState.Idle)
+            {
+                status = "Hunter must be idle to level up.";
+            }
+            else if (hunter.IsAtMaxLevel() || xpForNext == int.MaxValue)
             {
                 status = "Max level";
             }
@@ -247,6 +255,8 @@ public class HuntersTab : MonoBehaviour
     private string GetLevelUpUnavailableReason(Hunter hunter, GoldManager gold)
     {
         if (hunter == null) return "Select a hunter first.";
+        if (hunter.GetState() == HunterState.OnMission) return "Hunters on orders cannot level up.";
+        if (hunter.GetState() != HunterState.Idle) return "This hunter must be idle to level up.";
         int xpForNext = hunter.GetXPToNextLevel();
         if (hunter.IsAtMaxLevel() || xpForNext == int.MaxValue) return "This hunter is already at max level.";
         int requiredReputation = hunter.GetRequiredReputationForNextLevel();

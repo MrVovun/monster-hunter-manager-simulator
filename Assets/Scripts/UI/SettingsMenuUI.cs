@@ -83,7 +83,9 @@ public class SettingsMenuUI : MonoBehaviour
 
         if (disableTutorialToggle != null)
         {
-            bool disabled = TutorialManager.Instance != null && TutorialManager.Instance.IsTutorialDisabled();
+            bool disabled = TutorialManager.Instance != null
+                ? TutorialManager.Instance.IsTutorialDisabled()
+                : TutorialManager.IsTutorialDisabledPreference();
             disableTutorialToggle.SetIsOnWithoutNotify(disabled);
         }
 
@@ -188,7 +190,14 @@ public class SettingsMenuUI : MonoBehaviour
     private void HandleTutorialToggleChanged(bool disabled)
     {
         if (refreshing) return;
-        TutorialManager.Instance?.SetTutorialDisabled(disabled);
+        if (TutorialManager.Instance != null)
+        {
+            TutorialManager.Instance.SetTutorialDisabled(disabled);
+        }
+        else
+        {
+            TutorialManager.SetTutorialDisabledPreference(disabled);
+        }
     }
 
     private GameSettingsManager EnsureSettingsManager()

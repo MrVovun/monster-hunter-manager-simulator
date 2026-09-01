@@ -64,6 +64,7 @@ public class HunterManager : MonoBehaviour
     [SerializeField] private Transform doorEntryPoint;
     [SerializeField] private Transform doorExitPoint;
     [SerializeField] private Transform returnSpawnPoint;
+    [SerializeField, Min(0f)] private float missionDepartureSpacingSeconds = 0.25f;
 
     private readonly List<Hunter> activeHunters = new List<Hunter>();
     private readonly Dictionary<string, HunterData> hunterLookup = new Dictionary<string, HunterData>();
@@ -73,6 +74,7 @@ public class HunterManager : MonoBehaviour
     private readonly Dictionary<Hunter, bool> idleAllDayCandidates = new Dictionary<Hunter, bool>();
     private readonly HashSet<HunterSeat> briefingRoomSeats = new HashSet<HunterSeat>();
     private int nextSeatIndex = 0;
+    private float nextMissionDepartureCompleteTime;
     private bool navMeshChecked = false;
     private bool navMeshAvailable = false;
     private string equipmentSavePath;
@@ -595,7 +597,7 @@ public class HunterManager : MonoBehaviour
     public bool TryPayLevelUp(Hunter hunter, GoldManager goldManager)
     {
         if (hunter == null || goldManager == null) return false;
-        if (!hunter.CanLevelUp()) return false;
+        if (!hunter.CanUseLevelUpAction()) return false;
         int cost = hunter.GetLevelUpCost();
         if (!goldManager.SpendGold(cost)) return false;
         bool leveled = hunter.LevelUp();
@@ -652,6 +654,20 @@ public class HunterManager : MonoBehaviour
         }
 
         return basePosition;
+    }
+
+    public float ReserveMissionDepartureDelay()
+    {
+        float spacing = Mathf.Max(0f, missionDepartureSpacingSeconds);
+        if (spacing <= 0f)
+        {
+            return 0f;
+        }
+
+        float now = Time.time;
+        float scheduledTime = Mathf.Max(now, nextMissionDepartureCompleteTime);
+        nextMissionDepartureCompleteTime = scheduledTime + spacing;
+        return Mathf.Max(0f, scheduledTime - now);
     }
 
     public Transform GetDoorExitTransform()
