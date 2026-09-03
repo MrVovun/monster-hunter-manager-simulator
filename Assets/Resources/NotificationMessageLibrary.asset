@@ -51,11 +51,11 @@ MonoBehaviour:
   unpaidUpkeepMessage:
     severity: 2
     title: Unpaid Upkeep
-    body: 'Unpaid upkeep became {unpaid_amount} debt. Reputation ranks lost: {reputation_rank_loss}. Current rank: {reputation_rank}. Mission success penalty: -{success_penalty}%.'
+    body: 'Unpaid upkeep became {unpaid_amount} debt. Reputation points lost: {reputation_points_lost} ({reputation_point_loss_percent}%). Current rank: {reputation_rank}. Mission success penalty: -{success_penalty}%.'
   upkeepCrisisMessage:
     severity: 2
     title: Upkeep Crisis
-    body: 'Unpaid upkeep became {unpaid_amount} debt. Reputation ranks lost: {reputation_rank_loss}. Current rank: {reputation_rank}. Mission success penalty: -{success_penalty}%.'
+    body: 'Unpaid upkeep became {unpaid_amount} debt. Reputation points lost: {reputation_points_lost} ({reputation_point_loss_percent}%). Current rank: {reputation_rank}. Mission success penalty: -{success_penalty}%.'
   gameOverMessage:
     severity: 2
     title: Game Over

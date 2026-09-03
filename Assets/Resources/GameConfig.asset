@@ -79,8 +79,8 @@ MonoBehaviour:
   debtSettings:
     unpaidDay1SuccessPenaltyPercent: 5
     unpaidDay2SuccessPenaltyPercent: 15
-    unpaidDay1ReputationRankLoss: 1
-    unpaidDay2ReputationRankLoss: 1
+    unpaidDay1ReputationPointLossPercent: 10
+    unpaidDay2ReputationPointLossPercent: 25
     dismissHuntersUntilUpkeepFitsPreviousIncome: 1
     minimumHuntersAfterDebtDismissal: 1
   actionTimeSettings:

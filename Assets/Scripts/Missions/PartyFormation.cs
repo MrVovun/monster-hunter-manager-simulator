@@ -35,7 +35,7 @@ public class PartyFormation : MonoBehaviour
     {
         if (hunter == null) return false;
         if (currentParty.Count >= maxPartySize) return false;
-        if (hunter.GetState() != HunterState.Idle) return false;
+        if (!hunter.IsAvailableForOrders()) return false;
         if (currentParty.Contains(hunter)) return false;
         
         currentParty.Add(hunter);

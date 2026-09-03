@@ -373,7 +373,7 @@ public class KitchenManager : MonoBehaviour
     private bool CanHunterStartEating(Hunter hunter)
     {
         if (hunter == null) return false;
-        if (hunter.GetState() != HunterState.Idle) return false;
+        if (!hunter.IsAvailableForOrders()) return false;
         if (!hunter.IsSeated()) return false;
         if (feedingHunters.Contains(hunter)) return false;
         if (IsHunterFed(hunter)) return false;
@@ -543,6 +543,7 @@ public class KitchenManager : MonoBehaviour
         }
 
         hunter.StopCustomAnimation();
+        hunter.SitAtSeat();
 
         string hunterId = GetHunterId(hunter);
         if (!string.IsNullOrEmpty(hunterId))
@@ -556,6 +557,7 @@ public class KitchenManager : MonoBehaviour
         }
 
         ClearFeedingHunter(hunter);
+        hunter.SetEating(false);
         SaveState();
         OnStateChanged?.Invoke();
     }
@@ -573,6 +575,7 @@ public class KitchenManager : MonoBehaviour
         ClearCarriedPlate(hunter);
         RemoveHunterFromQueue(hunter);
         RemoveHunterFromServingPoint(hunter);
+        hunter.SetEating(false);
     }
 
     private void CleanupInvalidFlowHunters()

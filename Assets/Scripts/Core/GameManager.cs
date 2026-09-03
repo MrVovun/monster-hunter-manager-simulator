@@ -167,12 +167,13 @@ public class GameManager : MonoBehaviour
             ? Mathf.Max(0f, debtSettings.unpaidDay2SuccessPenaltyPercent)
             : Mathf.Max(0f, debtSettings.unpaidDay1SuccessPenaltyPercent);
 
-        int reputationRankLoss = secondUnpaidDay
-            ? Mathf.Max(0, debtSettings.unpaidDay2ReputationRankLoss)
-            : Mathf.Max(0, debtSettings.unpaidDay1ReputationRankLoss);
-        int reputationRankAfterLoss = reputationManager != null
-            ? reputationManager.LoseReputationRanks(reputationRankLoss)
-            : 0;
+        float reputationPointLossPercent = secondUnpaidDay
+            ? Mathf.Clamp(debtSettings.unpaidDay2ReputationPointLossPercent, 0f, 100f)
+            : Mathf.Clamp(debtSettings.unpaidDay1ReputationPointLossPercent, 0f, 100f);
+        float reputationPointsLost = reputationManager != null
+            ? reputationManager.LoseCurrentReputationPointsPercent(reputationPointLossPercent)
+            : 0f;
+        int currentReputationRank = reputationManager != null ? reputationManager.GetReputation() : 0;
 
         if (secondUnpaidDay && debtSettings.dismissHuntersUntilUpkeepFitsPreviousIncome)
         {
@@ -184,8 +185,9 @@ public class GameManager : MonoBehaviour
         notificationManager?.NotifyUnpaidUpkeep(
             secondUnpaidDay,
             unpaidAmount,
-            reputationRankLoss,
-            reputationRankAfterLoss,
+            reputationPointLossPercent,
+            reputationPointsLost,
+            currentReputationRank,
             activeDebtSuccessPenaltyPercent);
     }
 

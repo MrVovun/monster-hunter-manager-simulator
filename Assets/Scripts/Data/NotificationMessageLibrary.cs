@@ -17,8 +17,8 @@ public class NotificationMessageLibrary : ScriptableObject
 
     [Header("Economy")]
     public NotificationMessageTemplate notEnoughGoldMessage = new NotificationMessageTemplate(NotificationSeverity.Warning, "Not Enough Gold", "Needed {requested_gold} gold, but only {current_gold} is available.");
-    public NotificationMessageTemplate unpaidUpkeepMessage = new NotificationMessageTemplate(NotificationSeverity.Warning, "Unpaid Upkeep", "Unpaid upkeep became {unpaid_amount} debt. Reputation ranks lost: {reputation_rank_loss}. Current rank: {reputation_rank}. Mission success penalty: -{success_penalty}%.");
-    public NotificationMessageTemplate upkeepCrisisMessage = new NotificationMessageTemplate(NotificationSeverity.Warning, "Upkeep Crisis", "Unpaid upkeep became {unpaid_amount} debt. Reputation ranks lost: {reputation_rank_loss}. Current rank: {reputation_rank}. Mission success penalty: -{success_penalty}%.");
+    public NotificationMessageTemplate unpaidUpkeepMessage = new NotificationMessageTemplate(NotificationSeverity.Warning, "Unpaid Upkeep", "Unpaid upkeep became {unpaid_amount} debt. Reputation points lost: {reputation_points_lost} ({reputation_point_loss_percent}%). Current rank: {reputation_rank}. Mission success penalty: -{success_penalty}%.");
+    public NotificationMessageTemplate upkeepCrisisMessage = new NotificationMessageTemplate(NotificationSeverity.Warning, "Upkeep Crisis", "Unpaid upkeep became {unpaid_amount} debt. Reputation points lost: {reputation_points_lost} ({reputation_point_loss_percent}%). Current rank: {reputation_rank}. Mission success penalty: -{success_penalty}%.");
     public NotificationMessageTemplate gameOverMessage = new NotificationMessageTemplate(NotificationSeverity.Warning, "Game Over", "{reason}");
 
     [Header("Hunters")]

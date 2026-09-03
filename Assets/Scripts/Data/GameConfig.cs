@@ -177,10 +177,10 @@ public class GameConfig : ScriptableObject
         public float unpaidDay1SuccessPenaltyPercent = 5f;
         [Tooltip("Flat success chance penalty applied during the second consecutive unpaid day.")]
         public float unpaidDay2SuccessPenaltyPercent = 15f;
-        [Tooltip("Reputation ranks lost on the first consecutive unpaid day.")]
-        public int unpaidDay1ReputationRankLoss = 1;
-        [Tooltip("Reputation ranks lost on the second consecutive unpaid day.")]
-        public int unpaidDay2ReputationRankLoss = 1;
+        [Tooltip("Percentage of current reputation points lost on the first consecutive unpaid day.")]
+        [Range(0f, 100f)] public float unpaidDay1ReputationPointLossPercent = 10f;
+        [Tooltip("Percentage of current reputation points lost on the second consecutive unpaid day.")]
+        [Range(0f, 100f)] public float unpaidDay2ReputationPointLossPercent = 25f;
         [Tooltip("Day 2 dismissals continue until remaining daily upkeep is at or below previous day's gross income.")]
         public bool dismissHuntersUntilUpkeepFitsPreviousIncome = true;
         [Tooltip("Debt dismissals will not reduce the roster below this many active hunters. Keep at least 1 if you want Day 3 game over to remain reachable.")]

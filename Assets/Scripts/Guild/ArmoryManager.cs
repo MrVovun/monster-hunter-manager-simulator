@@ -78,7 +78,7 @@ public class ArmoryManager : MonoBehaviour
         if (hunterManager == null) return Array.Empty<Hunter>();
 
         return hunterManager.GetAllHunters()
-            .Where(h => h != null && h.GetState() != HunterState.Dead && h.GetState() != HunterState.Candidate)
+            .Where(h => h != null && h.IsAvailableForOrders())
             .OrderBy(h => h.Data != null ? h.Data.hunterName : h.name)
             .ToList();
     }

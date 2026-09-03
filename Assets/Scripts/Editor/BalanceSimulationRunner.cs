@@ -468,10 +468,10 @@ public static class BalanceSimulationRunner
                 ? Mathf.Max(0f, debtSettings.unpaidDay2SuccessPenaltyPercent)
                 : Mathf.Max(0f, debtSettings.unpaidDay1SuccessPenaltyPercent);
 
-            int rankLoss = secondDay
-                ? Mathf.Max(0, debtSettings.unpaidDay2ReputationRankLoss)
-                : Mathf.Max(0, debtSettings.unpaidDay1ReputationRankLoss);
-            LoseReputationRanks(rankLoss);
+            float pointLossPercent = secondDay
+                ? Mathf.Clamp(debtSettings.unpaidDay2ReputationPointLossPercent, 0f, 100f)
+                : Mathf.Clamp(debtSettings.unpaidDay1ReputationPointLossPercent, 0f, 100f);
+            LoseReputationPointsPercent(pointLossPercent);
 
             if (secondDay && debtSettings.dismissHuntersUntilUpkeepFitsPreviousIncome)
             {
@@ -1331,19 +1331,11 @@ public static class BalanceSimulationRunner
             return level;
         }
 
-        private void LoseReputationRanks(int ranks)
+        private void LoseReputationPointsPercent(float percent)
         {
-            if (ranks <= 0) return;
-            int targetLevel = Mathf.Max(0, GetCurrentReputation() - ranks);
-            int targetPoints = 0;
-            foreach (var tier in data.Config.orderLimitByReputation)
-            {
-                if (tier != null && tier.requiredReputation == targetLevel)
-                {
-                    targetPoints = Mathf.Max(targetPoints, tier.requiredReputationPoints);
-                }
-            }
-            reputationPoints = Mathf.Min(reputationPoints, targetPoints);
+            percent = Mathf.Clamp(percent, 0f, 100f);
+            if (percent <= 0f || reputationPoints <= 0f) return;
+            reputationPoints = Mathf.Max(0f, reputationPoints - reputationPoints * (percent / 100f));
         }
 
         private bool TraitIsOnOrder(Order order, MonsterTrait trait)

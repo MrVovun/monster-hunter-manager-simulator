@@ -6,6 +6,7 @@
 ## Demo Backlog
 
 - Update the Google Sheets / spreadsheet import wiring so balance and content values edited in the design spreadsheet can be pulled into the project assets reliably.
+- Expand tutorials to teach manual reputation upgrades: explain that reputation points unlock the next rank, but the player must press the Economy panel upgrade button during pre-bell time.
 
 ## Polishing Backlog
 
@@ -70,3 +71,8 @@ Document the editable notification message templates in `NotificationManager`, i
 - `{reason_suffix}`
 - `{construction}`
 - `{day}`
+- `{unpaid_amount}`
+- `{reputation_point_loss_percent}`
+- `{reputation_points_lost}`
+- `{reputation_rank}`
+- `{success_penalty}`

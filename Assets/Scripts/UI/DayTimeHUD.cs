@@ -16,6 +16,8 @@ public class DayTimeHUD : MonoBehaviour
     [SerializeField] private TMP_Text debtStatusText;
     [SerializeField] private TMP_Text reputationText;
     [SerializeField] private TMP_Text reputationProgressText;
+    [Tooltip("Shown while the next reputation rank can be upgraded from the Economy panel.")]
+    [SerializeField] private GameObject reputationUpgradeAvailableIndicator;
     [SerializeField] private UnityEngine.UI.Image stateIcon;
     [SerializeField] private Sprite preBellSprite;
     [SerializeField] private Sprite activeSprite;
@@ -41,34 +43,16 @@ public class DayTimeHUD : MonoBehaviour
     private HunterManager hunterManager;
     private Coroutine stateIconRotationRoutine;
     private bool hasRefreshedStateIcon;
+    private bool subscribedToTimeManager;
+    private bool subscribedToReputationManager;
+    private bool subscribedToGoldManager;
+    private bool subscribedToHunterManager;
 
     private void OnEnable()
     {
         EnsureTimeManager();
-        if (timeManager != null)
-        {
-            timeManager.OnTimeUpdate += HandleTimeUpdate;
-            timeManager.OnDayStarted += HandleDayStarted;
-            timeManager.OnDayStateChanged += HandleDayStateChanged;
-        }
-
         EnsureReputationManager();
-        if (reputationManager != null)
-        {
-            reputationManager.OnReputationChanged += HandleReputationChanged;
-        }
-
         EnsureEconomyManagers();
-        if (goldManager != null)
-        {
-            goldManager.OnGoldChanged += HandleGoldChanged;
-            goldManager.OnDebtChanged += HandleDebtChanged;
-        }
-
-        if (hunterManager != null)
-        {
-            hunterManager.OnHuntersChanged += HandleHuntersChanged;
-        }
 
         RefreshTexts();
     }
@@ -81,28 +65,10 @@ public class DayTimeHUD : MonoBehaviour
             stateIconRotationRoutine = null;
         }
 
-        if (timeManager != null)
-        {
-            timeManager.OnTimeUpdate -= HandleTimeUpdate;
-            timeManager.OnDayStarted -= HandleDayStarted;
-            timeManager.OnDayStateChanged -= HandleDayStateChanged;
-        }
-
-        if (reputationManager != null)
-        {
-            reputationManager.OnReputationChanged -= HandleReputationChanged;
-        }
-
-        if (goldManager != null)
-        {
-            goldManager.OnGoldChanged -= HandleGoldChanged;
-            goldManager.OnDebtChanged -= HandleDebtChanged;
-        }
-
-        if (hunterManager != null)
-        {
-            hunterManager.OnHuntersChanged -= HandleHuntersChanged;
-        }
+        UnsubscribeFromTimeManager();
+        UnsubscribeFromReputationManager();
+        UnsubscribeFromGoldManager();
+        UnsubscribeFromHunterManager();
     }
 
     private void HandleTimeUpdate(float _)
@@ -173,7 +139,11 @@ public class DayTimeHUD : MonoBehaviour
     private void RefreshReputationTexts()
     {
         EnsureReputationManager();
-        if (reputationManager == null) return;
+        if (reputationManager == null)
+        {
+            SetReputationUpgradeIndicator(false);
+            return;
+        }
 
         if (reputationText != null)
         {
@@ -183,6 +153,17 @@ public class DayTimeHUD : MonoBehaviour
         if (reputationProgressText != null)
         {
             reputationProgressText.text = reputationManager.GetProgressText();
+        }
+
+        bool canUpgrade = reputationManager.CanUpgradeReputation(out _, out _, out _);
+        SetReputationUpgradeIndicator(canUpgrade);
+    }
+
+    private void SetReputationUpgradeIndicator(bool visible)
+    {
+        if (reputationUpgradeAvailableIndicator != null)
+        {
+            reputationUpgradeAvailableIndicator.SetActive(visible);
         }
     }
 
@@ -196,6 +177,7 @@ public class DayTimeHUD : MonoBehaviour
         {
             timeManager = SceneLookup.Find<TimeManager>();
         }
+        SubscribeToTimeManagerIfNeeded();
     }
 
     private void EnsureReputationManager()
@@ -204,6 +186,7 @@ public class DayTimeHUD : MonoBehaviour
         {
             reputationManager = GameManager.Instance.GetReputationManager();
         }
+        SubscribeToReputationManagerIfNeeded();
     }
 
     private void EnsureEconomyManagers()
@@ -219,6 +202,8 @@ public class DayTimeHUD : MonoBehaviour
         {
             hunterManager = GameManager.Instance.GetHunterManager();
         }
+        SubscribeToGoldManagerIfNeeded();
+        SubscribeToHunterManagerIfNeeded();
     }
 
     private void RefreshEconomyTexts()
@@ -358,5 +343,67 @@ public class DayTimeHUD : MonoBehaviour
         angle %= 360f;
         if (angle > 180f) angle -= 360f;
         return angle;
+    }
+
+    private void SubscribeToTimeManagerIfNeeded()
+    {
+        if (!isActiveAndEnabled || subscribedToTimeManager || timeManager == null) return;
+        timeManager.OnTimeUpdate += HandleTimeUpdate;
+        timeManager.OnDayStarted += HandleDayStarted;
+        timeManager.OnDayStateChanged += HandleDayStateChanged;
+        subscribedToTimeManager = true;
+    }
+
+    private void SubscribeToReputationManagerIfNeeded()
+    {
+        if (!isActiveAndEnabled || subscribedToReputationManager || reputationManager == null) return;
+        reputationManager.OnReputationChanged += HandleReputationChanged;
+        subscribedToReputationManager = true;
+    }
+
+    private void SubscribeToGoldManagerIfNeeded()
+    {
+        if (!isActiveAndEnabled || subscribedToGoldManager || goldManager == null) return;
+        goldManager.OnGoldChanged += HandleGoldChanged;
+        goldManager.OnDebtChanged += HandleDebtChanged;
+        subscribedToGoldManager = true;
+    }
+
+    private void SubscribeToHunterManagerIfNeeded()
+    {
+        if (!isActiveAndEnabled || subscribedToHunterManager || hunterManager == null) return;
+        hunterManager.OnHuntersChanged += HandleHuntersChanged;
+        subscribedToHunterManager = true;
+    }
+
+    private void UnsubscribeFromTimeManager()
+    {
+        if (!subscribedToTimeManager || timeManager == null) return;
+        timeManager.OnTimeUpdate -= HandleTimeUpdate;
+        timeManager.OnDayStarted -= HandleDayStarted;
+        timeManager.OnDayStateChanged -= HandleDayStateChanged;
+        subscribedToTimeManager = false;
+    }
+
+    private void UnsubscribeFromReputationManager()
+    {
+        if (!subscribedToReputationManager || reputationManager == null) return;
+        reputationManager.OnReputationChanged -= HandleReputationChanged;
+        subscribedToReputationManager = false;
+    }
+
+    private void UnsubscribeFromGoldManager()
+    {
+        if (!subscribedToGoldManager || goldManager == null) return;
+        goldManager.OnGoldChanged -= HandleGoldChanged;
+        goldManager.OnDebtChanged -= HandleDebtChanged;
+        subscribedToGoldManager = false;
+    }
+
+    private void UnsubscribeFromHunterManager()
+    {
+        if (!subscribedToHunterManager || hunterManager == null) return;
+        hunterManager.OnHuntersChanged -= HandleHuntersChanged;
+        subscribedToHunterManager = false;
     }
 }

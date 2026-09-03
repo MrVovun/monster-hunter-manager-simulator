@@ -53,6 +53,7 @@ public class Hunter : MonoBehaviour
     private bool isWalkingToKitchenPoint;
     private Transform kitchenPointTarget;
     private System.Action<Hunter> kitchenPointArrivalCallback;
+    private bool isEating;
     private bool isWalkingToTemporarySeat;
     private System.Action<Hunter> temporarySeatArrivalCallback;
     private HunterSeat armoryReturnSeat;
@@ -194,6 +195,7 @@ public class Hunter : MonoBehaviour
             isWalkingToKitchenPoint = false;
             kitchenPointTarget = null;
             kitchenPointArrivalCallback = null;
+            isEating = false;
             isWalkingToTemporarySeat = false;
             temporarySeatArrivalCallback = null;
             standUpCompletedAction = null;
@@ -243,6 +245,7 @@ public class Hunter : MonoBehaviour
             dormitoryBedTarget = null;
             dormitoryArrivalCallback = null;
             isWalkingToKitchenPoint = false;
+            isEating = false;
             kitchenPointTarget = null;
             kitchenPointArrivalCallback = null;
             isWalkingToTemporarySeat = false;
@@ -263,6 +266,7 @@ public class Hunter : MonoBehaviour
             dormitoryArrivalCallback = null;
             isWakingFromDormitory = false;
             isWalkingToKitchenPoint = false;
+            isEating = false;
             kitchenPointTarget = null;
             kitchenPointArrivalCallback = null;
             isWalkingToTemporarySeat = false;
@@ -278,6 +282,31 @@ public class Hunter : MonoBehaviour
     public HunterState GetState()
     {
         return state;
+    }
+
+    public bool IsEating()
+    {
+        return isEating;
+    }
+
+    public bool IsAvailableForOrders()
+    {
+        return GetState() == HunterState.Idle && !isEating;
+    }
+
+    public void SetEating(bool value)
+    {
+        if (isEating == value) return;
+        isEating = value;
+        CacheHunterManager();
+        if (isEating)
+        {
+            hunterManager?.NotifyHunterActivityChanged(this);
+        }
+        else
+        {
+            hunterManager?.NotifyRosterChanged();
+        }
     }
 
     public void WalkToSeat(HunterSeat seat)
@@ -388,6 +417,7 @@ public class Hunter : MonoBehaviour
     public void ReturnToGuildSeat()
     {
         if (GetState() == HunterState.Dead || GetState() == HunterState.OnMission || GetState() == HunterState.Candidate || GetState() == HunterState.Armory) return;
+        if (isEating) return;
 
         if (isSeated)
         {
@@ -508,7 +538,7 @@ public class Hunter : MonoBehaviour
 
     public bool CanUseArmory()
     {
-        return GetState() == HunterState.Idle && Data != null && Data.p09VisualPreset != null;
+        return IsAvailableForOrders() && Data != null && Data.p09VisualPreset != null;
     }
 
     public int GetEquippedWeaponId()
@@ -604,6 +634,7 @@ public class Hunter : MonoBehaviour
     {
         if (target == null) return false;
         if (GetState() == HunterState.Dead || GetState() == HunterState.OnMission || GetState() == HunterState.Candidate || GetState() == HunterState.Healing || GetState() == HunterState.Sleeping || GetState() == HunterState.Armory) return false;
+        SetEating(true);
 
         bool wasSeated = isSeated;
         isSeated = false;
@@ -649,6 +680,7 @@ public class Hunter : MonoBehaviour
             Debug.LogWarning($"Hunter {name}: Unable to reach kitchen point because the hunter is not on the NavMesh.", this);
             kitchenPointTarget = null;
             kitchenPointArrivalCallback = null;
+            SetEating(false);
             ReturnToGuildSeat();
             return false;
         }
@@ -663,6 +695,7 @@ public class Hunter : MonoBehaviour
             Debug.LogWarning($"Hunter {name}: Unable to reach kitchen point '{kitchenPointTarget.name}' because it is not near the NavMesh.", this);
             kitchenPointTarget = null;
             kitchenPointArrivalCallback = null;
+            SetEating(false);
             ReturnToGuildSeat();
             return false;
         }
@@ -676,6 +709,7 @@ public class Hunter : MonoBehaviour
             Debug.LogWarning($"Hunter {name}: Unable to find complete path to kitchen point '{kitchenPointTarget.name}'. Check NavMesh bake, route doors, and obstacles.", this);
             kitchenPointTarget = null;
             kitchenPointArrivalCallback = null;
+            SetEating(false);
             ReturnToGuildSeat();
             return false;
         }
@@ -1276,7 +1310,7 @@ public class Hunter : MonoBehaviour
 
     public bool CanUseLevelUpAction()
     {
-        return GetState() == HunterState.Idle && CanLevelUp();
+        return IsAvailableForOrders() && CanLevelUp();
     }
 
     public bool HasEnoughXPForNextLevel()

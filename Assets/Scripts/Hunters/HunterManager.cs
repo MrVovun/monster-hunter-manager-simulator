@@ -430,7 +430,7 @@ public class HunterManager : MonoBehaviour
     
     public List<Hunter> GetAvailableHunters()
     {
-        return activeHunters.FindAll(h => h != null && h.GetState() == HunterState.Idle);
+        return activeHunters.FindAll(h => h != null && h.IsAvailableForOrders());
     }
     
     public List<Hunter> GetAllHunters()
@@ -458,8 +458,7 @@ public class HunterManager : MonoBehaviour
     public bool CanFireHunter(Hunter hunter)
     {
         if (hunter == null || hunter.Data == null) return false;
-        HunterState state = hunter.GetState();
-        return state == HunterState.Idle;
+        return hunter.IsAvailableForOrders();
     }
 
     public bool FireHunter(Hunter hunter)
@@ -569,6 +568,17 @@ public class HunterManager : MonoBehaviour
             {
                 idleAllDayCandidates[hunter] = false;
             }
+        }
+
+        NotifyHuntersChanged();
+    }
+
+    public void NotifyHunterActivityChanged(Hunter hunter)
+    {
+        if (hunter == null) return;
+        if (idleAllDayCandidates.ContainsKey(hunter))
+        {
+            idleAllDayCandidates[hunter] = false;
         }
 
         NotifyHuntersChanged();

@@ -10,6 +10,7 @@ public class HuntersTab : MonoBehaviour
     [SerializeField] private Button levelUpButton;
     [SerializeField] private TMP_Text levelUpButtonText;
     [SerializeField] private TMP_Text levelUpCostText;
+    [SerializeField] private TMP_Text currentGoldText;
     [SerializeField] private string levelUpButtonBaseLabel = "Level Up";
     [SerializeField] private Button fireButton;
 
@@ -17,6 +18,8 @@ public class HuntersTab : MonoBehaviour
     [SerializeField] private HunterDetailsPanel detailsPanel;
 
     private Hunter selectedHunter;
+    private GoldManager subscribedGoldManager;
+
     private void Awake()
     {
         if (levelUpButtonText == null && levelUpButton != null)
@@ -33,8 +36,25 @@ public class HuntersTab : MonoBehaviour
         ClearSelection();
     }
 
+    private void OnEnable()
+    {
+        SubscribeToGold();
+        RefreshCurrentGoldText();
+    }
+
+    private void OnDisable()
+    {
+        UnsubscribeFromGold();
+    }
+
+    private void OnDestroy()
+    {
+        UnsubscribeFromGold();
+    }
+
     public void Refresh()
     {
+        RefreshCurrentGoldText();
         HunterManager manager = GameManager.Instance != null ? GameManager.Instance.GetHunterManager() : null;
         if (manager == null || listParent == null || hunterRosterItemPrefab == null) return;
 
@@ -143,6 +163,7 @@ public class HuntersTab : MonoBehaviour
         bool canLevelSelected = selectedHunter.CanUseLevelUpAction() && gold.GetGold() >= selectedHunter.GetLevelUpCost();
         SetLevelUpButtonInteractable(canLevelSelected, GetLevelUpUnavailableReason(selectedHunter, gold));
         RefreshLevelUpPriceText(selectedHunter, gold);
+        RefreshCurrentGoldText(gold);
     }
 
     private void UpdateFireButtonState()
@@ -181,7 +202,11 @@ public class HuntersTab : MonoBehaviour
         if (hunter != null)
         {
             int xpForNext = hunter.GetXPToNextLevel();
-            if (hunter.GetState() == HunterState.OnMission)
+            if (hunter.IsEating())
+            {
+                status = "Hunter must finish eating first.";
+            }
+            else if (hunter.GetState() == HunterState.OnMission)
             {
                 status = "Hunters on orders cannot level up.";
             }
@@ -255,6 +280,7 @@ public class HuntersTab : MonoBehaviour
     private string GetLevelUpUnavailableReason(Hunter hunter, GoldManager gold)
     {
         if (hunter == null) return "Select a hunter first.";
+        if (hunter.IsEating()) return "This hunter must finish eating first.";
         if (hunter.GetState() == HunterState.OnMission) return "Hunters on orders cannot level up.";
         if (hunter.GetState() != HunterState.Idle) return "This hunter must be idle to level up.";
         int xpForNext = hunter.GetXPToNextLevel();
@@ -285,6 +311,43 @@ public class HuntersTab : MonoBehaviour
         if (selectedHunter.GetState() == HunterState.OnMission) return "Hunters on orders cannot be fired.";
         if (selectedHunter.GetState() == HunterState.Dead) return "Dead hunters cannot be fired.";
         if (selectedHunter.GetState() == HunterState.Candidate) return "Candidates cannot be fired.";
+        if (selectedHunter.IsEating()) return "This hunter must finish eating first.";
         return "This hunter cannot be fired right now.";
+    }
+
+    private void SubscribeToGold()
+    {
+        UnsubscribeFromGold();
+        subscribedGoldManager = GameManager.Instance != null ? GameManager.Instance.GetGoldManager() : null;
+        if (subscribedGoldManager != null)
+        {
+            subscribedGoldManager.OnGoldChanged += HandleGoldChanged;
+        }
+    }
+
+    private void UnsubscribeFromGold()
+    {
+        if (subscribedGoldManager != null)
+        {
+            subscribedGoldManager.OnGoldChanged -= HandleGoldChanged;
+            subscribedGoldManager = null;
+        }
+    }
+
+    private void HandleGoldChanged(int _)
+    {
+        RefreshCurrentGoldText();
+        UpdateActionButtonStates();
+    }
+
+    private void RefreshCurrentGoldText(GoldManager gold = null)
+    {
+        if (currentGoldText == null) return;
+        if (gold == null)
+        {
+            gold = GameManager.Instance != null ? GameManager.Instance.GetGoldManager() : null;
+        }
+
+        currentGoldText.text = gold != null ? $"Gold: {gold.GetGold()}" : "Gold: -";
     }
 }

@@ -289,7 +289,7 @@ public class OrderDetailPanel : MonoBehaviour
     {
         if (currentOrder == null || hunter == null) return false;
         if (!CanEditParty()) return false;
-        return hunter.GetState() == HunterState.Idle;
+        return hunter.IsAvailableForOrders();
     }
 
     private void BuildPartySlots(Order order)

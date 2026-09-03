@@ -174,13 +174,14 @@ public class NotificationManager : MonoBehaviour
         PublishTemplate(Messages.hunterTreatedMessage, Tokens("hunter", GetHunterName(hunter)));
     }
 
-    public void NotifyUnpaidUpkeep(bool crisis, int unpaidAmount, int reputationRankLoss, int reputationRank, float successPenaltyPercent)
+    public void NotifyUnpaidUpkeep(bool crisis, int unpaidAmount, float reputationPointLossPercent, float reputationPointsLost, int reputationRank, float successPenaltyPercent)
     {
         PublishTemplate(
             crisis ? Messages.upkeepCrisisMessage : Messages.unpaidUpkeepMessage,
             Tokens(
                 "unpaid_amount", unpaidAmount.ToString(),
-                "reputation_rank_loss", reputationRankLoss.ToString(),
+                "reputation_point_loss_percent", reputationPointLossPercent.ToString("0.#"),
+                "reputation_points_lost", reputationPointsLost.ToString("0.##"),
                 "reputation_rank", reputationRank.ToString(),
                 "success_penalty", successPenaltyPercent.ToString("0.#")));
     }

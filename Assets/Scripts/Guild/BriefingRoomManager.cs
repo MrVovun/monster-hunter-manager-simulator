@@ -30,6 +30,8 @@ public class BriefingRoomManager : MonoBehaviour
     [SerializeField] private List<BriefingChalkboard> chalkboards = new List<BriefingChalkboard>();
 
     [Header("Flow")]
+    [Tooltip("Delay after the player finishes drawing before hunters stand up, react, and reaction audio plays.")]
+    [SerializeField] private float reactionDelaySeconds = 0.5f;
     [SerializeField] private float releaseAfterReactionSeconds = 1.5f;
 
     [Header("Debug")]
@@ -41,6 +43,7 @@ public class BriefingRoomManager : MonoBehaviour
     private TimeManager timeManager;
     private TimeManager subscribedTimeManager;
     private Coroutine releaseRoutine;
+    private Coroutine reactionRoutine;
     private bool briefingCalledToday;
 
     private void Awake()
@@ -77,6 +80,12 @@ public class BriefingRoomManager : MonoBehaviour
         {
             StopCoroutine(releaseRoutine);
             releaseRoutine = null;
+        }
+
+        if (reactionRoutine != null)
+        {
+            StopCoroutine(reactionRoutine);
+            reactionRoutine = null;
         }
     }
 
@@ -159,7 +168,7 @@ public class BriefingRoomManager : MonoBehaviour
 
         foreach (var hunter in hunterManager.GetAllHunters())
         {
-            if (hunter == null || hunter.GetState() != HunterState.Idle) continue;
+            if (hunter == null || !hunter.IsAvailableForOrders()) continue;
             if (assembledHunters.Contains(hunter)) continue;
 
             HunterSeat chair = FindFreeChair();
@@ -177,6 +186,12 @@ public class BriefingRoomManager : MonoBehaviour
     public void CompleteDrawing(float drawingSeconds)
     {
         ResolveReferences();
+        if (reactionRoutine != null)
+        {
+            StopCoroutine(reactionRoutine);
+            reactionRoutine = null;
+        }
+
         List<Hunter> huntersToReact = new List<Hunter>(assembledHunters);
         huntersToReact.RemoveAll(hunter => hunter == null);
         assembledHunters.Clear();
@@ -184,40 +199,34 @@ public class BriefingRoomManager : MonoBehaviour
 
         bool canGrantBonus = timeManager != null && timeManager.GetDayState() == TimeManager.DayState.PreBell;
         SharedCharacterAnimator.ClipEntry reaction = booClip;
+        AudioClip reactionAudio = booAudioClip;
         float bonus = 0f;
 
         if (drawingSeconds >= cheerThresholdSeconds)
         {
             reaction = cheerClip;
-            if (hasAudience) PlayReactionAudio(cheerAudioClip);
+            reactionAudio = cheerAudioClip;
             bonus = cheerSuccessBonusPercent;
         }
         else if (drawingSeconds >= clapThresholdSeconds)
         {
             reaction = clapClip;
-            if (hasAudience) PlayReactionAudio(clapAudioClip);
+            reactionAudio = clapAudioClip;
             bonus = clapSuccessBonusPercent;
         }
-        else
-        {
-            if (hasAudience) PlayReactionAudio(booAudioClip);
-        }
 
-        foreach (var hunter in huntersToReact)
-        {
-            hunter.PlayBriefingReactionThenReturn(reaction, releaseAfterReactionSeconds);
-            if (canGrantBonus && bonus > 0f)
-            {
-                dailyBonuses[hunter] = bonus;
-            }
-        }
+        reactionRoutine = StartCoroutine(PlayReactionAfterDelay(
+            huntersToReact,
+            reaction,
+            reactionAudio,
+            canGrantBonus,
+            bonus,
+            hasAudience));
 
         if (debugLogs)
         {
             Debug.Log($"BriefingRoomManager: Drawing lasted {drawingSeconds:0.0}s. Bonus={(canGrantBonus ? bonus : 0f):0.#}%.", this);
         }
-
-        hunterManager?.NotifyRosterChanged();
     }
 
     public void HandlePlayerLeftRoom()
@@ -232,6 +241,12 @@ public class BriefingRoomManager : MonoBehaviour
         {
             StopCoroutine(releaseRoutine);
             releaseRoutine = null;
+        }
+
+        if (reactionRoutine != null)
+        {
+            StopCoroutine(reactionRoutine);
+            reactionRoutine = null;
         }
 
         if (assembledHunters.Count == 0) return;
@@ -310,6 +325,40 @@ public class BriefingRoomManager : MonoBehaviour
 
         releaseRoutine = null;
         ReleaseAssembledHunters();
+    }
+
+    private System.Collections.IEnumerator PlayReactionAfterDelay(
+        List<Hunter> huntersToReact,
+        SharedCharacterAnimator.ClipEntry reaction,
+        AudioClip reactionAudio,
+        bool canGrantBonus,
+        float bonus,
+        bool hasAudience)
+    {
+        float delay = Mathf.Max(0f, reactionDelaySeconds);
+        if (delay > 0f)
+        {
+            yield return new WaitForSeconds(delay);
+        }
+
+        if (hasAudience)
+        {
+            PlayReactionAudio(reactionAudio);
+        }
+
+        foreach (var hunter in huntersToReact)
+        {
+            if (hunter == null) continue;
+
+            hunter.PlayBriefingReactionThenReturn(reaction, releaseAfterReactionSeconds);
+            if (canGrantBonus && bonus > 0f)
+            {
+                dailyBonuses[hunter] = bonus;
+            }
+        }
+
+        reactionRoutine = null;
+        hunterManager?.NotifyRosterChanged();
     }
 
     private HunterSeat FindFreeChair()

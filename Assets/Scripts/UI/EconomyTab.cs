@@ -16,6 +16,45 @@ public class EconomyTab : MonoBehaviour
     [SerializeField] private TMP_Text upkeepStatusText;
     [SerializeField] private TMP_Text missionPenaltyText;
     [SerializeField] private TMP_Text hiringStatusText;
+    [Header("Manual Reputation Upgrade")]
+    [SerializeField] private Button reputationUpgradeButton;
+    [SerializeField] private TMP_Text reputationUpgradeButtonText;
+    [SerializeField] private string upgradeAvailableText = "Upgrade Reputation {next_rank}";
+    [SerializeField] private string upgradeLockedText = "{reason}";
+
+    private ReputationManager subscribedReputationManager;
+    private TimeManager subscribedTimeManager;
+    private GoldManager subscribedGoldManager;
+    private HunterManager subscribedHunterManager;
+
+    private void Awake()
+    {
+        if (reputationUpgradeButton != null)
+        {
+            reputationUpgradeButton.onClick.AddListener(HandleReputationUpgradeClicked);
+        }
+    }
+
+    private void OnEnable()
+    {
+        Subscribe();
+        Refresh();
+    }
+
+    private void OnDisable()
+    {
+        Unsubscribe();
+    }
+
+    private void OnDestroy()
+    {
+        if (reputationUpgradeButton != null)
+        {
+            reputationUpgradeButton.onClick.RemoveListener(HandleReputationUpgradeClicked);
+        }
+
+        Unsubscribe();
+    }
 
     public void Refresh()
     {
@@ -96,6 +135,8 @@ public class EconomyTab : MonoBehaviour
                 ? "Hiring campaigns blocked by upkeep debt"
                 : "Hiring campaigns available during the workday";
         }
+
+        RefreshReputationUpgrade(rep);
     }
 
     public void PayUpkeep()
@@ -109,6 +150,121 @@ public class EconomyTab : MonoBehaviour
         {
             Debug.LogWarning("Not enough gold to pay upkeep.");
         }
+        Refresh();
+    }
+
+    private void HandleReputationUpgradeClicked()
+    {
+        ReputationManager rep = GameManager.Instance != null ? GameManager.Instance.GetReputationManager() : null;
+        if (rep == null) return;
+
+        rep.TryUpgradeReputation();
+        Refresh();
+    }
+
+    private void RefreshReputationUpgrade(ReputationManager rep)
+    {
+        if (reputationUpgradeButton == null) return;
+
+        bool canUpgrade = false;
+        string label = "Upgrade Reputation";
+        if (rep != null)
+        {
+            canUpgrade = rep.CanUpgradeReputation(out int nextRank, out _, out string reason);
+            string template = canUpgrade ? upgradeAvailableText : upgradeLockedText;
+            label = template
+                .Replace("{next_rank}", nextRank.ToString())
+                .Replace("{reason}", reason);
+        }
+
+        reputationUpgradeButton.interactable = canUpgrade;
+        if (reputationUpgradeButtonText != null)
+        {
+            reputationUpgradeButtonText.text = label;
+        }
+    }
+
+    private void Subscribe()
+    {
+        Unsubscribe();
+        if (GameManager.Instance == null) return;
+
+        subscribedReputationManager = GameManager.Instance.GetReputationManager();
+        if (subscribedReputationManager != null)
+        {
+            subscribedReputationManager.OnReputationChanged += HandleReputationChanged;
+        }
+
+        subscribedTimeManager = GameManager.Instance.GetTimeManager();
+        if (subscribedTimeManager != null)
+        {
+            subscribedTimeManager.OnDayStateChanged += HandleDayStateChanged;
+        }
+
+        subscribedGoldManager = GameManager.Instance.GetGoldManager();
+        if (subscribedGoldManager != null)
+        {
+            subscribedGoldManager.OnGoldChanged += HandleGoldChanged;
+            subscribedGoldManager.OnDebtChanged += HandleDebtChanged;
+        }
+
+        subscribedHunterManager = GameManager.Instance.GetHunterManager();
+        if (subscribedHunterManager != null)
+        {
+            subscribedHunterManager.OnHuntersChanged += HandleHuntersChanged;
+        }
+    }
+
+    private void Unsubscribe()
+    {
+        if (subscribedReputationManager != null)
+        {
+            subscribedReputationManager.OnReputationChanged -= HandleReputationChanged;
+            subscribedReputationManager = null;
+        }
+
+        if (subscribedTimeManager != null)
+        {
+            subscribedTimeManager.OnDayStateChanged -= HandleDayStateChanged;
+            subscribedTimeManager = null;
+        }
+
+        if (subscribedGoldManager != null)
+        {
+            subscribedGoldManager.OnGoldChanged -= HandleGoldChanged;
+            subscribedGoldManager.OnDebtChanged -= HandleDebtChanged;
+            subscribedGoldManager = null;
+        }
+
+        if (subscribedHunterManager != null)
+        {
+            subscribedHunterManager.OnHuntersChanged -= HandleHuntersChanged;
+            subscribedHunterManager = null;
+        }
+    }
+
+    private void HandleReputationChanged(float _)
+    {
+        Refresh();
+    }
+
+    private void HandleDayStateChanged(TimeManager.DayState _)
+    {
+        Refresh();
+    }
+
+    private void HandleGoldChanged(int _)
+    {
+        Refresh();
+    }
+
+    private void HandleDebtChanged(int _)
+    {
+        Refresh();
+    }
+
+    private void HandleHuntersChanged()
+    {
         Refresh();
     }
 }

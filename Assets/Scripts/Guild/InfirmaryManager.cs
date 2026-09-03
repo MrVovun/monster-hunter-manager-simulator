@@ -119,7 +119,7 @@ public class InfirmaryManager : MonoBehaviour
         foreach (var hunter in hunterManager.GetAllHunters())
         {
             if (hunter == null) continue;
-            if (hunter.GetState() != HunterState.Idle) continue;
+            if (!hunter.IsAvailableForOrders()) continue;
 
             var state = hunter.GetComponent<HunterInteractionState>();
             if (state == null || !state.IsWounded || state.IsHealing) continue;

@@ -227,6 +227,17 @@ public class DeveloperToolsPanel : MonoBehaviour
             if (GUILayout.Button("-5 pts")) reputationManager.AddReputationPoints(-5f);
             if (GUILayout.Button("-25 pts")) reputationManager.AddReputationPoints(-25f);
             GUILayout.EndHorizontal();
+            if (reputationManager.CanUpgradeReputation(out int nextRank, out _, out string reputationUpgradeReason))
+            {
+                if (GUILayout.Button($"Upgrade Reputation To {nextRank}"))
+                {
+                    reputationManager.TryUpgradeReputation();
+                }
+            }
+            else
+            {
+                GUILayout.Label($"Upgrade unavailable: {reputationUpgradeReason}");
+            }
             if (GUILayout.Button("Reset Reputation To Default"))
             {
                 reputationManager.ResetToDefault();

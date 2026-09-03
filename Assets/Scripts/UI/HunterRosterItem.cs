@@ -266,6 +266,7 @@ public static class HunterStatusFormatter
         HunterState state = hunter.GetState();
         if (state == HunterState.Dead) return "Dead";
         if (assignedToParty) return HasWound(hunter) ? "In Party - Wounded" : "In Party";
+        if (hunter.IsEating()) return "Eating";
 
         switch (state)
         {

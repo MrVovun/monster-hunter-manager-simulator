@@ -8,31 +8,40 @@ public class ReputationManager : MonoBehaviour
     private class ReputationSaveData
     {
         public float reputationPoints;
+        public float highestEarnedReputationPoints;
+        public int reputationRank;
+        public bool hasManualReputationRank;
         public int trustStreak;
     }
 
     [SerializeField] private float currentReputationPoints;
+    [SerializeField] private int currentReputationRank;
+    [SerializeField] private float highestEarnedReputationPoints;
     [SerializeField] private int trustStreak;
     public event System.Action<float> OnReputationChanged; // passes reputation level
     public event System.Action<int, int> OnReputationRankIncreased; // previous rank, new rank
 
     private GameConfig cachedConfig;
     private float defaultReputationPoints;
+    private int defaultReputationRank;
     private string savePath;
 
     public void Initialize(float startingValue)
     {
         cachedConfig = GameManager.Instance != null ? GameManager.Instance.GetGameConfig() : null;
         defaultReputationPoints = Mathf.Max(0f, startingValue);
+        defaultReputationRank = Mathf.Max(GetMinimumReputationRank(), ComputeReputationLevel(defaultReputationPoints));
         savePath = Path.Combine(Application.persistentDataPath, "reputation_state.json");
         currentReputationPoints = defaultReputationPoints;
+        currentReputationRank = defaultReputationRank;
+        highestEarnedReputationPoints = defaultReputationPoints;
         LoadState();
         NotifyReputationChanged();
     }
 
     public int GetReputation()
     {
-        return ComputeReputationLevel(currentReputationPoints);
+        return currentReputationRank;
     }
 
     public float GetReputationPrecise()
@@ -68,7 +77,7 @@ public class ReputationManager : MonoBehaviour
             int tierLevel = tier.requiredReputation;
             int tierRequiredPoints = Mathf.Max(0, tier.requiredReputationPoints);
             if (tierLevel <= currentLevel) continue;
-            if (!found || tierRequiredPoints < requiredPoints || tierRequiredPoints == requiredPoints && tierLevel < nextLevel)
+            if (!found || tierLevel < nextLevel || tierLevel == nextLevel && tierRequiredPoints < requiredPoints)
             {
                 found = true;
                 nextLevel = tierLevel;
@@ -77,6 +86,45 @@ public class ReputationManager : MonoBehaviour
         }
 
         return found;
+    }
+
+    public bool CanUpgradeReputation(out int nextLevel, out int requiredPoints, out string unavailableReason)
+    {
+        unavailableReason = string.Empty;
+        if (!TryGetNextReputationLevel(out nextLevel, out requiredPoints))
+        {
+            unavailableReason = "Maximum reputation";
+            return false;
+        }
+
+        if (!IsPreBell())
+        {
+            unavailableReason = "Available before ringing the bell.";
+            return false;
+        }
+
+        if (highestEarnedReputationPoints < requiredPoints)
+        {
+            float missing = Mathf.Max(0f, requiredPoints - currentReputationPoints);
+            unavailableReason = $"Need {missing:0.##} more reputation points.";
+            return false;
+        }
+
+        return true;
+    }
+
+    public bool TryUpgradeReputation()
+    {
+        if (!CanUpgradeReputation(out int nextLevel, out _, out _))
+        {
+            return false;
+        }
+
+        int previousRank = GetReputation();
+        currentReputationRank = Mathf.Max(currentReputationRank, nextLevel);
+        SaveState();
+        NotifyReputationChanged(previousRank);
+        return currentReputationRank > previousRank;
     }
 
     public string GetProgressText()
@@ -116,8 +164,25 @@ public class ReputationManager : MonoBehaviour
     {
         int previousRank = GetReputation();
         currentReputationPoints = Mathf.Max(0f, currentReputationPoints + amount);
+        highestEarnedReputationPoints = Mathf.Max(highestEarnedReputationPoints, currentReputationPoints);
         SaveState();
         NotifyReputationChanged(previousRank);
+    }
+
+    public float LoseCurrentReputationPointsPercent(float percent)
+    {
+        percent = Mathf.Clamp(percent, 0f, 100f);
+        if (percent <= 0f || currentReputationPoints <= 0f)
+        {
+            return 0f;
+        }
+
+        int previousRank = GetReputation();
+        float pointsLost = currentReputationPoints * (percent / 100f);
+        currentReputationPoints = Mathf.Max(0f, currentReputationPoints - pointsLost);
+        SaveState();
+        NotifyReputationChanged(previousRank);
+        return pointsLost;
     }
 
     public float ApplyMissionTrustAndCalculateReputation(MissionReport report)
@@ -178,11 +243,10 @@ public class ReputationManager : MonoBehaviour
         if (ranksToLose <= 0) return GetReputation();
 
         int currentLevel = GetReputation();
-        int targetLevel = Mathf.Max(0, currentLevel - ranksToLose);
-        float targetPoints = GetRequiredPointsForLevel(targetLevel);
+        int targetLevel = Mathf.Max(GetMinimumReputationRank(), currentLevel - ranksToLose);
 
         int previousRank = GetReputation();
-        currentReputationPoints = Mathf.Min(currentReputationPoints, targetPoints);
+        currentReputationRank = targetLevel;
         SaveState();
         NotifyReputationChanged(previousRank);
         return targetLevel;
@@ -192,6 +256,8 @@ public class ReputationManager : MonoBehaviour
     {
         int previousRank = GetReputation();
         currentReputationPoints = defaultReputationPoints;
+        currentReputationRank = defaultReputationRank;
+        highestEarnedReputationPoints = defaultReputationPoints;
         trustStreak = 0;
         SaveState();
         NotifyReputationChanged(previousRank);
@@ -218,6 +284,21 @@ public class ReputationManager : MonoBehaviour
         }
 
         return level;
+    }
+
+    private int GetMinimumReputationRank()
+    {
+        int minimum = int.MaxValue;
+        if (cachedConfig != null && cachedConfig.orderLimitByReputation != null)
+        {
+            foreach (var tier in cachedConfig.orderLimitByReputation)
+            {
+                if (tier == null) continue;
+                minimum = Mathf.Min(minimum, tier.requiredReputation);
+            }
+        }
+
+        return minimum == int.MaxValue ? 1 : Mathf.Max(1, minimum);
     }
 
     private void NotifyReputationChanged()
@@ -269,6 +350,13 @@ public class ReputationManager : MonoBehaviour
             ReputationSaveData data = JsonUtility.FromJson<ReputationSaveData>(json);
             if (data == null) return;
             currentReputationPoints = Mathf.Max(0f, data.reputationPoints);
+            currentReputationRank = data.hasManualReputationRank
+                ? data.reputationRank
+                : ComputeReputationLevel(currentReputationPoints);
+            currentReputationRank = Mathf.Max(GetMinimumReputationRank(), currentReputationRank);
+            highestEarnedReputationPoints = Mathf.Max(
+                currentReputationPoints,
+                data.highestEarnedReputationPoints);
             trustStreak = ClampTrust(data.trustStreak);
         }
         catch (Exception ex)
@@ -286,6 +374,9 @@ public class ReputationManager : MonoBehaviour
             ReputationSaveData data = new ReputationSaveData
             {
                 reputationPoints = currentReputationPoints,
+                highestEarnedReputationPoints = highestEarnedReputationPoints,
+                reputationRank = currentReputationRank,
+                hasManualReputationRank = true,
                 trustStreak = ClampTrust(trustStreak)
             };
             string json = JsonUtility.ToJson(data, true);
@@ -394,5 +485,11 @@ public class ReputationManager : MonoBehaviour
     private int ClampTrust(int value)
     {
         return Mathf.Clamp(value, 0, GetMaxTrustStreak());
+    }
+
+    private bool IsPreBell()
+    {
+        TimeManager timeManager = GameManager.Instance != null ? GameManager.Instance.GetTimeManager() : null;
+        return timeManager == null || timeManager.GetDayState() == TimeManager.DayState.PreBell;
     }
 }

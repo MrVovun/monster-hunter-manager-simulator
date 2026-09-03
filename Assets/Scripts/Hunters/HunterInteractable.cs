@@ -96,7 +96,12 @@ public class HunterInteractable : Interactable
         }
 
         var state = ownerHunter.GetState();
-        return state != HunterState.OnMission && state != HunterState.Dead && state != HunterState.Healing && state != HunterState.Sleeping && state != HunterState.Armory;
+        return state != HunterState.OnMission
+            && state != HunterState.Dead
+            && state != HunterState.Healing
+            && state != HunterState.Sleeping
+            && state != HunterState.Armory
+            && !ownerHunter.IsEating();
     }
 
     public override bool TryGetUnavailableReason(out string reason)
@@ -121,6 +126,12 @@ public class HunterInteractable : Interactable
         }
 
         if (ownerHunter == null) return false;
+
+        if (ownerHunter.IsEating())
+        {
+            reason = "They are eating.";
+            return true;
+        }
 
         switch (ownerHunter.GetState())
         {
@@ -412,7 +423,7 @@ public class HunterInteractable : Interactable
 
     private bool CanOfferCardGame()
     {
-        if (!injectCardGameDialogueOption || ownerHunter == null || ownerHunter.GetState() != HunterState.Idle) return false;
+        if (!injectCardGameDialogueOption || ownerHunter == null || !ownerHunter.IsAvailableForOrders()) return false;
 
         TimeManager timeManager = GameManager.Instance != null ? GameManager.Instance.GetTimeManager() : null;
         return timeManager != null && timeManager.GetDayState() == TimeManager.DayState.Active;

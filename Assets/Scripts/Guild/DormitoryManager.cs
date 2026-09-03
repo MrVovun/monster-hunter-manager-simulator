@@ -234,7 +234,7 @@ public class DormitoryManager : MonoBehaviour
         foreach (var hunter in hunterManager.GetAllHunters())
         {
             if (hunter == null) continue;
-            if (hunter.GetState() != HunterState.Idle) continue;
+            if (!hunter.IsAvailableForOrders()) continue;
             foundIdleHunter = true;
             if (IsHunterAssigned(hunter)) continue;
 
