@@ -29,9 +29,14 @@ public class MusicManager : MonoBehaviour
     [Header("Game Over")]
     [SerializeField] private AudioClip gameOverClip;
 
+    [Header("Temporary Overrides")]
+    [SerializeField] private AudioClip mimicChaseClip;
+
     private Coroutine fadeRoutine;
     private AudioClip currentClip;
     private bool gameOverOverrideActive;
+    private bool temporaryOverrideActive;
+    private AudioClip temporaryOverrideClip;
 
     private void Awake()
     {
@@ -105,6 +110,29 @@ public class MusicManager : MonoBehaviour
         RefreshMusic(immediate);
     }
 
+    public void PlayMimicChaseMusic(bool immediate = false)
+    {
+        PlayTemporaryOverride(mimicChaseClip, immediate);
+    }
+
+    public void PlayTemporaryOverride(AudioClip clip, bool immediate = false)
+    {
+        if (clip == null) return;
+
+        temporaryOverrideActive = true;
+        temporaryOverrideClip = clip;
+        PlayClip(temporaryOverrideClip, immediate);
+    }
+
+    public void ClearTemporaryOverride(bool immediate = false)
+    {
+        if (!temporaryOverrideActive) return;
+
+        temporaryOverrideActive = false;
+        temporaryOverrideClip = null;
+        RefreshMusic(immediate);
+    }
+
     private void HandleDayStateChanged(TimeManager.DayState _)
     {
         RefreshMusic();
@@ -136,6 +164,11 @@ public class MusicManager : MonoBehaviour
         if (gameOverOverrideActive)
         {
             return gameOverClip;
+        }
+
+        if (temporaryOverrideActive && temporaryOverrideClip != null)
+        {
+            return temporaryOverrideClip;
         }
 
         if (mode == MusicMode.MainMenu)

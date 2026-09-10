@@ -19,15 +19,34 @@ public class MissionBonusChestManager : MonoBehaviour
     [Header("Interaction Defaults")]
     [SerializeField] private string chestInteractionPrompt = "[E] Open Chest";
     [SerializeField] private string mimicInteractionPrompt = "[E] Open Chest";
+    [SerializeField] private string mimicCatchInteractionPrompt = "[E] Catch Mimic";
+    [SerializeField] private GameObject chestOpenVfxPrefab;
+    [SerializeField] private GameObject mimicCaughtVfxPrefab;
+    [SerializeField] private float chestDestroyDelay = 1f;
     [SerializeField] private string mimicInitialState = "IdleChest";
     [SerializeField] private bool holdMimicInitialStateUntilInteraction = true;
     [SerializeField] private string chestOpenTrigger = "Open";
     [SerializeField] private string mimicScaredTrigger = "SenseSomethingST";
     [SerializeField] private string mimicRunTrigger = "Run";
+    [SerializeField] private string mimicCaughtTrigger;
     [SerializeField] private float mimicScaredDelay = 0.75f;
     [SerializeField] private float mimicFleeSeconds = 4f;
-    [SerializeField] private float mimicFleeDistance = 8f;
+    [SerializeField] private float mimicCatchGraceSeconds = 1.5f;
     [SerializeField] private float mimicFleeSpeed = 3.5f;
+
+    [Header("Mimic Navigation")]
+    [SerializeField] private float mimicWaypointSearchRadius = 8f;
+    [SerializeField] private float mimicMinWaypointDistance = 3f;
+    [SerializeField] private float mimicRepathInterval = 0.75f;
+    [SerializeField] private float mimicStuckSeconds = 0.5f;
+    [SerializeField] private float mimicDoorOpenRadius = 2.5f;
+    [SerializeField] private List<GuildDoorController> mimicRouteDoorsToOpen = new List<GuildDoorController>();
+    [SerializeField] private bool autoFindAvailableRouteDoors = true;
+
+    [Header("Mimic Audio")]
+    [SerializeField] private AudioClip mimicRunningLoopClip;
+    [SerializeField, Range(0f, 1f)] private float mimicRunningLoopVolume = 1f;
+    [SerializeField] private bool switchMusicDuringMimicFlee = true;
 
     private readonly List<GameObject> spawnedRewards = new List<GameObject>();
     private OrderManager orderManager;
@@ -143,10 +162,25 @@ public class MissionBonusChestManager : MonoBehaviour
             OpenTrigger = chestOpenTrigger,
             ScaredTrigger = mimicScaredTrigger,
             RunTrigger = mimicRunTrigger,
+            CaughtTrigger = mimicCaughtTrigger,
             ScaredDelay = mimicScaredDelay,
             FleeSeconds = mimicFleeSeconds,
-            FleeDistance = mimicFleeDistance,
+            CatchGraceSeconds = mimicCatchGraceSeconds,
             FleeSpeed = mimicFleeSpeed,
+            WaypointSearchRadius = mimicWaypointSearchRadius,
+            MinWaypointDistance = mimicMinWaypointDistance,
+            RepathInterval = mimicRepathInterval,
+            StuckSeconds = mimicStuckSeconds,
+            DoorOpenRadius = mimicDoorOpenRadius,
+            OpenVfxPrefab = chestOpenVfxPrefab,
+            CaughtVfxPrefab = mimicCaughtVfxPrefab,
+            ChestDestroyDelay = chestDestroyDelay,
+            MimicCatchInteractionPrompt = mimicCatchInteractionPrompt,
+            RunningLoopClip = mimicRunningLoopClip,
+            RunningLoopVolume = mimicRunningLoopVolume,
+            SwitchMusicDuringMimicFlee = switchMusicDuringMimicFlee,
+            RouteDoorsToOpen = mimicRouteDoorsToOpen,
+            AutoFindAvailableRouteDoors = autoFindAvailableRouteDoors,
             HoldInitialStateUntilInteraction = holdMimicInitialStateUntilInteraction
         });
     }

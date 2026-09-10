@@ -114689,7 +114689,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MissionBonusChestManager
   useGameConfigThreshold: 1
   requiredSuccessChancePercent: 200
-  mimicChance: 1
+  mimicChance: 0.05
   chestPrefab: {fileID: 652704635636142108, guid: 4b5b102f96614904cb010ca2dc4779f8, type: 3}
   mimicPrefab: {fileID: 2219292830553907877, guid: 45c66f6bb261fb64988ff9e2dc0a800a, type: 3}
   spawnPoints:
@@ -114697,15 +114697,30 @@ MonoBehaviour:
   parentToSpawnPoint: 0
   chestInteractionPrompt: '[E] Open Chest'
   mimicInteractionPrompt: '[E] Open Chest?'
+  mimicCatchInteractionPrompt: '[E] Catch Mimic'
+  chestOpenVfxPrefab: {fileID: 0}
+  mimicCaughtVfxPrefab: {fileID: 0}
+  chestDestroyDelay: 1
   mimicInitialState: IdleChest
   holdMimicInitialStateUntilInteraction: 0
   chestOpenTrigger: Open
   mimicScaredTrigger: Scare
   mimicRunTrigger: Run
+  mimicCaughtTrigger: 
   mimicScaredDelay: 1
-  mimicFleeSeconds: 60
-  mimicFleeDistance: 100
+  mimicFleeSeconds: 30
+  mimicCatchGraceSeconds: 1.5
   mimicFleeSpeed: 5
+  mimicWaypointSearchRadius: 8
+  mimicMinWaypointDistance: 3
+  mimicRepathInterval: 0.75
+  mimicStuckSeconds: 0.5
+  mimicDoorOpenRadius: 2.5
+  mimicRouteDoorsToOpen: []
+  autoFindAvailableRouteDoors: 1
+  mimicRunningLoopClip: {fileID: 8300000, guid: ae0e39eb66b77b646b05305a114f68e7, type: 3}
+  mimicRunningLoopVolume: 1
+  switchMusicDuringMimicFlee: 1
 --- !u!1001 &1083637381
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -199165,6 +199180,7 @@ MonoBehaviour:
   workdayClip: {fileID: 8300000, guid: 92989a9d24beb3f4e862958fb453cd7d, type: 3}
   eveningClip: {fileID: 8300000, guid: 6c5938a0c7a49ad45b4504297c2a989c, type: 3}
   gameOverClip: {fileID: 8300000, guid: fbf3859db6fa7464ba4f4168c88f227e, type: 3}
+  mimicChaseClip: {fileID: 0}
 --- !u!1001 &1860468037
 PrefabInstance:
   m_ObjectHideFlags: 0
