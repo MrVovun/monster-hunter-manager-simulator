@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3557612453331786922}
   - component: {fileID: 7486294046858627943}
   - component: {fileID: 5429983165370401958}
+  - component: {fileID: 2048020930243059474}
   m_Layer: 0
   m_Name: TreasureChest
   m_TagString: Untagged
@@ -121,6 +122,67 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 43712935247479840, guid: 802468847cf231546b257d88823c9c35, type: 2}
+--- !u!114 &2048020930243059474
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 652704635636142108}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 470d9d7abee883d4c995499dfd84e827, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BonusChestInteractable
+  interactionType: 2
+  locksPlayer: 0
+  useCustomCamera: 0
+  interactionPrompt: '[E] Open Chest'
+  tutorialActionId: 
+  playInteractionFeedback: 1
+  disableHudDuringInteraction: 0
+  hideNotificationFeedDuringInteraction: 0
+  hudRootsToDisable: []
+  customCamera: {fileID: 0}
+  isMimic: 0
+  animator: {fileID: 0}
+  navAgent: {fileID: 0}
+  initialState: 
+  holdInitialStateUntilInteraction: 1
+  openTrigger: Open
+  scaredTrigger: SenseSomethingST
+  runTrigger: Run
+  caughtTrigger: 
+  vfxAnchor: {fileID: 0}
+  openVfxPrefab: {fileID: 0}
+  openVfxObject: {fileID: 7187715463850733650}
+  caughtVfxPrefab: {fileID: 0}
+  chestDestroyDelay: 4
+  destroyMimicOnCatch: 1
+  mimicCaughtDestroyDelay: 0.25
+  lidTransform: {fileID: 3854091578049838563}
+  lidOpenEulerOffset: {x: -75, y: 0, z: 0}
+  lidOpenSeconds: 0.45
+  mimicCatchInteractionPrompt: '[E] Catch Mimic'
+  scaredDelay: 0.75
+  fleeSeconds: 4
+  catchGraceSeconds: 1.5
+  fleeSpeed: 3.5
+  fleeTurnSpeed: 720
+  waypointSearchRadius: 8
+  minWaypointDistance: 3
+  targetSearchAttempts: 16
+  repathInterval: 0.75
+  stuckSeconds: 0.5
+  stuckMoveThreshold: 0.05
+  doorOpenRadius: 2.5
+  routeDoorsToOpen: []
+  autoFindAvailableRouteDoors: 1
+  mimicLoopAudioSource: {fileID: 0}
+  runningLoopClip: {fileID: 0}
+  runningLoopVolume: 1
+  musicManager: {fileID: 0}
+  switchMusicDuringMimicFlee: 1
 --- !u!1 &3360014538363774891
 GameObject:
   m_ObjectHideFlags: 0

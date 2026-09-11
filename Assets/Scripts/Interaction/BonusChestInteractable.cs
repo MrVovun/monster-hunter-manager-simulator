@@ -6,37 +6,6 @@ using UnityEngine.Serialization;
 
 public class BonusChestInteractable : Interactable
 {
-    [System.Serializable]
-    public struct Settings
-    {
-        public bool IsMimic;
-        public string InteractionPrompt;
-        public string MimicCatchInteractionPrompt;
-        public string InitialState;
-        public string OpenTrigger;
-        public string ScaredTrigger;
-        public string RunTrigger;
-        public string CaughtTrigger;
-        public float ScaredDelay;
-        public float FleeSeconds;
-        public float CatchGraceSeconds;
-        public float FleeSpeed;
-        public float WaypointSearchRadius;
-        public float MinWaypointDistance;
-        public float RepathInterval;
-        public float StuckSeconds;
-        public float DoorOpenRadius;
-        public GameObject OpenVfxPrefab;
-        public GameObject CaughtVfxPrefab;
-        public float ChestDestroyDelay;
-        public AudioClip RunningLoopClip;
-        public float RunningLoopVolume;
-        public bool SwitchMusicDuringMimicFlee;
-        public List<GuildDoorController> RouteDoorsToOpen;
-        public bool AutoFindAvailableRouteDoors;
-        public bool HoldInitialStateUntilInteraction;
-    }
-
     private enum RewardChestState
     {
         Ready,
@@ -63,10 +32,17 @@ public class BonusChestInteractable : Interactable
     [Header("VFX")]
     [SerializeField] private Transform vfxAnchor;
     [SerializeField] private GameObject openVfxPrefab;
+    [Tooltip("Optional inactive VFX object already placed under the chest prefab. It will be activated and its particle systems replayed on open.")]
+    [SerializeField] private GameObject openVfxObject;
     [SerializeField] private GameObject caughtVfxPrefab;
     [SerializeField] private float chestDestroyDelay = 1f;
     [SerializeField] private bool destroyMimicOnCatch = true;
     [SerializeField] private float mimicCaughtDestroyDelay = 0.25f;
+
+    [Header("Simple Lid Animation")]
+    [SerializeField] private Transform lidTransform;
+    [SerializeField] private Vector3 lidOpenEulerOffset = new Vector3(-75f, 0f, 0f);
+    [SerializeField] private float lidOpenSeconds = 0.45f;
 
     [Header("Mimic Flee")]
     [SerializeField] private string mimicCatchInteractionPrompt = "[E] Catch Mimic";
@@ -98,9 +74,11 @@ public class BonusChestInteractable : Interactable
 
     private RewardChestState state = RewardChestState.Ready;
     private Coroutine mimicRoutine;
+    private Coroutine lidRoutine;
     private bool catchAvailable;
     private string defaultInteractionPrompt;
     private GuildDoorController[] cachedAutoRouteDoors;
+    private Quaternion closedLidRotation;
 
     private void Reset()
     {
@@ -114,8 +92,13 @@ public class BonusChestInteractable : Interactable
     {
         CacheComponents();
         defaultInteractionPrompt = interactionPrompt;
+        if (lidTransform != null)
+        {
+            closedLidRotation = lidTransform.localRotation;
+        }
         interactionType = InteractionType.Trigger;
         locksPlayer = false;
+        ResetInteractionState();
     }
 
     private void OnDisable()
@@ -123,38 +106,10 @@ public class BonusChestInteractable : Interactable
         StopMimicAudioAndMusic();
     }
 
-    public void Initialize(Settings settings)
+    private void ResetInteractionState()
     {
-        CacheComponents();
-        isMimic = settings.IsMimic;
-        defaultInteractionPrompt = string.IsNullOrWhiteSpace(settings.InteractionPrompt) ? "[E] Open Chest" : settings.InteractionPrompt;
         interactionPrompt = defaultInteractionPrompt;
-        mimicCatchInteractionPrompt = string.IsNullOrWhiteSpace(settings.MimicCatchInteractionPrompt) ? mimicCatchInteractionPrompt : settings.MimicCatchInteractionPrompt;
-        initialState = settings.InitialState;
-        openTrigger = settings.OpenTrigger;
-        scaredTrigger = settings.ScaredTrigger;
-        runTrigger = settings.RunTrigger;
-        caughtTrigger = settings.CaughtTrigger;
-        scaredDelay = Mathf.Max(0f, settings.ScaredDelay);
-        fleeSeconds = Mathf.Max(0.1f, settings.FleeSeconds);
-        catchGraceSeconds = Mathf.Max(0f, settings.CatchGraceSeconds);
-        fleeSpeed = Mathf.Max(0.1f, settings.FleeSpeed);
-        waypointSearchRadius = Mathf.Max(0.5f, settings.WaypointSearchRadius);
-        minWaypointDistance = Mathf.Clamp(settings.MinWaypointDistance, 0.1f, waypointSearchRadius);
-        repathInterval = Mathf.Max(0.1f, settings.RepathInterval);
-        stuckSeconds = Mathf.Max(0.1f, settings.StuckSeconds);
-        doorOpenRadius = Mathf.Max(0.1f, settings.DoorOpenRadius);
-        openVfxPrefab = settings.OpenVfxPrefab;
-        caughtVfxPrefab = settings.CaughtVfxPrefab;
-        chestDestroyDelay = Mathf.Max(0f, settings.ChestDestroyDelay);
-        runningLoopClip = settings.RunningLoopClip;
-        runningLoopVolume = Mathf.Clamp01(settings.RunningLoopVolume);
-        switchMusicDuringMimicFlee = settings.SwitchMusicDuringMimicFlee;
-        routeDoorsToOpen = settings.RouteDoorsToOpen ?? routeDoorsToOpen;
-        autoFindAvailableRouteDoors = settings.AutoFindAvailableRouteDoors;
-        holdInitialStateUntilInteraction = settings.HoldInitialStateUntilInteraction;
-        interactionType = InteractionType.Trigger;
-        locksPlayer = false;
+        catchAvailable = false;
 
         if (isMimic)
         {
@@ -215,7 +170,8 @@ public class BonusChestInteractable : Interactable
     {
         state = RewardChestState.NormalOpening;
         PlayAnimation(openTrigger);
-        SpawnVfx(openVfxPrefab);
+        PlaySimpleLidAnimation();
+        PlayOpenVfx();
         OnInteractionEnd(player);
         Destroy(gameObject, chestDestroyDelay);
     }
@@ -483,12 +439,67 @@ public class BonusChestInteractable : Interactable
         }
     }
 
+    private void PlaySimpleLidAnimation()
+    {
+        if (lidTransform == null || lidOpenSeconds <= 0f) return;
+
+        if (lidRoutine != null)
+        {
+            StopCoroutine(lidRoutine);
+        }
+
+        lidRoutine = StartCoroutine(OpenLidRoutine());
+    }
+
+    private IEnumerator OpenLidRoutine()
+    {
+        Quaternion startRotation = lidTransform.localRotation;
+        Quaternion targetRotation = closedLidRotation * Quaternion.Euler(lidOpenEulerOffset);
+        float duration = Mathf.Max(0.01f, lidOpenSeconds);
+
+        for (float elapsed = 0f; elapsed < duration; elapsed += Time.deltaTime)
+        {
+            float t = Mathf.Clamp01(elapsed / duration);
+            t = Mathf.SmoothStep(0f, 1f, t);
+            lidTransform.localRotation = Quaternion.Slerp(startRotation, targetRotation, t);
+            yield return null;
+        }
+
+        lidTransform.localRotation = targetRotation;
+        lidRoutine = null;
+    }
+
+    private void PlayOpenVfx()
+    {
+        if (openVfxObject != null)
+        {
+            openVfxObject.SetActive(true);
+            PlayParticleSystems(openVfxObject);
+        }
+
+        SpawnVfx(openVfxPrefab);
+    }
+
     private void SpawnVfx(GameObject prefab)
     {
         if (prefab == null) return;
 
         Transform anchor = vfxAnchor != null ? vfxAnchor : transform;
-        Instantiate(prefab, anchor.position, anchor.rotation);
+        GameObject instance = Instantiate(prefab, anchor.position, anchor.rotation);
+        PlayParticleSystems(instance);
+    }
+
+    private void PlayParticleSystems(GameObject root)
+    {
+        if (root == null) return;
+
+        var particleSystems = root.GetComponentsInChildren<ParticleSystem>(true);
+        foreach (var particleSystem in particleSystems)
+        {
+            if (particleSystem == null) continue;
+            particleSystem.Clear(true);
+            particleSystem.Play(true);
+        }
     }
 
     private void FaceDirection(Vector3 direction, bool instant)
