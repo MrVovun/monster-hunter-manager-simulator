@@ -154,9 +154,8 @@ MonoBehaviour:
   runTrigger: Run
   caughtTrigger: 
   vfxAnchor: {fileID: 0}
-  openVfxPrefab: {fileID: 0}
   openVfxObject: {fileID: 7187715463850733650}
-  caughtVfxPrefab: {fileID: 0}
+  caughtVfxObject: {fileID: 0}
   chestDestroyDelay: 4
   destroyMimicOnCatch: 1
   mimicCaughtDestroyDelay: 0.25

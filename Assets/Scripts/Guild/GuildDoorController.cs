@@ -18,6 +18,8 @@ public class GuildDoorController : MonoBehaviour
     private readonly HashSet<Object> unlockSources = new HashSet<Object>();
     private bool isOpen;
 
+    public bool IsOpen => isOpen;
+
     private void Awake()
     {
         if (doorInteractable == null)

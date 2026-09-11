@@ -188,7 +188,7 @@ Transform:
   - {fileID: 2219292830553816707}
   - {fileID: 2219292830553816747}
   - {fileID: 9084781081477812681}
-  - {fileID: 933142941463849386}
+  - {fileID: 962878889510067506}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &2219292830544548193
@@ -286,32 +286,32 @@ MonoBehaviour:
   openTrigger: Open
   scaredTrigger: Scare
   runTrigger: Run
-  caughtTrigger: 
-  vfxAnchor: {fileID: 0}
-  openVfxPrefab: {fileID: 0}
+  notCaughtTrigger: Victory
+  caughtTrigger: Death
   openVfxObject: {fileID: 0}
-  caughtVfxPrefab: {fileID: 933142941463487198}
-  chestDestroyDelay: 1
+  caughtVfxObject: {fileID: 8122975394660731354}
+  chestDestroyDelay: 2
   destroyMimicOnCatch: 1
-  mimicCaughtDestroyDelay: 0.25
+  mimicCaughtDestroyDelay: 2
   lidTransform: {fileID: 0}
   lidOpenEulerOffset: {x: -75, y: 0, z: 0}
   lidOpenSeconds: 0.45
   mimicCatchInteractionPrompt: '[E] Catch Mimic'
   scaredDelay: 0.75
-  fleeSeconds: 4
+  fleeSeconds: 30
   catchGraceSeconds: 1.5
-  fleeSpeed: 3.5
+  notCaughtDestroyDelay: 2
+  fleeSpeed: 5
   fleeTurnSpeed: 720
   waypointSearchRadius: 8
-  minWaypointDistance: 3
+  minWaypointDistance: 5
   targetSearchAttempts: 16
   repathInterval: 0.75
   stuckSeconds: 0.5
   stuckMoveThreshold: 0.05
-  doorOpenRadius: 2.5
-  routeDoorsToOpen: []
-  autoFindAvailableRouteDoors: 1
+  closedDoorBlockRadius: 2
+  routeDoorsToCheck: []
+  autoFindRouteDoorsToCheck: 1
   mimicLoopAudioSource: {fileID: 3261646277110638221}
   runningLoopClip: {fileID: 8300000, guid: ae0e39eb66b77b646b05305a114f68e7, type: 3}
   runningLoopVolume: 1
@@ -1111,13 +1111,45 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!1 &8122975394660731354
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 962878889510067506}
+  m_Layer: 0
+  m_Name: VFX
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &962878889510067506
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8122975394660731354}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 933142941463849386}
+  m_Father: {fileID: 2219292830553816709}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &933142941463642352
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 2219292830553816709}
+    m_TransformParent: {fileID: 962878889510067506}
     m_Modifications:
     - target: {fileID: 172590, guid: 93c383a7bb6b65547bc569e7d7f10507, type: 3}
       propertyPath: m_Name
@@ -1125,7 +1157,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 172590, guid: 93c383a7bb6b65547bc569e7d7f10507, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 469338, guid: 93c383a7bb6b65547bc569e7d7f10507, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1149,11 +1181,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 469338, guid: 93c383a7bb6b65547bc569e7d7f10507, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 469338, guid: 93c383a7bb6b65547bc569e7d7f10507, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 469338, guid: 93c383a7bb6b65547bc569e7d7f10507, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -1204,11 +1236,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 93c383a7bb6b65547bc569e7d7f10507, type: 3}
---- !u!1 &933142941463487198 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 172590, guid: 93c383a7bb6b65547bc569e7d7f10507, type: 3}
-  m_PrefabInstance: {fileID: 933142941463642352}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &933142941463849386 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 469338, guid: 93c383a7bb6b65547bc569e7d7f10507, type: 3}

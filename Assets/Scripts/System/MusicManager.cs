@@ -112,6 +112,12 @@ public class MusicManager : MonoBehaviour
 
     public void PlayMimicChaseMusic(bool immediate = false)
     {
+        if (mimicChaseClip == null)
+        {
+            Debug.LogWarning("MusicManager: Mimic chase music requested, but Mimic Chase Clip is not assigned.", this);
+            return;
+        }
+
         PlayTemporaryOverride(mimicChaseClip, immediate);
     }
 

@@ -13,6 +13,7 @@ public class BonusChestInteractable : Interactable
         MimicDisguised,
         MimicScaring,
         MimicFleeing,
+        MimicNotCaught,
         MimicCaught
     }
 
@@ -27,14 +28,12 @@ public class BonusChestInteractable : Interactable
     [SerializeField] private string openTrigger = "Open";
     [SerializeField] private string scaredTrigger = "SenseSomethingST";
     [SerializeField] private string runTrigger = "Run";
+    [SerializeField] private string notCaughtTrigger;
     [SerializeField] private string caughtTrigger;
 
     [Header("VFX")]
-    [SerializeField] private Transform vfxAnchor;
-    [SerializeField] private GameObject openVfxPrefab;
-    [Tooltip("Optional inactive VFX object already placed under the chest prefab. It will be activated and its particle systems replayed on open.")]
     [SerializeField] private GameObject openVfxObject;
-    [SerializeField] private GameObject caughtVfxPrefab;
+    [SerializeField] private GameObject caughtVfxObject;
     [SerializeField] private float chestDestroyDelay = 1f;
     [SerializeField] private bool destroyMimicOnCatch = true;
     [SerializeField] private float mimicCaughtDestroyDelay = 0.25f;
@@ -49,6 +48,8 @@ public class BonusChestInteractable : Interactable
     [SerializeField] private float scaredDelay = 0.75f;
     [SerializeField] private float fleeSeconds = 4f;
     [SerializeField] private float catchGraceSeconds = 1.5f;
+    [FormerlySerializedAs("notCaughtReturnDelay")]
+    [SerializeField] private float notCaughtDestroyDelay = 0.75f;
     [SerializeField] private float fleeSpeed = 3.5f;
     [SerializeField] private float fleeTurnSpeed = 720f;
     [SerializeField] private float waypointSearchRadius = 8f;
@@ -58,10 +59,14 @@ public class BonusChestInteractable : Interactable
     [SerializeField] private float stuckSeconds = 0.5f;
     [SerializeField] private float stuckMoveThreshold = 0.05f;
 
-    [Header("Mimic Doors")]
-    [SerializeField] private float doorOpenRadius = 2.5f;
-    [SerializeField] private List<GuildDoorController> routeDoorsToOpen = new List<GuildDoorController>();
-    [SerializeField] private bool autoFindAvailableRouteDoors = true;
+    [Header("Mimic Door Boundaries")]
+    [FormerlySerializedAs("doorOpenRadius")]
+    [SerializeField] private float closedDoorBlockRadius = 2.5f;
+    [Tooltip("Doors the mimic should treat as boundaries. Closed doors block flee paths; open doors are allowed.")]
+    [FormerlySerializedAs("routeDoorsToOpen")]
+    [SerializeField] private List<GuildDoorController> routeDoorsToCheck = new List<GuildDoorController>();
+    [FormerlySerializedAs("autoFindAvailableRouteDoors")]
+    [SerializeField] private bool autoFindRouteDoorsToCheck = true;
 
     [Header("Mimic Audio")]
     [Tooltip("AudioSource on this mimic prefab. Leave empty to create one automatically at runtime.")]
@@ -171,7 +176,7 @@ public class BonusChestInteractable : Interactable
         state = RewardChestState.NormalOpening;
         PlayAnimation(openTrigger);
         PlaySimpleLidAnimation();
-        PlayOpenVfx();
+        PlayOpenVfx(openVfxObject);
         OnInteractionEnd(player);
         Destroy(gameObject, chestDestroyDelay);
     }
@@ -186,6 +191,7 @@ public class BonusChestInteractable : Interactable
         state = RewardChestState.MimicScaring;
         catchAvailable = false;
         interactionPrompt = defaultInteractionPrompt;
+        StartMimicChaseMusic();
         mimicRoutine = StartCoroutine(MimicFleeRoutine(player));
     }
 
@@ -203,8 +209,7 @@ public class BonusChestInteractable : Interactable
         PrepareNavAgent();
         Transform playerTransform = player != null ? player.transform : null;
         SetNewFleeDestination(playerTransform);
-        OpenAvailableRouteDoors();
-        StartMimicAudioAndMusic();
+        StartMimicRunningAudio();
         OnInteractionEnd(player);
 
         Vector3 lastPosition = transform.position;
@@ -223,7 +228,6 @@ public class BonusChestInteractable : Interactable
                 interactionPrompt = mimicCatchInteractionPrompt;
             }
 
-            OpenAvailableRouteDoors();
             repathTimer += deltaTime;
 
             if (HasMovedEnough(lastPosition))
@@ -262,7 +266,7 @@ public class BonusChestInteractable : Interactable
         StopMovement();
         StopMimicAudioAndMusic();
         PlayAnimation(caughtTrigger);
-        SpawnVfx(caughtVfxPrefab);
+        PlayOpenVfx(caughtVfxObject);
         OnInteractionEnd(player);
 
         if (destroyMimicOnCatch)
@@ -283,8 +287,23 @@ public class BonusChestInteractable : Interactable
 
         if (catchFail)
         {
-            ReturnToDisguise();
+            StartCoroutine(DestroyAfterNotCaught());
         }
+    }
+
+    private IEnumerator DestroyAfterNotCaught()
+    {
+        state = RewardChestState.MimicNotCaught;
+        catchAvailable = false;
+        interactionPrompt = defaultInteractionPrompt;
+        PlayAnimation(notCaughtTrigger);
+
+        if (notCaughtDestroyDelay > 0f)
+        {
+            yield return new WaitForSeconds(notCaughtDestroyDelay);
+        }
+
+        Destroy(gameObject);
     }
 
     private void ReturnToDisguise()
@@ -349,6 +368,7 @@ public class BonusChestInteractable : Interactable
             NavMeshPath path = new NavMeshPath();
             if (!navAgent.CalculatePath(hit.position, path)) continue;
             if (path.status != NavMeshPathStatus.PathComplete) continue;
+            if (PathPassesThroughClosedDoor(path)) continue;
 
             FaceDirection(hit.position - transform.position, true);
             navAgent.SetDestination(hit.position);
@@ -366,17 +386,22 @@ public class BonusChestInteractable : Interactable
         navAgent.isStopped = true;
     }
 
-    private void OpenAvailableRouteDoors()
+    private bool PathPassesThroughClosedDoor(NavMeshPath path)
     {
-        if (routeDoorsToOpen != null)
+        if (closedDoorBlockRadius <= 0f || path == null || path.corners == null || path.corners.Length < 2)
         {
-            foreach (var door in routeDoorsToOpen)
+            return false;
+        }
+
+        if (routeDoorsToCheck != null)
+        {
+            foreach (var door in routeDoorsToCheck)
             {
-                OpenDoorIfNear(door);
+                if (PathPassesThroughClosedDoor(path, door)) return true;
             }
         }
 
-        if (!autoFindAvailableRouteDoors) return;
+        if (!autoFindRouteDoorsToCheck) return false;
 
         if (cachedAutoRouteDoors == null)
         {
@@ -385,22 +410,49 @@ public class BonusChestInteractable : Interactable
 
         foreach (var door in cachedAutoRouteDoors)
         {
-            OpenDoorIfNear(door);
+            if (PathPassesThroughClosedDoor(path, door)) return true;
         }
+
+        return false;
     }
 
-    private void OpenDoorIfNear(GuildDoorController door)
+    private bool PathPassesThroughClosedDoor(NavMeshPath path, GuildDoorController door)
     {
-        if (door == null) return;
+        if (door == null || door.IsOpen) return false;
 
-        Vector3 delta = door.transform.position - transform.position;
-        delta.y = 0f;
-        if (delta.sqrMagnitude > doorOpenRadius * doorOpenRadius) return;
+        Vector3 doorPosition = door.transform.position;
+        float radiusSquared = closedDoorBlockRadius * closedDoorBlockRadius;
+        for (int i = 0; i < path.corners.Length - 1; i++)
+        {
+            if (DistanceSquaredToPathSegment(doorPosition, path.corners[i], path.corners[i + 1]) <= radiusSquared)
+            {
+                return true;
+            }
+        }
 
-        door.OpenForAvailableRoute();
+        return false;
     }
 
-    private void StartMimicAudioAndMusic()
+    private float DistanceSquaredToPathSegment(Vector3 point, Vector3 segmentStart, Vector3 segmentEnd)
+    {
+        point.y = 0f;
+        segmentStart.y = 0f;
+        segmentEnd.y = 0f;
+
+        Vector3 segment = segmentEnd - segmentStart;
+        float segmentLengthSquared = segment.sqrMagnitude;
+        if (segmentLengthSquared <= 0.0001f)
+        {
+            return (point - segmentStart).sqrMagnitude;
+        }
+
+        float t = Vector3.Dot(point - segmentStart, segment) / segmentLengthSquared;
+        t = Mathf.Clamp01(t);
+        Vector3 closestPoint = segmentStart + segment * t;
+        return (point - closestPoint).sqrMagnitude;
+    }
+
+    private void StartMimicRunningAudio()
     {
         if (runningLoopClip != null)
         {
@@ -415,15 +467,13 @@ public class BonusChestInteractable : Interactable
             mimicLoopAudioSource.playOnAwake = false;
             mimicLoopAudioSource.Play();
         }
+    }
 
+    private void StartMimicChaseMusic()
+    {
         if (!switchMusicDuringMimicFlee) return;
 
-        if (musicManager == null)
-        {
-            musicManager = SceneLookup.Find<MusicManager>();
-        }
-
-        musicManager?.PlayMimicChaseMusic();
+        ResolveMusicManager()?.PlayMimicChaseMusic();
     }
 
     private void StopMimicAudioAndMusic()
@@ -437,6 +487,19 @@ public class BonusChestInteractable : Interactable
         {
             musicManager.ClearTemporaryOverride();
         }
+    }
+
+    private MusicManager ResolveMusicManager()
+    {
+        if (musicManager != null) return musicManager;
+
+        musicManager = SceneLookup.Find<MusicManager>(true);
+        if (musicManager == null)
+        {
+            Debug.LogWarning("BonusChestInteractable: Cannot switch to mimic chase music because no MusicManager was found in the scene.", this);
+        }
+
+        return musicManager;
     }
 
     private void PlaySimpleLidAnimation()
@@ -469,24 +532,13 @@ public class BonusChestInteractable : Interactable
         lidRoutine = null;
     }
 
-    private void PlayOpenVfx()
+    private void PlayOpenVfx(GameObject vfxObject)
     {
-        if (openVfxObject != null)
+        if (vfxObject != null)
         {
-            openVfxObject.SetActive(true);
-            PlayParticleSystems(openVfxObject);
+            vfxObject.SetActive(true);
+            PlayParticleSystems(vfxObject);
         }
-
-        SpawnVfx(openVfxPrefab);
-    }
-
-    private void SpawnVfx(GameObject prefab)
-    {
-        if (prefab == null) return;
-
-        Transform anchor = vfxAnchor != null ? vfxAnchor : transform;
-        GameObject instance = Instantiate(prefab, anchor.position, anchor.rotation);
-        PlayParticleSystems(instance);
     }
 
     private void PlayParticleSystems(GameObject root)
@@ -523,11 +575,6 @@ public class BonusChestInteractable : Interactable
         if (navAgent == null)
         {
             navAgent = GetComponent<NavMeshAgent>();
-        }
-
-        if (vfxAnchor == null)
-        {
-            vfxAnchor = transform;
         }
     }
 
