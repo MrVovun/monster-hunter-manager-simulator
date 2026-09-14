@@ -309,7 +309,7 @@ MonoBehaviour:
   repathInterval: 0.75
   stuckSeconds: 0.5
   stuckMoveThreshold: 0.05
-  closedDoorBlockRadius: 2
+  closedDoorBlockRadius: 0.8
   routeDoorsToCheck: []
   autoFindRouteDoorsToCheck: 1
   mimicLoopAudioSource: {fileID: 3261646277110638221}

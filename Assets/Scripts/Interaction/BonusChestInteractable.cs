@@ -61,7 +61,7 @@ public class BonusChestInteractable : Interactable
 
     [Header("Mimic Door Boundaries")]
     [FormerlySerializedAs("doorOpenRadius")]
-    [SerializeField] private float closedDoorBlockRadius = 2.5f;
+    [SerializeField] private float closedDoorBlockRadius = 0.8f;
     [Tooltip("Doors the mimic should treat as boundaries. Closed doors block flee paths; open doors are allowed.")]
     [FormerlySerializedAs("routeDoorsToOpen")]
     [SerializeField] private List<GuildDoorController> routeDoorsToCheck = new List<GuildDoorController>();
@@ -358,8 +358,7 @@ public class BonusChestInteractable : Interactable
 
         for (int i = 0; i < targetSearchAttempts; i++)
         {
-            float angle = i == 0 ? 0f : Random.Range(-140f, 140f);
-            Vector3 direction = Quaternion.AngleAxis(angle, Vector3.up) * away;
+            Vector3 direction = GetFleeSearchDirection(away, i);
             float distance = Random.Range(minWaypointDistance, waypointSearchRadius);
             Vector3 candidate = transform.position + direction * distance;
 
@@ -376,6 +375,20 @@ public class BonusChestInteractable : Interactable
         }
 
         return false;
+    }
+
+    private Vector3 GetFleeSearchDirection(Vector3 away, int attemptIndex)
+    {
+        if (attemptIndex == 0) return away;
+
+        Vector2 randomCircle = Random.insideUnitCircle.normalized;
+        if (randomCircle.sqrMagnitude < 0.01f)
+        {
+            float angle = Random.Range(0f, 360f);
+            return Quaternion.AngleAxis(angle, Vector3.up) * away;
+        }
+
+        return new Vector3(randomCircle.x, 0f, randomCircle.y);
     }
 
     private void StopMovement()
@@ -424,13 +437,49 @@ public class BonusChestInteractable : Interactable
         float radiusSquared = closedDoorBlockRadius * closedDoorBlockRadius;
         for (int i = 0; i < path.corners.Length - 1; i++)
         {
-            if (DistanceSquaredToPathSegment(doorPosition, path.corners[i], path.corners[i + 1]) <= radiusSquared)
+            Vector3 segmentStart = path.corners[i];
+            Vector3 segmentEnd = path.corners[i + 1];
+            if (DistanceSquaredToPathSegment(doorPosition, segmentStart, segmentEnd) > radiusSquared)
+            {
+                continue;
+            }
+
+            if (SegmentCrossesDoorPlane(door, segmentStart, segmentEnd))
             {
                 return true;
             }
         }
 
         return false;
+    }
+
+    private bool SegmentCrossesDoorPlane(GuildDoorController door, Vector3 segmentStart, Vector3 segmentEnd)
+    {
+        Vector3 doorPosition = door.transform.position;
+        Vector3 forward = door.transform.forward;
+        forward.y = 0f;
+        Vector3 right = door.transform.right;
+        right.y = 0f;
+
+        bool crossesForwardPlane = CrossesPlaneAtPoint(segmentStart, segmentEnd, doorPosition, forward);
+        bool crossesRightPlane = CrossesPlaneAtPoint(segmentStart, segmentEnd, doorPosition, right);
+        return crossesForwardPlane || crossesRightPlane;
+    }
+
+    private bool CrossesPlaneAtPoint(Vector3 segmentStart, Vector3 segmentEnd, Vector3 planePoint, Vector3 planeNormal)
+    {
+        if (planeNormal.sqrMagnitude < 0.001f) return false;
+
+        planeNormal.Normalize();
+        segmentStart.y = 0f;
+        segmentEnd.y = 0f;
+        planePoint.y = 0f;
+
+        float startSide = Vector3.Dot(segmentStart - planePoint, planeNormal);
+        float endSide = Vector3.Dot(segmentEnd - planePoint, planeNormal);
+        const float sideEpsilon = 0.05f;
+        return startSide < -sideEpsilon && endSide > sideEpsilon
+            || startSide > sideEpsilon && endSide < -sideEpsilon;
     }
 
     private float DistanceSquaredToPathSegment(Vector3 point, Vector3 segmentStart, Vector3 segmentEnd)
