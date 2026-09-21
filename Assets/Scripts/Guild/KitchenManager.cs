@@ -515,7 +515,7 @@ public class KitchenManager : MonoBehaviour
         }
 
         ClearCarriedPlate(hunter);
-        bool played = hunter.PlayCustomAnimation(eatingClip, eatingClip != null && eatingClip.loop ? null : () => CompleteHunterEating(hunter));
+        bool played = hunter.PlaySeatedCustomAnimation(eatingClip, eatingClip != null && eatingClip.loop ? null : () => CompleteHunterEating(hunter));
         if (!played)
         {
             StartCoroutine(CompleteEatingAfterDelay(hunter, fallbackEatingSeconds));

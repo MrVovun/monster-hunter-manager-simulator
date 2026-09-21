@@ -331,7 +331,7 @@ public class SharedCharacterAnimator : MonoBehaviour
         RestoreClipRotation();
     }
 
-    private bool PlayClip(AnimationClip clip, float duration = -1f, float speedOverride = 1f, bool loop = false, System.Action onComplete = null, Vector3? localRotationOffset = null, AvatarMask avatarMask = null)
+    private bool PlayClip(AnimationClip clip, float duration = -1f, float speedOverride = 1f, bool loop = false, System.Action onComplete = null, Vector3? localRotationOffset = null, AvatarMask avatarMask = null, AnimationClip maskedBaseClip = null)
     {
         if (clip == null || animator == null) return false;
         StopClipPlayback();
@@ -351,7 +351,24 @@ public class SharedCharacterAnimator : MonoBehaviour
         playable.SetTime(0);
         playable.SetSpeed(baseSpeed * Mathf.Max(0.01f, speedOverride));
 
-        if (avatarMask != null && animator.runtimeAnimatorController != null)
+        if (avatarMask != null && maskedBaseClip != null)
+        {
+            var basePlayable = AnimationClipPlayable.Create(dialogueGraph, maskedBaseClip);
+            basePlayable.SetApplyFootIK(false);
+            basePlayable.SetApplyPlayableIK(false);
+            basePlayable.SetDuration(double.PositiveInfinity);
+            basePlayable.SetTime(0);
+            basePlayable.SetSpeed(1f);
+
+            var mixer = AnimationLayerMixerPlayable.Create(dialogueGraph, 2);
+            dialogueGraph.Connect(basePlayable, 0, mixer, 0);
+            dialogueGraph.Connect(playable, 0, mixer, 1);
+            mixer.SetInputWeight(0, 1f);
+            mixer.SetInputWeight(1, 1f);
+            mixer.SetLayerMaskFromAvatarMask(1, avatarMask);
+            output.SetSourcePlayable(mixer);
+        }
+        else if (avatarMask != null && animator.runtimeAnimatorController != null)
         {
             var controllerPlayable = AnimatorControllerPlayable.Create(dialogueGraph, animator.runtimeAnimatorController);
             var mixer = AnimationLayerMixerPlayable.Create(dialogueGraph, 2);
@@ -434,6 +451,25 @@ public class SharedCharacterAnimator : MonoBehaviour
     {
         if (!useClipPlayback) return false;
         return PlayClipEntry(entry, onComplete);
+    }
+
+    public bool PlaySeatedCustomClip(ClipEntry entry, System.Action onComplete = null)
+    {
+        if (!useClipPlayback || entry == null || entry.clip == null) return false;
+        if (entry.avatarMask == null || seatedIdleLoopClip == null || seatedIdleLoopClip.clip == null)
+        {
+            return PlayClipEntry(entry, onComplete);
+        }
+
+        return PlayClip(
+            entry.clip,
+            -1f,
+            entry.speed <= 0f ? 1f : entry.speed,
+            entry.loop,
+            onComplete,
+            entry.localRotationOffset,
+            entry.avatarMask,
+            seatedIdleLoopClip.clip);
     }
 
     public bool PlayLayDownClip(System.Action onComplete = null)

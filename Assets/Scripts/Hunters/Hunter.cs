@@ -448,6 +448,11 @@ public class Hunter : MonoBehaviour
         return sharedAnimator != null && sharedAnimator.PlayCustomClip(clip, onComplete);
     }
 
+    public bool PlaySeatedCustomAnimation(SharedCharacterAnimator.ClipEntry clip, System.Action onComplete = null)
+    {
+        return sharedAnimator != null && sharedAnimator.PlaySeatedCustomClip(clip, onComplete);
+    }
+
     public void StopCustomAnimation()
     {
         sharedAnimator?.StopClipPlayback();
