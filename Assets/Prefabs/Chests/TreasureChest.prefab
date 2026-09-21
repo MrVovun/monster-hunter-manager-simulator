@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 7486294046858627943}
   - component: {fileID: 5429983165370401958}
   - component: {fileID: 2048020930243059474}
+  - component: {fileID: -1224060522632371297}
   m_Layer: 0
   m_Name: TreasureChest
   m_TagString: Untagged
@@ -152,8 +153,8 @@ MonoBehaviour:
   openTrigger: Open
   scaredTrigger: SenseSomethingST
   runTrigger: Run
+  notCaughtTrigger: 
   caughtTrigger: 
-  vfxAnchor: {fileID: 0}
   openVfxObject: {fileID: 7187715463850733650}
   caughtVfxObject: {fileID: 0}
   chestDestroyDelay: 4
@@ -166,6 +167,7 @@ MonoBehaviour:
   scaredDelay: 0.75
   fleeSeconds: 4
   catchGraceSeconds: 1.5
+  notCaughtDestroyDelay: 0.75
   fleeSpeed: 3.5
   fleeTurnSpeed: 720
   waypointSearchRadius: 8
@@ -174,14 +176,44 @@ MonoBehaviour:
   repathInterval: 0.75
   stuckSeconds: 0.5
   stuckMoveThreshold: 0.05
-  doorOpenRadius: 2.5
-  routeDoorsToOpen: []
-  autoFindAvailableRouteDoors: 1
+  closedDoorBlockRadius: 2.5
+  routeDoorsToCheck: []
+  autoFindRouteDoorsToCheck: 1
   mimicLoopAudioSource: {fileID: 0}
   runningLoopClip: {fileID: 0}
   runningLoopVolume: 1
   musicManager: {fileID: 0}
   switchMusicDuringMimicFlee: 1
+--- !u!114 &-1224060522632371297
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 652704635636142108}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 934d53ac87766b4428ca5250f8a30ad8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlobShadowProjector
+  createVisualIfMissing: 1
+  shadowVisual: {fileID: 0}
+  shadowRenderer: {fileID: 0}
+  shadowMaterial: {fileID: 0}
+  shadowColor: {r: 0, g: 0, b: 0, a: 0.45}
+  baseSize: {x: 0.85, y: 0.5}
+  groundLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  raycastStartHeight: 1
+  raycastDistance: 4
+  groundOffset: 0.015
+  alignToGroundNormal: 1
+  hideWhenNoGround: 1
+  fadeStartHeight: 0.05
+  fadeEndHeight: 1.5
+  minScale: 0.75
+  maxScale: 1.25
 --- !u!1 &3360014538363774891
 GameObject:
   m_ObjectHideFlags: 0

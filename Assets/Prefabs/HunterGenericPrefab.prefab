@@ -258,6 +258,10 @@ MonoBehaviour:
   faceLookOffset: {x: 0, y: 0, z: 0}
   hideNotificationsDuringDialogue: 1
   healVfx: {fileID: 1785531118582403841}
+  injectMorningDialogueOption: 1
+  morningDialogueQuestionId: morning_whats_new
+  morningDialogueQuestionText: What's new?
+  repeatedMorningDialoguePrefix: As I said earlier,
   cardGameUI: {fileID: 0}
   injectCardGameDialogueOption: 1
   cardGameQuestionId: play_cards

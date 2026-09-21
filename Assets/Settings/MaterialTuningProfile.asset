@@ -1,0 +1,686 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 962571d1312927644ae313d1c00beb66, type: 3}
+  m_Name: MaterialTuningProfile
+  m_EditorClassIdentifier: Assembly-CSharp-Editor::TrailerMaterialTuningProfile
+  captureOriginalsOnApply: 1
+  groups:
+  - groupName: Characters
+    enabled: 1
+    materials:
+    - {fileID: 2100000, guid: 17254957a35b81b40879fb3bf7e73283, type: 2}
+    - {fileID: 2100000, guid: c21371c5415f1e64fbc0e8e4b0b8da2b, type: 2}
+    - {fileID: 2100000, guid: 744cfbb07ac6b8c4f831386b6c8d620c, type: 2}
+    - {fileID: 2100000, guid: 2f97cc9871b2e2a4fbccc513a81426a0, type: 2}
+    - {fileID: 2100000, guid: bbc0bc1770b7d734da47c9bc6c381493, type: 2}
+    - {fileID: 2100000, guid: 0bfad1d1623fa2f429dc78e00166d181, type: 2}
+    - {fileID: 2100000, guid: a76bed222203cbd40bae5e61655555e9, type: 2}
+    - {fileID: 2100000, guid: 4a95f5ef1d08d7a438fc02a8d58d25c5, type: 2}
+    - {fileID: 2100000, guid: 7ce669283e9742842ab70b7f418a63bc, type: 2}
+    - {fileID: 2100000, guid: 931e3b538ac35f34aa05859114d827bb, type: 2}
+    - {fileID: 2100000, guid: ef6d9a69ed8ee914989798fae2518ed2, type: 2}
+    - {fileID: 2100000, guid: 614b6163bbc15b84b9d5f5365357d6a2, type: 2}
+    - {fileID: 2100000, guid: e5f5a60b8d1d6894d9863b87316d0d6a, type: 2}
+    - {fileID: 2100000, guid: e48b212da23e60f49adb3521f2778457, type: 2}
+    - {fileID: 2100000, guid: 875b57c15791b664a8b4a0491b25154b, type: 2}
+    - {fileID: 2100000, guid: f314b482211821f4db794932cc2b8fed, type: 2}
+    - {fileID: 2100000, guid: bda254f0d853b2b498f10249f86d4de6, type: 2}
+    - {fileID: 2100000, guid: 2c5902cffc1e5c3459482c8e7a96e226, type: 2}
+    - {fileID: 2100000, guid: 4dbee84223847ae4592fa2089a6dd0b2, type: 2}
+    - {fileID: 2100000, guid: b3b5d66f030112a479880bfeb91db1ec, type: 2}
+    - {fileID: 2100000, guid: db7a0822babb6aa44bcf842862886443, type: 2}
+    - {fileID: 2100000, guid: 016b1e3b65c692d43b7c1628bdc57151, type: 2}
+    - {fileID: 2100000, guid: 53ebbd29b5cc782428b85a7b49dd1ca9, type: 2}
+    - {fileID: 2100000, guid: 91f9e83d500b0fd4b9c0c48b65c8a3fd, type: 2}
+    - {fileID: 2100000, guid: 334bb063c74bd4749878fd1380704fa7, type: 2}
+    - {fileID: 2100000, guid: 44fecc866b581654ba140cfae2b68e14, type: 2}
+    - {fileID: 2100000, guid: d5766ca7a6a87604a804bd61da517e6f, type: 2}
+    - {fileID: 2100000, guid: 1ff1fe2a69739344caf10e49c76d15df, type: 2}
+    - {fileID: 2100000, guid: 1a572ad2f0d75d54e92915d3a996577e, type: 2}
+    - {fileID: 2100000, guid: 0ab5d4ab8c50505438a1d412a25818a5, type: 2}
+    - {fileID: 2100000, guid: 42eeeeebd5d28d443abf8f7c6ecba371, type: 2}
+    - {fileID: 2100000, guid: 55d587ea3ec39f041ae9811c2463b9fc, type: 2}
+    - {fileID: 2100000, guid: 449956f351df07e4bb8cd4ad9eac8dde, type: 2}
+    - {fileID: 2100000, guid: 5bd760b0c13bbff45acf7c410fac511c, type: 2}
+    - {fileID: 2100000, guid: f86089649cd6a5940a43b0191eaabf85, type: 2}
+    affectBaseColor: 1
+    brightness: 0.9
+    saturation: 0.9
+    tint: {r: 0.95, g: 0.86, b: 0.74, a: 1}
+    tintWeight: 0.325
+    affectMainTexture: 0
+    textureOutputFolder: Assets/Settings/TrailerMaterialTuningTextures
+    affectSmoothness: 1
+    smoothnessMultiplier: 1
+    affectMetallic: 1
+    metallicMultiplier: 1
+    affectEmission: 1
+    emissionMultiplier: 1
+  - groupName: Trophies
+    enabled: 1
+    materials:
+    - {fileID: 2100000, guid: 3ef0bcb553bd488da28f30463f74afaf, type: 2}
+    - {fileID: 2100000, guid: 17a676c665574aa0a9e35976eb6cd674, type: 2}
+    - {fileID: 2100000, guid: c19975d7d5e54a88869dc630a5fbee28, type: 2}
+    - {fileID: 2100000, guid: 46fb776e37a243bbb882b2263522dcfb, type: 2}
+    - {fileID: 2100000, guid: 6723be8cdee44449b8119517cb64a388, type: 2}
+    - {fileID: 2100000, guid: 0f1f917eb0b54d398a818b9df5200546, type: 2}
+    - {fileID: 2100000, guid: c406b28846794b2db6df354d27189356, type: 2}
+    - {fileID: 2100000, guid: 3d58b432f4f447e48b4616f72c965ad2, type: 2}
+    affectBaseColor: 1
+    brightness: 1
+    saturation: 1
+    tint: {r: 0, g: 0, b: 0, a: 1}
+    tintWeight: 0
+    affectMainTexture: 1
+    textureOutputFolder: Assets/Settings/TrailerMaterialTuningTextures
+    affectSmoothness: 1
+    smoothnessMultiplier: 1
+    affectMetallic: 1
+    metallicMultiplier: 1
+    affectEmission: 0
+    emissionMultiplier: 0
+  - groupName: Environment
+    enabled: 1
+    materials: []
+    affectBaseColor: 1
+    brightness: 1
+    saturation: 0.95
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    tintWeight: 0
+    affectMainTexture: 0
+    textureOutputFolder: Assets/Settings/TrailerMaterialTuningTextures
+    affectSmoothness: 1
+    smoothnessMultiplier: 0.9
+    affectMetallic: 1
+    metallicMultiplier: 1
+    affectEmission: 0
+    emissionMultiplier: 1
+  originalSnapshots:
+  - material: {fileID: 2100000, guid: 3ef0bcb553bd488da28f30463f74afaf, type: 2}
+    colors:
+    - propertyName: _BaseColor
+      value: {r: 0.85456777, g: 0.85456777, b: 0.85456777, a: 1}
+    - propertyName: _Color
+      value: {r: 0.85456777, g: 0.85456777, b: 0.85456777, a: 1}
+    - propertyName: _EmissionColor
+      value: {r: 11.984314, g: 11.984314, b: 11.984314, a: 1}
+    floats:
+    - propertyName: _Smoothness
+      value: 0.512
+    - propertyName: _Glossiness
+      value: 0.256
+    - propertyName: _Metallic
+      value: 0
+    textures: []
+  - material: {fileID: 2100000, guid: 17a676c665574aa0a9e35976eb6cd674, type: 2}
+    colors: []
+    floats: []
+    textures: []
+  - material: {fileID: 2100000, guid: c19975d7d5e54a88869dc630a5fbee28, type: 2}
+    colors: []
+    floats: []
+    textures: []
+  - material: {fileID: 2100000, guid: 46fb776e37a243bbb882b2263522dcfb, type: 2}
+    colors:
+    - propertyName: _BaseColor
+      value: {r: 0, g: 0.24849054, b: 0.6288328, a: 1}
+    - propertyName: _Color
+      value: {r: 0, g: 0.24849051, b: 0.6288328, a: 1}
+    - propertyName: _EmissionColor
+      value: {r: 0, g: 0, b: 0, a: 1}
+    floats:
+    - propertyName: _Smoothness
+      value: 0
+    - propertyName: _Glossiness
+      value: 0
+    - propertyName: _Metallic
+      value: 0
+    textures: []
+  - material: {fileID: 2100000, guid: 6723be8cdee44449b8119517cb64a388, type: 2}
+    colors:
+    - propertyName: _BaseColor
+      value: {r: 0.85456777, g: 0.85456777, b: 0.85456777, a: 1}
+    - propertyName: _Color
+      value: {r: 0.85456777, g: 0.85456777, b: 0.85456777, a: 1}
+    - propertyName: _EmissionColor
+      value: {r: 23.968628, g: 23.968628, b: 23.968628, a: 1}
+    floats:
+    - propertyName: _Smoothness
+      value: 0.512
+    - propertyName: _Metallic
+      value: 0
+    textures: []
+  - material: {fileID: 2100000, guid: 0f1f917eb0b54d398a818b9df5200546, type: 2}
+    colors:
+    - propertyName: _BaseColor
+      value: {r: 0.85456777, g: 0.85456777, b: 0.85456777, a: 1}
+    - propertyName: _Color
+      value: {r: 0.85456777, g: 0.85456777, b: 0.85456777, a: 1}
+    - propertyName: _EmissionColor
+      value: {r: 1, g: 1, b: 1, a: 1}
+    floats:
+    - propertyName: _Smoothness
+      value: 0
+    - propertyName: _Metallic
+      value: 0.2999999
+    textures: []
+  - material: {fileID: 2100000, guid: c406b28846794b2db6df354d27189356, type: 2}
+    colors: []
+    floats: []
+    textures: []
+  - material: {fileID: 2100000, guid: 3d58b432f4f447e48b4616f72c965ad2, type: 2}
+    colors:
+    - propertyName: _BaseColor
+      value: {r: 0.10472245, g: 0.36278805, b: 0, a: 1}
+    - propertyName: _Color
+      value: {r: 0.10472242, g: 0.36278802, b: 0, a: 1}
+    - propertyName: _EmissionColor
+      value: {r: 0, g: 0, b: 0, a: 1}
+    floats:
+    - propertyName: _Smoothness
+      value: 0
+    - propertyName: _Glossiness
+      value: 0
+    - propertyName: _Metallic
+      value: 0
+    textures: []
+  - material: {fileID: 2100000, guid: 17254957a35b81b40879fb3bf7e73283, type: 2}
+    colors:
+    - propertyName: _BaseColor
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _Color
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _EmissionColor
+      value: {r: 0, g: 0, b: 0, a: 1}
+    floats:
+    - propertyName: _Smoothness
+      value: 0.25
+    - propertyName: _Metallic
+      value: 0.5
+    textures: []
+  - material: {fileID: 2100000, guid: c21371c5415f1e64fbc0e8e4b0b8da2b, type: 2}
+    colors:
+    - propertyName: _BaseColor
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _Color
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _EmissionColor
+      value: {r: 0, g: 0, b: 0, a: 1}
+    floats:
+    - propertyName: _Smoothness
+      value: 0.25
+    - propertyName: _Metallic
+      value: 0.5
+    textures: []
+  - material: {fileID: 2100000, guid: 744cfbb07ac6b8c4f831386b6c8d620c, type: 2}
+    colors:
+    - propertyName: _BaseColor
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _Color
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _EmissionColor
+      value: {r: 0, g: 0, b: 0, a: 1}
+    floats:
+    - propertyName: _Smoothness
+      value: 0.25
+    - propertyName: _Metallic
+      value: 0.5
+    textures: []
+  - material: {fileID: 2100000, guid: 2f97cc9871b2e2a4fbccc513a81426a0, type: 2}
+    colors:
+    - propertyName: _BaseColor
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _Color
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _EmissionColor
+      value: {r: 0, g: 0, b: 0, a: 1}
+    floats:
+    - propertyName: _Smoothness
+      value: 0.25
+    - propertyName: _Metallic
+      value: 0.5
+    textures: []
+  - material: {fileID: 2100000, guid: bbc0bc1770b7d734da47c9bc6c381493, type: 2}
+    colors:
+    - propertyName: _BaseColor
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _Color
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _EmissionColor
+      value: {r: 0, g: 0, b: 0, a: 1}
+    floats:
+    - propertyName: _Smoothness
+      value: 0.25
+    - propertyName: _Metallic
+      value: 0.5
+    textures: []
+  - material: {fileID: 2100000, guid: 0bfad1d1623fa2f429dc78e00166d181, type: 2}
+    colors:
+    - propertyName: _BaseColor
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _Color
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _EmissionColor
+      value: {r: 0, g: 0, b: 0, a: 1}
+    floats:
+    - propertyName: _Smoothness
+      value: 0.65
+    - propertyName: _Metallic
+      value: 0.5
+    textures: []
+  - material: {fileID: 2100000, guid: a76bed222203cbd40bae5e61655555e9, type: 2}
+    colors:
+    - propertyName: _BaseColor
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _Color
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _EmissionColor
+      value: {r: 0, g: 0, b: 0, a: 1}
+    floats:
+    - propertyName: _Smoothness
+      value: 0.65
+    - propertyName: _Metallic
+      value: 0.5
+    textures: []
+  - material: {fileID: 2100000, guid: 4a95f5ef1d08d7a438fc02a8d58d25c5, type: 2}
+    colors:
+    - propertyName: _BaseColor
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _Color
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _EmissionColor
+      value: {r: 0, g: 0, b: 0, a: 1}
+    floats:
+    - propertyName: _Smoothness
+      value: 0.5
+    - propertyName: _Metallic
+      value: 0.5
+    textures: []
+  - material: {fileID: 2100000, guid: 7ce669283e9742842ab70b7f418a63bc, type: 2}
+    colors:
+    - propertyName: _BaseColor
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _Color
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _EmissionColor
+      value: {r: 0, g: 0, b: 0, a: 1}
+    floats:
+    - propertyName: _Smoothness
+      value: 0.65
+    - propertyName: _Metallic
+      value: 0.5
+    textures: []
+  - material: {fileID: 2100000, guid: 931e3b538ac35f34aa05859114d827bb, type: 2}
+    colors:
+    - propertyName: _BaseColor
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _Color
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _EmissionColor
+      value: {r: 0, g: 0, b: 0, a: 1}
+    floats:
+    - propertyName: _Smoothness
+      value: 0.5
+    - propertyName: _Metallic
+      value: 0.5
+    textures: []
+  - material: {fileID: 2100000, guid: ef6d9a69ed8ee914989798fae2518ed2, type: 2}
+    colors:
+    - propertyName: _BaseColor
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _Color
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _EmissionColor
+      value: {r: 0, g: 0, b: 0, a: 1}
+    floats:
+    - propertyName: _Smoothness
+      value: 0.65
+    - propertyName: _Metallic
+      value: 0.5
+    textures: []
+  - material: {fileID: 2100000, guid: 614b6163bbc15b84b9d5f5365357d6a2, type: 2}
+    colors:
+    - propertyName: _BaseColor
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _Color
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _EmissionColor
+      value: {r: 0, g: 0, b: 0, a: 1}
+    floats:
+    - propertyName: _Smoothness
+      value: 0.5
+    - propertyName: _Metallic
+      value: 0.5
+    textures: []
+  - material: {fileID: 2100000, guid: e5f5a60b8d1d6894d9863b87316d0d6a, type: 2}
+    colors:
+    - propertyName: _BaseColor
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _Color
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _EmissionColor
+      value: {r: 0, g: 0, b: 0, a: 1}
+    floats:
+    - propertyName: _Smoothness
+      value: 0.6
+    - propertyName: _Metallic
+      value: 0.5
+    textures: []
+  - material: {fileID: 2100000, guid: e48b212da23e60f49adb3521f2778457, type: 2}
+    colors:
+    - propertyName: _BaseColor
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _Color
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _EmissionColor
+      value: {r: 0, g: 0, b: 0, a: 1}
+    floats:
+    - propertyName: _Smoothness
+      value: 0.65
+    - propertyName: _Metallic
+      value: 0.5
+    textures: []
+  - material: {fileID: 2100000, guid: 875b57c15791b664a8b4a0491b25154b, type: 2}
+    colors:
+    - propertyName: _BaseColor
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _Color
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _EmissionColor
+      value: {r: 0, g: 0, b: 0, a: 1}
+    floats:
+    - propertyName: _Smoothness
+      value: 0.55
+    - propertyName: _Metallic
+      value: 0
+    textures: []
+  - material: {fileID: 2100000, guid: f314b482211821f4db794932cc2b8fed, type: 2}
+    colors:
+    - propertyName: _BaseColor
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _Color
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _EmissionColor
+      value: {r: 0, g: 0, b: 0, a: 1}
+    floats:
+    - propertyName: _Smoothness
+      value: 0.55
+    - propertyName: _Metallic
+      value: 0
+    textures: []
+  - material: {fileID: 2100000, guid: bda254f0d853b2b498f10249f86d4de6, type: 2}
+    colors:
+    - propertyName: _BaseColor
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _Color
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _EmissionColor
+      value: {r: 0, g: 0, b: 0, a: 1}
+    floats:
+    - propertyName: _Smoothness
+      value: 0.55
+    - propertyName: _Metallic
+      value: 0
+    textures: []
+  - material: {fileID: 2100000, guid: 2c5902cffc1e5c3459482c8e7a96e226, type: 2}
+    colors:
+    - propertyName: _BaseColor
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _Color
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _EmissionColor
+      value: {r: 0, g: 0, b: 0, a: 1}
+    floats:
+    - propertyName: _Smoothness
+      value: 0.55
+    - propertyName: _Metallic
+      value: 0
+    textures: []
+  - material: {fileID: 2100000, guid: 4dbee84223847ae4592fa2089a6dd0b2, type: 2}
+    colors:
+    - propertyName: _BaseColor
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _Color
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _EmissionColor
+      value: {r: 0, g: 0, b: 0, a: 1}
+    floats:
+    - propertyName: _Smoothness
+      value: 0.55
+    - propertyName: _Metallic
+      value: 0
+    textures: []
+  - material: {fileID: 2100000, guid: b3b5d66f030112a479880bfeb91db1ec, type: 2}
+    colors:
+    - propertyName: _BaseColor
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _Color
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _EmissionColor
+      value: {r: 0, g: 0, b: 0, a: 1}
+    floats:
+    - propertyName: _Smoothness
+      value: 0.55
+    - propertyName: _Metallic
+      value: 0
+    textures: []
+  - material: {fileID: 2100000, guid: db7a0822babb6aa44bcf842862886443, type: 2}
+    colors:
+    - propertyName: _BaseColor
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _Color
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _EmissionColor
+      value: {r: 0, g: 0, b: 0, a: 1}
+    floats:
+    - propertyName: _Smoothness
+      value: 0.5
+    - propertyName: _Metallic
+      value: 0
+    textures: []
+  - material: {fileID: 2100000, guid: 016b1e3b65c692d43b7c1628bdc57151, type: 2}
+    colors:
+    - propertyName: _BaseColor
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _Color
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _EmissionColor
+      value: {r: 0, g: 0, b: 0, a: 1}
+    floats:
+    - propertyName: _Smoothness
+      value: 0.55
+    - propertyName: _Metallic
+      value: 0
+    textures: []
+  - material: {fileID: 2100000, guid: 53ebbd29b5cc782428b85a7b49dd1ca9, type: 2}
+    colors:
+    - propertyName: _BaseColor
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _Color
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _EmissionColor
+      value: {r: 0, g: 0, b: 0, a: 1}
+    floats:
+    - propertyName: _Smoothness
+      value: 0.55
+    - propertyName: _Metallic
+      value: 0
+    textures: []
+  - material: {fileID: 2100000, guid: 91f9e83d500b0fd4b9c0c48b65c8a3fd, type: 2}
+    colors:
+    - propertyName: _BaseColor
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _Color
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _EmissionColor
+      value: {r: 1, g: 1, b: 1, a: 1}
+    floats:
+    - propertyName: _Smoothness
+      value: 1
+    - propertyName: _Metallic
+      value: 0
+    textures: []
+  - material: {fileID: 2100000, guid: 334bb063c74bd4749878fd1380704fa7, type: 2}
+    colors:
+    - propertyName: _BaseColor
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _Color
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _EmissionColor
+      value: {r: 0, g: 0, b: 0, a: 1}
+    floats:
+    - propertyName: _Smoothness
+      value: 0.4
+    - propertyName: _Metallic
+      value: 0
+    textures: []
+  - material: {fileID: 2100000, guid: 44fecc866b581654ba140cfae2b68e14, type: 2}
+    colors:
+    - propertyName: _BaseColor
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _Color
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _EmissionColor
+      value: {r: 0, g: 0, b: 0, a: 1}
+    floats:
+    - propertyName: _Smoothness
+      value: 0.4
+    - propertyName: _Metallic
+      value: 0
+    textures: []
+  - material: {fileID: 2100000, guid: d5766ca7a6a87604a804bd61da517e6f, type: 2}
+    colors:
+    - propertyName: _BaseColor
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _Color
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _EmissionColor
+      value: {r: 0, g: 0, b: 0, a: 1}
+    floats:
+    - propertyName: _Smoothness
+      value: 0.5
+    - propertyName: _Metallic
+      value: 0
+    textures: []
+  - material: {fileID: 2100000, guid: 1ff1fe2a69739344caf10e49c76d15df, type: 2}
+    colors:
+    - propertyName: _BaseColor
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _Color
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _EmissionColor
+      value: {r: 0, g: 0, b: 0, a: 1}
+    floats:
+    - propertyName: _Smoothness
+      value: 0.5
+    - propertyName: _Metallic
+      value: 0
+    textures: []
+  - material: {fileID: 2100000, guid: 1a572ad2f0d75d54e92915d3a996577e, type: 2}
+    colors:
+    - propertyName: _BaseColor
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _Color
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _EmissionColor
+      value: {r: 0, g: 0, b: 0, a: 1}
+    floats:
+    - propertyName: _Smoothness
+      value: 0.5
+    - propertyName: _Metallic
+      value: 0
+    textures: []
+  - material: {fileID: 2100000, guid: 0ab5d4ab8c50505438a1d412a25818a5, type: 2}
+    colors:
+    - propertyName: _BaseColor
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _Color
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _EmissionColor
+      value: {r: 0, g: 0, b: 0, a: 1}
+    floats:
+    - propertyName: _Smoothness
+      value: 0.5
+    - propertyName: _Metallic
+      value: 0
+    textures: []
+  - material: {fileID: 2100000, guid: 42eeeeebd5d28d443abf8f7c6ecba371, type: 2}
+    colors:
+    - propertyName: _BaseColor
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _Color
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _EmissionColor
+      value: {r: 0, g: 0, b: 0, a: 1}
+    floats:
+    - propertyName: _Smoothness
+      value: 0.5
+    - propertyName: _Metallic
+      value: 0
+    textures: []
+  - material: {fileID: 2100000, guid: 55d587ea3ec39f041ae9811c2463b9fc, type: 2}
+    colors:
+    - propertyName: _BaseColor
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _Color
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _EmissionColor
+      value: {r: 0, g: 0, b: 0, a: 1}
+    floats:
+    - propertyName: _Smoothness
+      value: 0.5
+    - propertyName: _Metallic
+      value: 0
+    textures: []
+  - material: {fileID: 2100000, guid: 449956f351df07e4bb8cd4ad9eac8dde, type: 2}
+    colors:
+    - propertyName: _BaseColor
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _Color
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _EmissionColor
+      value: {r: 0, g: 0, b: 0, a: 1}
+    floats:
+    - propertyName: _Smoothness
+      value: 0.4
+    - propertyName: _Metallic
+      value: 0
+    textures: []
+  - material: {fileID: 2100000, guid: 5bd760b0c13bbff45acf7c410fac511c, type: 2}
+    colors:
+    - propertyName: _BaseColor
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _Color
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _EmissionColor
+      value: {r: 0, g: 0, b: 0, a: 1}
+    floats:
+    - propertyName: _Smoothness
+      value: 0.4
+    - propertyName: _Metallic
+      value: 0
+    textures: []
+  - material: {fileID: 2100000, guid: f86089649cd6a5940a43b0191eaabf85, type: 2}
+    colors:
+    - propertyName: _BaseColor
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _Color
+      value: {r: 1, g: 1, b: 1, a: 1}
+    - propertyName: _EmissionColor
+      value: {r: 0, g: 0, b: 0, a: 1}
+    floats:
+    - propertyName: _Smoothness
+      value: 0.4
+    - propertyName: _Metallic
+      value: 0
+    textures: []
