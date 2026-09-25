@@ -18,7 +18,7 @@ MonoBehaviour:
   faceTypeId: 1
   hairStyleId: 1
   hairColorId: 1
-  skinId: 1
+  skinId: 4
   eyeColorId: 1
   facialHairId: 3
   bustSizeId: 2

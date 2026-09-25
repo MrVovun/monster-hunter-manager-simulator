@@ -111925,6 +111925,7 @@ MonoBehaviour:
   clientProfiles:
   - {fileID: 11400000, guid: 2cdf72bfa74ddd046afb17c83b82a246, type: 2}
   - {fileID: 11400000, guid: a386fdc52ecc16142beb2fc924c5c91e, type: 2}
+  - {fileID: 11400000, guid: ab6b0f67e865c8d4f97769bcf6c7621c, type: 2}
   clientSpawner: {fileID: 1906810805}
   orderOfferPanel: {fileID: 227315564}
   dialogueUI: {fileID: 1812149749}
