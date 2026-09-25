@@ -59,6 +59,7 @@ public static class GameSaveUtility
     {
         "GuildDormitoryState",
         "GuildKitchenState",
+        "MainHallFloorDirt",
         "tutorial.disabled",
         "tutorial.completed.first_session",
         "tutorial.progress.first_session.step",

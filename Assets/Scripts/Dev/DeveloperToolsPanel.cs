@@ -53,6 +53,7 @@ public class DeveloperToolsPanel : MonoBehaviour
 
     private int selectedTrophyMonsterIndex;
     private int addKillAmount = 1;
+    private int dirtAdjustment = 5;
 
     private GUIStyle headerStyle;
     private bool cursorModified;
@@ -153,6 +154,8 @@ public class DeveloperToolsPanel : MonoBehaviour
         scrollPosition = GUILayout.BeginScrollView(scrollPosition, false, true);
         DrawGlobalSection();
         GUILayout.Space(8f);
+        DrawFloorDirtSection();
+        GUILayout.Space(8f);
         DrawCinematicSection();
         GUILayout.Space(8f);
         DrawHunterSection();
@@ -192,6 +195,25 @@ public class DeveloperToolsPanel : MonoBehaviour
         Cursor.lockState = cachedLockMode;
         Cursor.visible = cachedCursorVisible;
         cursorModified = false;
+    }
+
+    private void DrawFloorDirtSection()
+    {
+        GUILayout.Label("Floor Dirt", headerStyle);
+        var dirt = MainHallFloorDirtManager.Instance;
+        if (dirt == null)
+        {
+            GUILayout.Label("Floor dirt manager not found.");
+            return;
+        }
+
+        GUILayout.Label($"Dirt: {dirt.DirtPoints} / {dirt.MaxDirtPoints} | Reward penalty: {dirt.CurrentRewardPenaltyPercent:0.##}%");
+        dirtAdjustment = Mathf.Max(1, IntField("Dirt points", dirtAdjustment));
+        GUILayout.BeginHorizontal();
+        if (GUILayout.Button("Add dirt")) dirt.AdjustDirtPoints(dirtAdjustment);
+        if (GUILayout.Button("Deduct dirt")) dirt.AdjustDirtPoints(-dirtAdjustment);
+        if (GUILayout.Button("Clear dirt")) dirt.AdjustDirtPoints(-dirt.DirtPoints);
+        GUILayout.EndHorizontal();
     }
 
     private void DrawGlobalSection()

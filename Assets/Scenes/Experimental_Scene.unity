@@ -227580,6 +227580,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2117179571}
   - component: {fileID: 2117179572}
+  - component: {fileID: 2117179573}
   m_Layer: 0
   m_Name: DirtManager
   m_TagString: Untagged
@@ -227602,6 +227603,29 @@ Transform:
   m_Children: []
   m_Father: {fileID: 995848291}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2117179573
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2117179570}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ca7bdb2e80b27649bbe827eed46d97e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WashFloorInteractable
+  interactionType: 2
+  locksPlayer: 0
+  useCustomCamera: 0
+  interactionPrompt: '[E] Clean Floor'
+  tutorialActionId: 
+  playInteractionFeedback: 1
+  disableHudDuringInteraction: 0
+  hideNotificationFeedDuringInteraction: 0
+  hudRootsToDisable: []
+  customCamera: {fileID: 0}
+  dirtManager: {fileID: 2117179572}
 --- !u!114 &2117179572
 MonoBehaviour:
   m_ObjectHideFlags: 0

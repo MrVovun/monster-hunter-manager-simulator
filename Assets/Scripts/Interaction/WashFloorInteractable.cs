@@ -11,6 +11,11 @@ public class WashFloorInteractable : Interactable
         locksPlayer = false;
     }
 
+    public void SetDirtManager(MainHallFloorDirtManager manager)
+    {
+        dirtManager = manager;
+    }
+
     public override bool IsInteractionAvailable()
     {
         ResolveReferences();
@@ -47,11 +52,10 @@ public class WashFloorInteractable : Interactable
     public override void Interact(PlayerInteraction player)
     {
         ResolveReferences();
-        if (dirtManager == null || !dirtManager.CanClean()) return;
-
-        OnInteractionStart(player);
-        dirtManager.TryCleanFloor();
-        OnInteractionEnd(player);
+        if (player == null || !IsInteractionAvailable()) return;
+        var cleaning = player.GetComponent<PlayerFloorCleaning>();
+        if (cleaning == null || !cleaning.TryStartCleaning(dirtManager, locksPlayer)) return;
+        InteractionFeedbackManager.PlayInteraction(player.transform.position);
     }
 
     private void ResolveReferences()

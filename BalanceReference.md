@@ -98,7 +98,11 @@ Floor washing is handled by `MainHallFloorDirtManager`:
 washTime = baseWashSeconds + dirtPoints * extraWashSecondsPerDirtPoint
 ```
 
-If `useConfigBaseWashTime` is enabled, `baseWashSeconds` comes from `GameConfig.actionTimeSettings.washFloorSeconds`. The script default is `5`. The current `GameConfig.asset` should be opened and saved once in Unity so this newer field becomes visible in the asset.
+If `useConfigBaseWashTime` is enabled, `baseWashSeconds` comes from `GameConfig.actionTimeSettings.washFloorSeconds`, currently serialized as `5`.
+
+Floor cleaning has a separate presentation duration: `PlayerFloorCleaning.cleaningDurationSeconds`, currently `3` real seconds regardless of dirt amount. The player targets an active dirt decal volume and presses the normal interaction key. The player's broom loops its Animator sweep clip; movement/look locking is controlled by the scene `WashFloorInteractable` and is off by default. Pausing freezes the sequence. On completion, all dirt clears and the calculated action-time cost is charged once. Disabling the player/cleaning component or leaving the scene before completion cancels the wash without clearing dirt or spending action time. Cleaning is available only during the active workday.
+
+Setup and verification notes are in [Assets/Docs/FloorCleaning.md](Assets/Docs/FloorCleaning.md).
 
 ## Order Generation And Mission Duration
 

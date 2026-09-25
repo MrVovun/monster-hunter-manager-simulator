@@ -12,10 +12,12 @@ public class PlayerInteraction : MonoBehaviour
 
     private Interactable currentInteractable;
     private FirstPersonController fpsController;
+    private PlayerFloorCleaning floorCleaning;
 
     private void Awake()
     {
         fpsController = GetComponent<FirstPersonController>();
+        floorCleaning = GetComponent<PlayerFloorCleaning>();
         if (playerCamera == null)
         {
             var fpsCam = fpsController != null ? fpsController.GetPlayerCamera() : null;
@@ -30,6 +32,14 @@ public class PlayerInteraction : MonoBehaviour
 
     private void Update()
     {
+        // Cleaning can allow walking/looking, but other interactions must wait until it finishes.
+        if (floorCleaning != null && floorCleaning.IsCleaning)
+        {
+            currentInteractable?.OnPlayerExit();
+            currentInteractable = null;
+            InteractionPromptUI.Instance?.HidePrompt();
+            return;
+        }
         UpdateFocus();
 
         if (fpsController != null && fpsController.IsMovementLocked())
@@ -64,28 +74,28 @@ public class PlayerInteraction : MonoBehaviour
         if (cam == null) return;
 
         Ray ray = new Ray(cam.transform.position, cam.transform.forward);
+        Interactable nextInteractable = null;
+        float focusDistance = interactionRange;
         if (Physics.Raycast(ray, out RaycastHit hit, interactionRange, interactionMask, QueryTriggerInteraction.Collide))
         {
-            Interactable interactable = hit.collider.GetComponentInParent<Interactable>();
-            if (interactable != null && interactable.isActiveAndEnabled)
-            {
-                if (interactable != currentInteractable)
-                {
-                    currentInteractable?.OnPlayerExit();
-                    currentInteractable = interactable;
-                    currentInteractable.OnPlayerEnter();
-                }
-            }
-            else if (currentInteractable != null)
-            {
-                currentInteractable.OnPlayerExit();
-                currentInteractable = null;
-            }
+            focusDistance = hit.distance;
+            nextInteractable = hit.collider.GetComponentInParent<Interactable>();
+            if (nextInteractable != null && !nextInteractable.isActiveAndEnabled) nextInteractable = null;
         }
-        else if (currentInteractable != null)
+
+        // Prefer an existing interactable (for example a plate or a bell) over dirt.
+        var dirt = MainHallFloorDirtManager.Instance;
+        if (nextInteractable == null && dirt != null &&
+            dirt.TryGetCleaningTarget(ray, focusDistance, interactionMask, out Interactable cleaningTarget))
         {
-            currentInteractable.OnPlayerExit();
-            currentInteractable = null;
+            nextInteractable = cleaningTarget;
+        }
+
+        if (nextInteractable != currentInteractable)
+        {
+            currentInteractable?.OnPlayerExit();
+            currentInteractable = nextInteractable;
+            currentInteractable?.OnPlayerEnter();
         }
 
         UpdatePrompt();

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 public class MainHallFloorDirtManager : MonoBehaviour
 {
@@ -39,8 +40,11 @@ public class MainHallFloorDirtManager : MonoBehaviour
     [SerializeField] private List<DirtVisualThreshold> visualThresholds = new List<DirtVisualThreshold>();
 
     private int dirtPoints;
+    private readonly List<DecalProjector> dirtProjectors = new List<DecalProjector>();
+    private WashFloorInteractable cleaningInteraction;
 
     public int DirtPoints => dirtPoints;
+    public int MaxDirtPoints => Mathf.Max(0, maxDirtPoints);
     public float CurrentRewardPenaltyPercent => CalculateRewardPenaltyPercent();
 
     public event Action OnDirtChanged;
@@ -53,6 +57,7 @@ public class MainHallFloorDirtManager : MonoBehaviour
         }
 
         Instance = this;
+        CacheCleaningVolumes();
         LoadState();
         RefreshVisuals();
     }
@@ -98,9 +103,14 @@ public class MainHallFloorDirtManager : MonoBehaviour
 
     public void AddDirt(int amount)
     {
-        if (amount <= 0 || maxDirtPoints <= 0) return;
+        if (amount > 0) AdjustDirtPoints(amount);
+    }
+
+    // Signed adjustment for developer tools; updates the same saved state and visuals as gameplay.
+    public void AdjustDirtPoints(int delta)
+    {
         int previous = dirtPoints;
-        dirtPoints = Mathf.Clamp(dirtPoints + amount, 0, maxDirtPoints);
+        dirtPoints = (int)Math.Max(0L, Math.Min((long)dirtPoints + delta, MaxDirtPoints));
         if (dirtPoints == previous) return;
 
         SaveState();
@@ -110,7 +120,7 @@ public class MainHallFloorDirtManager : MonoBehaviour
 
     public bool CanClean()
     {
-        if (dirtPoints <= 0) return false;
+        if (!isActiveAndEnabled || dirtPoints <= 0) return false;
         TimeManager timeManager = GameManager.Instance != null ? GameManager.Instance.GetTimeManager() : null;
         return timeManager != null && timeManager.GetDayState() == TimeManager.DayState.Active;
     }
@@ -120,13 +130,65 @@ public class MainHallFloorDirtManager : MonoBehaviour
         if (!CanClean()) return false;
 
         TimeManager timeManager = GameManager.Instance != null ? GameManager.Instance.GetTimeManager() : null;
-        timeManager?.AdvanceTime(GetCleanTimeSeconds());
+        float actionSeconds = GetCleanTimeSeconds();
 
         dirtPoints = 0;
         SaveState();
         RefreshVisuals();
         OnDirtChanged?.Invoke();
+        timeManager?.AdvanceTime(actionSeconds);
         return true;
+    }
+
+    private void CacheCleaningVolumes()
+    {
+        cleaningInteraction = GetComponent<WashFloorInteractable>();
+        if (cleaningInteraction != null) cleaningInteraction.SetDirtManager(this);
+
+        dirtProjectors.Clear();
+        if (visualThresholds == null) return;
+        foreach (var threshold in visualThresholds)
+        {
+            if (threshold?.visualRoot == null) continue;
+            foreach (var projector in threshold.visualRoot.GetComponentsInChildren<DecalProjector>(true))
+            {
+                if (!dirtProjectors.Contains(projector)) dirtProjectors.Add(projector);
+            }
+        }
+    }
+
+    // Projector volumes have no physics colliders. Test them separately, up to the
+    // nearest normal raycast hit, so walls and other interactables still block focus.
+    public bool TryGetCleaningTarget(Ray ray, float maxDistance, LayerMask mask, out Interactable target)
+    {
+        target = null;
+        if (!isActiveAndEnabled || dirtPoints <= 0 || cleaningInteraction == null || !cleaningInteraction.isActiveAndEnabled) return false;
+
+        foreach (var projector in dirtProjectors)
+        {
+            if (projector == null || !projector.isActiveAndEnabled || projector.fadeFactor <= 0f) continue;
+            if ((mask.value & (1 << projector.gameObject.layer)) == 0) continue;
+            if (!RayIntersectsProjector(projector, ray, maxDistance)) continue;
+            target = cleaningInteraction;
+            return true;
+        }
+        return false;
+    }
+
+    internal static bool RayIntersectsProjector(DecalProjector projector, Ray ray, float maxDistance)
+    {
+        Vector3 scale = projector.scaleMode == DecalScaleMode.InheritFromHierarchy
+            ? projector.transform.lossyScale : Vector3.one;
+        if (Mathf.Abs(scale.x * scale.y * scale.z) < 0.000001f) return false;
+
+        Matrix4x4 localToWorld = Matrix4x4.TRS(projector.transform.position, projector.transform.rotation, scale);
+        Matrix4x4 worldToLocal = localToWorld.inverse;
+        Ray localRay = new Ray(worldToLocal.MultiplyPoint3x4(ray.origin), worldToLocal.MultiplyVector(ray.direction));
+        Bounds bounds = new Bounds(projector.pivot, projector.size);
+        if (!bounds.IntersectRay(localRay, out float localDistance)) return false;
+
+        Vector3 worldHit = localToWorld.MultiplyPoint3x4(localRay.GetPoint(localDistance));
+        return Vector3.Distance(ray.origin, worldHit) <= maxDistance;
     }
 
     public float GetCleanTimeSeconds()
