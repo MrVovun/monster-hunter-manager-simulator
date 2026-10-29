@@ -98,8 +98,8 @@ MonoBehaviour:
     requiredReputation: 0
   minReputation: 1
   portrait: {fileID: 21300000, guid: b4778ecb322061e4788a4df42461620c, type: 3}
-  visualPrefab: {fileID: 1782384603142300, guid: 8054459727ee21940b6193d60eea8bf6, type: 3}
-  p09VisualPreset: {fileID: 11400000, guid: d5ac1b20de5fc134191e7f450d9826a3, type: 2}
+  visualPrefab: {fileID: 4812702466802064958, guid: 34972d523366ff04191f6709cb32f272, type: 3}
+  p09VisualPreset: {fileID: 0}
   greeting: Nerzgol bless you, Manager.
   healLine: It is supposed to be my job...
   goodbyeLine: See ya, Ysolde.

@@ -10,6 +10,7 @@
 
 ## Polishing Backlog
 
+- Establish the reusable custom-character pipeline described in `Assets/Docs/CharacterModelPipeline.md`: approve the shared Blender export-rig template, create the Unity model importer preset, add the shared 2D face animator and generic prefab validator, finish Sister Ysolde as the reference prefab, then migrate hunters without character-specific setup code.
 - Polish the floor-cleaning broom presentation after playtesting: tune the first-person broom placement, refine the outward sweep animation, assign final sweep VFX/audio at the far point of the stroke, and verify the timing feels good at the intended camera FOV.
 - Audit construction registration and remove remaining double-wiring. `GuildConstructionManager` still reads `GameConfig.guildConstructions` and scene instances; construction assets that are only in `Resources/Constructions` will not appear unless referenced by one of those paths.
 - Tune and finish newly added trait assets that need explicit balance values: Talent Scout, Earplugs, Last Stand, and Overprepared.
