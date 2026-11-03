@@ -35,6 +35,7 @@ public class InvestigationManager : MonoBehaviour
     private System.Action<InvestigationQuestion> hunterQuestionCallback;
     private System.Action hunterCloseCallback;
     private Hunter currentHunter;
+    private CharacterFaceAnimator currentHunterFaceAnimator;
     private string hunterGreetingOverride = "...";
     private Vector3 dialogueCameraBasePosition;
     private Quaternion dialogueCameraBaseRotation;
@@ -420,6 +421,41 @@ public class InvestigationManager : MonoBehaviour
         SetThinkingVfxActive(false);
     }
 
+    public void BeginDialogueFaceAnimation()
+    {
+        if (!hunterDialogueActive)
+        {
+            return;
+        }
+
+        ResolveCurrentHunterFaceAnimator()?.BeginSpeaking();
+    }
+
+    public void ShowDialogueCharacter(char character)
+    {
+        if (!hunterDialogueActive)
+        {
+            return;
+        }
+
+        ResolveCurrentHunterFaceAnimator()?.ShowCharacter(character);
+    }
+
+    public void StopDialogueFaceAnimation()
+    {
+        currentHunterFaceAnimator?.StopSpeaking();
+    }
+
+    private CharacterFaceAnimator ResolveCurrentHunterFaceAnimator()
+    {
+        if (currentHunterFaceAnimator == null && currentHunter != null)
+        {
+            currentHunterFaceAnimator = currentHunter.GetComponentInChildren<CharacterFaceAnimator>(true);
+        }
+
+        return currentHunterFaceAnimator;
+    }
+
     private void InitializeInvestigation(Order order, ClientProfile overrideProfile)
     {
         if (order == null)
@@ -534,37 +570,30 @@ public class InvestigationManager : MonoBehaviour
             return result;
         }
 
-        int knownCount = CurrentCase != null ? CurrentCase.knownTags.Count : 0;
-
-        if (CurrentCase != null && CurrentCase.knownTags != null && CurrentCase.knownTags.Count > 0)
+        if (CurrentCase != null && CurrentCase.assignedTags != null && CurrentCase.assignedTags.Count > 0)
         {
-            // Build list of all monsters that match every revealed tag
+            // The case board filters only by clues the player actively assigned.
             List<MonsterData> matching = new List<MonsterData>();
             foreach (var monster in library)
             {
                 if (monster == null) continue;
-                if (MatchesKnownTags(monster))
+                if (MatchesAssignedTags(monster))
                 {
                     matching.Add(monster);
                 }
             }
 
-            if (matching.Count > 0)
+            float slice = matching.Count > 0 ? 1f / matching.Count : 0f;
+            foreach (var monster in matching)
             {
-                float slice = 1f / matching.Count;
-                foreach (var monster in library)
-                {
-                    if (monster == null) continue;
-                    float confidence = matching.Contains(monster) ? slice : 0f;
-                    result.Add(new MonsterCandidate { monster = monster, confidence = confidence });
-                }
-
-                SortCandidates(result);
-                return result;
+                result.Add(new MonsterCandidate { monster = monster, confidence = slice });
             }
+
+            SortCandidates(result);
+            return result;
         }
 
-        // No known tags or no matches: confidence unknown (0) but still list monsters
+        // With no assigned clues, every accessible monster remains a candidate.
         foreach (var monster in library)
         {
             if (monster == null) continue;
@@ -575,26 +604,39 @@ public class InvestigationManager : MonoBehaviour
         return result;
     }
 
-    private bool MatchesKnownTags(MonsterData monster)
+    private bool MatchesAssignedTags(MonsterData monster)
     {
-        if (monster == null || CurrentCase == null || CurrentCase.knownTags == null) return false;
-        foreach (var knowledge in CurrentCase.knownTags)
+        if (monster == null || CurrentCase == null || CurrentCase.assignedTags == null) return false;
+        foreach (var knowledge in CurrentCase.assignedTags)
         {
             if (string.IsNullOrEmpty(knowledge.categoryName)) continue;
             string monsterValue = monster.GetTagValue(knowledge.categoryName);
-            if (string.IsNullOrEmpty(monsterValue)) continue;
-
-            if (string.Equals(monsterValue, knowledge.valueName, StringComparison.OrdinalIgnoreCase))
-            {
-                continue;
-            }
-            else
+            if (string.IsNullOrEmpty(monsterValue)
+                || !string.Equals(monsterValue, knowledge.valueName, StringComparison.OrdinalIgnoreCase))
             {
                 return false;
             }
         }
 
         return true;
+    }
+
+    public EvidenceTagLibrary GetEvidenceTagLibrary()
+    {
+        return tagLibrary;
+    }
+
+    public bool SetCaseClueAssigned(string categoryName, bool assigned)
+    {
+        if (CurrentCase == null || string.IsNullOrWhiteSpace(categoryName)) return false;
+        bool changed = assigned
+            ? CurrentCase.AssignKnownTag(categoryName)
+            : CurrentCase.UnassignTag(categoryName);
+        if (changed)
+        {
+            NotifyCaseUpdated();
+        }
+        return changed;
     }
 
     private void SortCandidates(List<MonsterCandidate> candidates)
@@ -691,6 +733,9 @@ public class InvestigationManager : MonoBehaviour
         hunterCloseCallback = onClosed;
         hunterResponseFinishedCallback = onResponseFinished;
         currentHunter = hunter;
+        currentHunterFaceAnimator = currentHunter != null
+            ? currentHunter.GetComponentInChildren<CharacterFaceAnimator>(true)
+            : null;
         hunterGreetingOverride = hunter != null && hunter.Data != null && !string.IsNullOrWhiteSpace(hunter.Data.greeting)
             ? hunter.Data.greeting
             : "...";
@@ -757,12 +802,14 @@ public class InvestigationManager : MonoBehaviour
 
     private void HandleHunterDialogueClosed()
     {
+        StopDialogueFaceAnimation();
         hunterDialogueActive = false;
         hunterQuestions.Clear();
         hunterAnswers.Clear();
         hunterQuestionCallback = null;
         var closeCb = hunterCloseCallback;
         hunterCloseCallback = null;
+        currentHunterFaceAnimator = null;
         closeCb?.Invoke();
         if (dialogueUI != null)
         {

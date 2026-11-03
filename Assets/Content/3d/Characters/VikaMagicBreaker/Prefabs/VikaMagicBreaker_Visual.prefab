@@ -42,7 +42,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bdbd3ce05f5b45942b56ede5c9b38364, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: MagicaClothV2::MagicaCloth2.MagicaCloth
   serializeData:
     clothType: 0
@@ -1985,6 +1985,9 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 8782715549458170458}
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: ae55f1cea27c4105a1067cb131b0c5d5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7000000000000000001}
     - targetCorrespondingSourceObject: {fileID: -2814953965640625219, guid: ae55f1cea27c4105a1067cb131b0c5d5, type: 3}
       insertIndex: -1
       addedObject: {fileID: 3291042828163039717}
@@ -2024,6 +2027,49 @@ SkinnedMeshRenderer:
   m_CorrespondingSourceObject: {fileID: -8209247616187203970, guid: ae55f1cea27c4105a1067cb131b0c5d5, type: 3}
   m_PrefabInstance: {fileID: 5623675098653205359}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &4812702466802064958 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: ae55f1cea27c4105a1067cb131b0c5d5, type: 3}
+  m_PrefabInstance: {fileID: 5623675098653205359}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &7000000000000000001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4812702466802064958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a35d608635c4b98a598cd3bbfce61cb, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterFaceAnimator
+  leftEyeRenderer: {fileID: 0}
+  rightEyeRenderer: {fileID: 0}
+  mouthRenderer: {fileID: 0}
+  findRenderersByName: 1
+  leftEyeObjectName: _EyeL
+  rightEyeObjectName: _EyeR
+  mouthObjectName: _Mouth
+  atlasColumns: 2
+  atlasRows: 2
+  textureScale: {x: 1, y: 1}
+  baseTextureOffset: {x: 0, y: 0}
+  restingEyeFrame: {x: 0, y: 0}
+  blinkEyeFrame: {x: 1, y: 1}
+  gazeEyeFrames:
+  - {x: 0, y: 0}
+  - {x: 1, y: 0}
+  - {x: 0, y: 1}
+  gazeDelayRange: {x: 1.5, y: 3.5}
+  blinkDelayRange: {x: 2.5, y: 5}
+  blinkDuration: 0.12
+  restingMouthFrame: {x: 1, y: 0}
+  speakingMouthFrames:
+  - {x: 0, y: 0}
+  - {x: 0, y: 1}
+  - {x: 1, y: 1}
+  minimumMouthFrameDuration: 0.25
 --- !u!4 &5230511045431080431 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 476762130448782976, guid: ae55f1cea27c4105a1067cb131b0c5d5, type: 3}

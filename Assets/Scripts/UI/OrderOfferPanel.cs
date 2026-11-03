@@ -44,6 +44,7 @@ public class OrderOfferPanel : MonoBehaviour
     private Action onBackAction;
     private bool backRequested;
     private readonly List<GameObject> spawnedTraitItems = new List<GameObject>();
+    private CaseBuilderView caseBuilderView;
 
     public event Action<OrderOfferPanel> OnPanelHidden;
 
@@ -65,6 +66,15 @@ public class OrderOfferPanel : MonoBehaviour
         UpdateDeclaredMonsterUI();
         UpdateActionButtons();
         UpdateDeclaredMonsterPortrait();
+        if (activeInvestigation != null && currentOrder?.investigationCase != null)
+        {
+            EnsureCaseBuilderView();
+            caseBuilderView?.Show(currentOrder, activeInvestigation);
+        }
+        else
+        {
+            caseBuilderView?.Hide();
+        }
     }
 
     private void ConfigureBackButton()
@@ -116,6 +126,7 @@ public class OrderOfferPanel : MonoBehaviour
     {
         var savedOrder = currentOrder;
         TutorialManager.OnTutorialGateChanged -= HandleTutorialGateChanged;
+        caseBuilderView?.Hide();
         SetRootActive(false);
         activeInvestigation = null;
         RestoreCursor();
@@ -140,6 +151,39 @@ public class OrderOfferPanel : MonoBehaviour
         if (currentOrder == null) return;
         UpdateActionButtons();
         UpdateDeclaredMonsterUI();
+        caseBuilderView?.Refresh();
+    }
+
+    private void EnsureCaseBuilderView()
+    {
+        if (caseBuilderView != null) return;
+        Transform parent = panelRoot != null ? panelRoot.transform : transform;
+        caseBuilderView = CaseBuilderView.Create(this, parent);
+    }
+
+    internal void RequestCaseBuilderBack()
+    {
+        HandleBackPressed();
+    }
+
+    internal void NotifyCaseBuilderSelectionChanged()
+    {
+        UpdateDeclaredMonsterUI();
+        UpdateActionButtons();
+        UpdateUI();
+    }
+
+    internal bool CanAssignCaseMonster()
+    {
+        return currentOrder != null
+            && currentOrder.declaredMonster != null
+            && CanAcceptAnotherOrder()
+            && TutorialManager.IsActionAllowed(TutorialIds.AcceptOrder);
+    }
+
+    internal string GetCaseAssignUnavailableReason()
+    {
+        return GetAcceptUnavailableReason(currentOrder != null && currentOrder.declaredMonster != null);
     }
 
     private void SetRootActive(bool active)
@@ -270,6 +314,7 @@ public class OrderOfferPanel : MonoBehaviour
             {
                 UpdateActionButtons();
                 UpdateDeclaredMonsterUI();
+                caseBuilderView?.Refresh();
                 return;
             }
         }

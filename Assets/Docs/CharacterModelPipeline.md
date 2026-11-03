@@ -6,10 +6,10 @@ The legacy `P09HumanoidPreset` field remains available while old modular hunters
 
 ## Current reference assets
 
-- `Assets/Content/3d/Characters/Template/HunterCharacterTemplate.blend` is the starting point for every new custom model.
-- `Assets/Content/3d/Characters/SisterYsolde/Source/SisterYsolde.blend` is Sister Ysolde's original editable Rigify source. It is not the reusable template.
-- `Assets/Content/3d/Characters/SisterYsolde/Model/SisterYsolde.fbx` is her generated production model for Unity. Do not model in the FBX.
-- `Assets/Content/3d/Characters/SisterYsolde/Prefabs/SisterYsolde_Visual.prefab` is her Unity integration prefab and is what `HunterData.visualPrefab` references.
+- `Assets/Content/3d/Characters/_Template/HunterCharacterTemplate.blend` is the starting point for every new custom model.
+- `Assets/Content/3d/Characters/VikaMagicBreaker/Source/VikaMagicBreaker.blend` is the editable source for the current custom character.
+- `Assets/Content/3d/Characters/VikaMagicBreaker/VikaMagicBreaker/VikaMagicBreaker.fbx` is the production model imported by Unity. Do not model in the FBX.
+- `Assets/Content/3d/Characters/VikaMagicBreaker/Prefabs/VikaMagicBreaker_Visual.prefab` is the Unity integration prefab. It is currently assigned to Sister Ysolde's `HunterData` for in-game testing.
 - `Tools/Blender/export_sister_ysolde_legacy.py` exists only to recover or regenerate Sister Ysolde from her old Rigify source. Do not use it for new characters.
 
 ## Asset layout
@@ -63,7 +63,10 @@ Eyes and mouth remain separate meshes with separate transparent materials. Each 
 - Use the same atlas dimensions and cell order for every character.
 - Keep the eye meshes close to the face surface without intersecting it.
 - Keep the mouth mesh separate from the head and eyes.
-- Do not bake a character-specific blink or speech implementation into a prefab. A shared face-animation component will drive atlas offsets for every character.
+- Add `CharacterFaceAnimator` to the visual prefab root. With the standard `_EyeL`, `_EyeR`, and `_Mouth` mesh names it finds the renderers automatically; explicit renderer references remain available for exceptions.
+- Atlas frame coordinates use the texture's bottom-left cell as `(0, 0)`. Configure the resting, gaze, blink, resting-mouth, and speaking-mouth frames in the prefab Inspector.
+- The component drives atlas offsets with material property blocks, so animated characters can share materials without changing one another.
+- Eye movement and blinking run while the visual is active. Hunter mouth frames are driven by the dialogue typewriter and return to the resting frame as soon as printing stops.
 
 ## FBX export
 
@@ -117,6 +120,7 @@ The prefab is the character-specific integration layer. Configure all data here:
 - Disable root motion.
 - Keep the prefab root at local position zero, identity rotation, and scale one.
 - Configure eye and mouth renderers.
+- Add and configure the shared `CharacterFaceAnimator`.
 - Add and paint MagicaCloth components.
 - Add Magica colliders and pre-build cloth data after tuning.
 - Add character-only VFX or accessories when needed.

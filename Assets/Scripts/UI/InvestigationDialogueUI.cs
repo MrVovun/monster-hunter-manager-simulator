@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using Febucci.TextAnimatorCore.Text;
 using Febucci.TextAnimatorForUnity;
 
 public class InvestigationDialogueUI : MonoBehaviour
@@ -15,6 +16,7 @@ public class InvestigationDialogueUI : MonoBehaviour
     [SerializeField] private Button acceptButton;
     [SerializeField] private Button declineButton;
     [SerializeField] private Button viewOrderButton;
+    [SerializeField] private string buildCaseButtonLabel = "Build Case";
     [SerializeField] private TypewriterComponent responseTypewriter;
     [SerializeField] private TMP_Text responseFallbackText;
     [SerializeField] private GameObject questionItemPrefab;
@@ -56,6 +58,8 @@ public class InvestigationDialogueUI : MonoBehaviour
         SetActive(false);
         if (responseTypewriter != null)
         {
+            responseTypewriter.onTypewriterStart.AddListener(HandleTypewriterStarted);
+            responseTypewriter.onCharacterVisible.AddListener(HandleCharacterVisible);
             responseTypewriter.onTextShowed.AddListener(HandleTypewriterCompleted);
         }
 
@@ -116,6 +120,11 @@ public class InvestigationDialogueUI : MonoBehaviour
         bool hunterDialogue = currentManager != null && currentManager.IsHunterDialogueActive;
         if (viewButton != null)
         {
+            TMP_Text viewButtonText = viewButton.GetComponentInChildren<TMP_Text>(true);
+            if (viewButtonText != null && !hunterDialogue)
+            {
+                viewButtonText.text = buildCaseButtonLabel;
+            }
             viewButton.onClick.RemoveAllListeners();
             viewButton.onClick.AddListener(HandleViewOrder);
             viewButton.gameObject.SetActive(!hunterDialogue);
@@ -154,6 +163,8 @@ public class InvestigationDialogueUI : MonoBehaviour
         UnsubscribeFromCaseUpdates();
         if (responseTypewriter != null)
         {
+            responseTypewriter.onTypewriterStart.RemoveListener(HandleTypewriterStarted);
+            responseTypewriter.onCharacterVisible.RemoveListener(HandleCharacterVisible);
             responseTypewriter.onTextShowed.RemoveListener(HandleTypewriterCompleted);
         }
     }
@@ -448,6 +459,7 @@ public class InvestigationDialogueUI : MonoBehaviour
         {
             responseTypewriter.StopShowingText();
         }
+        currentManager?.StopDialogueFaceAnimation();
         SetQuestionsInteractable(true);
         currentManager?.StopClientTalkingAnimation();
         UnsubscribeFromCaseUpdates();
@@ -821,9 +833,20 @@ public class InvestigationDialogueUI : MonoBehaviour
 
     private void HandleTypewriterCompleted()
     {
+        currentManager?.StopDialogueFaceAnimation();
         if (!awaitingTypewriterCompletion) return;
         awaitingTypewriterCompletion = false;
         CompleteResponsePlayback();
+    }
+
+    private void HandleTypewriterStarted()
+    {
+        currentManager?.BeginDialogueFaceAnimation();
+    }
+
+    private void HandleCharacterVisible(CharacterData character)
+    {
+        currentManager?.ShowDialogueCharacter(character.info.character);
     }
 
     private void CompleteResponsePlayback()

@@ -14,6 +14,8 @@ public class InvestigationCase
 
     [Header("Case File")]
     public List<TagKnowledge> knownTags = new List<TagKnowledge>();
+    [Tooltip("Revealed clues that the player has actively placed on the case board.")]
+    public List<TagKnowledge> assignedTags = new List<TagKnowledge>();
     public List<string> confirmedTraitIds = new List<string>();
     public List<EvidenceRecord> history = new List<EvidenceRecord>();
     public List<QuestionResponseRoll> rolledQuestionResponses = new List<QuestionResponseRoll>();
@@ -45,6 +47,12 @@ public class InvestigationCase
         }
         entry.valueName = valueId;
 
+        var assignedEntry = assignedTags?.Find(t => string.Equals(t.categoryName, categoryId, StringComparison.OrdinalIgnoreCase));
+        if (assignedEntry != null)
+        {
+            assignedEntry.valueName = valueId;
+        }
+
         if (!string.IsNullOrEmpty(summary))
         {
             history.Add(new EvidenceRecord
@@ -55,6 +63,46 @@ public class InvestigationCase
                 valueName = valueId
             });
         }
+    }
+
+    public bool IsTagAssigned(string categoryId)
+    {
+        if (string.IsNullOrEmpty(categoryId) || assignedTags == null) return false;
+        return assignedTags.Exists(t => string.Equals(t.categoryName, categoryId, StringComparison.OrdinalIgnoreCase));
+    }
+
+    public bool AssignKnownTag(string categoryId)
+    {
+        if (string.IsNullOrEmpty(categoryId) || knownTags == null) return false;
+        TagKnowledge known = knownTags.Find(t => string.Equals(t.categoryName, categoryId, StringComparison.OrdinalIgnoreCase));
+        if (known == null || string.IsNullOrWhiteSpace(known.valueName)) return false;
+
+        if (assignedTags == null)
+        {
+            assignedTags = new List<TagKnowledge>();
+        }
+
+        TagKnowledge assigned = assignedTags.Find(t => string.Equals(t.categoryName, categoryId, StringComparison.OrdinalIgnoreCase));
+        if (assigned == null)
+        {
+            assignedTags.Add(new TagKnowledge
+            {
+                categoryName = known.categoryName,
+                valueName = known.valueName
+            });
+        }
+        else
+        {
+            assigned.valueName = known.valueName;
+        }
+
+        return true;
+    }
+
+    public bool UnassignTag(string categoryId)
+    {
+        if (string.IsNullOrEmpty(categoryId) || assignedTags == null) return false;
+        return assignedTags.RemoveAll(t => string.Equals(t.categoryName, categoryId, StringComparison.OrdinalIgnoreCase)) > 0;
     }
 
     public void ConfirmTrait(MonsterTrait trait)
