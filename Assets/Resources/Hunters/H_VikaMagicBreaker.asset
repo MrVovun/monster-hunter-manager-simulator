@@ -96,8 +96,8 @@ MonoBehaviour:
     requiredReputation: 0
   minReputation: 1
   portrait: {fileID: 21300000, guid: 33eb1912af8e1a741a1872eaa349554d, type: 3}
-  visualPrefab: {fileID: 1782384603142300, guid: 88b91037f8978874d811272f9c6f27a6, type: 3}
-  p09VisualPreset: {fileID: 11400000, guid: 0581bf4df066dd24db24729ce50bbe15, type: 2}
+  visualPrefab: {fileID: 4812702466802064958, guid: 34972d523366ff04191f6709cb32f272, type: 3}
+  p09VisualPreset: {fileID: 0}
   greeting: Death to Fae!
   healLine: Death to Fae...
   goodbyeLine: Death to Fae?
